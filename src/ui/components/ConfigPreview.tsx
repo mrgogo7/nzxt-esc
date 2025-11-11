@@ -36,6 +36,7 @@ export default function ConfigPreview() {
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
+  // İlk yükleme
   useEffect(() => {
     const cfgRaw = localStorage.getItem("nzxtMediaConfig");
     const cfg = cfgRaw ? safeParse(cfgRaw) : {};
@@ -45,6 +46,7 @@ export default function ConfigPreview() {
     setSettings({ ...DEFAULTS, ...(cfg || {}) });
   }, []);
 
+  // Storage senkronizasyonu
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "media_url" && e.newValue !== null) setMediaUrl(e.newValue);
@@ -57,6 +59,7 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Kaydet
   useEffect(() => {
     const current =
       safeParse(localStorage.getItem("nzxtMediaConfig") || "{}") || {};
@@ -73,13 +76,12 @@ export default function ConfigPreview() {
   const handleChange = <K extends keyof Settings>(
     key: K,
     value: Settings[K]
-  ) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  };
+  ) => setSettings((prev) => ({ ...prev, [key]: value }));
 
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
+  // Hizalama pozisyonu
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -99,7 +101,7 @@ export default function ConfigPreview() {
   const adjY = settings.y * offsetScale;
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
-  // 🧭 fareyle sürükleme
+  // 🖱️ Sürükleme
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -111,7 +113,6 @@ export default function ConfigPreview() {
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     dragStart.current = { x: e.clientX, y: e.clientY };
-
     setSettings((prev) => ({
       ...prev,
       x: prev.x + Math.round(dx / offsetScale),
@@ -124,26 +125,27 @@ export default function ConfigPreview() {
     dragStart.current = null;
   };
 
+  // 🔧 Mouse wheel zoom (passive:false)
   useEffect(() => {
     const circle = document.querySelector(".preview-circle");
     if (!circle) return;
-  
+
     const handleWheel = (e: WheelEvent) => {
-      if (!circle.contains(e.target as Node)) return; // sadece önizleme içinde
+      if (!circle.contains(e.target as Node)) return;
       e.preventDefault();
-      const step = e.shiftKey ? 0.05 : e.ctrlKey ? 0.2 : 0.1; // hassas veya hızlı zoom
+      const step = e.shiftKey ? 0.05 : e.ctrlKey ? 0.2 : 0.1;
       const delta = e.deltaY < 0 ? step : -step;
       setSettings((prev) => {
         const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
         return { ...prev, scale: parseFloat(newScale.toFixed(2)) };
       });
     };
-  
-    // passive:false ile ekle
+
     window.addEventListener("wheel", handleWheel, { passive: false });
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // Drag event binding
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -165,7 +167,6 @@ export default function ConfigPreview() {
         <div
           className={`preview-circle ${isDragging ? "dragging" : ""}`}
           onMouseDown={handleMouseDown}
-          onWheel={handleWheel}
         >
           {isVideo ? (
             <video
@@ -181,7 +182,6 @@ export default function ConfigPreview() {
                 objectPosition,
                 transform: `scale(${settings.scale})`,
                 transformOrigin: "center center",
-                display: "block",
               }}
             />
           ) : (
@@ -196,7 +196,6 @@ export default function ConfigPreview() {
                   objectPosition,
                   transform: `scale(${settings.scale})`,
                   transformOrigin: "center center",
-                  display: "block",
                 }}
               />
             )
