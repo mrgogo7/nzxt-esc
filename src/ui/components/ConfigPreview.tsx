@@ -36,42 +36,54 @@ export default function ConfigPreview() {
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
-  // 🔹 İlk yükleme
+  // 🔹 İlk yükleme – eski ayarları koru
   useEffect(() => {
-    const cfgRaw = localStorage.getItem("nzxtMediaConfig");
-    const cfg = cfgRaw ? safeParse(cfgRaw) : {};
-    const activeUrl =
-      localStorage.getItem("media_url") || (cfg as any).url || "";
-    setMediaUrl(activeUrl);
-    setSettings({ ...DEFAULTS, ...(cfg || {}) });
+    const savedConfig = localStorage.getItem("nzxtMediaConfig");
+    const savedUrl = localStorage.getItem("media_url");
+    if (savedConfig) {
+      try {
+        const parsed = JSON.parse(savedConfig);
+        setSettings({ ...DEFAULTS, ...parsed });
+        setMediaUrl(parsed.url || savedUrl || "");
+      } catch {
+        setMediaUrl(savedUrl || "");
+        setSettings(DEFAULTS);
+      }
+    } else {
+      setMediaUrl(savedUrl || "");
+      setSettings(DEFAULTS);
+    }
   }, []);
 
-  // 🔹 LocalStorage dinleme
+  // 🔹 Storage senkronizasyonu (Config.tsx’te değişirse yakala)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === "media_url" && e.newValue !== null) setMediaUrl(e.newValue);
+      if (e.key === "media_url" && e.newValue !== null)
+        setMediaUrl(e.newValue);
       if (e.key === "nzxtMediaConfig" && e.newValue) {
-        const parsed = safeParse(e.newValue);
-        if (parsed) setSettings((prev) => ({ ...prev, ...parsed }));
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setSettings((prev) => ({ ...prev, ...parsed }));
+        } catch {
+          /* ignore */
+        }
       }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // 🔹 Değişiklikleri kaydet
+  // 🔹 Değişiklikleri kalıcı kaydet
   useEffect(() => {
-    const current =
-      safeParse(localStorage.getItem("nzxtMediaConfig") || "{}") || {};
-    const next = { ...current, ...settings, url: current.url ?? mediaUrl };
-    localStorage.setItem("nzxtMediaConfig", JSON.stringify(next));
+    const toSave = { url: mediaUrl, ...settings };
+    localStorage.setItem("nzxtMediaConfig", JSON.stringify(toSave));
     window.dispatchEvent(
       new StorageEvent("storage", {
         key: "nzxtMediaConfig",
-        newValue: JSON.stringify(next),
+        newValue: JSON.stringify(toSave),
       })
     );
-  }, [settings]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [settings, mediaUrl]);
 
   const handleChange = <K extends keyof Settings>(
     key: K,
@@ -81,7 +93,6 @@ export default function ConfigPreview() {
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
-  // 🔹 Align pozisyonu
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -101,7 +112,7 @@ export default function ConfigPreview() {
   const adjY = settings.y * offsetScale;
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
-  // 🖱️ Drag hareketi
+  // 🖱️ Drag
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -125,7 +136,7 @@ export default function ConfigPreview() {
     dragStart.current = null;
   };
 
-  // 🧭 Mouse wheel zoom (passive:false fix)
+  // 🧭 Mouse wheel zoom
   useEffect(() => {
     const circle = document.querySelector(".preview-circle");
     if (!circle) return;
@@ -145,7 +156,6 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
-  // 🧭 Drag event binding
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -160,7 +170,6 @@ export default function ConfigPreview() {
     };
   }, [isDragging]);
 
-  // 🔹 Zoom butonları
   const adjustScale = (delta: number) => {
     setSettings((prev) => {
       const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
@@ -170,15 +179,12 @@ export default function ConfigPreview() {
 
   return (
     <div className="config-wrapper">
-      {/* Sol panel: Önizleme */}
       <div className="preview-column">
         <div className="preview-title">LCD Preview</div>
-
         <div
           className={`preview-circle ${isDragging ? "dragging" : ""}`}
           onMouseDown={handleMouseDown}
         >
-          {/* Ölçek etiketi */}
           <div className="scale-label">
             Scale: {settings.scale.toFixed(2)}×
           </div>
@@ -216,7 +222,6 @@ export default function ConfigPreview() {
             )
           )}
 
-          {/* Overlay rehber */}
           {showGuide && (
             <div
               className={`overlay-guide align-${settings.align}`}
@@ -232,7 +237,6 @@ export default function ConfigPreview() {
             </div>
           )}
 
-          {/* Zoom butonları */}
           <div className="zoom-buttons">
             <button onClick={() => adjustScale(0.1)}>＋</button>
             <button onClick={() => adjustScale(-0.1)}>－</button>
@@ -240,7 +244,6 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      {/* Sağ panel: Ayarlar */}
       <div className="settings-column">
         <div className="overlay-toggle">
           <label>
