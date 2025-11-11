@@ -2,13 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'node:path'
 
-const repoName = 'nzxt-pinterest-integration'
-
 export default defineConfig({
-  base: `/${repoName}/`,
-
+  base: '/nzxt-pinterest-integration/', // 🔴 BU SATIR ŞART 🔴
   plugins: [react()],
-
   build: {
     rollupOptions: {
       input: {
