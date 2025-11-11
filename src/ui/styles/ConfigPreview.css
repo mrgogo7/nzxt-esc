@@ -67,28 +67,32 @@
   background: rgba(255,255,255,0.4);
   transform: translateX(-50%);
 }
-.zoom-buttons-inside {
+.zoom-buttons-bottom {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 8px;
   z-index: 5;
 }
-.zoom-buttons-inside button {
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.25);
-  background: rgba(0,0,0,0.4);
+
+.zoom-buttons-bottom button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.4);
   color: #fff;
   cursor: pointer;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 1;
   transition: all 0.15s ease;
 }
-.zoom-buttons-inside button:hover {
-  background: rgba(255,255,255,0.3);
+
+.zoom-buttons-bottom button:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 /* 🔹 Align vurgusu */
 .overlay-guide.align-center .crosshair {
