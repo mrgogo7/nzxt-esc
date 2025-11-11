@@ -36,6 +36,7 @@ export default function ConfigPreview() {
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
+  // 🔹 İlk yükleme
   useEffect(() => {
     const cfgRaw = localStorage.getItem("nzxtMediaConfig");
     const cfg = cfgRaw ? safeParse(cfgRaw) : {};
@@ -45,6 +46,7 @@ export default function ConfigPreview() {
     setSettings({ ...DEFAULTS, ...(cfg || {}) });
   }, []);
 
+  // 🔹 LocalStorage dinleme
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "media_url" && e.newValue !== null) setMediaUrl(e.newValue);
@@ -57,6 +59,7 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // 🔹 Değişiklikleri kaydet
   useEffect(() => {
     const current =
       safeParse(localStorage.getItem("nzxtMediaConfig") || "{}") || {};
@@ -78,6 +81,7 @@ export default function ConfigPreview() {
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
+  // 🔹 Align pozisyonu
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -97,7 +101,7 @@ export default function ConfigPreview() {
   const adjY = settings.y * offsetScale;
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
-  // Drag
+  // 🖱️ Drag hareketi
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -121,7 +125,7 @@ export default function ConfigPreview() {
     dragStart.current = null;
   };
 
-  // Wheel zoom (passive:false)
+  // 🧭 Mouse wheel zoom (passive:false fix)
   useEffect(() => {
     const circle = document.querySelector(".preview-circle");
     if (!circle) return;
@@ -141,6 +145,7 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("wheel", handleWheel);
   }, []);
 
+  // 🧭 Drag event binding
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -155,7 +160,7 @@ export default function ConfigPreview() {
     };
   }, [isDragging]);
 
-  // Zoom buttons
+  // 🔹 Zoom butonları
   const adjustScale = (delta: number) => {
     setSettings((prev) => {
       const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
@@ -165,14 +170,18 @@ export default function ConfigPreview() {
 
   return (
     <div className="config-wrapper">
+      {/* Sol panel: Önizleme */}
       <div className="preview-column">
         <div className="preview-title">LCD Preview</div>
+
         <div
           className={`preview-circle ${isDragging ? "dragging" : ""}`}
           onMouseDown={handleMouseDown}
         >
-          {/* 🔹 Scale etiketi */}
-          <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
+          {/* Ölçek etiketi */}
+          <div className="scale-label">
+            Scale: {settings.scale.toFixed(2)}×
+          </div>
 
           {isVideo ? (
             <video
@@ -182,10 +191,8 @@ export default function ConfigPreview() {
               loop
               playsInline
               style={{
-                maxWidth: "100%",
-                maxHeight: "100%",
-                width: "auto",
-                height: "auto",
+                width: "100%",
+                height: "100%",
                 objectFit: settings.fit,
                 objectPosition,
                 transform: `scale(${settings.scale})`,
@@ -198,10 +205,8 @@ export default function ConfigPreview() {
                 src={mediaUrl}
                 alt="preview"
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "auto",
-                  height: "auto",
+                  width: "100%",
+                  height: "100%",
                   objectFit: settings.fit,
                   objectPosition,
                   transform: `scale(${settings.scale})`,
@@ -211,6 +216,7 @@ export default function ConfigPreview() {
             )
           )}
 
+          {/* Overlay rehber */}
           {showGuide && (
             <div
               className={`overlay-guide align-${settings.align}`}
@@ -226,7 +232,7 @@ export default function ConfigPreview() {
             </div>
           )}
 
-          {/* 🔹 Zoom butonları */}
+          {/* Zoom butonları */}
           <div className="zoom-buttons">
             <button onClick={() => adjustScale(0.1)}>＋</button>
             <button onClick={() => adjustScale(-0.1)}>－</button>
@@ -234,7 +240,7 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      {/* Sağ panel */}
+      {/* Sağ panel: Ayarlar */}
       <div className="settings-column">
         <div className="overlay-toggle">
           <label>
