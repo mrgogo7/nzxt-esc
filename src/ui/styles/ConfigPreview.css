@@ -147,7 +147,9 @@
 }
 .preview-circle:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+  cursor: zoom-in;
 }
+
 
 @media (max-width: 700px) {
   .config-wrapper {
