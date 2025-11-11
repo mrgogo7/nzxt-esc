@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
+import ConfigPreview from './components/ConfigPreview'
 
 export default function Config() {
   const [url, setUrl] = useState(localStorage.getItem('media_url') || '')
 
   useEffect(() => {
-    // Giriş yapıldığında anında kaydet
     localStorage.setItem('media_url', url)
   }, [url])
 
@@ -34,6 +34,12 @@ export default function Config() {
       <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#aaa' }}>
         LCD’de anında önizlenir. Girmek istediğin görselin doğrudan .jpg veya .mp4 bağlantısını kullan.
       </p>
+
+      {/* Ayırıcı çizgi */}
+      <hr style={{ margin: '2rem 0', borderColor: '#333' }} />
+
+      {/* Thumbnail ve medya ayarları */}
+      <ConfigPreview />
     </div>
   )
 }
