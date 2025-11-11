@@ -30,7 +30,6 @@ export default function ConfigPreview() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [showGuide, setShowGuide] = useState<boolean>(true);
 
-  // LCD ile önizleme boyut farkı (ölçek oranı)
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
@@ -79,7 +78,6 @@ export default function ConfigPreview() {
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
-  // align -> base % koordinatlar
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -143,7 +141,7 @@ export default function ConfigPreview() {
           {/* 🔹 Overlay rehberi */}
           {showGuide && (
             <div
-              className="overlay-guide"
+              className={`overlay-guide align-${settings.align}`}
               style={{
                 transform: `translate(${settings.x * offsetScale}px, ${
                   settings.y * offsetScale
@@ -160,7 +158,6 @@ export default function ConfigPreview() {
 
       {/* Sağ: ayarlar */}
       <div className="settings-column">
-        {/* 🔹 Overlay toggle butonu */}
         <div className="overlay-toggle">
           <label>
             <input
@@ -173,10 +170,6 @@ export default function ConfigPreview() {
         </div>
 
         <div className="settings-grid">
-          {/* Resolution gizli */}
-          {/* <label>Resolution</label>
-          <input value={settings.resolution} readOnly /> */}
-
           <label>Scale</label>
           <input
             type="number"
