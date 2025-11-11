@@ -14,7 +14,7 @@ type Settings = {
 };
 
 const DEFAULTS: Settings = {
-  scale: 1.0,
+  scale: 1,
   x: 0,
   y: 0,
   fit: "cover",
@@ -22,13 +22,13 @@ const DEFAULTS: Settings = {
   loop: true,
   autoplay: true,
   mute: true,
-  resolution: `${window.innerWidth} x ${window.innerHeight}`,
+  resolution: `${window.innerWidth}x${window.innerHeight}`,
 };
 
 export default function ConfigPreview() {
-  const [mediaUrl, setMediaUrl] = useState<string>("");
+  const [mediaUrl, setMediaUrl] = useState("");
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
-  const [showGuide, setShowGuide] = useState<boolean>(true);
+  const [showGuide, setShowGuide] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
@@ -36,77 +36,53 @@ export default function ConfigPreview() {
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
-  // 🔹 İlk yükleme – eski ayarları koru
+  // ✅ 1. İlk yükleme — kalıcı ayarlar
   useEffect(() => {
-    const savedConfig = localStorage.getItem("nzxtMediaConfig");
+    const cfgRaw =
+      localStorage.getItem("nzxtPinterestConfig") ||
+      localStorage.getItem("nzxtMediaConfig");
     const savedUrl = localStorage.getItem("media_url");
-    if (savedConfig) {
+    if (cfgRaw) {
       try {
-        const parsed = JSON.parse(savedConfig);
+        const parsed = JSON.parse(cfgRaw);
         setSettings({ ...DEFAULTS, ...parsed });
         setMediaUrl(parsed.url || savedUrl || "");
       } catch {
-        setMediaUrl(savedUrl || "");
         setSettings(DEFAULTS);
+        setMediaUrl(savedUrl || "");
       }
     } else {
-      setMediaUrl(savedUrl || "");
       setSettings(DEFAULTS);
+      setMediaUrl(savedUrl || "");
     }
   }, []);
 
-  // 🔹 Storage senkronizasyonu (Config.tsx’te değişirse yakala)
+  // ✅ 2. Her değişiklikte kaydet (iki anahtara birden)
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "media_url" && e.newValue !== null)
-        setMediaUrl(e.newValue);
-      if (e.key === "nzxtMediaConfig" && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          setSettings((prev) => ({ ...prev, ...parsed }));
-        } catch {
-          /* ignore */
-        }
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
-  // 🔹 Değişiklikleri kalıcı kaydet
-  useEffect(() => {
-    const toSave = { url: mediaUrl, ...settings };
-    localStorage.setItem("nzxtMediaConfig", JSON.stringify(toSave));
-    window.dispatchEvent(
-      new StorageEvent("storage", {
-        key: "nzxtMediaConfig",
-        newValue: JSON.stringify(toSave),
-      })
-    );
-  }, [settings, mediaUrl]);
+    const save = { url: mediaUrl, ...settings };
+    localStorage.setItem("nzxtPinterestConfig", JSON.stringify(save));
+    localStorage.setItem("nzxtMediaConfig", JSON.stringify(save));
+  }, [mediaUrl, settings]);
 
   const handleChange = <K extends keyof Settings>(
     key: K,
     value: Settings[K]
-  ) => setSettings((prev) => ({ ...prev, [key]: value }));
+  ) => setSettings((p) => ({ ...p, [key]: value }));
 
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
-  const base = (() => {
-    switch (settings.align) {
-      case "top":
-        return { x: 50, y: 0 };
-      case "bottom":
-        return { x: 50, y: 100 };
-      case "left":
-        return { x: 0, y: 50 };
-      case "right":
-        return { x: 100, y: 50 };
-      default:
-        return { x: 50, y: 50 };
-    }
-  })();
+  // Align → base pozisyon
+  const base =
+    settings.align === "top"
+      ? { x: 50, y: 0 }
+      : settings.align === "bottom"
+      ? { x: 50, y: 100 }
+      : settings.align === "left"
+      ? { x: 0, y: 50 }
+      : settings.align === "right"
+      ? { x: 100, y: 50 }
+      : { x: 50, y: 50 };
 
   const adjX = settings.x * offsetScale;
   const adjY = settings.y * offsetScale;
@@ -118,44 +94,21 @@ export default function ConfigPreview() {
     dragStart.current = { x: e.clientX, y: e.clientY };
     setIsDragging(true);
   };
-
   const handleMouseMove = (e: MouseEvent) => {
     if (!isDragging || !dragStart.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
     dragStart.current = { x: e.clientX, y: e.clientY };
-    setSettings((prev) => ({
-      ...prev,
-      x: prev.x + Math.round(dx / offsetScale),
-      y: prev.y + Math.round(dy / offsetScale),
+    setSettings((p) => ({
+      ...p,
+      x: p.x + Math.round(dx / offsetScale),
+      y: p.y + Math.round(dy / offsetScale),
     }));
   };
-
   const handleMouseUp = () => {
     setIsDragging(false);
     dragStart.current = null;
   };
-
-  // 🧭 Mouse wheel zoom
-  useEffect(() => {
-    const circle = document.querySelector(".preview-circle");
-    if (!circle) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (!circle.contains(e.target as Node)) return;
-      e.preventDefault();
-      const step = e.shiftKey ? 0.05 : e.ctrlKey ? 0.2 : 0.1;
-      const delta = e.deltaY < 0 ? step : -step;
-      setSettings((prev) => {
-        const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
-        return { ...prev, scale: parseFloat(newScale.toFixed(2)) };
-      });
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
-
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -170,12 +123,29 @@ export default function ConfigPreview() {
     };
   }, [isDragging]);
 
-  const adjustScale = (delta: number) => {
-    setSettings((prev) => {
-      const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
-      return { ...prev, scale: parseFloat(newScale.toFixed(2)) };
-    });
-  };
+  // 🧭 Mouse wheel zoom
+  useEffect(() => {
+    const circle = document.querySelector(".preview-circle");
+    if (!circle) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!circle.contains(e.target as Node)) return;
+      e.preventDefault();
+      const step = e.shiftKey ? 0.05 : e.ctrlKey ? 0.2 : 0.1;
+      const delta = e.deltaY < 0 ? step : -step;
+      setSettings((p) => ({
+        ...p,
+        scale: Math.min(Math.max(p.scale + delta, 0.1), 5),
+      }));
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const adjustScale = (delta: number) =>
+    setSettings((p) => ({
+      ...p,
+      scale: Math.min(Math.max(p.scale + delta, 0.1), 5),
+    }));
 
   return (
     <div className="config-wrapper">
@@ -185,9 +155,7 @@ export default function ConfigPreview() {
           className={`preview-circle ${isDragging ? "dragging" : ""}`}
           onMouseDown={handleMouseDown}
         >
-          <div className="scale-label">
-            Scale: {settings.scale.toFixed(2)}×
-          </div>
+          <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
 
           {isVideo ? (
             <video
@@ -224,12 +192,11 @@ export default function ConfigPreview() {
 
           {showGuide && (
             <div
-              className={`overlay-guide align-${settings.align}`}
+              className="overlay-guide"
               style={{
                 transform: `translate(${settings.x * offsetScale}px, ${
                   settings.y * offsetScale
                 }px) scale(${settings.scale})`,
-                transformOrigin: "center center",
               }}
             >
               <div className="crosshair horizontal" />
@@ -237,7 +204,8 @@ export default function ConfigPreview() {
             </div>
           )}
 
-          <div className="zoom-buttons">
+          {/* ✅ Zoom butonları dairenin içinde */}
+          <div className="zoom-buttons-inside">
             <button onClick={() => adjustScale(0.1)}>＋</button>
             <button onClick={() => adjustScale(-0.1)}>－</button>
           </div>
@@ -252,7 +220,7 @@ export default function ConfigPreview() {
               checked={showGuide}
               onChange={(e) => setShowGuide(e.target.checked)}
             />{" "}
-            Overlay Guide Göster
+            Overlay Guide
           </label>
         </div>
 
@@ -267,7 +235,7 @@ export default function ConfigPreview() {
               handleChange("scale", parseFloat(e.target.value || "1"))
             }
           />
-          <label>X Offset (px)</label>
+          <label>X Offset</label>
           <input
             type="number"
             value={settings.x}
@@ -275,7 +243,7 @@ export default function ConfigPreview() {
               handleChange("x", parseInt(e.target.value || "0", 10))
             }
           />
-          <label>Y Offset (px)</label>
+          <label>Y Offset</label>
           <input
             type="number"
             value={settings.y}
@@ -311,12 +279,4 @@ export default function ConfigPreview() {
       </div>
     </div>
   );
-}
-
-function safeParse(s: string) {
-  try {
-    return JSON.parse(s);
-  } catch {
-    return null;
-  }
 }
