@@ -124,6 +124,16 @@ export default function ConfigPreview() {
     dragStart.current = null;
   };
 
+  // 🧭 fare tekerleğiyle zoom
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.1 : -0.1;
+    setSettings((prev) => {
+      const newScale = Math.min(Math.max(prev.scale + delta, 0.1), 5);
+      return { ...prev, scale: parseFloat(newScale.toFixed(2)) };
+    });
+  };
+
   useEffect(() => {
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
@@ -145,6 +155,7 @@ export default function ConfigPreview() {
         <div
           className={`preview-circle ${isDragging ? "dragging" : ""}`}
           onMouseDown={handleMouseDown}
+          onWheel={handleWheel}
         >
           {isVideo ? (
             <video
