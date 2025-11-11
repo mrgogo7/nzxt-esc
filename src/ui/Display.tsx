@@ -61,27 +61,25 @@ export default function Display() {
     return () => window.removeEventListener('storage', onStorage)
   }, [url])
 
-  const isVideo = /\.mp4($|\?)/i.test(url)
-  const objectPosition =
-    settings.align === 'center' ? '50% 50%' :
-    settings.align === 'top'    ? '50% 0%'  :
-    settings.align === 'bottom' ? '50% 100%' :
-    settings.align === 'left'   ? '0% 50%' :
-                                  '100% 50%'
-
   const diameter = Math.min(deviceSize.w, deviceSize.h)
   const radius = (window as any)?.nzxt?.v1?.shape === 'circle' ? '50%' : '0%'
 
+  // align -> base yüzdeleri
+  const base = (() => {
+    switch (settings.align) {
+      case 'top': return { x: 50, y: 0 }
+      case 'bottom': return { x: 50, y: 100 }
+      case 'left': return { x: 0, y: 50 }
+      case 'right': return { x: 100, y: 50 }
+      default: return { x: 50, y: 50 }
+    }
+  })()
+
+  const objectPosition = `calc(${base.x}% + ${settings.x}px) calc(${base.y}% + ${settings.y}px)`
+  const isVideo = /\.mp4($|\?)/i.test(url) || url.toLowerCase().includes('mp4')
+
   return (
-    <div
-      style={{
-        width: '100vw',
-        height: '100vh',
-        background: '#000',
-        display: 'grid',
-        placeItems: 'center',
-      }}
-    >
+    <div style={{ width: '100vw', height: '100vh', background: '#000', display: 'grid', placeItems: 'center' }}>
       <div
         style={{
           width: diameter,
@@ -93,46 +91,40 @@ export default function Display() {
           position: 'relative',
         }}
       >
-        <div
-          className="media-layer"
-          style={{
-            width: '100%',
-            height: '100%',
-            transform: `translate(${settings.x}px, ${settings.y}px) scale(${settings.scale})`,
-            transformOrigin: 'center center',
-          }}
-        >
-          {isVideo ? (
-            <video
+        {isVideo ? (
+          <video
+            src={url}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: settings.fit,
+              objectPosition,
+              transform: `scale(${settings.scale})`,
+              transformOrigin: 'center center',
+              display: 'block',
+            }}
+          />
+        ) : (
+          url && (
+            <img
               src={url}
-              autoPlay
-              loop
-              muted
-              playsInline
+              alt="Media"
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: settings.fit,
                 objectPosition,
+                transform: `scale(${settings.scale})`,
+                transformOrigin: 'center center',
                 display: 'block',
               }}
             />
-          ) : (
-            url && (
-              <img
-                src={url}
-                alt="Media"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: settings.fit,
-                  objectPosition,
-                  display: 'block',
-                }}
-              />
-            )
-          )}
-        </div>
+          )
+        )}
       </div>
     </div>
   )
