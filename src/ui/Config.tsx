@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { getMediaUrl, setMediaUrl } from '../storage'
 
 export default function Config() {
@@ -14,34 +14,51 @@ export default function Config() {
       alert('Lütfen geçerli bir URL girin.')
       return
     }
+
+    // 1️⃣ Hem cookie/localStorage olarak kaydet
     setMediaUrl(u)
-    document.cookie = `media_url=${encodeURIComponent(u)}; path=/; SameSite=None; Secure`
+
+    // 2️⃣ CAM "onConfigurationUpdate" callback'ine config gönder
+    try {
+      const config = { mediaUrl: u }
+      if (typeof (window as any).onConfigurationUpdate === 'function') {
+        ;(window as any).onConfigurationUpdate(config)
+      }
+      console.log('[NZXT] Config saved:', config)
+    } catch (err) {
+      console.warn('[NZXT] CAM config broadcast failed:', err)
+    }
+
     alert('URL kaydedildi! LCD ekran birkaç saniye içinde güncellenecek.')
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'grid',
-      placeItems: 'center',
-      background: '#121212',
-      color: '#fff',
-      fontFamily: 'system-ui, sans-serif',
-    }}>
-      <div style={{
-        width: 680,
-        maxWidth: '90vw',
-        background: '#1e1e1e',
-        padding: 20,
-        borderRadius: 12,
-        boxShadow: '0 10px 30px rgba(0,0,0,.35)',
-      }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        background: '#121212',
+        color: '#fff',
+        fontFamily: 'system-ui, sans-serif',
+      }}
+    >
+      <div
+        style={{
+          width: 680,
+          maxWidth: '90vw',
+          background: '#1e1e1e',
+          padding: 20,
+          borderRadius: 12,
+          boxShadow: '0 10px 30px rgba(0,0,0,.35)',
+        }}
+      >
         <h2>NZXT Pinterest Integration</h2>
-        <p>MP4 veya JPG/PNG/GIF URL’si girin (Pinterest dosya URL’si):</p>
+        <p>MP4 veya JPG/PNG/GIF URL’si girin:</p>
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://…/file.mp4 veya file.jpg"
+          placeholder="https://i.pinimg.com/...mp4 veya ...jpg"
           style={{
             width: '100%',
             padding: '10px 12px',
