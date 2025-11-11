@@ -20,4 +20,6 @@ export default defineConfig({
       },
     },
   },
+  // 👇 bunu ekle
+  publicDir: 'public'
 })
