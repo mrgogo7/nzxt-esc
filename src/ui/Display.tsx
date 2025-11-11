@@ -1,60 +1,95 @@
 import React, { useEffect, useState } from 'react'
-import { getMediaUrl, subscribe, getViewState, isKraken } from '../storage'
-
-const styles: React.CSSProperties = {
-  width: '100vw',
-  height: '100vh',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  background: '#000',
-  overflow: 'hidden',
-}
+import { getMediaUrl, subscribe } from '../storage'
 
 export default function Display() {
-  const [url, setUrl] = useState<string>('')
+  const [mediaUrl, setMediaUrl] = useState<string>('')
 
+  // CAM -> Display data flow
   useEffect(() => {
-    return subscribe(setUrl) // storage + polling
+    // 1️⃣ URL değişikliklerini izle (cookie/localStorage fallback)
+    const unsub = subscribe(setMediaUrl)
+
+    // 2️⃣ CAM "onConfigurationUpdate" callback'ini yakala
+    ;(window as any).onConfigurationUpdate = (config: any) => {
+      if (config?.mediaUrl) {
+        console.log('[NZXT] CAM config received:', config.mediaUrl)
+        setMediaUrl(config.mediaUrl)
+      }
+    }
+
+    // 3️⃣ CAM "onMonitoringDataUpdate" (CPU/GPU vs.) callback'i
+    ;(window as any).onMonitoringDataUpdate = (data: any) => {
+      // CAM sensör verilerini yakalayabilirsin (örnek)
+      // console.log('[NZXT] Monitoring data:', data)
+    }
+
+    return () => unsub()
   }, [])
 
-  // İleriye dönük: viewstate ile dinamik ölçek kurabiliriz
-  const view = getViewState()
-  // şimdilik sadece not: const scale = view / 640
+  if (!mediaUrl) {
+    return (
+      <div
+        style={{
+          background: '#000',
+          color: '#ccc',
+          fontFamily: 'system-ui, sans-serif',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '0 16px',
+        }}
+      >
+        <div>
+          <p style={{ marginBottom: 8, fontSize: 18 }}>
+            No media URL found.
+          </p>
+          <p style={{ fontSize: 14 }}>
+            Open <code>/config.html</code> and save a URL.
+          </p>
+        </div>
+      </div>
+    )
+  }
 
-  const isVideo = /\.mp4(\?|$)/i.test(url)
-  const isImage = /\.(jpg|jpeg|png|gif)(\?|$)/i.test(url)
+  const isVideo = /\.(mp4|webm|mov|m4v)$/i.test(mediaUrl)
 
   return (
-    <div style={styles}>
-      {!url && (
-        <p style={{ color: '#fff', fontFamily: 'sans-serif', opacity: .8, textAlign:'center' }}>
-          No media URL found.<br/>
-          {!isKraken() && <>Open <code>/config.html</code> and save a URL.</>}
-        </p>
-      )}
-
-      {url && isVideo && (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'black',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {isVideo ? (
         <video
-          src={url}
+          src={mediaUrl}
           autoPlay
-          loop
           muted
+          loop
           playsInline
-          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', border: 'none' }}
+          style={{
+            maxWidth: '100%',
+            maxHeight: '100%',
+            objectFit: 'cover',
+          }}
         />
-      )}
-
-      {url && isImage && (
+      ) : (
         <img
-          src={url}
-          alt=""
-          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', border: 'none' }}
+          src={mediaUrl}
+          alt="pinterest-media"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
         />
-      )}
-
-      {url && !isVideo && !isImage && (
-        <p style={{ color: '#fff', fontFamily: 'sans-serif' }}>Unsupported file type</p>
       )}
     </div>
   )
