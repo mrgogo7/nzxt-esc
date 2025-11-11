@@ -29,10 +29,10 @@ export default function ConfigPreview() {
   const [mediaUrl, setMediaUrl] = useState<string>("");
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
 
-  // 🔹 LCD ile önizleme boyut farkını dengelemek için ölçek oranı
+  // LCD ile önizleme boyut farkı (ölçek oranı)
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
   const previewSize = 200;
-  const offsetScale = previewSize / lcdResolution; // ≈0.3125
+  const offsetScale = previewSize / lcdResolution;
 
   useEffect(() => {
     const cfgRaw = localStorage.getItem("nzxtMediaConfig");
@@ -56,7 +56,8 @@ export default function ConfigPreview() {
   }, []);
 
   useEffect(() => {
-    const current = safeParse(localStorage.getItem("nzxtMediaConfig") || "{}") || {};
+    const current =
+      safeParse(localStorage.getItem("nzxtMediaConfig") || "{}") || {};
     const next = { ...current, ...settings, url: current.url ?? mediaUrl };
     localStorage.setItem("nzxtMediaConfig", JSON.stringify(next));
     window.dispatchEvent(
@@ -77,7 +78,7 @@ export default function ConfigPreview() {
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
-  // Align için baz koordinatlar (%)
+  // align -> base % koordinatlar
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -93,22 +94,15 @@ export default function ConfigPreview() {
     }
   })();
 
-  // 🔹 LCD’deki etkiyi simüle etmek için offset’leri orantılı küçült
   const adjX = settings.x * offsetScale;
   const adjY = settings.y * offsetScale;
-
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
   return (
-    <div className="config-container">
-      <h2>Media Configuration</h2>
-      <p className="hint">
-        Aşağıdaki dairesel önizleme, kaydedilmiş URL ve bu ayarlarla LCD’deki
-        görüntüyü birebir simüle eder.
-      </p>
-
-      <div className="preview-section">
-        <h3>Thumbnail Preview (Kraken-style)</h3>
+    <div className="config-wrapper">
+      {/* Sol: LCD önizleme */}
+      <div className="preview-column">
+        <div className="preview-title">LCD Preview</div>
         <div className="preview-circle">
           {isVideo ? (
             <video
@@ -147,64 +141,67 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      <div className="settings-grid">
-        <label>Resolution</label>
-        <input value={settings.resolution} readOnly />
+      {/* Sağ: ayarlar */}
+      <div className="settings-column">
+        <div className="settings-grid">
+          <label>Resolution</label>
+          <input value={settings.resolution} readOnly />
 
-        <label>Scale</label>
-        <input
-          type="number"
-          min={0.1}
-          step={0.1}
-          value={settings.scale}
-          onChange={(e) =>
-            handleChange("scale", parseFloat(e.target.value || "1"))
-          }
-        />
+          <label>Scale</label>
+          <input
+            type="number"
+            min={0.1}
+            step={0.1}
+            value={settings.scale}
+            onChange={(e) =>
+              handleChange("scale", parseFloat(e.target.value || "1"))
+            }
+          />
 
-        <label>X Offset (px)</label>
-        <input
-          type="number"
-          value={settings.x}
-          onChange={(e) =>
-            handleChange("x", parseInt(e.target.value || "0", 10))
-          }
-        />
+          <label>X Offset (px)</label>
+          <input
+            type="number"
+            value={settings.x}
+            onChange={(e) =>
+              handleChange("x", parseInt(e.target.value || "0", 10))
+            }
+          />
 
-        <label>Y Offset (px)</label>
-        <input
-          type="number"
-          value={settings.y}
-          onChange={(e) =>
-            handleChange("y", parseInt(e.target.value || "0", 10))
-          }
-        />
+          <label>Y Offset (px)</label>
+          <input
+            type="number"
+            value={settings.y}
+            onChange={(e) =>
+              handleChange("y", parseInt(e.target.value || "0", 10))
+            }
+          />
 
-        <label>Align</label>
-        <select
-          value={settings.align}
-          onChange={(e) =>
-            handleChange("align", e.target.value as Settings["align"])
-          }
-        >
-          <option>center</option>
-          <option>top</option>
-          <option>bottom</option>
-          <option>left</option>
-          <option>right</option>
-        </select>
+          <label>Align</label>
+          <select
+            value={settings.align}
+            onChange={(e) =>
+              handleChange("align", e.target.value as Settings["align"])
+            }
+          >
+            <option>center</option>
+            <option>top</option>
+            <option>bottom</option>
+            <option>left</option>
+            <option>right</option>
+          </select>
 
-        <label>Fit</label>
-        <select
-          value={settings.fit}
-          onChange={(e) =>
-            handleChange("fit", e.target.value as Settings["fit"])
-          }
-        >
-          <option>cover</option>
-          <option>contain</option>
-          <option>fill</option>
-        </select>
+          <label>Fit</label>
+          <select
+            value={settings.fit}
+            onChange={(e) =>
+              handleChange("fit", e.target.value as Settings["fit"])
+            }
+          >
+            <option>cover</option>
+            <option>contain</option>
+            <option>fill</option>
+          </select>
+        </div>
       </div>
     </div>
   );
