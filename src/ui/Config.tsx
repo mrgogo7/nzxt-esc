@@ -1,117 +1,168 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { LANG_KEY, Lang, t, getInitialLang, setLang } from "../i18n";
 import ConfigPreview from "./components/ConfigPreview";
+import "./styles/ConfigPreview.css";
+
+// LocalStorage keys (namespaced)
+const CFG_KEY = "nzxtPinterestConfig";     // primary config (backward compatible name)
+const CFG_COMPAT = "nzxtMediaConfig";      // legacy compatibility
+const URL_KEY = "media_url";               // the URL that Display page reads
+
+const DEFAULT_URL =
+  "https://v1.pinimg.com/videos/iht/expMp4/b0/95/18/b09518df640864a0181b5d242ad49c2b_720w.mp4";
 
 export default function Config() {
-  const initialUrl = (() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem("nzxtMediaConfig") || "{}");
-      return saved.url || localStorage.getItem("media_url") || "";
-    } catch {
-      return localStorage.getItem("media_url") || "";
-    }
-  })();
+  // language
+  const [lang, setLangState] = useState<Lang>(getInitialLang());
+  // url field with Save/Update
+  const [urlInput, setUrlInput] = useState<string>("");
 
-  const [inputUrl, setInputUrl] = useState(initialUrl);
-  const [saving, setSaving] = useState(false);
-
+  // load initial
   useEffect(() => {
-    const saved = (() => {
+    const cfgRaw = localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
+    const savedUrl = localStorage.getItem(URL_KEY);
+    if (cfgRaw) {
       try {
-        return JSON.parse(localStorage.getItem("nzxtMediaConfig") || "{}");
+        const parsed = JSON.parse(cfgRaw);
+        setUrlInput(parsed.url || savedUrl || "");
       } catch {
-        return {} as any;
+        setUrlInput(savedUrl || "");
       }
-    })();
-    const current = saved.url || localStorage.getItem("media_url") || "";
-    setInputUrl(current);
+    } else {
+      setUrlInput(savedUrl || "");
+    }
   }, []);
 
-  const handleSave = () => {
-    setSaving(true);
-    const saved = (() => {
-      try {
-        return JSON.parse(localStorage.getItem("nzxtMediaConfig") || "{}");
-      } catch {
-        return {} as any;
+  // sync language cross components (Preview listens too)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === LANG_KEY && e.newValue) {
+        setLangState(e.newValue as Lang);
       }
-    })();
-    const newCfg = { ...saved, url: inputUrl };
-    localStorage.setItem("nzxtMediaConfig", JSON.stringify(newCfg));
-    localStorage.setItem("media_url", inputUrl);
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-    // LCD ve Display bileşenine anında bildirim gönder
+  // handlers
+  const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLang = e.target.value as Lang;
+    setLangState(newLang);
+    setLang(newLang);
+  };
+
+  const handleSave = () => {
+    // URL is only applied to device when saved here (kept as current behavior).
+    localStorage.setItem(URL_KEY, urlInput);
+    // also mirror into config object for persistence (do not wipe other keys)
+    try {
+      const current = JSON.parse(localStorage.getItem(CFG_KEY) || "{}");
+      const next = { ...current, url: urlInput };
+      localStorage.setItem(CFG_KEY, JSON.stringify(next));
+      localStorage.setItem(CFG_COMPAT, JSON.stringify(next));
+      // broadcast for live listeners
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: CFG_KEY,
+          newValue: JSON.stringify(next),
+        })
+      );
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: URL_KEY, newValue: urlInput })
+      );
+    } catch {
+      const next = { url: urlInput };
+      localStorage.setItem(CFG_KEY, JSON.stringify(next));
+      localStorage.setItem(CFG_COMPAT, JSON.stringify(next));
+    }
+  };
+
+  const handleReset = () => {
+    if (!window.confirm(t("resetConfirm", lang))) return;
+
+    // wipe all keys this app uses
+    localStorage.removeItem(CFG_KEY);
+    localStorage.removeItem(CFG_COMPAT);
+    // important: keep language!
+    localStorage.setItem(URL_KEY, DEFAULT_URL);
+
+    const defaults = {
+      url: DEFAULT_URL,
+      // mirror default preview settings
+      scale: 1,
+      x: 0,
+      y: 0,
+      fit: "cover",
+      align: "center",
+      loop: true,
+      autoplay: true,
+      mute: true,
+      resolution: `${window.innerWidth}x${window.innerHeight}`,
+      showGuide: true,
+    };
+
+    localStorage.setItem(CFG_KEY, JSON.stringify(defaults));
+    localStorage.setItem(CFG_COMPAT, JSON.stringify(defaults));
+
+    // broadcast updates so Preview refreshes immediately
     window.dispatchEvent(
-      new StorageEvent("storage", {
-        key: "nzxtMediaConfig",
-        newValue: JSON.stringify(newCfg),
-      })
+      new StorageEvent("storage", { key: CFG_KEY, newValue: JSON.stringify(defaults) })
     );
     window.dispatchEvent(
-      new StorageEvent("storage", { key: "media_url", newValue: inputUrl })
+      new StorageEvent("storage", { key: URL_KEY, newValue: DEFAULT_URL })
     );
 
-    setTimeout(() => setSaving(false), 300);
+    setUrlInput(DEFAULT_URL);
   };
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        fontFamily: "sans-serif",
-        color: "white",
-        backgroundColor: "#111",
-        minHeight: "100vh",
-      }}
-    >
-      <h2 style={{ textAlign: "center" }}>Pinterest Media URL</h2>
+    <div className="config-page">
+      {/* top bar */}
+      <header className="config-header">
+        <h1 className="config-title">{t("appTitle", lang)}</h1>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr auto",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
-        <input
-          value={inputUrl}
-          onChange={(e) => setInputUrl(e.target.value)}
-          placeholder="https://...jpg / ...png / ...gif / ...mp4"
-          style={{
-            width: "100%",
-            padding: "0.5rem",
-            borderRadius: "6px",
-            border: "1px solid #555",
-            backgroundColor: "#222",
-            color: "white",
-          }}
-        />
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          style={{
-            padding: "0.55rem 0.9rem",
-            borderRadius: "6px",
-            border: "1px solid #5a5a5a",
-            background: saving ? "#2d2d2d" : "#3b3b3b",
-            color: "#fff",
-            cursor: saving ? "default" : "pointer",
-            fontWeight: 600,
-          }}
-          title="URL’i kaydet ve LCD’ye uygula"
-        >
-          {saving ? "Kaydediliyor…" : "Kaydet / Güncelle"}
-        </button>
-      </div>
+        <div className="header-actions">
+          <button className="reset-btn" onClick={handleReset}>
+            {t("reset", lang)}
+          </button>
 
-      <p style={{ marginTop: "0.75rem", fontSize: "0.9rem", color: "#aaa" }}>
-        Not: URL, yalnızca <b>Kaydet / Güncelle</b> butonuna bastığında LCD’ye
-        uygulanır.
-      </p>
+          <label className="lang-label" htmlFor="lang-select">
+            {t("language", lang)}
+          </label>
+          <select
+            id="lang-select"
+            className="lang-select"
+            value={lang}
+            onChange={handleLangChange}
+          >
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+          </select>
+        </div>
+      </header>
 
-      <hr style={{ margin: "2rem 0", borderColor: "#333" }} />
+      {/* URL input and action */}
+      <section className="url-section">
+        <label className="url-label" htmlFor="mediaUrl">
+          {t("urlLabel", lang)}
+        </label>
+        <div className="url-row">
+          <input
+            id="mediaUrl"
+            type="text"
+            placeholder={t("urlPlaceholder", lang)}
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            className="url-input"
+          />
+          <button onClick={handleSave} className="save-btn">
+            {t("save", lang)}
+          </button>
+        </div>
+        <p className="hint">{t("note", lang)}</p>
+      </section>
 
-      {/* 🔹 Önizleme ve medya ayar bileşeni */}
+      {/* Preview + settings (already responsive 9/3 grid in CSS) */}
       <ConfigPreview />
     </div>
   );
