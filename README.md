@@ -36,7 +36,10 @@ and the LCD instantly mirrors your configuration.
 1. Enter your **media URL** (MP4, JPG, or GIF).  
 2. Adjust **Scale / X / Y Offset / Align / Fit** parameters.  
 3. Instantly see the effect in both preview and your NZXT LCD.  
-4. Settings are saved automatically and restored on reload.
+4. Settings are saved automatically and restored on reload.  
+
+> 🟣 **Quick Launch:**  
+> [Open AMC in NZXT CAM](nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-web-integration-amc/)
 
 ---
 
