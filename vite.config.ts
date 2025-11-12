@@ -4,7 +4,7 @@ import legacy from '@vitejs/plugin-legacy'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  base: '/nzxt-pinterest-integration/',
+  base: '/nzxt-web-integration-amc/',
   plugins: [
     react(),
     legacy({
