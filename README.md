@@ -89,6 +89,14 @@ Once opened inside NZXT CAM:
 
 ---
 
+## 🧑‍💻 Author
+
+Developed by **Gökhan Akgül**  
+_“What NZXT CAM missed — now open for contribution.”_  
+🔗 [GitHub Profile](https://github.com/mrgogo7)
+
+---
+
 ## 🧑‍💻 Developer Notes
 
 > 💡 **About the `?kraken=1` parameter**
@@ -118,11 +126,17 @@ to the project just like they would on an actual device.
 
 ---
 
-## 🧑‍💻 Author
+## 🙌 Acknowledgements
 
-Developed by **Gökhan Akgül**  
-_“What NZXT CAM missed — now open for contribution.”_  
-🔗 [GitHub Profile](https://github.com/mrgogo7)
+This project was originally inspired by  
+[brunoandradebr/nzxt](https://github.com/brunoandradebr/nzxt)  
+— an open-source example that explored the potential of NZXT Web Integration.
+
+**AMC (Advanced Media Configurator)** builds upon that foundation,  
+expanding it into a fully interactive system with real-time LCD synchronization,  
+multi-language support, draggable media positioning, and advanced preview tools.
+
+Special thanks to the open-source community for keeping NZXT integrations alive and evolving.
 
 ---
 
