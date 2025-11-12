@@ -3,10 +3,10 @@ import { LANG_KEY, Lang, t, getInitialLang, setLang } from "../i18n";
 import ConfigPreview from "./components/ConfigPreview";
 import "./styles/ConfigPreview.css";
 
-// LocalStorage keys (namespaced)
-const CFG_KEY = "nzxtPinterestConfig";     // primary config (backward compatible name)
-const CFG_COMPAT = "nzxtMediaConfig";      // legacy compatibility
-const URL_KEY = "media_url";               // the URL that Display page reads
+// Storage keys (kept backward compatible)
+const CFG_KEY = "nzxtPinterestConfig";
+const CFG_COMPAT = "nzxtMediaConfig";
+const URL_KEY = "media_url";
 
 const DEFAULT_URL =
   "https://v1.pinimg.com/videos/iht/expMp4/b0/95/18/b09518df640864a0181b5d242ad49c2b_720w.mp4";
@@ -14,10 +14,10 @@ const DEFAULT_URL =
 export default function Config() {
   // language
   const [lang, setLangState] = useState<Lang>(getInitialLang());
-  // url field with Save/Update
+  // url input bound to Save/Update
   const [urlInput, setUrlInput] = useState<string>("");
 
-  // load initial
+  // initial load
   useEffect(() => {
     const cfgRaw = localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
     const savedUrl = localStorage.getItem(URL_KEY);
@@ -33,7 +33,7 @@ export default function Config() {
     }
   }, []);
 
-  // sync language cross components (Preview listens too)
+  // language sync listener
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === LANG_KEY && e.newValue) {
@@ -44,7 +44,6 @@ export default function Config() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // handlers
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value as Lang;
     setLangState(newLang);
@@ -52,43 +51,37 @@ export default function Config() {
   };
 
   const handleSave = () => {
-    // URL is only applied to device when saved here (kept as current behavior).
+    // persist URL and broadcast—Display page will pick it up
     localStorage.setItem(URL_KEY, urlInput);
-    // also mirror into config object for persistence (do not wipe other keys)
-    try {
-      const current = JSON.parse(localStorage.getItem(CFG_KEY) || "{}");
-      const next = { ...current, url: urlInput };
-      localStorage.setItem(CFG_KEY, JSON.stringify(next));
-      localStorage.setItem(CFG_COMPAT, JSON.stringify(next));
-      // broadcast for live listeners
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: CFG_KEY,
-          newValue: JSON.stringify(next),
-        })
-      );
-      window.dispatchEvent(
-        new StorageEvent("storage", { key: URL_KEY, newValue: urlInput })
-      );
-    } catch {
-      const next = { url: urlInput };
-      localStorage.setItem(CFG_KEY, JSON.stringify(next));
-      localStorage.setItem(CFG_COMPAT, JSON.stringify(next));
-    }
+
+    // also mirror into config object without wiping other fields
+    const current = (() => {
+      try { return JSON.parse(localStorage.getItem(CFG_KEY) || "{}"); }
+      catch { return {}; }
+    })();
+    const next = { ...current, url: urlInput };
+    localStorage.setItem(CFG_KEY, JSON.stringify(next));
+    localStorage.setItem(CFG_COMPAT, JSON.stringify(next));
+
+    // broadcast changes so live preview updates
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: CFG_KEY, newValue: JSON.stringify(next) })
+    );
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: URL_KEY, newValue: urlInput })
+    );
   };
 
   const handleReset = () => {
     if (!window.confirm(t("resetConfirm", lang))) return;
 
-    // wipe all keys this app uses
+    // clear config but keep language
     localStorage.removeItem(CFG_KEY);
     localStorage.removeItem(CFG_COMPAT);
-    // important: keep language!
-    localStorage.setItem(URL_KEY, DEFAULT_URL);
 
+    // factory defaults for preview
     const defaults = {
       url: DEFAULT_URL,
-      // mirror default preview settings
       scale: 1,
       x: 0,
       y: 0,
@@ -101,10 +94,11 @@ export default function Config() {
       showGuide: true,
     };
 
+    localStorage.setItem(URL_KEY, DEFAULT_URL);
     localStorage.setItem(CFG_KEY, JSON.stringify(defaults));
     localStorage.setItem(CFG_COMPAT, JSON.stringify(defaults));
 
-    // broadcast updates so Preview refreshes immediately
+    // broadcast
     window.dispatchEvent(
       new StorageEvent("storage", { key: CFG_KEY, newValue: JSON.stringify(defaults) })
     );
@@ -117,7 +111,7 @@ export default function Config() {
 
   return (
     <div className="config-page">
-      {/* top bar */}
+      {/* top header */}
       <header className="config-header">
         <h1 className="config-title">{t("appTitle", lang)}</h1>
 
@@ -141,7 +135,7 @@ export default function Config() {
         </div>
       </header>
 
-      {/* URL input and action */}
+      {/* URL + Save */}
       <section className="url-section">
         <label className="url-label" htmlFor="mediaUrl">
           {t("urlLabel", lang)}
@@ -150,10 +144,10 @@ export default function Config() {
           <input
             id="mediaUrl"
             type="text"
+            className="url-input"
             placeholder={t("urlPlaceholder", lang)}
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            className="url-input"
           />
           <button onClick={handleSave} className="save-btn">
             {t("save", lang)}
@@ -162,7 +156,7 @@ export default function Config() {
         <p className="hint">{t("note", lang)}</p>
       </section>
 
-      {/* Preview + settings (already responsive 9/3 grid in CSS) */}
+      {/* Preview + Settings */}
       <ConfigPreview />
     </div>
   );
