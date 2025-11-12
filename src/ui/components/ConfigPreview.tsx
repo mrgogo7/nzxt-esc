@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../styles/ConfigPreview.css";
 import { LANG_KEY, Lang, t, getInitialLang } from "../../i18n";
 import {
   RefreshCw,
   AlignCenter,
-  AlignVerticalJustifyCenter,
   AlignLeft,
   AlignRight,
   AlignTop,
@@ -12,8 +11,9 @@ import {
   Maximize2,
   Square,
   StretchHorizontal,
-} from "lucide-react"; // icon set
+} from "lucide-react";
 
+// Persisted settings shape (kept backward compatible)
 type Settings = {
   scale: number;
   x: number;
@@ -51,13 +51,14 @@ export default function ConfigPreview() {
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
 
+  // Keep LCD vs preview offset parity
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
+  // Load persisted state (config + url + lang)
   useEffect(() => {
-    const cfgRaw =
-      localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
+    const cfgRaw = localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
     const savedUrl = localStorage.getItem(URL_KEY);
     if (cfgRaw) {
       try {
@@ -75,6 +76,7 @@ export default function ConfigPreview() {
     setLang(getInitialLang());
   }, []);
 
+  // Listen storage changes for live sync (url/config/lang)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === URL_KEY && e.newValue !== null) setMediaUrl(e.newValue);
@@ -90,15 +92,21 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Persist everything on any change (keeps Overlay Guide and others sticky)
   useEffect(() => {
     const save = { url: mediaUrl, ...settings };
     localStorage.setItem(CFG_KEY, JSON.stringify(save));
     localStorage.setItem(CFG_COMPAT, JSON.stringify(save));
+    // optional: broadcast for any passive listeners
+    window.dispatchEvent(
+      new StorageEvent("storage", { key: CFG_KEY, newValue: JSON.stringify(save) })
+    );
   }, [mediaUrl, settings]);
 
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
+  // Compute object-position based on align + offsets
   const base = (() => {
     switch (settings.align) {
       case "top": return { x: 50, y: 0 };
@@ -108,12 +116,11 @@ export default function ConfigPreview() {
       default: return { x: 50, y: 50 };
     }
   })();
-
   const adjX = settings.x * offsetScale;
   const adjY = settings.y * offsetScale;
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
-  // --- Mouse interactions ---
+  // --- Drag to move (LCD-pixel-accurate via offsetScale) ---
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -142,7 +149,31 @@ export default function ConfigPreview() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     }
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
   }, [isDragging]);
+
+  // --- Mouse wheel zoom (with passive:false to prevent page scroll) ---
+  useEffect(() => {
+    const circle = document.querySelector(".preview-circle");
+    if (!circle) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (!circle.contains(e.target as Node)) return;
+      e.preventDefault();
+      const step = e.shiftKey ? 0.05 : e.ctrlKey ? 0.2 : 0.1;
+      const delta = e.deltaY < 0 ? step : -step;
+      setSettings((p) => ({
+        ...p,
+        scale: Math.min(Math.max(parseFloat((p.scale + delta).toFixed(2)), 0.1), 5),
+      }));
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, []);
 
   const adjustScale = (delta: number) =>
     setSettings((p) => ({
@@ -170,12 +201,16 @@ export default function ConfigPreview() {
 
   return (
     <div className="config-wrapper">
-      {/* --- Left side preview --- */}
+      {/* LEFT: circular LCD preview */}
       <div className="preview-column">
         <div className="preview-title">{t("previewTitle", lang)}</div>
 
-        <div className={`preview-circle ${isDragging ? "dragging" : ""}`} onMouseDown={handleMouseDown}>
+        <div
+          className={`preview-circle ${isDragging ? "dragging" : ""}`}
+          onMouseDown={handleMouseDown}
+        >
           <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
+
           {isVideo ? (
             <video
               src={mediaUrl}
@@ -216,6 +251,7 @@ export default function ConfigPreview() {
                 transform: `translate(${settings.x * offsetScale}px, ${
                   settings.y * offsetScale
                 }px) scale(${settings.scale})`,
+                transformOrigin: "center center",
               }}
             >
               <div className="crosshair horizontal" />
@@ -223,6 +259,7 @@ export default function ConfigPreview() {
             </div>
           )}
 
+          {/* Zoom buttons (centered bottom inside the circle) */}
           <div className="zoom-buttons-bottom">
             <button onClick={() => adjustScale(-0.1)}>−</button>
             <button onClick={() => adjustScale(0.1)}>＋</button>
@@ -230,14 +267,16 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      {/* --- Right side settings --- */}
+      {/* RIGHT: modern "Preview Settings" panel */}
       <div className="settings-column">
         <div className="panel">
+          {/* header: left-aligned title, right-aligned compact overlay toggle */}
           <div className="panel-header">
             <h3>{t("settingsTitle", lang)}</h3>
+
             <div className="overlay-toggle-compact">
               <span>{t("overlayGuide", lang)}</span>
-              <label className="switch small">
+              <label className="switch">
                 <input
                   type="checkbox"
                   checked={!!settings.showGuide}
@@ -250,35 +289,77 @@ export default function ConfigPreview() {
             </div>
           </div>
 
+          {/* compact rows: Label | Control | Reset */}
           <div className="settings-grid-modern">
-            {[
-              { label: t("scale", lang), field: "scale" },
-              { label: t("xOffset", lang), field: "x" },
-              { label: t("yOffset", lang), field: "y" },
-            ].map(({ label, field }) => (
-              <div className="setting-row" key={field}>
-                <label>{label}</label>
-                <input
-                  type="number"
-                  value={settings[field as keyof Settings] as any}
-                  onChange={(e) =>
-                    setSettings((p) => ({
-                      ...p,
-                      [field]: parseFloat(e.target.value || "0"),
-                    }))
-                  }
-                />
-                <button
-                  className="reset-icon"
-                  title="Reset"
-                  onClick={() => resetField(field as keyof Settings)}
-                >
-                  <RefreshCw size={14} />
-                </button>
-              </div>
-            ))}
+            {/* Scale */}
+            <div className="setting-row">
+              <label>{t("scale", lang)}</label>
+              <input
+                type="number"
+                step={0.1}
+                min={0.1}
+                value={settings.scale}
+                onChange={(e) =>
+                  setSettings((p) => ({
+                    ...p,
+                    scale: parseFloat(e.target.value || "1"),
+                  }))
+                }
+              />
+              <button
+                className="reset-icon"
+                title="Reset"
+                onClick={() => resetField("scale")}
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
 
-            {/* Align Icons */}
+            {/* X Offset */}
+            <div className="setting-row">
+              <label>{t("xOffset", lang)}</label>
+              <input
+                type="number"
+                value={settings.x}
+                onChange={(e) =>
+                  setSettings((p) => ({
+                    ...p,
+                    x: parseInt(e.target.value || "0", 10),
+                  }))
+                }
+              />
+              <button
+                className="reset-icon"
+                title="Reset"
+                onClick={() => resetField("x")}
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
+
+            {/* Y Offset */}
+            <div className="setting-row">
+              <label>{t("yOffset", lang)}</label>
+              <input
+                type="number"
+                value={settings.y}
+                onChange={(e) =>
+                  setSettings((p) => ({
+                    ...p,
+                    y: parseInt(e.target.value || "0", 10),
+                  }))
+                }
+              />
+              <button
+                className="reset-icon"
+                title="Reset"
+                onClick={() => resetField("y")}
+              >
+                <RefreshCw size={14} />
+              </button>
+            </div>
+
+            {/* Align as icon group */}
             <div className="setting-row">
               <label>{t("align", lang)}</label>
               <div className="icon-group">
@@ -297,14 +378,14 @@ export default function ConfigPreview() {
               </div>
               <button
                 className="reset-icon"
-                onClick={() => resetField("align")}
                 title="Reset"
+                onClick={() => resetField("align")}
               >
                 <RefreshCw size={14} />
               </button>
             </div>
 
-            {/* Fit Icons */}
+            {/* Fit as icon group */}
             <div className="setting-row">
               <label>{t("fit", lang)}</label>
               <div className="icon-group">
@@ -323,8 +404,8 @@ export default function ConfigPreview() {
               </div>
               <button
                 className="reset-icon"
-                onClick={() => resetField("fit")}
                 title="Reset"
+                onClick={() => resetField("fit")}
               >
                 <RefreshCw size={14} />
               </button>
