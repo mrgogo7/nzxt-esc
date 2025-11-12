@@ -49,6 +49,7 @@ export default function ConfigPreview() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [isDragging, setIsDragging] = useState(false);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+  const hasLoadedRef = useRef(false); // 👈 ekledik
 
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
   const previewSize = 200;
@@ -56,20 +57,16 @@ export default function ConfigPreview() {
 
   // === Load from storage on mount ===
   useEffect(() => {
-    // Load last saved configuration (persistent)
     const savedUrl = localStorage.getItem(URL_KEY);
     const savedCfg =
       localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
-  
+
     if (savedCfg) {
       try {
         const parsed = JSON.parse(savedCfg);
-    
-        // merge once, skipping null/undefined values
         const cleaned = Object.fromEntries(
           Object.entries(parsed).filter(([k, v]) => v !== undefined && v !== null)
         );
-    
         setSettings({ ...DEFAULTS, ...cleaned });
         setMediaUrl(cleaned.url || savedUrl || "");
       } catch {
@@ -82,10 +79,12 @@ export default function ConfigPreview() {
       setMediaUrl(savedUrl || "");
     }
 
-    // apply saved language as well
-    setLang(getInitialLang());
-  }, []);
+    // 👇 only set language if not set before
+    const langFromStorage = localStorage.getItem(LANG_KEY);
+    if (!langFromStorage) setLang(getInitialLang());
 
+    hasLoadedRef.current = true; // ✅ mark as loaded
+  }, []);
 
   // === Listen for external changes (multi-tab / NZXT overlay) ===
   useEffect(() => {
@@ -103,9 +102,11 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // === Throttled persist (every ~100ms) ===
+  // === Throttled persist (every ~100ms), skip until first load done ===
   const lastSyncRef = useRef(0);
   useEffect(() => {
+    if (!hasLoadedRef.current) return; // ⛔ skip until settings are loaded
+
     const now = Date.now();
     if (now - lastSyncRef.current < 100) return;
     lastSyncRef.current = now;
