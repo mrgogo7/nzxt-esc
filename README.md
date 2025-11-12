@@ -1,4 +1,4 @@
-# 🌀 AMC — Advanced Media Configurator for NZXT Web Integration
+# 🌀 Advanced Media Configurator for NZXT Web Integration — AMC
 
 **Drag • Scale • Align • Sync your media in real time.**
 
