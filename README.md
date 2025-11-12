@@ -53,4 +53,34 @@ and the LCD instantly mirrors your configuration.
 ---
 
 ## 📦 Project Structure
+src/
+├── ui/
+│ ├── components/
+│ │ └── ConfigPreview.tsx
+│ └── styles/
+│ └── ConfigPreview.css
+├── config.tsx
+├── i18n.ts
+vite.config.ts
+
+
+---
+
+## 🧭 Keywords (for search engines)
+
+**NZXT Web Integration, NZXT LCD, Kraken Elite, CAM Overlay, Media Configurator, Live Preview, Drag & Scale, React Configurator**
+
+---
+
+## 🧑‍💻 Author
+
+Developed by **Gökhan Akgül**  
+_“Because every pixel deserves precision.”_  
+🔗 [GitHub Profile](https://github.com/mrgogo7)
+
+---
+
+## 🏷️ License
+
+MIT © 2025 — free for personal and non-commercial use.
 
