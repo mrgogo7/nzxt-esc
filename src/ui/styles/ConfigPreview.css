@@ -81,13 +81,14 @@
 .hint { margin-top:6px; color:#9aa3ad; font-size:12px; }
 
 /* ==== Two-column layout ==== */
-.config-wrapper {
-  display: grid;
-  grid-template-columns: 3fr 1fr; /* 9 / 3 feel */
-  gap: 24px;
-  align-items: start;
-  justify-content: center;
-}
+ .config-wrapper {
+   display: grid;
+   grid-template-columns: 2fr 1fr;
+   gap: 24px;
+   align-items: start;
+   justify-content: center;
+ }
+
 
 .preview-column { display:flex; flex-direction:column; align-items:center; }
 .preview-title { font-size: 14px; margin-bottom: 8px; color:#ccc; text-align:center; }
