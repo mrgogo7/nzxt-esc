@@ -10,6 +10,7 @@ import {
   AlignEndHorizontal,
   AlignStartVertical,
   AlignEndVertical,
+  AlignVerticalSpaceAround,
 } from "lucide-react";
 
 type Settings = {
@@ -189,7 +190,7 @@ export default function ConfigPreview() {
 
   // 🔹 Updated icon sets
   const alignIcons = [
-    { key: "center", icon: <MoveHorizontal size={16} /> },
+    { key: "center", icon: <AlignVerticalSpaceAround size={16} /> },
     { key: "top", icon: <AlignStartHorizontal size={16} /> },
     { key: "bottom", icon: <AlignEndHorizontal size={16} /> },
     { key: "left", icon: <AlignStartVertical size={16} /> },
