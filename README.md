@@ -8,7 +8,8 @@ It lets you instantly preview, position, and sync your media (MP4, JPG, GIF) dir
 ---
 
 <p>
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-web-integration-amc/main/docs/demo.gif" width="640" alt="NZXT AMC Preview">
+  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-web-integration-amc/main/docs/demo.gif" width="540" alt="NZXT AMC Preview">
+  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-web-integration-amc/main/docs/demolive.gif" width="240" alt="NZXT AMC Preview">
   <br>
   <em>Live NZXT LCD and configuration preview</em>
 </p>
