@@ -94,18 +94,15 @@ export default function ConfigPreview() {
 
   // 🔹 Persist all changes (with debounce)
   useEffect(() => {
-    const handler = setTimeout(() => {
-      const save = { url: mediaUrl, ...settings };
-      localStorage.setItem(CFG_KEY, JSON.stringify(save));
-      localStorage.setItem(CFG_COMPAT, JSON.stringify(save));
-      window.dispatchEvent(
-        new StorageEvent("storage", {
-          key: CFG_KEY,
-          newValue: JSON.stringify(save),
-        })
-      );
-    }, 200);
-    return () => clearTimeout(handler);
+    const save = { url: mediaUrl, ...settings };
+    localStorage.setItem(CFG_KEY, JSON.stringify(save));
+    localStorage.setItem(CFG_COMPAT, JSON.stringify(save));
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: CFG_KEY,
+        newValue: JSON.stringify(save),
+      })
+    );
   }, [mediaUrl, settings]);
 
   const isVideo =
