@@ -3,6 +3,8 @@ import "../styles/ConfigPreview.css";
 import { LANG_KEY, Lang, t, getInitialLang } from "../../i18n";
 import {
   RefreshCw,
+  Move,
+  MoveDiagonal,
   MoveHorizontal,
   AlignStartHorizontal,
   AlignEndHorizontal,
@@ -195,10 +197,11 @@ export default function ConfigPreview() {
   ];
 
   const fitIcons = [
-    { key: "cover", icon: <MoveHorizontal size={16} /> },
-    { key: "contain", icon: <MoveHorizontal size={16} /> },
+    { key: "cover", icon: <Move size={16} /> },
+    { key: "contain", icon: <MoveDiagonal size={16} /> },
     { key: "fill", icon: <MoveHorizontal size={16} /> },
   ];
+
 
   return (
     <div className="config-wrapper">
