@@ -54,7 +54,7 @@ export default function ConfigPreview() {
   const previewSize = 200;
   const offsetScale = previewSize / lcdResolution;
 
-  // 🔹 Initial load + restore persisted settings
+  // === Load from storage on mount ===
   useEffect(() => {
     const cfgRaw =
       localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
@@ -62,7 +62,6 @@ export default function ConfigPreview() {
     if (cfgRaw) {
       try {
         const parsed = JSON.parse(cfgRaw);
-        // preserve all fields, including fit/align/showGuide
         setSettings({ ...DEFAULTS, ...parsed });
         setMediaUrl(parsed.url || savedUrl || "");
       } catch {
@@ -76,7 +75,7 @@ export default function ConfigPreview() {
     setLang(getInitialLang());
   }, []);
 
-  // 🔹 Storage sync (multi-tab / live)
+  // === Listen for external changes (multi-tab / NZXT overlay) ===
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === URL_KEY && e.newValue !== null) setMediaUrl(e.newValue);
@@ -92,8 +91,13 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // 🔹 Persist all changes (with debounce)
+  // === Throttled persist (every ~100ms) ===
+  const lastSyncRef = useRef(0);
   useEffect(() => {
+    const now = Date.now();
+    if (now - lastSyncRef.current < 100) return;
+    lastSyncRef.current = now;
+
     const save = { url: mediaUrl, ...settings };
     localStorage.setItem(CFG_KEY, JSON.stringify(save));
     localStorage.setItem(CFG_COMPAT, JSON.stringify(save));
@@ -108,7 +112,7 @@ export default function ConfigPreview() {
   const isVideo =
     /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
-  // Calculate objectPosition based on align + offsets
+  // === Compute object position ===
   const base = (() => {
     switch (settings.align) {
       case "top":
@@ -123,11 +127,12 @@ export default function ConfigPreview() {
         return { x: 50, y: 50 };
     }
   })();
+
   const adjX = settings.x * offsetScale;
   const adjY = settings.y * offsetScale;
   const objectPosition = `calc(${base.x}% + ${adjX}px) calc(${base.y}% + ${adjY}px)`;
 
-  // 🔹 Mouse drag offset
+  // === Drag to move ===
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     dragStart.current = { x: e.clientX, y: e.clientY };
@@ -158,7 +163,7 @@ export default function ConfigPreview() {
     }
   }, [isDragging]);
 
-  // 🔹 Wheel zoom (non-passive)
+  // === Wheel zoom ===
   useEffect(() => {
     const circle = document.querySelector(".preview-circle");
     if (!circle) return;
@@ -185,7 +190,7 @@ export default function ConfigPreview() {
   const resetField = (field: keyof Settings) =>
     setSettings((p) => ({ ...p, [field]: DEFAULTS[field] }));
 
-  // 🔹 Updated icon sets
+  // === Icons ===
   const alignIcons = [
     { key: "center", icon: <AlignVerticalSpaceAround size={16} /> },
     { key: "top", icon: <AlignStartHorizontal size={16} /> },
@@ -200,10 +205,10 @@ export default function ConfigPreview() {
     { key: "fill", icon: <MoveHorizontal size={16} /> },
   ];
 
-
+  // === Render ===
   return (
     <div className="config-wrapper">
-      {/* left: preview */}
+      {/* Left preview */}
       <div className="preview-column">
         <div className="preview-title">{t("previewTitle", lang)}</div>
 
@@ -261,7 +266,6 @@ export default function ConfigPreview() {
             </div>
           )}
 
-          {/* zoom buttons */}
           <div className="zoom-buttons-bottom">
             <button onClick={() => adjustScale(-0.1)}>−</button>
             <button onClick={() => adjustScale(0.1)}>＋</button>
@@ -269,12 +273,11 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      {/* right: settings */}
+      {/* Right settings */}
       <div className="settings-column">
         <div className="panel">
           <div className="panel-header">
             <h3>{t("settingsTitle", lang)}</h3>
-
             <div className="overlay-toggle-compact">
               <span>{t("overlayGuide", lang)}</span>
               <label className="switch">
@@ -291,7 +294,6 @@ export default function ConfigPreview() {
           </div>
 
           <div className="settings-grid-modern">
-            {/* Numeric fields */}
             {[
               { field: "scale", label: t("scale", lang), step: 0.1 },
               { field: "x", label: t("xOffset", lang) },
