@@ -83,7 +83,7 @@
 /* ==== Two-column layout ==== */
  .config-wrapper {
    display: grid;
-   grid-template-columns: 2fr 1fr;
+   grid-template-columns: 1fr 1fr;
    gap: 24px;
    align-items: start;
    justify-content: center;
