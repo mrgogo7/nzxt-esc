@@ -33,13 +33,34 @@ and the LCD instantly mirrors your configuration.
 
 ## 🖼️ Example Usage
 
-1. Enter your **media URL** (MP4, JPG, or GIF).  
-2. Adjust **Scale / X / Y Offset / Align / Fit** parameters.  
-3. Instantly see the effect in both preview and your NZXT LCD.  
-4. Settings are saved automatically and restored on reload.  
+### 🚀 Quick Launch (via NZXT CAM)
+You can open this integration directly in the **NZXT CAM** app.
 
-> 🟣 **Quick Launch:**  
-> [Open AMC in NZXT CAM](nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-web-integration-amc/)
+> **Step 1.** Copy and paste the following line into your web browser’s address bar:  
+> ```
+> nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-web-integration-amc/
+> ```
+> _(Direct links with the `nzxt-cam://` protocol are not clickable on GitHub — please paste it manually.)_
+
+> **Step 2.** Press **Enter**, and NZXT CAM will automatically launch and load this Web Integration.
+
+---
+
+### 🧩 Manual Add (inside NZXT CAM)
+If you prefer to add it manually:
+1. Open **NZXT CAM** → go to **Settings → Web Integrations → + Add Custom Integration**  
+2. Paste this URL: https://mrgogo7.github.io/nzxt-web-integration-amc/
+3. Click **Add**, then open the integration from the list.  
+4. You should now see **AMC — Advanced Media Configurator** appear on your NZXT device’s LCD.
+
+---
+
+### 🧠 Using AMC
+Once opened inside NZXT CAM:
+1. Enter your **media URL** (MP4, JPG, or GIF).  
+2. Adjust **Scale**, **X / Y Offset**, **Align**, and **Fit** parameters.  
+3. The LCD and on-screen preview update instantly (100 ms sync interval).  
+4. Your settings are automatically saved and restored when you reopen CAM.  
 
 ---
 
@@ -65,7 +86,6 @@ src/
 ├── config.tsx
 ├── i18n.ts
 vite.config.ts
-
 
 ---
 
