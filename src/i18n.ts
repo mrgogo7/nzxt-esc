@@ -1,10 +1,9 @@
-// Simple i18n helper with localStorage persistence and storage-sync.
-// No React context needed; both pages read from the same source.
+// Simple i18n helper with localStorage persistence.
+// All inline comments are in English as requested.
 
 export type Lang = "en" | "tr";
 export const LANG_KEY = "nzxtLang";
 
-// UI dictionaries
 const dict: Record<Lang, Record<string, string>> = {
   en: {
     appTitle: "NZXT Media Config",
@@ -37,13 +36,12 @@ const dict: Record<Lang, Record<string, string>> = {
     appTitle: "NZXT Medya Ayarları",
     language: "Dil",
     reset: "Sıfırla",
-    resetConfirm:
-      "Emin misiniz? Bu işlem URL dahil TÜM ayarları sıfırlayacak.",
+    resetConfirm: "Emin misiniz? Bu işlem URL dahil TÜM ayarları sıfırlar.",
     urlLabel: "Medya URL",
     urlPlaceholder: "https://...mp4 / ...jpg / ...gif",
     save: "Kaydet / Güncelle",
     note:
-      "Cihazınızda göstermek istediğiniz URL’yi giriniz. URL’yi girdikten sonra konumu aşağıdaki önizleme alanında ayarlayabilirsiniz.",
+      "Cihazınızda göstermek istediğiniz URL’yi giriniz. URL’yi girdikten sonra konumu aşağıdaki önizlemede ayarlayabilirsiniz.",
     previewTitle: "LCD Önizleme",
     settingsTitle: "Önizleme Ayarları",
     scale: "Ölçek",
@@ -63,20 +61,16 @@ const dict: Record<Lang, Record<string, string>> = {
   },
 };
 
-// Default/fallback language
 export function getInitialLang(): Lang {
   const saved = localStorage.getItem(LANG_KEY) as Lang | null;
-  if (saved === "en" || saved === "tr") return saved;
-  return "en";
+  return saved === "en" || saved === "tr" ? saved : "en";
 }
 
-// Translator
 export function t(key: string, lang?: Lang): string {
   const l = lang ?? getInitialLang();
   return dict[l]?.[key] ?? dict.en[key] ?? key;
 }
 
-// Persist language and broadcast to other tabs/components
 export function setLang(lang: Lang) {
   localStorage.setItem(LANG_KEY, lang);
   window.dispatchEvent(
