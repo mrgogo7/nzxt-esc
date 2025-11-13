@@ -13,9 +13,9 @@ import {
   AlignVerticalSpaceAround,
 } from "lucide-react";
 
-/* =================================================================================================
-   Overlay System – Types (future-proof)
-================================================================================================= */
+/* ================================================================================================
+   OVERLAY SETTINGS (MATCHES KRAKENOVERLAY EXACTLY)
+================================================================================================ */
 
 export type OverlayMode = "none" | "single" | "dual" | "triple";
 
@@ -30,30 +30,18 @@ export type OverlayMetricKey =
 
 export interface OverlaySettings {
   mode: OverlayMode;
-
-  primaryMetric?: OverlayMetricKey;
-
-  numberColor?: string;
-  textColor?: string;
-
-  numberSize?: number;
-  textSize?: number;
-
-  circularBar?: {
-    enabled: boolean;
-    color: string;
-    thickness: number;
-    opacity: number;
-  };
+  primaryMetric: OverlayMetricKey;
+  numberColor: string;
+  textColor: string;
 }
 
-/* =================================================================================================
-   Main Settings
-================================================================================================= */
+/* ================================================================================================
+   MAIN SETTINGS MODEL
+================================================================================================ */
 
 type Settings = {
   scale: number;
-  x: number;
+  x: number; // LCD REAL PIXEL OFFSET
   y: number;
   fit: "cover" | "contain" | "fill";
   align: "center" | "top" | "bottom" | "left" | "right";
@@ -63,41 +51,29 @@ type Settings = {
   resolution: string;
   showGuide?: boolean;
 
-  overlay?: OverlaySettings;
+  overlay: OverlaySettings;
 };
 
-/* =================================================================================================
-   Default Settings
-================================================================================================= */
+/* ================================================================================================
+   DEFAULT VALUES (MUST MATCH KrakenOverlay.tsx)
+================================================================================================ */
 
 const DEFAULTS: Settings = {
   scale: 1,
-  x: 0,
+  x: 0, // REAL LCD PX
   y: 0,
   fit: "cover",
   align: "center",
   loop: true,
   autoplay: true,
   mute: true,
-  resolution: `${window.innerWidth} x ${window.innerHeight}`,
+  resolution: `${window.innerWidth}x${window.innerHeight}`,
   showGuide: true,
-
   overlay: {
     mode: "none",
     primaryMetric: "cpuTemp",
-
-    numberColor: "#FFFFFF",
-    textColor: "#E5E7EB",
-
-    numberSize: 38,
-    textSize: 14,
-
-    circularBar: {
-      enabled: false,
-      color: "#00A2FF",
-      thickness: 6,
-      opacity: 0.9,
-    },
+    numberColor: "#ffffff",
+    textColor: "#ffffff",
   },
 };
 
@@ -105,32 +81,42 @@ const CFG_KEY = "nzxtPinterestConfig";
 const CFG_COMPAT = "nzxtMediaConfig";
 const URL_KEY = "media_url";
 
-/* =================================================================================================
-   Component
-================================================================================================= */
+/* ================================================================================================
+   COMPONENT START
+================================================================================================ */
 
 export default function ConfigPreview() {
   const [lang, setLang] = useState<Lang>(getInitialLang());
-  const [mediaUrl, setMediaUrl] = useState("");
+  const [mediaUrl, setMediaUrl] = useState<string>("");
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [isDragging, setIsDragging] = useState(false);
 
+  // Drag references
   const dragStart = useRef<{ x: number; y: number } | null>(null);
+
+  // throttling controls
   const hasLoadedRef = useRef(false);
   const hasInteractedRef = useRef(false);
 
+  // REAL LCD resolution (NZXT API tells this)
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
+
+  // Preview circle is fixed at 200px diameter
   const previewSize = 200;
-  const offsetScale = previewSize / lcdResolution;
+
+  // Difference between preview pixels vs real LCD pixels
+  const previewToLCD = lcdResolution / previewSize;
+  const lcdToPreview = previewSize / lcdResolution;
 
   /* ================================================================================================
-     Load settings (deep merge for overlay compatibility)
+     LOAD SETTINGS
   ================================================================================================= */
 
   useEffect(() => {
-    const savedURL = localStorage.getItem(URL_KEY);
+    const savedUrl = localStorage.getItem(URL_KEY);
     const savedCfg =
-      localStorage.getItem(CFG_KEY) || localStorage.getItem(CFG_COMPAT);
+      localStorage.getItem(CFG_KEY) ||
+      localStorage.getItem(CFG_COMPAT);
 
     if (savedCfg) {
       try {
@@ -142,23 +128,18 @@ export default function ConfigPreview() {
           overlay: {
             ...DEFAULTS.overlay,
             ...(parsed.overlay || {}),
-            circularBar: {
-              ...DEFAULTS.overlay?.circularBar,
-              ...(parsed.overlay?.circularBar || {}),
-            },
           },
         };
 
         setSettings(merged);
-        setMediaUrl(parsed.url || savedURL || "");
+        setMediaUrl(parsed.url || savedUrl || "");
       } catch {
-        console.warn("⚠ Failed to load config, using defaults.");
         setSettings(DEFAULTS);
-        setMediaUrl(savedURL || "");
+        setMediaUrl(savedUrl || "");
       }
     } else {
       setSettings(DEFAULTS);
-      setMediaUrl(savedURL || "");
+      setMediaUrl(savedUrl || "");
     }
 
     if (!localStorage.getItem(LANG_KEY)) {
@@ -169,11 +150,14 @@ export default function ConfigPreview() {
   }, []);
 
   /* ================================================================================================
-     Unlock realtime sync after first interaction
+     ENABLE REALTIME AFTER FIRST USER ACTION
   ================================================================================================= */
 
   useEffect(() => {
-    const enableRealtime = () => (hasInteractedRef.current = true);
+    const enableRealtime = () => {
+      hasInteractedRef.current = true;
+    };
+
     window.addEventListener("mousedown", enableRealtime, { once: true });
     window.addEventListener("wheel", enableRealtime, { once: true });
     window.addEventListener("keydown", enableRealtime, { once: true });
@@ -186,44 +170,44 @@ export default function ConfigPreview() {
   }, []);
 
   /* ================================================================================================
-     Multi-tab + NZXT CAM sync
+     LISTEN TO EXTERNAL STORAGE UPDATES
   ================================================================================================= */
 
   useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === URL_KEY && e.newValue !== null) setMediaUrl(e.newValue);
+    const handler = (e: StorageEvent) => {
+      if (e.key === URL_KEY && e.newValue) {
+        setMediaUrl(e.newValue);
+      }
 
-      if (e.key === CFG_KEY && e.newValue) {
+      if ((e.key === CFG_KEY || e.key === CFG_COMPAT) && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
-
-          setSettings((prev) => ({
-            ...prev,
+          setSettings((p) => ({
+            ...p,
             ...parsed,
             overlay: {
-              ...prev.overlay,
+              ...p.overlay,
               ...(parsed.overlay || {}),
-              circularBar: {
-                ...prev.overlay?.circularBar,
-                ...(parsed.overlay?.circularBar || {}),
-              },
             },
           }));
         } catch {}
       }
 
-      if (e.key === LANG_KEY && e.newValue) setLang(e.newValue as Lang);
+      if (e.key === LANG_KEY && e.newValue) {
+        setLang(e.newValue as Lang);
+      }
     };
 
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, []);
 
   /* ================================================================================================
-     Persist config every 100ms
+     THROTTLED SAVE
   ================================================================================================= */
 
   const lastSync = useRef(0);
+
   useEffect(() => {
     if (!hasLoadedRef.current || !hasInteractedRef.current) return;
 
@@ -231,22 +215,33 @@ export default function ConfigPreview() {
     if (now - lastSync.current < 100) return;
     lastSync.current = now;
 
-    const save = { url: mediaUrl, ...settings };
+    const save = {
+      url: mediaUrl,
+      ...settings,
+    };
 
     localStorage.setItem(CFG_KEY, JSON.stringify(save));
     localStorage.setItem(CFG_COMPAT, JSON.stringify(save));
 
     window.dispatchEvent(
-      new StorageEvent("storage", { key: CFG_KEY, newValue: JSON.stringify(save) })
+      new StorageEvent("storage", {
+        key: CFG_KEY,
+        newValue: JSON.stringify(save),
+      })
     );
   }, [mediaUrl, settings]);
 
   /* ================================================================================================
-     Helpers
+     MEDIA TYPE DETECTION
   ================================================================================================= */
 
   const isVideo =
-    /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
+    /\.mp4($|\?)/i.test(mediaUrl) ||
+    mediaUrl.toLowerCase().includes("mp4");
+
+  /* ================================================================================================
+     PREVIEW POSITIONING (LCD ⭤ PREVIEW)
+  ================================================================================================= */
 
   const baseAlign = (() => {
     switch (settings.align) {
@@ -263,13 +258,14 @@ export default function ConfigPreview() {
     }
   })();
 
-  const adjX = settings.x * offsetScale;
-  const adjY = settings.y * offsetScale;
+  // LCD pixel offset converted to preview pixel offset
+  const adjX = settings.x * lcdToPreview;
+  const adjY = settings.y * lcdToPreview;
 
   const objectPosition = `calc(${baseAlign.x}% + ${adjX}px) calc(${baseAlign.y}% + ${adjY}px)`;
 
   /* ================================================================================================
-     Dragging
+     DRAG HANDLER – REAL LCD PX MOVEMENT
   ================================================================================================= */
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -283,12 +279,14 @@ export default function ConfigPreview() {
 
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
+
     dragStart.current = { x: e.clientX, y: e.clientY };
 
-    setSettings((prev) => ({
-      ...prev,
-      x: prev.x + Math.round(dx / offsetScale),
-      y: prev.y + Math.round(dy / offsetScale),
+    // IMPORTANT: dx is preview px → convert to LCD px
+    setSettings((p) => ({
+      ...p,
+      x: p.x + Math.round(dx * previewToLCD),
+      y: p.y + Math.round(dy * previewToLCD),
     }));
   };
 
@@ -308,7 +306,7 @@ export default function ConfigPreview() {
   }, [isDragging]);
 
   /* ================================================================================================
-     Wheel Zoom
+     WHEEL ZOOM
   ================================================================================================= */
 
   useEffect(() => {
@@ -317,14 +315,16 @@ export default function ConfigPreview() {
 
     const onWheel = (e: WheelEvent) => {
       if (!circle.contains(e.target as Node)) return;
+
       e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.1 : -0.1;
 
-      const step = e.ctrlKey ? 0.2 : 0.1;
-      const delta = e.deltaY < 0 ? step : -step;
-
-      setSettings((prev) => ({
-        ...prev,
-        scale: Math.min(Math.max(parseFloat((prev.scale + delta).toFixed(2)), 0.1), 5),
+      setSettings((p) => ({
+        ...p,
+        scale: Math.min(
+          Math.max(parseFloat((p.scale + delta).toFixed(2)), 0.1),
+          5
+        ),
       }));
     };
 
@@ -332,17 +332,24 @@ export default function ConfigPreview() {
     return () => window.removeEventListener("wheel", onWheel);
   }, []);
 
+  /* ================================================================================================
+     HELPERS
+  ================================================================================================= */
+
   const adjustScale = (delta: number) =>
-    setSettings((prev) => ({
-      ...prev,
-      scale: Math.min(Math.max(parseFloat((prev.scale + delta).toFixed(2)), 0.1), 5),
+    setSettings((p) => ({
+      ...p,
+      scale: Math.min(
+        Math.max(parseFloat((p.scale + delta).toFixed(2)), 0.1),
+        5
+      ),
     }));
 
   const resetField = (field: keyof Settings) =>
-    setSettings((prev) => ({ ...prev, [field]: DEFAULTS[field] }));
+    setSettings((p) => ({ ...p, [field]: DEFAULTS[field] }));
 
   /* ================================================================================================
-     UI Icon Groups
+     ICON DATA
   ================================================================================================= */
 
   const alignIcons = [
@@ -360,13 +367,13 @@ export default function ConfigPreview() {
   ];
 
   /* ================================================================================================
-     Render
+     RENDER UI
   ================================================================================================= */
 
   return (
     <div className="config-wrapper">
 
-      {/* LEFT - LIVE LCD PREVIEW */}
+      {/* LEFT SIDE: LIVE PREVIEW */}
       <div className="preview-column">
         <div className="preview-title">{t("previewTitle", lang)}</div>
 
@@ -376,6 +383,7 @@ export default function ConfigPreview() {
         >
           <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
 
+          {/* MEDIA RENDER */}
           {isVideo ? (
             <video
               src={mediaUrl}
@@ -407,13 +415,12 @@ export default function ConfigPreview() {
             )
           )}
 
+          {/* MOVEMENT GUIDE */}
           {settings.showGuide && (
             <div
               className="overlay-guide"
               style={{
-                transform: `translate(${settings.x * offsetScale}px, ${
-                  settings.y * offsetScale
-                }px) scale(${settings.scale})`,
+                transform: `translate(${adjX}px, ${adjY}px) scale(${settings.scale})`,
               }}
             >
               <div className="crosshair horizontal" />
@@ -421,6 +428,7 @@ export default function ConfigPreview() {
             </div>
           )}
 
+          {/* ZOOM BUTTONS */}
           <div className="zoom-buttons-bottom">
             <button onClick={() => adjustScale(-0.1)}>−</button>
             <button onClick={() => adjustScale(0.1)}>＋</button>
@@ -428,10 +436,10 @@ export default function ConfigPreview() {
         </div>
       </div>
 
-      {/* RIGHT - SETTINGS + OVERLAY PANEL */}
+      {/* RIGHT SIDE: SETTINGS PANELS */}
       <div className="settings-column">
 
-        {/* SETTINGS PANEL */}
+        {/* MAIN SETTINGS PANEL */}
         <div className="panel">
           <div className="panel-header">
             <h3>{t("settingsTitle", lang)}</h3>
@@ -443,7 +451,10 @@ export default function ConfigPreview() {
                   type="checkbox"
                   checked={!!settings.showGuide}
                   onChange={(e) =>
-                    setSettings((prev) => ({ ...prev, showGuide: e.target.checked }))
+                    setSettings((p) => ({
+                      ...p,
+                      showGuide: e.target.checked,
+                    }))
                   }
                 />
                 <span className="slider" />
@@ -451,7 +462,9 @@ export default function ConfigPreview() {
             </div>
           </div>
 
+          {/* GRID */}
           <div className="settings-grid-modern">
+            {/* scale x y */}
             {[
               { field: "scale", label: t("scale", lang), step: 0.1 },
               { field: "x", label: t("xOffset", lang) },
@@ -464,8 +477,8 @@ export default function ConfigPreview() {
                   step={step || 1}
                   value={(settings as any)[field]}
                   onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
+                    setSettings((p) => ({
+                      ...p,
                       [field]: parseFloat(e.target.value || "0"),
                     }))
                   }
@@ -480,20 +493,22 @@ export default function ConfigPreview() {
               </div>
             ))}
 
-            {/* ALIGN */}
+            {/* align */}
             <div className="setting-row">
               <label>{t("align", lang)}</label>
               <div className="icon-group">
                 {alignIcons.map(({ key, icon }) => (
                   <button
                     key={key}
-                    className={`icon-btn ${settings.align === key ? "active" : ""}`}
+                    className={`icon-btn ${
+                      settings.align === key ? "active" : ""
+                    }`}
                     title={t(
                       `align${key[0].toUpperCase() + key.slice(1)}`,
                       lang
                     )}
                     onClick={() =>
-                      setSettings((prev) => ({ ...prev, align: key as any }))
+                      setSettings((p) => ({ ...p, align: key as any }))
                     }
                   >
                     {icon}
@@ -509,20 +524,22 @@ export default function ConfigPreview() {
               </button>
             </div>
 
-            {/* FIT */}
+            {/* fit */}
             <div className="setting-row">
               <label>{t("fit", lang)}</label>
               <div className="icon-group">
                 {fitIcons.map(({ key, icon }) => (
                   <button
                     key={key}
-                    className={`icon-btn ${settings.fit === key ? "active" : ""}`}
+                    className={`icon-btn ${
+                      settings.fit === key ? "active" : ""
+                    }`}
                     title={t(
                       `fit${key[0].toUpperCase() + key.slice(1)}`,
                       lang
                     )}
                     onClick={() =>
-                      setSettings((prev) => ({ ...prev, fit: key as any }))
+                      setSettings((p) => ({ ...p, fit: key as any }))
                     }
                   >
                     {icon}
@@ -540,9 +557,9 @@ export default function ConfigPreview() {
           </div>
         </div>
 
-        {/* ================================================================================
+        {/* ============================================================================================
             OVERLAY PANEL
-        ================================================================================ */}
+        ============================================================================================ */}
         <div className="panel" style={{ marginTop: 16 }}>
           <div className="panel-header">
             <h3>Overlay Options</h3>
@@ -550,18 +567,18 @@ export default function ConfigPreview() {
 
           <div className="settings-grid-modern">
 
-            {/* Overlay Mode */}
+            {/* OVERLAY MODE */}
             <div className="setting-row">
               <label>Overlay Mode</label>
               <select
                 className="url-input"
                 style={{ maxWidth: 180 }}
-                value={settings.overlay?.mode || "none"}
+                value={settings.overlay.mode}
                 onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
+                  setSettings((p) => ({
+                    ...p,
                     overlay: {
-                      ...prev.overlay!,
+                      ...p.overlay,
                       mode: e.target.value as OverlayMode,
                     },
                   }))
@@ -574,21 +591,20 @@ export default function ConfigPreview() {
               </select>
             </div>
 
-            {/* ONLY SHOW WHEN SINGLE MODE */}
-            {settings.overlay?.mode === "single" && (
+            {/* SINGLE MODE UI */}
+            {settings.overlay.mode === "single" && (
               <>
-                {/* Primary Metric */}
                 <div className="setting-row">
                   <label>Primary Reading</label>
                   <select
                     className="url-input"
                     style={{ maxWidth: 180 }}
-                    value={settings.overlay?.primaryMetric || "cpuTemp"}
+                    value={settings.overlay.primaryMetric}
                     onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
+                      setSettings((p) => ({
+                        ...p,
                         overlay: {
-                          ...prev.overlay!,
+                          ...p.overlay,
                           primaryMetric: e.target.value as OverlayMetricKey,
                         },
                       }))
@@ -604,17 +620,16 @@ export default function ConfigPreview() {
                   </select>
                 </div>
 
-                {/* Number Color */}
                 <div className="setting-row">
                   <label>Number Color</label>
                   <input
                     type="color"
-                    value={settings.overlay?.numberColor || "#FFFFFF"}
+                    value={settings.overlay.numberColor}
                     onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
+                      setSettings((p) => ({
+                        ...p,
                         overlay: {
-                          ...prev.overlay!,
+                          ...p.overlay,
                           numberColor: e.target.value,
                         },
                       }))
@@ -622,17 +637,16 @@ export default function ConfigPreview() {
                   />
                 </div>
 
-                {/* Text Color */}
                 <div className="setting-row">
                   <label>Text Color</label>
                   <input
                     type="color"
-                    value={settings.overlay?.textColor || "#E5E7EB"}
+                    value={settings.overlay.textColor}
                     onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
+                      setSettings((p) => ({
+                        ...p,
                         overlay: {
-                          ...prev.overlay!,
+                          ...p.overlay,
                           textColor: e.target.value,
                         },
                       }))

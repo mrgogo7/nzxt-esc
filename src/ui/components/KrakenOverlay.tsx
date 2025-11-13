@@ -3,27 +3,19 @@ import React, { useEffect, useMemo, useState, CSSProperties } from "react";
 /**
  * KrakenOverlay
  *
- * This component is rendered only on the Kraken Browser (?kraken=1).
- * It reads the persisted media configuration from localStorage and
- * draws the background media (video/image) plus a Single Infographic
- * overlay that uses NZXT CAM monitoring data via window.nzxt.v1.onMonitoringDataUpdate.
- *
- * When running outside NZXT CAM (e.g. normal browser), monitoring data
- * will not be available and the overlay will gracefully fall back to "--".
+ * Shown only inside NZXT Kraken Browser (?kraken=1).
+ * Renders the user's selected media PLUS the infographic overlay.
+ * Uses settings saved by ConfigPreview.
  */
 
-// Storage keys shared with the configuration UI
 const CFG_KEY = "nzxtPinterestConfig";
 const CFG_COMPAT = "nzxtMediaConfig";
 const URL_KEY = "media_url";
 
-type FitMode = "cover" | "contain" | "fill";
-type AlignMode = "center" | "top" | "bottom" | "left" | "right";
+// Types must match ConfigPreview logic
+export type OverlayMode = "none" | "single" | "dual" | "triple";
 
-type OverlayMode = "none" | "single" | "dual" | "triple";
-
-// These keys must match what the configuration UI writes
-export type PrimaryReadingKey =
+export type OverlayMetricKey =
   | "cpuTemp"
   | "cpuLoad"
   | "cpuClock"
@@ -34,24 +26,23 @@ export type PrimaryReadingKey =
 
 type Settings = {
   scale: number;
-  x: number;
+  x: number; // LCD pixel offsets
   y: number;
-  fit: FitMode;
-  align: AlignMode;
+  fit: "cover" | "contain" | "fill";
+  align: "center" | "top" | "bottom" | "left" | "right";
   loop: boolean;
   autoplay: boolean;
   mute: boolean;
   resolution: string;
-  showGuide?: boolean;
 
-  // Overlay-related fields (added by configuration UI)
-  overlayMode?: OverlayMode;
-  overlayPrimaryReading?: PrimaryReadingKey;
-  overlayNumberColor?: string;
-  overlayTextColor?: string;
+  overlay?: {
+    mode: OverlayMode;
+    primaryMetric: OverlayMetricKey;
+    numberColor: string;
+    textColor: string;
+  };
 };
 
-// Reasonable defaults in case localStorage is empty or incomplete
 const DEFAULTS: Settings = {
   scale: 1,
   x: 0,
@@ -61,26 +52,23 @@ const DEFAULTS: Settings = {
   loop: true,
   autoplay: true,
   mute: true,
-  resolution: `${window.innerWidth} x ${window.innerHeight}`,
-  showGuide: false,
-  overlayMode: "none",
-  overlayPrimaryReading: "cpuTemp",
-  overlayNumberColor: "#ffffff",
-  overlayTextColor: "#ffffff",
+  resolution: `${window.innerWidth}x${window.innerHeight}`,
+  overlay: {
+    mode: "none",
+    primaryMetric: "cpuTemp",
+    numberColor: "#ffffff",
+    textColor: "#ffffff",
+  },
 };
 
-// Very relaxed monitoring data type – we do not depend on exact typings here.
-// Users can inspect the console to refine mappings if NZXT changes something.
 type MonitoringData = any;
 
-// Detect media type by URL
-const isVideoUrl = (url: string): boolean => {
-  if (!url) return false;
-  return /\.mp4($|\?)/i.test(url) || url.toLowerCase().includes("mp4");
-};
+// Detect media type
+const isVideoUrl = (url: string): boolean =>
+  /\.mp4($|\?)/i.test(url) || url.toLowerCase().includes("mp4");
 
-// Map reading key -> human readable label
-const readingLabelMap: Record<PrimaryReadingKey, string> = {
+// Human-readable labels
+const readingLabelMap: Record<OverlayMetricKey, string> = {
   cpuTemp: "CPU Temperature",
   cpuLoad: "CPU Load",
   cpuClock: "CPU Clock Speed",
@@ -95,274 +83,215 @@ export default function KrakenOverlay() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const [monitoring, setMonitoring] = useState<MonitoringData | null>(null);
 
-  // === Load saved settings (shared with configuration UI) ===
+  // Load settings
   useEffect(() => {
     try {
-      const savedUrl = window.localStorage.getItem(URL_KEY) || "";
+      const savedUrl = localStorage.getItem(URL_KEY) || "";
       const savedCfg =
-        window.localStorage.getItem(CFG_KEY) ||
-        window.localStorage.getItem(CFG_COMPAT);
+        localStorage.getItem(CFG_KEY) ||
+        localStorage.getItem(CFG_COMPAT);
 
       if (savedCfg) {
         const parsed = JSON.parse(savedCfg);
-        const merged: Settings = { ...DEFAULTS, ...parsed };
+        const merged: Settings = {
+          ...DEFAULTS,
+          ...parsed,
+          overlay: {
+            ...DEFAULTS.overlay!,
+            ...(parsed.overlay || {}),
+          },
+        };
+
         setSettings(merged);
         setMediaUrl(parsed.url || savedUrl || "");
       } else {
         setSettings(DEFAULTS);
         setMediaUrl(savedUrl || "");
       }
-    } catch (err) {
-      console.warn("[KrakenOverlay] Failed to read config from storage:", err);
+    } catch {
       setSettings(DEFAULTS);
     }
   }, []);
 
-  // === Listen for storage changes (from Configuration Browser) ===
+  // Listen configuration updates
   useEffect(() => {
-    const handleStorage = (event: StorageEvent) => {
-      if (!event.key) return;
+    const handler = (e: StorageEvent) => {
+      if (!e.key) return;
 
-      try {
-        if (event.key === URL_KEY && event.newValue !== null) {
-          setMediaUrl(event.newValue);
-        }
+      if (e.key === URL_KEY && e.newValue) {
+        setMediaUrl(e.newValue);
+      }
 
-        if ((event.key === CFG_KEY || event.key === CFG_COMPAT) && event.newValue) {
-          const parsed = JSON.parse(event.newValue);
-          setSettings((prev) => ({ ...prev, ...parsed }));
-        }
-      } catch (err) {
-        console.warn("[KrakenOverlay] Failed to parse storage event:", err);
+      if ((e.key === CFG_KEY || e.key === CFG_COMPAT) && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          setSettings((p) => ({
+            ...p,
+            ...parsed,
+            overlay: {
+              ...p.overlay!,
+              ...(parsed.overlay || {}),
+            },
+          }));
+        } catch {}
       }
     };
 
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
   }, []);
 
-  // === Hook into NZXT CAM monitoring data (if available) ===
+  // monitoring hook
   useEffect(() => {
-    // If NZXT CAM is not running, window.nzxt will be undefined.
     const w = window as any;
-    const existingNzxt = w.nzxt || {};
 
-    // We do not overwrite nzxt.v1, we only extend it with our callback.
-    const existingV1 = existingNzxt.v1 || {};
-    const previousHandler = existingV1.onMonitoringDataUpdate;
+    const nz = w.nzxt || {};
+    const v1 = nz.v1 || {};
+    const prevHandler = v1.onMonitoringDataUpdate;
 
-    const nextV1 = {
-      ...existingV1,
-      onMonitoringDataUpdate: (data: MonitoringData) => {
-        // Log once to help developers inspect the payload structure
-        // (You can comment this out if it is too noisy in production.)
-        // eslint-disable-next-line no-console
-        console.debug("[KrakenOverlay] Monitoring data:", data);
-
-        setMonitoring(data);
-
-        // Call any existing handler just in case the user added one
-        if (typeof previousHandler === "function") {
-          try {
-            previousHandler(data);
-          } catch (err) {
-            console.warn(
-              "[KrakenOverlay] Error while invoking previous monitoring handler:",
-              err
-            );
+    w.nzxt = {
+      ...nz,
+      v1: {
+        ...v1,
+        onMonitoringDataUpdate: (data: MonitoringData) => {
+          setMonitoring(data);
+          if (typeof prevHandler === "function") {
+            try {
+              prevHandler(data);
+            } catch {}
           }
-        }
+        },
       },
     };
 
-    w.nzxt = {
-      ...existingNzxt,
-      v1: nextV1,
-    };
-
     return () => {
-      // Restore original handler on unmount
-      const currentNzxt = (window as any).nzxt || {};
-      const currentV1 = currentNzxt.v1 || {};
+      const cur = (window as any).nzxt || {};
+      const curv1 = cur.v1 || {};
+
       (window as any).nzxt = {
-        ...currentNzxt,
-        v1: {
-          ...currentV1,
-          onMonitoringDataUpdate: previousHandler,
-        },
+        ...cur,
+        v1: { ...curv1, onMonitoringDataUpdate: prevHandler },
       };
     };
   }, []);
 
-  // === Compute object-position based on align + offsets ===
+  // Compute objectPosition
   const objectPosition = useMemo(() => {
-    const { align, x, y } = settings;
+    const a = settings.align;
+    const base = {
+      top: { x: 50, y: 0 },
+      bottom: { x: 50, y: 100 },
+      left: { x: 0, y: 50 },
+      right: { x: 100, y: 50 },
+      center: { x: 50, y: 50 },
+    }[a];
 
-    const base = (() => {
-      switch (align) {
-        case "top":
-          return { x: 50, y: 0 };
-        case "bottom":
-          return { x: 50, y: 100 };
-        case "left":
-          return { x: 0, y: 50 };
-        case "right":
-          return { x: 100, y: 50 };
-        default:
-          return { x: 50, y: 50 };
-      }
-    })();
-
-    // On the real Kraken LCD we treat x/y as device-pixel offsets.
-    return `calc(${base.x}% + ${x}px) calc(${base.y}% + ${y}px)`;
+    return `calc(${base.x}% + ${settings.x}px) calc(${base.y}% + ${settings.y}px)`;
   }, [settings.align, settings.x, settings.y]);
 
-  // === Extract numeric value + unit + label from monitoring payload ===
-  const { value, unit, label } = useMemo(() => {
-    const key: PrimaryReadingKey =
-      settings.overlayPrimaryReading || "cpuTemp";
+  // Extract value/unit/label
+  const { v, u, lbl } = useMemo(() => {
+    const key = settings.overlay?.primaryMetric || "cpuTemp";
+    const label = readingLabelMap[key];
 
     const data = monitoring || {};
-    const cpus = data.cpus || [];
-    const gpus = data.gpus || [];
-    const kraken = data.kraken || {};
+    const cpu = data.cpus?.[0] || {};
+    const gpu = data.gpus?.[0] || {};
+    const k = data.kraken || {};
 
-    const cpu = cpus[0] || {};
-    const gpu = gpus[0] || {};
+    const safe = (n: any): number | null =>
+      typeof n === "number" && !isNaN(n) ? n : null;
 
-    const safeNumber = (raw: any): number | null => {
-      if (typeof raw === "number" && !Number.isNaN(raw)) return raw;
-      return null;
-    };
-
-    const result = {
-      value: "--",
-      unit: "",
-      label: readingLabelMap[key] ?? "Monitoring",
-    };
+    let raw: number | null = null;
+    let unit = "";
 
     switch (key) {
-      case "cpuTemp": {
-        const n =
-          safeNumber(cpu.temperature) ??
-          safeNumber(cpu.temp) ??
-          safeNumber(kraken.cpuTemp);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "°C",
-            label: readingLabelMap[key],
-          };
-        }
+      case "cpuTemp":
+        raw = safe(cpu.temperature) ?? safe(k.cpuTemp);
+        unit = "°C";
         break;
-      }
 
-      case "cpuLoad": {
-        const n =
-          safeNumber(cpu.load) ??
-          safeNumber(cpu.usage) ??
-          safeNumber(kraken.cpuLoad);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "%",
-            label: readingLabelMap[key],
-          };
-        }
+      case "cpuLoad":
+        raw = safe(cpu.load) ?? safe(k.cpuLoad);
+        unit = "%";
         break;
-      }
 
-      case "cpuClock": {
-        const n =
-          safeNumber(cpu.clockSpeed) ??
-          safeNumber(cpu.clock) ??
-          safeNumber(kraken.cpuClock);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "MHz",
-            label: readingLabelMap[key],
-          };
-        }
+      case "cpuClock":
+        raw = safe(cpu.clockSpeed) ?? safe(k.cpuClock);
+        unit = "MHz";
         break;
-      }
 
-      case "liquidTemp": {
-        const n =
-          safeNumber(kraken.liquidTemp) ??
-          safeNumber(kraken.liquidTemperature);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "°C",
-            label: readingLabelMap[key],
-          };
-        }
+      case "liquidTemp":
+        raw = safe(k.liquidTemp) ?? safe(k.liquidTemperature);
+        unit = "°C";
         break;
-      }
 
-      case "gpuTemp": {
-        const n =
-          safeNumber(gpu.temperature) ??
-          safeNumber(gpu.temp) ??
-          safeNumber(kraken.gpuTemp);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "°C",
-            label: readingLabelMap[key],
-          };
-        }
+      case "gpuTemp":
+        raw = safe(gpu.temperature) ?? safe(k.gpuTemp);
+        unit = "°C";
         break;
-      }
 
-      case "gpuLoad": {
-        const n =
-          safeNumber(gpu.load) ??
-          safeNumber(gpu.usage) ??
-          safeNumber(kraken.gpuLoad);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "%",
-            label: readingLabelMap[key],
-          };
-        }
+      case "gpuLoad":
+        raw = safe(gpu.load) ?? safe(k.gpuLoad);
+        unit = "%";
         break;
-      }
 
-      case "gpuClock": {
-        const n =
-          safeNumber(gpu.clockSpeed) ??
-          safeNumber(gpu.clock) ??
-          safeNumber(kraken.gpuClock);
-        if (n !== null) {
-          return {
-            value: Math.round(n).toString(),
-            unit: "MHz",
-            label: readingLabelMap[key],
-          };
-        }
-        break;
-      }
-
-      default:
+      case "gpuClock":
+        raw = safe(gpu.clockSpeed) ?? safe(k.gpuClock);
+        unit = "MHz";
         break;
     }
 
-    // Fallback when no numeric value is available
-    return result;
-  }, [monitoring, settings.overlayPrimaryReading]);
+    return {
+      v: raw !== null ? Math.round(raw).toString() : "--",
+      u: raw !== null ? unit : "",
+      lbl: label,
+    };
+  }, [monitoring, settings.overlay]);
 
-  // === Styles (inline to avoid extra CSS files for Kraken view) ===
-  const containerStyle: CSSProperties = {
-    position: "relative",
+  const isVideo = isVideoUrl(mediaUrl);
+
+  // Overlay styles
+  const overlayStyle: CSSProperties = {
+    position: "absolute",
+    inset: 0,
+    display: settings.overlay?.mode === "single" ? "flex" : "none",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    pointerEvents: "none",
+  };
+
+  const numberStyle: CSSProperties = {
+    fontSize: "52px",
+    fontWeight: 700,
+    color: settings.overlay?.numberColor || "#fff",
+    display: "flex",
+    alignItems: "baseline",
+    gap: "4px",
+    textShadow: "0 0 6px rgba(0,0,0,0.8)",
+  };
+
+  const unitStyle: CSSProperties = {
+    fontSize: "18px",
+    opacity: 0.9,
+  };
+
+  const labelStyle: CSSProperties = {
+    marginTop: "4px",
+    fontSize: "14px",
+    color: settings.overlay?.textColor || "#fff",
+    opacity: 0.85,
+    textShadow: "0 0 4px rgba(0,0,0,0.8)",
+  };
+
+  // layout container
+  const box: CSSProperties = {
     width: "100%",
     height: "100%",
-    backgroundColor: "#000",
+    background: "#000",
     overflow: "hidden",
-    fontFamily:
-      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    position: "relative",
   };
 
   const mediaStyle: CSSProperties = {
@@ -371,57 +300,10 @@ export default function KrakenOverlay() {
     objectFit: settings.fit,
     objectPosition,
     transform: `scale(${settings.scale})`,
-    transformOrigin: "center center",
   };
-
-  const overlayWrapperStyle: CSSProperties = {
-    position: "absolute",
-    inset: 0,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    pointerEvents: "none",
-    padding: "8px",
-    boxSizing: "border-box",
-  };
-
-  const numberColor = settings.overlayNumberColor || "#ffffff";
-  const textColor = settings.overlayTextColor || "#ffffff";
-
-  const numberStyle: CSSProperties = {
-    fontSize: "40px",
-    fontWeight: 700,
-    lineHeight: 1.1,
-    color: numberColor,
-    textShadow: "0 0 6px rgba(0,0,0,0.8)",
-    display: "flex",
-    alignItems: "baseline",
-    gap: "4px",
-  };
-
-  const unitStyle: CSSProperties = {
-    fontSize: "16px",
-    opacity: 0.85,
-  };
-
-  const labelStyle: CSSProperties = {
-    marginTop: "6px",
-    fontSize: "14px",
-    fontWeight: 500,
-    color: textColor,
-    opacity: 0.9,
-    textAlign: "center",
-    textShadow: "0 0 4px rgba(0,0,0,0.8)",
-  };
-
-  const showSingleOverlay = settings.overlayMode === "single";
-
-  const isVideo = isVideoUrl(mediaUrl);
 
   return (
-    <div style={containerStyle}>
-      {/* Background media layer */}
+    <div style={box}>
       {mediaUrl &&
         (isVideo ? (
           <video
@@ -433,19 +315,16 @@ export default function KrakenOverlay() {
             style={mediaStyle}
           />
         ) : (
-          <img src={mediaUrl} alt="" style={mediaStyle} />
+          <img src={mediaUrl} style={mediaStyle} alt="" />
         ))}
 
-      {/* Single Infographic overlay */}
-      {showSingleOverlay && (
-        <div style={overlayWrapperStyle}>
-          <div style={numberStyle}>
-            <span>{value}</span>
-            {unit && <span style={unitStyle}>{unit}</span>}
-          </div>
-          <div style={labelStyle}>{label}</div>
+      <div style={overlayStyle}>
+        <div style={numberStyle}>
+          <span>{v}</span>
+          {u && <span style={unitStyle}>{u}</span>}
         </div>
-      )}
+        <div style={labelStyle}>{lbl}</div>
+      </div>
     </div>
   );
 }
