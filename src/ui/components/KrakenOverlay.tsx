@@ -424,25 +424,16 @@ function SingleOverlay({
             {valueNumber}
           </div>
 
-			<div
-			  style={{
-				display: "inline-block",
-				fontSize: `${unitSize}px`,
-				color: numberColor,
-				fontWeight: 700,
-				lineHeight: 1,
-
-				verticalAlign:
-				  valueUnitType === "temp"     // ° işareti
-					? "top"
-					: valueUnitType === "percent" // % işareti
-					? "bottom"
-					: "baseline",
-			  }}
-			>
-			  {valueUnit}
-			</div>
-
+          <div
+            style={{
+              fontSize: `${unitSize}px`,
+              color: numberColor,
+			  fontWeight: 700,
+			  alignSelf: "flex-start",
+            }}
+          >
+            {valueUnit}
+          </div>
         </div>
       ) : (
         <>
