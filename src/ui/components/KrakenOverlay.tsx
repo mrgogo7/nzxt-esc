@@ -205,6 +205,7 @@ function mapMonitoringToOverlay(data: any): OverlayMetrics {
     ),
   };
 }
+
 /**
  * Hook to provide monitoring data.
  *
