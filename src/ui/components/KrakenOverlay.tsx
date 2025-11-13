@@ -383,10 +383,10 @@ function SingleOverlay({
   const numberSize = overlay.numberSize;
   const unitSize =
     valueUnitType === "temp"
-      ? numberSize * 0.5
+      ? numberSize * 0.49
       : valueUnitType === "percent"
-      ? numberSize * 0.6
-      : numberSize * 0.4;
+      ? numberSize * 0.4
+      : numberSize * 0.2;
 
   const isClock = valueUnitType === "clock";
 
@@ -399,7 +399,7 @@ function SingleOverlay({
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "baseline",
         pointerEvents: "none",
         fontFamily: "nzxt-extrabold",
       }}
@@ -427,8 +427,6 @@ function SingleOverlay({
           <div
             style={{
               fontSize: `${unitSize}px`,
-              marginLeft: 4,
-              marginTop: numberSize * 0.15,
               color: numberColor,
             }}
           >
