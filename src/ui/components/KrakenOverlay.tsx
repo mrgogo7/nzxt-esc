@@ -148,21 +148,34 @@ function mapMonitoringToOverlay(data: any): OverlayMetrics {
   const gpu0 = data?.gpus?.[0];
   const kraken = data?.kraken;
 
+  // Raw loads
+  const rawCpuLoad = pickNumeric(
+    cpu0?.load,
+    cpu0?.usage,
+    cpu0?.totalLoad,
+    cpu0?.processorLoad
+  );
+
+  const rawGpuLoad = pickNumeric(
+    gpu0?.load,
+    gpu0?.usage,
+    gpu0?.totalLoad
+  );
+
+  // Convert if needed (0–1 → 0–100)
+  const cpuLoad = rawCpuLoad <= 1 ? rawCpuLoad * 100 : rawCpuLoad;
+  const gpuLoad = rawGpuLoad <= 1 ? rawGpuLoad * 100 : rawGpuLoad;
+
   return {
-    // CPU Temperature
+    // CPU Temp
     cpuTemp: pickNumeric(
       cpu0?.temperature,
       cpu0?.currentTemperature,
       cpu0?.packageTemperature
     ),
 
-    // CPU Load
-    cpuLoad: pickNumeric(
-      cpu0?.load,
-      cpu0?.usage,
-      cpu0?.totalLoad,
-      cpu0?.processorLoad
-    ),
+    // CPU Load (converted if needed)
+    cpuLoad,
 
     // CPU Clock
     cpuClock: pickNumeric(
@@ -173,26 +186,22 @@ function mapMonitoringToOverlay(data: any): OverlayMetrics {
       cpu0?.processorFrequency
     ),
 
-    // Liquid Temperature (Kraken)
+    // Liquid Temp
     liquidTemp: pickNumeric(
       kraken?.liquidTemperature,
       kraken?.temperature,
       kraken?.liquidTemp
     ),
 
-    // GPU Temperature
+    // GPU Temp
     gpuTemp: pickNumeric(
       gpu0?.temperature,
       gpu0?.currentTemperature,
       gpu0?.gpuTemperature
     ),
 
-    // GPU Load
-    gpuLoad: pickNumeric(
-      gpu0?.load,
-      gpu0?.usage,
-      gpu0?.totalLoad
-    ),
+    // GPU Load (converted if needed)
+    gpuLoad,
 
     // GPU Clock
     gpuClock: pickNumeric(
@@ -205,7 +214,6 @@ function mapMonitoringToOverlay(data: any): OverlayMetrics {
     ),
   };
 }
-
 /**
  * Hook to provide monitoring data.
  *
