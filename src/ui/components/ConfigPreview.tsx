@@ -34,6 +34,8 @@ interface OverlaySettings {
   primaryMetric: OverlayMetricKey;
   numberColor: string;
   textColor: string;
+  numberSize: number;
+  textSize: number;
 }
 
 /* ====================================================================================================
@@ -76,6 +78,8 @@ const DEFAULTS: Settings = {
     primaryMetric: "cpuTemp",
     numberColor: "#ffffff",
     textColor: "#ffffff",
+    numberSize: 180,
+    textSize: 80,
   },
 };
 
@@ -103,7 +107,7 @@ export default function ConfigPreview() {
 
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
   const previewSize = 200;
-  const offsetScale = previewSize / lcdResolution;  // ★ ESKİ DOĞRU FORMÜL
+  const offsetScale = previewSize / lcdResolution; // ★ ESKİ DOĞRU FORMÜL
 
   /* ====================================================================================================
      LOAD SETTINGS
@@ -227,8 +231,7 @@ export default function ConfigPreview() {
   ==================================================================================================== */
 
   const isVideo =
-    /\.mp4($|\?)/i.test(mediaUrl) ||
-    mediaUrl.toLowerCase().includes("mp4");
+    /\.mp4($|\?)/i.test(mediaUrl) || mediaUrl.toLowerCase().includes("mp4");
 
   /* ====================================================================================================
      POSITIONING (ESKİ DOĞRU SİSTEM)
@@ -236,11 +239,16 @@ export default function ConfigPreview() {
 
   const base = (() => {
     switch (settings.align) {
-      case "top": return { x: 50, y: 0 };
-      case "bottom": return { x: 50, y: 100 };
-      case "left": return { x: 0, y: 50 };
-      case "right": return { x: 100, y: 50 };
-      default: return { x: 50, y: 50 };
+      case "top":
+        return { x: 50, y: 0 };
+      case "bottom":
+        return { x: 50, y: 100 };
+      case "left":
+        return { x: 0, y: 50 };
+      case "right":
+        return { x: 100, y: 50 };
+      default:
+        return { x: 50, y: 50 };
     }
   })();
 
@@ -307,7 +315,10 @@ export default function ConfigPreview() {
 
       setSettings((p) => ({
         ...p,
-        scale: Math.min(Math.max(parseFloat((p.scale + delta).toFixed(2)), 0.1), 5),
+        scale: Math.min(
+          Math.max(parseFloat((p.scale + delta).toFixed(2)), 0.1),
+          5
+        ),
       }));
     };
 
@@ -322,7 +333,10 @@ export default function ConfigPreview() {
   const adjustScale = (d: number) =>
     setSettings((p) => ({
       ...p,
-      scale: Math.min(Math.max(parseFloat((p.scale + d).toFixed(2)), 0.1), 5),
+      scale: Math.min(
+        Math.max(parseFloat((p.scale + d).toFixed(2)), 0.1),
+        5
+      ),
     }));
 
   const resetField = (field: keyof Settings) =>
@@ -355,7 +369,6 @@ export default function ConfigPreview() {
 
   return (
     <div className="config-wrapper">
-
       {/* LEFT PREVIEW */}
       <div className="preview-column">
         <div className="preview-title">{t("previewTitle", lang)}</div>
@@ -423,7 +436,6 @@ export default function ConfigPreview() {
 
       {/* RIGHT COLUMN */}
       <div className="settings-column">
-
         {/* ============================================================================================
             MAIN PANEL
         ============================================================================================ */}
@@ -450,7 +462,6 @@ export default function ConfigPreview() {
           </div>
 
           <div className="settings-grid-modern">
-
             {/* SCALE / X / Y */}
             {[
               { field: "scale", label: t("scale", lang), step: 0.1 },
@@ -557,7 +568,6 @@ export default function ConfigPreview() {
           </div>
 
           <div className="settings-grid-modern">
-
             {/* Overlay Mode */}
             <div className="setting-row">
               <label>Overlay</label>
@@ -644,11 +654,49 @@ export default function ConfigPreview() {
                     }
                   />
                 </div>
+
+                <div className="setting-row">
+                  <label>Number Size</label>
+                  <input
+                    type="number"
+                    value={settings.overlay.numberSize}
+                    onChange={(e) =>
+                      setSettings((p) => ({
+                        ...p,
+                        overlay: {
+                          ...p.overlay,
+                          numberSize: parseInt(
+                            e.target.value || "180",
+                            10
+                          ),
+                        },
+                      }))
+                    }
+                    style={{ width: 80 }}
+                  />
+                </div>
+
+                <div className="setting-row">
+                  <label>Text Size</label>
+                  <input
+                    type="number"
+                    value={settings.overlay.textSize}
+                    onChange={(e) =>
+                      setSettings((p) => ({
+                        ...p,
+                        overlay: {
+                          ...p.overlay,
+                          textSize: parseInt(e.target.value || "80", 10),
+                        },
+                      }))
+                    }
+                    style={{ width: 80 }}
+                  />
+                </div>
               </>
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
