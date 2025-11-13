@@ -116,46 +116,57 @@ function useMetrics() {
   useEffect(() => {
     const nz = (window as any)?.nzxt?.v1;
 
-    // --- REAL NZXT CAM API AVAILABLE ---
-    if (nz && typeof nz.onMonitoringDataUpdate === "function") {
-      console.log("[NZXT] Real Monitoring API detected.");
+    // 1) API VARSA BAĞLAN
+    if (nz) {
+      console.log("[NZXT] API detected. Initializing…");
 
-      nz.onMonitoringDataUpdate((packet: any) => {
-        // Safe parsing: different versions send different names
-        const cpu = packet.cpu || {};
-        const gpu = packet.gpu || {};
-        const liquid = packet.liquid || {};
+      try {
+        // Bazı CAM sürümleri veri göndermeden önce request istiyor
+        if (typeof nz.requestMonitoringData === "function") {
+          console.log("[NZXT] requestMonitoringData() called.");
+          nz.requestMonitoringData();
+        }
 
-        setData({
-          cpuTemp: cpu.temperature ?? cpu.temp ?? 0,
-          cpuLoad: cpu.load ?? 0,
-          cpuClock: cpu.clockSpeed ?? cpu.clock ?? 0,
+        // Asıl data callback
+        if (typeof nz.onMonitoringDataUpdate === "function") {
+          console.log("[NZXT] onMonitoringDataUpdate registered.");
 
-          gpuTemp: gpu.temperature ?? gpu.temp ?? 0,
-          gpuLoad: gpu.load ?? 0,
-          gpuClock: gpu.clockSpeed ?? gpu.clock ?? 0,
+          nz.onMonitoringDataUpdate((packet: any) => {
+            const cpu = packet.cpu || {};
+            const gpu = packet.gpu || {};
+            const liquid = packet.liquid || {};
 
-          liquidTemp: liquid.temperature ?? liquid.temp ?? 0,
-        });
-      });
+            setData({
+              cpuTemp: cpu.temperature ?? cpu.temp ?? 0,
+              cpuLoad: cpu.load ?? 0,
+              cpuClock: cpu.clockSpeed ?? cpu.clock ?? 0,
 
-      return; // DO NOT start mock mode
+              gpuTemp: gpu.temperature ?? gpu.temp ?? 0,
+              gpuLoad: gpu.load ?? 0,
+              gpuClock: gpu.clockSpeed ?? gpu.clock ?? 0,
+
+              liquidTemp: liquid.temperature ?? liquid.temp ?? 0,
+            });
+          });
+
+          return;
+        }
+      } catch (err) {
+        console.error("[NZXT] API init error:", err);
+      }
     }
 
-    // --- NO NZXT API → MOCK MODE ---
-    console.warn("[NZXT] Monitoring API not detected. Using mock values.");
+    // 2) API YOKSA → MOCK
+    console.warn("[NZXT] Monitoring API NOT available → using stable mock.");
 
     const interval = setInterval(() => {
-      // Simple stable mock values (no animation)
       setData({
         cpuTemp: 40,
         cpuLoad: 25,
         cpuClock: 4500,
-
         gpuTemp: 55,
         gpuLoad: 32,
         gpuClock: 1800,
-
         liquidTemp: 34,
       });
     }, 500);
@@ -165,7 +176,6 @@ function useMetrics() {
 
   return data;
 }
-
 /**
  * Single infographic overlay rendered on top of the media.
  */
