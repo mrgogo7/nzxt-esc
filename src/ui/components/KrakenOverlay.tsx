@@ -374,7 +374,7 @@ function SingleOverlay({
         justifyContent: "center",
         alignItems: "center",
         pointerEvents: "none",
-        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+        fontFamily: "nzxt-extrabold",
       }}
     >
       <div
