@@ -78,8 +78,8 @@ const DEFAULTS: Settings = {
     primaryMetric: "cpuTemp",
     numberColor: "#ffffff",
     textColor: "#ffffff",
-    numberSize: 190,
-    textSize: 50,
+    numberSize: 130,
+    textSize: 35,
 	fontFamily: "nzxt-extrabold",
   },
 };
