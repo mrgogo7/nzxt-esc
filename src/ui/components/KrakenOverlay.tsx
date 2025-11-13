@@ -345,7 +345,7 @@ function SingleOverlay({
       </div>
       <div
         style={{
-          fontSize: "126px",
+          fontSize: "80px",
           color: textColor,
           marginTop: -6,
           textTransform: "uppercase",
