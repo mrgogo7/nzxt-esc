@@ -114,11 +114,12 @@ function useMetrics() {
   });
 
   useEffect(() => {
-    const nzxt = (window as any)?.nzxt?.v1;
+    const nz = (window as any)?.nzxt?.v1;
 
-    // Real NZXT CAM API path
-    if (nzxt && typeof nzxt.onMonitoringDataUpdate === "function") {
-      nzxt.onMonitoringDataUpdate((packet: any) => {
+    if (nz && typeof nz.onMonitoringDataUpdate === "function") {
+      console.warn("[NZXT API] ✓ detected");
+
+      nz.onMonitoringDataUpdate((packet: any) => {
         setData({
           cpuTemp: packet.cpu?.temperature ?? 0,
           cpuLoad: packet.cpu?.load ?? 0,
@@ -130,13 +131,12 @@ function useMetrics() {
         });
       });
 
-      // No interval, no mock — just use real data
       return;
     }
 
-    // Browser-only case: no NZXT API available.
-    // Do NOT animate here; just keep static defaults.
-    // (If you ever want a dev mock again, this is where you'd add it.)
+    console.warn("[NZXT API] ✗ not detected — metrics remain zero.");
+    // No mock interval — data stays at zeros.
+
   }, []);
 
   return data;
