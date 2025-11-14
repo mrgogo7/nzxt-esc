@@ -70,6 +70,12 @@ const dict: Record<Lang, Record<string, string>> = {
     secondaryYOffset: "Secondary Y Offset",
     dualReadersXOffset: "Dual Readers X Offset",
     dualReadersYOffset: "Dual Readers Y Offset",
+    overlayOptionsDescription: "Settings take effect immediately. Adjust overlay appearance and positioning in real-time.",
+    revertToDefaults: "Revert to Defaults",
+    readerOptions: "Reader Options",
+    firstReaderOptions: "1st Reader Options",
+    secondReaderOptions: "2nd Reader Options",
+    thirdReaderOptions: "3rd Reader Options",
   },
   tr: {
     appTitle: "NZXT Medya Ayarları",
@@ -136,6 +142,12 @@ const dict: Record<Lang, Record<string, string>> = {
     secondaryYOffset: "İkincil Y Ofset",
     dualReadersXOffset: "İkili Okuyucular X Ofset",
     dualReadersYOffset: "İkili Okuyucular Y Ofset",
+    overlayOptionsDescription: "Ayarlar anında geçerli olur. Overlay görünümünü ve konumunu gerçek zamanlı olarak ayarlayın.",
+    revertToDefaults: "Varsayılana Döndür",
+    readerOptions: "Okuyucu Seçenekleri",
+    firstReaderOptions: "1. Okuyucu Seçenekleri",
+    secondReaderOptions: "2. Okuyucu Seçenekleri",
+    thirdReaderOptions: "3. Okuyucu Seçenekleri",
   },
 };
 

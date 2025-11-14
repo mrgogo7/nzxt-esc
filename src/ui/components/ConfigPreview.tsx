@@ -607,6 +607,78 @@ export default function ConfigPreview() {
                 <h3>{t('overlaySettingsTitle', lang)}</h3>
               </div>
 
+              {/* Description and Revert button */}
+              <div style={{ marginBottom: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <p style={{ margin: 0, color: '#9aa3ad', fontSize: '12px', lineHeight: '1.4' }}>
+                  {t('overlayOptionsDescription', lang)}
+                </p>
+                {(overlayConfig.mode === 'single' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'triple') && (
+                  <button
+                    onClick={() => {
+                      const mode = overlayConfig.mode;
+                      const defaults = { ...DEFAULT_OVERLAY };
+                      
+                      // Set mode-specific defaults
+                      if (mode === 'dual') {
+                        defaults.numberSize = 120;
+                        defaults.textSize = 35;
+                        defaults.secondaryNumberSize = 120;
+                        defaults.secondaryTextSize = 35;
+                        defaults.dividerGap = 32;
+                        defaults.x = 0;
+                        defaults.y = 0;
+                        defaults.secondaryOffsetX = 50;
+                        defaults.secondaryOffsetY = 0;
+                      } else if (mode === 'triple') {
+                        defaults.numberSize = 155;
+                        defaults.textSize = 35;
+                        defaults.secondaryNumberSize = 80;
+                        defaults.secondaryTextSize = 20;
+                        defaults.tertiaryNumberSize = 80;
+                        defaults.tertiaryTextSize = 20;
+                        defaults.gapSecondaryTertiary = 20;
+                        defaults.dividerGap = 27;
+                        defaults.x = 18;
+                        defaults.y = 0;
+                        defaults.dualReadersOffsetX = 60;
+                        defaults.dualReadersOffsetY = 0;
+                      }
+                      
+                      setSettings({
+                        ...settings,
+                        overlay: {
+                          ...defaults,
+                          mode: overlayConfig.mode,
+                          primaryMetric: overlayConfig.primaryMetric,
+                          secondaryMetric: overlayConfig.secondaryMetric || defaults.secondaryMetric,
+                          tertiaryMetric: overlayConfig.tertiaryMetric || defaults.tertiaryMetric,
+                        },
+                      });
+                    }}
+                    style={{
+                      alignSelf: 'flex-start',
+                      background: '#263146',
+                      border: '1px solid #3b5a9a',
+                      color: '#d9e6ff',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#2e3a55';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#263146';
+                    }}
+                  >
+                    {t('revertToDefaults', lang)}
+                  </button>
+                )}
+              </div>
+
               <div className="settings-grid-modern">
                 {/* Overlay Mode */}
                 <div className="setting-row">
@@ -763,8 +835,10 @@ export default function ConfigPreview() {
                 {/* Overlay Settings - grouped by Primary/Secondary/Tertiary for better UX */}
                     {overlayConfig.mode === 'dual' ? (
                       <>
-                        {/* Horizontal divider */}
-                        <hr className="settings-divider" />
+                        {/* Horizontal divider with label */}
+                        <div className="settings-divider">
+                          <span className="settings-divider-label">{t('firstReaderOptions', lang)}</span>
+                        </div>
                         
                         {/* PRIMARY GROUP */}
                         {/* Primary X/Y Offset (at the beginning) */}
@@ -1081,8 +1155,10 @@ export default function ConfigPreview() {
                           </button>
                         </div>
 
-                        {/* Horizontal divider */}
-                        <hr className="settings-divider" />
+                        {/* Horizontal divider with label */}
+                        <div className="settings-divider">
+                          <span className="settings-divider-label">{t('secondReaderOptions', lang)}</span>
+                        </div>
 
                         {/* SECONDARY GROUP */}
                         {/* Secondary X/Y Offset (at the beginning) */}
@@ -1283,8 +1359,10 @@ export default function ConfigPreview() {
                       </>
                     ) : overlayConfig.mode === 'triple' ? (
                       <>
-                        {/* Horizontal divider */}
-                        <hr className="settings-divider" />
+                        {/* Horizontal divider with label */}
+                        <div className="settings-divider">
+                          <span className="settings-divider-label">{t('firstReaderOptions', lang)}</span>
+                        </div>
                         
                         {/* PRIMARY GROUP */}
                         {/* Primary X/Y Offset (at the beginning) */}
@@ -1601,8 +1679,10 @@ export default function ConfigPreview() {
                           </button>
                         </div>
 
-                        {/* Horizontal divider */}
-                        <hr className="settings-divider" />
+                        {/* Horizontal divider with label */}
+                        <div className="settings-divider">
+                          <span className="settings-divider-label">{t('secondReaderOptions', lang)}</span>
+                        </div>
 
                         {/* SECONDARY/TERTIARY GROUP */}
                         {/* Dual Readers X/Y Offset (at the beginning) */}
@@ -2036,8 +2116,10 @@ export default function ConfigPreview() {
                 {/* SINGLE MODE SPECIFIC SETTINGS */}
                 {overlayConfig.mode === 'single' && (
                   <>
-                    {/* Horizontal divider */}
-                    <hr className="settings-divider" />
+                    {/* Horizontal divider with label */}
+                    <div className="settings-divider">
+                      <span className="settings-divider-label">{t('readerOptions', lang)}</span>
+                    </div>
 
                     {/* Overlay X/Y Offset for single mode (at the beginning) */}
                     <div className="setting-row">

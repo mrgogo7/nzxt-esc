@@ -275,6 +275,21 @@
   background: rgba(255, 255, 255, 0.1);
   margin: 12px 0;
   border: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-divider-label {
+  position: absolute;
+  background: #121317;
+  padding: 0 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
 }
 .setting-row label {
   flex: 1;
