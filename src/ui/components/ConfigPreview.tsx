@@ -12,7 +12,6 @@ import {
   AlignEndVertical,
   AlignVerticalSpaceAround,
 } from 'lucide-react';
-import { STORAGE_KEYS } from '../../constants/storage';
 import { DEFAULT_SETTINGS, type AppSettings } from '../../constants/defaults';
 import { DEFAULT_OVERLAY, type OverlayMode, type OverlayMetricKey } from '../../types/overlay';
 import { NZXT_DEFAULTS } from '../../constants/nzxt';
@@ -84,9 +83,10 @@ export default function ConfigPreview() {
     if (now - lastSync.current < 100) return;
     lastSync.current = now;
 
-    const save = {
-      url: mediaUrl,
+    // Save settings with URL for backward compatibility
+    const save: AppSettings & { url?: string } = {
       ...settings,
+      url: mediaUrl, // Include URL in config for backward compatibility
     };
 
     setSettings(save);

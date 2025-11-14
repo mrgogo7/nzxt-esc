@@ -25,6 +25,6 @@
       "@/constants/*": ["src/constants/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "src/**/*"],
   "references": []
 }

@@ -2,6 +2,7 @@ import { DEFAULT_OVERLAY, type OverlaySettings } from '../types/overlay';
 
 /**
  * Application settings interface.
+ * Note: url is stored separately via useMediaUrl hook, not in settings.
  */
 export interface AppSettings {
   scale: number;
@@ -15,6 +16,8 @@ export interface AppSettings {
   resolution: string;
   showGuide?: boolean;
   overlay?: OverlaySettings;
+  // Optional: url can be included in saved config for backward compatibility
+  url?: string;
 }
 
 /**

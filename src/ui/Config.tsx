@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LANG_KEY, Lang, t, getInitialLang, setLang } from '../i18n';
 import ConfigPreview from './components/ConfigPreview';
 import './styles/ConfigPreview.css';
-import { STORAGE_KEYS } from '../constants/storage';
 import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
@@ -48,10 +47,8 @@ export default function Config() {
     setUrlInput(DEFAULT_MEDIA_URL);
     
     // Reset settings to defaults (including overlay)
-    setSettings({
-      ...DEFAULT_SETTINGS,
-      url: DEFAULT_MEDIA_URL,
-    });
+    // Note: url is stored separately via useMediaUrl, not in settings
+    setSettings(DEFAULT_SETTINGS);
   };
 
   return (
