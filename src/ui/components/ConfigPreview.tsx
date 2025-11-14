@@ -745,55 +745,268 @@ export default function ConfigPreview() {
                       </button>
                     </div>
 
-                    <div className="setting-row">
-                      <label>{t('numberSize', lang)}</label>
-                      <input
-                        type="number"
-                        value={overlayConfig.numberSize}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              numberSize: parseInt(e.target.value || '180', 10),
-                            },
-                          })
-                        }
-                        className="input-narrow"
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('numberSize')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
+                    {/* Number Size and Text Size - different labels for dual mode */}
+                    {overlayConfig.mode === 'dual' ? (
+                      <>
+                        <div className="setting-row">
+                          <label>{t('primaryNumberSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.numberSize}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  numberSize: parseInt(e.target.value || '120', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('numberSize')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
 
-                    <div className="setting-row">
-                      <label>{t('textSize', lang)}</label>
-                      <input
-                        type="number"
-                        value={overlayConfig.textSize}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              textSize: parseInt(e.target.value || '80', 10),
-                            },
-                          })
-                        }
-                        className="input-narrow"
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('textSize')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
+                        <div className="setting-row">
+                          <label>{t('primaryTextSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.textSize}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  textSize: parseInt(e.target.value || '35', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('textSize')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('secondaryNumberSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.secondaryNumberSize || 120}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryNumberSize: parseInt(e.target.value || '120', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryNumberSize: DEFAULT_OVERLAY.secondaryNumberSize,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('secondaryTextSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.secondaryTextSize || 35}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryTextSize: parseInt(e.target.value || '35', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryTextSize: DEFAULT_OVERLAY.secondaryTextSize,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider settings */}
+                        <div className="setting-row">
+                          <label>{t('showDivider', lang)}</label>
+                          <input
+                            type="checkbox"
+                            checked={overlayConfig.showDivider || false}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  showDivider: e.target.checked,
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                            style={{ width: 'auto' }}
+                          />
+                        </div>
+
+                        {overlayConfig.showDivider && (
+                          <>
+                            <div className="setting-row">
+                              <label>{t('dividerWidth', lang)}</label>
+                              <input
+                                type="number"
+                                value={overlayConfig.dividerWidth || 60}
+                                onChange={(e) =>
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerWidth: parseInt(e.target.value || '60', 10),
+                                    },
+                                  })
+                                }
+                                className="input-narrow"
+                              />
+                              <button
+                                className="reset-icon"
+                                title="Reset"
+                                onClick={() => {
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerWidth: DEFAULT_OVERLAY.dividerWidth,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </button>
+                            </div>
+
+                            <div className="setting-row">
+                              <label>{t('dividerThickness', lang)}</label>
+                              <input
+                                type="number"
+                                value={overlayConfig.dividerThickness || 2}
+                                onChange={(e) =>
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerThickness: parseInt(e.target.value || '2', 10),
+                                    },
+                                  })
+                                }
+                                className="input-narrow"
+                              />
+                              <button
+                                className="reset-icon"
+                                title="Reset"
+                                onClick={() => {
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerThickness: DEFAULT_OVERLAY.dividerThickness,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="setting-row">
+                          <label>{t('numberSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.numberSize}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  numberSize: parseInt(e.target.value || '180', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('numberSize')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('textSize', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.textSize}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  textSize: parseInt(e.target.value || '45', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('textSize')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
               </div>

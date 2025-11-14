@@ -45,6 +45,13 @@ const dict: Record<Lang, Record<string, string>> = {
     textColor: "Text Color",
     numberSize: "Number Size",
     textSize: "Text Size",
+    primaryNumberSize: "Primary Number Size",
+    primaryTextSize: "Primary Text Size",
+    secondaryNumberSize: "Secondary Number Size",
+    secondaryTextSize: "Secondary Text Size",
+    showDivider: "Show Divider",
+    dividerWidth: "Divider Width",
+    dividerThickness: "Divider Thickness",
   },
   tr: {
     appTitle: "NZXT Medya Ayarları",
@@ -86,6 +93,13 @@ const dict: Record<Lang, Record<string, string>> = {
     textColor: "Metin Rengi",
     numberSize: "Sayı Boyutu",
     textSize: "Metin Boyutu",
+    primaryNumberSize: "Ana Sayı Boyutu",
+    primaryTextSize: "Ana Metin Boyutu",
+    secondaryNumberSize: "İkincil Sayı Boyutu",
+    secondaryTextSize: "İkincil Metin Boyutu",
+    showDivider: "Ayırıcı Çizgi Göster",
+    dividerWidth: "Ayırıcı Genişliği",
+    dividerThickness: "Ayırıcı Kalınlığı",
   },
 };
 

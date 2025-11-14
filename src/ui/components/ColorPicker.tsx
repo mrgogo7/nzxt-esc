@@ -237,11 +237,13 @@ export default function ColorPicker({ value, onChange }: ColorPickerProps) {
         type="button"
         className="color-picker-trigger"
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          backgroundColor: currentColor,
-        }}
       >
-        <span className="color-picker-preview" />
+        <span 
+          className="color-picker-preview" 
+          style={{
+            backgroundColor: value || currentColor,
+          }}
+        />
       </button>
 
       {isOpen && (

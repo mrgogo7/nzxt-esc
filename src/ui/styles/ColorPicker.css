@@ -48,9 +48,13 @@
   border-radius: 4px;
   cursor: crosshair;
   margin-bottom: 8px;
+  /* Hue color is set as background-color in component */
+  /* Gradient 1: Lightness (top=white, bottom=black) */
+  /* Gradient 2: Saturation (left=transparent/white, right=black) */
   background-image: 
-    linear-gradient(to bottom, transparent, black),
-    linear-gradient(to right, white, transparent);
+    linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(0, 0, 0, 1)),
+    linear-gradient(to right, rgba(255, 255, 255, 0), rgba(0, 0, 0, 1));
+  background-blend-mode: multiply;
 }
 
 .color-picker-hue {

@@ -23,6 +23,12 @@ export interface OverlaySettings {
   textColor: string;
   numberSize: number;
   textSize: number;
+  // Dual mode specific settings
+  secondaryNumberSize?: number; // For dual mode
+  secondaryTextSize?: number; // For dual mode
+  showDivider?: boolean; // Show divider between dual metrics
+  dividerWidth?: number; // Divider line width
+  dividerThickness?: number; // Divider line thickness
   x?: number; // Overlay X offset
   y?: number; // Overlay Y offset
 }
@@ -50,6 +56,12 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   textColor: "rgba(255, 255, 255, 1)", // White with full opacity (changed from #cccccc)
   numberSize: 180,
   textSize: 45, // Changed from 80 to 45
+  // Dual mode defaults
+  secondaryNumberSize: 120,
+  secondaryTextSize: 35,
+  showDivider: false,
+  dividerWidth: 60, // Percentage of height
+  dividerThickness: 2,
   x: 0,
   y: 0,
 };
