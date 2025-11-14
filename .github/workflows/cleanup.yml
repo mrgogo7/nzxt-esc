@@ -11,10 +11,12 @@ jobs:
   delete_runs:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete all workflow runs
+      - name: Delete all workflow runs except this one
         uses: actions/github-script@v6
         with:
           script: |
+            const currentRunId = process.env.GITHUB_RUN_ID;
+
             const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -22,10 +24,19 @@ jobs:
             });
 
             for (const run of runs.data.workflow_runs) {
+              if (String(run.id) === String(currentRunId)) {
+                console.log(`Skipping current run: ${run.id}`);
+                continue;
+              }
+
               console.log("Deleting run:", run.id);
-              await github.rest.actions.deleteWorkflowRun({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                run_id: run.id
-              });
+              try {
+                await github.rest.actions.deleteWorkflowRun({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  run_id: run.id
+                });
+              } catch (err) {
+                console.log(`Failed to delete ${run.id}: ${err.message}`);
+              }
             }
