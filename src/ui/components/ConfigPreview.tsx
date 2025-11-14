@@ -1272,6 +1272,140 @@ export default function ConfigPreview() {
                           </button>
                         </div>
 
+                        {/* Divider Gap - Space between primary and divider */}
+                        <div className="setting-row">
+                          <label>{t('dividerGap', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerGap ?? DEFAULT_OVERLAY.dividerGap ?? 8}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerGap: parseInt(e.target.value || '8', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerGap: DEFAULT_OVERLAY.dividerGap,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Width */}
+                        <div className="setting-row">
+                          <label>{t('dividerWidth', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerWidth || 60}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerWidth: parseInt(e.target.value || '60', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerWidth: DEFAULT_OVERLAY.dividerWidth,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Thickness */}
+                        <div className="setting-row">
+                          <label>{t('dividerThickness', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerThickness || 2}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerThickness: parseInt(e.target.value || '2', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerThickness: DEFAULT_OVERLAY.dividerThickness,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Color */}
+                        <div className="setting-row">
+                          <label>{t('dividerColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.dividerColor || DEFAULT_OVERLAY.dividerColor || 'rgba(255, 255, 255, 0.3)'}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerColor: DEFAULT_OVERLAY.dividerColor,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
                         {/* Horizontal divider */}
                         <hr className="settings-divider" />
 
