@@ -51,7 +51,9 @@ export function useMediaUrl() {
         lastCheckedUrlRef.current = url;
       }
     });
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, [mediaUrl]);
 
   // Also listen to direct localStorage 'media_url' key (for Config.tsx compatibility)
