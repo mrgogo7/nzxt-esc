@@ -2,7 +2,6 @@ import React from 'react';
 import { isVideoUrl } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import type { AppSettings } from '../../constants/defaults';
-import styles from '../styles/MediaRenderer.css';
 
 interface MediaRendererProps {
   url: string;

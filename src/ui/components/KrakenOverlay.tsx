@@ -6,7 +6,7 @@ import { useMediaUrl } from '../../hooks/useMediaUrl';
 import { useMonitoring } from '../../hooks/useMonitoring';
 import MediaRenderer from './MediaRenderer';
 import SingleInfographic from './SingleInfographic';
-import styles from '../styles/KrakenOverlay.css';
+import styles from '../styles/KrakenOverlay.module.css';
 
 /**
  * KrakenOverlay component.
@@ -35,7 +35,7 @@ export default function KrakenOverlay() {
 
   return (
     <div
-      className={styles['kraken-overlay']}
+      className={styles.krakenOverlay}
       style={{
         width: `${lcdSize}px`,
         height: `${lcdSize}px`,
