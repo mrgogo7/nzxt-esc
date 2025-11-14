@@ -192,7 +192,7 @@ export default function TripleInfographic({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        gap: gapLeftRightValue >= 0 ? `${gapLeftRightValue}px` : '0px', // CSS gap doesn't support negative, use margin instead
+        gap: gapLeftRightValue >= 0 ? `${gapLeftRightValue}px` : '0px', // Use gap for positive values, 0 for negative (we'll use transform)
         pointerEvents: "none",
         fontFamily: "nzxt-extrabold",
       }}
@@ -205,8 +205,7 @@ export default function TripleInfographic({
           justifyContent: "center",
           alignItems: "center",
           flex: 1,
-          marginRight: gapLeftRightValue < 0 ? `${gapLeftRightValue}px` : undefined, // Negative gap = negative margin
-          transform: gapLeftRightValue < 0 ? `translateX(${gapLeftRightValue}px)` : undefined, // Additional transform for more negative values
+          transform: gapLeftRightValue < 0 ? `translateX(${gapLeftRightValue / 2}px)` : undefined, // Move left by half of negative gap to bring closer
         }}
       >
         {renderMetric(
@@ -231,15 +230,20 @@ export default function TripleInfographic({
         </div>
       </div>
 
-      {/* Vertical divider line (optional) */}
+      {/* Vertical divider line (optional) - Always centered */}
       {overlay.showDivider && (
         <div
           style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
             width: `${overlay.dividerThickness || 2}px`,
             height: `${overlay.dividerWidth || 60}%`,
             backgroundColor: overlay.dividerColor || primaryNumberColor,
             opacity: overlay.dividerColor ? undefined : 0.3,
             borderRadius: 1,
+            pointerEvents: "none",
           }}
         />
       )}
@@ -253,8 +257,7 @@ export default function TripleInfographic({
           alignItems: "center",
           gap: overlay.gapSecondaryTertiary ? `${overlay.gapSecondaryTertiary * scale}px` : `${secondaryNumberSize * 0.4}px`, // Space between secondary and tertiary (configurable)
           flex: 1,
-          marginLeft: gapLeftRightValue < 0 ? `${-gapLeftRightValue}px` : undefined, // Negative gap = positive margin on right side
-          transform: gapLeftRightValue < 0 ? `translateX(${-gapLeftRightValue}px)` : undefined, // Additional transform for more negative values
+          transform: gapLeftRightValue < 0 ? `translateX(${-gapLeftRightValue / 2}px)` : undefined, // Move right by half of negative gap to bring closer
         }}
       >
         {/* Secondary metric (top) */}
