@@ -17,7 +17,7 @@ import { DEFAULT_OVERLAY, type OverlayMode, type OverlayMetricKey, type OverlayS
 import { NZXT_DEFAULTS } from '../../constants/nzxt';
 import { useConfig } from '../../hooks/useConfig';
 import { useMediaUrl } from '../../hooks/useMediaUrl';
-import { useMonitoringMock } from '../../hooks/useMonitoring';
+import { useMonitoring } from '../../hooks/useMonitoring';
 import { calculateOffsetScale, previewToLcd, lcdToPreview, getBaseAlign } from '../../utils/positioning';
 import { isVideoUrl } from '../../utils/media';
 import SingleInfographic from './SingleInfographic';
@@ -39,7 +39,7 @@ export default function ConfigPreview() {
   const [lang, setLang] = useState<Lang>(getInitialLang());
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
-  const metrics = useMonitoringMock(); // Mock data for preview (NZXT API not available)
+  const metrics = useMonitoring(); // Real NZXT monitoring data (falls back to defaults if API not available)
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingOverlay, setIsDraggingOverlay] = useState(false);
   const [isDraggingSecondaryTertiary, setIsDraggingSecondaryTertiary] = useState(false);

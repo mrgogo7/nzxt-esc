@@ -5,8 +5,9 @@ import { DEFAULT_METRICS } from '../constants/defaults';
 import { mapMonitoringToOverlay } from '../utils/monitoring';
 
 /**
- * Hook for real NZXT monitoring data (KrakenOverlay only).
- * Only uses real NZXT API, no mock data.
+ * Hook for real NZXT monitoring data.
+ * Works in both ConfigPreview and KrakenOverlay.
+ * Falls back to DEFAULT_METRICS if NZXT API is not available.
  * 
  * @returns Current monitoring metrics
  */
@@ -14,14 +15,6 @@ export function useMonitoring(): OverlayMetrics {
   const [metrics, setMetrics] = useState<OverlayMetrics>(DEFAULT_METRICS);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const isKraken = searchParams.get('kraken') === '1';
-
-    if (!isKraken) {
-      // ConfigPreview should use useMonitoringMock instead
-      return;
-    }
-
     const handler = (data: NZXTMonitoringData) => {
       try {
         const mapped = mapMonitoringToOverlay(data);
