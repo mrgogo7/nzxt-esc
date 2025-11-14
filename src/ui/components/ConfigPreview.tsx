@@ -1713,55 +1713,161 @@ export default function ConfigPreview() {
                           </button>
                         </div>
                       </>
-                    ) : (
-                      <>
-                        <div className="setting-row">
-                          <label>{t('numberColor', lang)}</label>
-                          <ColorPicker
-                            value={overlayConfig.numberColor}
-                            onChange={(color) =>
-                              setSettings({
-                                ...settings,
-                                overlay: {
-                                  ...overlayConfig,
-                                  numberColor: color,
-                                },
-                              })
-                            }
-                          />
-                          <button
-                            className="reset-icon"
-                            title="Reset"
-                            onClick={() => resetOverlayField('numberColor')}
-                          >
-                            <RefreshCw size={14} />
-                          </button>
-                        </div>
+                    ) : null}
+                )}
 
-                        <div className="setting-row">
-                          <label>{t('textColor', lang)}</label>
-                          <ColorPicker
-                            value={overlayConfig.textColor}
-                            onChange={(color) =>
-                              setSettings({
-                                ...settings,
-                                overlay: {
-                                  ...overlayConfig,
-                                  textColor: color,
-                                },
-                              })
-                            }
-                          />
-                          <button
-                            className="reset-icon"
-                            title="Reset"
-                            onClick={() => resetOverlayField('textColor')}
-                          >
-                            <RefreshCw size={14} />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                {/* SINGLE MODE SPECIFIC SETTINGS */}
+                {overlayConfig.mode === 'single' && (
+                  <>
+                    {/* Horizontal divider */}
+                    <hr className="settings-divider" />
+
+                    <div className="setting-row">
+                      <label>{t('numberColor', lang)}</label>
+                      <ColorPicker
+                        value={overlayConfig.numberColor}
+                        onChange={(color) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              numberColor: color,
+                            },
+                          })
+                        }
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('numberColor')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+
+                    <div className="setting-row">
+                      <label>{t('textColor', lang)}</label>
+                      <ColorPicker
+                        value={overlayConfig.textColor}
+                        onChange={(color) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              textColor: color,
+                            },
+                          })
+                        }
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('textColor')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+
+                    <div className="setting-row">
+                      <label>{t('numberSize', lang)}</label>
+                      <input
+                        type="number"
+                        value={overlayConfig.numberSize}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              numberSize: parseInt(e.target.value || '180', 10),
+                            },
+                          })
+                        }
+                        className="input-narrow"
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('numberSize')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+
+                    <div className="setting-row">
+                      <label>{t('textSize', lang)}</label>
+                      <input
+                        type="number"
+                        value={overlayConfig.textSize}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              textSize: parseInt(e.target.value || '45', 10),
+                            },
+                          })
+                        }
+                        className="input-narrow"
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('textSize')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+
+                    {/* Overlay X/Y Offset for single mode */}
+                    <div className="setting-row">
+                      <label>{t('overlayXOffset', lang)}</label>
+                      <input
+                        type="number"
+                        value={overlayConfig.x || 0}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              x: parseFloat(e.target.value || '0'),
+                            },
+                          })
+                        }
+                        className="input-narrow"
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('x')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+
+                    <div className="setting-row">
+                      <label>{t('overlayYOffset', lang)}</label>
+                      <input
+                        type="number"
+                        value={overlayConfig.y || 0}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            overlay: {
+                              ...overlayConfig,
+                              y: parseFloat(e.target.value || '0'),
+                            },
+                          })
+                        }
+                        className="input-narrow"
+                      />
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetOverlayField('y')}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
