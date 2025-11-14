@@ -15,7 +15,8 @@ export function useConfig() {
 
   // Initial load
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG);
+    const saved = localStorage.getItem(STORAGE_KEYS.CONFIG) || 
+                  localStorage.getItem(STORAGE_KEYS.CONFIG_COMPAT);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -26,7 +27,7 @@ export function useConfig() {
     }
   }, []);
 
-  // Storage sync
+  // Storage sync - listen to both keys for compatibility
   useStorageSync(STORAGE_KEYS.CONFIG, (newValue) => {
     if (newValue) {
       try {
@@ -34,6 +35,17 @@ export function useConfig() {
         setSettingsState(mergeSettings(parsed));
       } catch (error) {
         console.error('[useConfig] Sync error:', error);
+      }
+    }
+  });
+
+  useStorageSync(STORAGE_KEYS.CONFIG_COMPAT, (newValue) => {
+    if (newValue) {
+      try {
+        const parsed = JSON.parse(newValue);
+        setSettingsState(mergeSettings(parsed));
+      } catch (error) {
+        console.error('[useConfig] Sync error (compat):', error);
       }
     }
   });

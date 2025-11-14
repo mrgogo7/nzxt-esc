@@ -20,9 +20,9 @@
 // ============================================================================
 
 // Primary storage key used in both localStorage and storage events.
-// NOTE: Changing this string will reset previously saved URLs.
-// (CAM will treat it as a brand-new storage namespace.)
-const KEY = 'media_url_primary'
+// NOTE: Must match STORAGE_KEYS.MEDIA_URL for backward compatibility.
+// (CAM will treat it as a brand-new storage namespace if changed.)
+const KEY = 'media_url'
 
 // Cookie key for cross-process fallback
 const COOKIE = 'media_url'
