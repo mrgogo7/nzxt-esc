@@ -127,7 +127,10 @@
 .preview-column { 
   display: flex; 
   flex-direction: column; 
-  align-items: center; 
+  align-items: center;
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
 }
 .preview-title { 
   font-size: 14px; 

@@ -736,6 +736,9 @@ export default function ConfigPreview() {
                     {/* Overlay Settings - grouped by Primary/Secondary/Tertiary for better UX */}
                     {overlayConfig.mode === 'dual' ? (
                       <>
+                        {/* Horizontal divider */}
+                        <hr className="settings-divider" />
+                        
                         {/* PRIMARY SETTINGS */}
                         <div className="setting-row">
                           <label>{t('primaryNumberColor', lang)}</label>
@@ -1020,6 +1023,9 @@ export default function ConfigPreview() {
                       </>
                     ) : overlayConfig.mode === 'triple' ? (
                       <>
+                        {/* Horizontal divider */}
+                        <hr className="settings-divider" />
+                        
                         {/* PRIMARY SETTINGS */}
                         <div className="setting-row">
                           <label>{t('primaryNumberColor', lang)}</label>
