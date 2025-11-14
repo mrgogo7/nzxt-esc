@@ -91,10 +91,10 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   dividerColor: "rgba(255, 255, 255, 0.3)", // Default divider color
   gap: 36, // Default gap for dual mode (120 * 0.3)
   gapSecondaryTertiary: 20, // Default gap between secondary and tertiary in triple mode
-  dividerGap: 8, // Default gap between primary and divider in triple mode
-  x: 0,
-  y: 0,
-  dualReadersOffsetX: 0, // Default X offset for secondary/tertiary in triple mode (Dual Readers)
+  dividerGap: 27, // Default gap between primary and divider in triple mode
+  x: 0, // Default X offset (18 for triple mode primary, set in mode switch)
+  y: 0, // Default Y offset
+  dualReadersOffsetX: 0, // Default X offset for secondary/tertiary in triple mode (Dual Readers) (60 for triple mode, set in mode switch)
   dualReadersOffsetY: 0, // Default Y offset for secondary/tertiary in triple mode (Dual Readers)
 };
 

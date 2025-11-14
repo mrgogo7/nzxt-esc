@@ -627,9 +627,11 @@ export default function ConfigPreview() {
                           updates.tertiaryNumberSize = 80;
                           updates.tertiaryTextSize = 20;
                           updates.gapSecondaryTertiary = 20;
-                          updates.dividerGap = 8;
-                          updates.dualReadersOffsetX = 0;
-                          updates.dualReadersOffsetY = 0;
+                          updates.dividerGap = 27;
+                          updates.x = 18; // Primary X Offset
+                          updates.y = 0; // Primary Y Offset
+                          updates.dualReadersOffsetX = 60; // Dual Readers X Offset
+                          updates.dualReadersOffsetY = 0; // Dual Readers Y Offset
                           updates.primaryNumberColor = overlayConfig.primaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
                           updates.primaryTextColor = overlayConfig.primaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor;
                           updates.secondaryNumberColor = overlayConfig.secondaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
@@ -741,64 +743,7 @@ export default function ConfigPreview() {
                   </div>
                 )}
 
-                {/* Overlay settings (X/Y Offset, Colors, Sizes) - shown for all modes */}
-                {(overlayConfig.mode === 'single' ||
-                  overlayConfig.mode === 'dual' ||
-                  overlayConfig.mode === 'triple') && (
-                  <>
-
-                    {/* Overlay X/Y Offset */}
-                    <div className="setting-row">
-                      <label>{t('overlayXOffset', lang)}</label>
-                      <input
-                        type="number"
-                        value={overlayConfig.x || 0}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              x: parseFloat(e.target.value || '0'),
-                            },
-                          })
-                        }
-                        className="input-narrow"
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('x')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
-
-                    <div className="setting-row">
-                      <label>{t('overlayYOffset', lang)}</label>
-                      <input
-                        type="number"
-                        value={overlayConfig.y || 0}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              y: parseFloat(e.target.value || '0'),
-                            },
-                          })
-                        }
-                        className="input-narrow"
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('y')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
-
-                    {/* Overlay Settings - grouped by Primary/Secondary/Tertiary for better UX */}
+                {/* Overlay Settings - grouped by Primary/Secondary/Tertiary for better UX */}
                     {overlayConfig.mode === 'dual' ? (
                       <>
                         {/* Horizontal divider */}
