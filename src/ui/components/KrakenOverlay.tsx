@@ -422,7 +422,7 @@ function SingleOverlay({
 				  flexDirection: "column",
 				  justifyContent: "flex-start",
 				  paddingLeft: 4,
-				  transform: "translateY(-15%)",
+				  transform: "translateY(-65%)",
 				}}
 			  >
 				<span
