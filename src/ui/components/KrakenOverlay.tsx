@@ -376,7 +376,7 @@ function SingleOverlay({
     valueUnitType === "temp"
       ? numberSize * 0.49
       : valueUnitType === "percent"
-      ? numberSize * 0.4
+      ? numberSize * 0.35
       : numberSize * 0.2;
 
   const isClock = valueUnitType === "clock";
