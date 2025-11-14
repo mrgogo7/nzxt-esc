@@ -416,16 +416,41 @@ function SingleOverlay({
           </span>
 
           {valueUnit && (
-            <span
-              style={{
-                fontSize: `${unitSize}px`,
-                fontWeight: 700,
-                color: numberColor,
-                paddingLeft: 4,
-              }}
-            >
-              {valueUnit}
-            </span>
+			{valueUnit && valueUnitType === "temp" && (
+			  <span
+				style={{
+				  display: "inline-flex",
+				  flexDirection: "column",
+				  justifyContent: "flex-start",
+				  lineHeight: 1,
+				  paddingLeft: 4,
+				}}
+			  >
+				<span
+				  style={{
+					fontSize: `${unitSize}px`,
+					fontWeight: 700,
+					color: numberColor,
+				  }}
+				>
+				  {valueUnit}
+				</span>
+			  </span>
+			)}
+
+			{valueUnit && valueUnitType === "percent" && (
+			  <span
+				style={{
+				  fontSize: `${unitSize}px`,
+				  fontWeight: 700,
+				  color: numberColor,
+				  paddingLeft: 4,
+				  lineHeight: 1,
+				}}
+			  >
+				{valueUnit}
+			  </span>
+			)}
           )}
         </div>
       ) : (
