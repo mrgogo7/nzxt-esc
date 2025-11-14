@@ -244,7 +244,6 @@ function useMonitoringMetrics(): OverlayMetrics {
           const mapped = mapMonitoringToOverlay(data);
           setMetrics(mapped);
         } catch (err) {
-          // In case of unexpected payload shape, keep previous metrics.
           // eslint-disable-next-line no-console
           console.warn("[KrakenOverlay] Failed to map monitoring data:", err);
         }
@@ -254,7 +253,6 @@ function useMonitoringMetrics(): OverlayMetrics {
       const prevNzxt = w.nzxt || {};
       const prevV1 = prevNzxt.v1 || {};
 
-      // Attach our callback following the official docs (@nzxt/web-integrations-types).
       w.nzxt = {
         ...prevNzxt,
         v1: {
@@ -268,7 +266,6 @@ function useMonitoringMetrics(): OverlayMetrics {
         "[KrakenOverlay] Registered window.nzxt.v1.onMonitoringDataUpdate callback (Kraken Browser)."
       );
 
-      // Cleanup: if we are still the active callback, remove ourselves.
       return () => {
         const current = (window as any).nzxt?.v1;
         if (current && current.onMonitoringDataUpdate === handler) {
@@ -277,9 +274,7 @@ function useMonitoringMetrics(): OverlayMetrics {
       };
     }
 
-    // Configuration / normal browser path: simple mock animation for development.
-    // This will NEVER run inside NZXT Kraken Browser (because of the check above).
-    // We keep it lightweight so it does not interfere with real monitoring data.
+    // Normal browser path: simple mock animation.
     // eslint-disable-next-line no-console
     console.log(
       "[KrakenOverlay] Not running as Kraken Browser (?kraken=1 missing). Using mock overlay metrics."
@@ -321,13 +316,11 @@ function getOverlayLabelAndValue(
   let unit = "";
   let unitType: "temp" | "percent" | "clock" | "none" = "none";
 
-  // CPU / GPU / Liquid label mapping
   if (key.startsWith("cpu")) label = "CPU";
   else if (key.startsWith("gpu")) label = "GPU";
   else if (key === "liquidTemp") label = "Liquid";
   else label = key.toUpperCase();
 
-  // Units
   if (key === "cpuTemp" || key === "gpuTemp" || key === "liquidTemp") {
     unit = "°";
     unitType = "temp";
@@ -353,10 +346,8 @@ function getOverlayLabelAndValue(
   };
 }
 
-
 /**
  * Single infographic overlay rendered on top of the media.
- * This is the first overlay mode we support.
  */
 function SingleOverlay({
   overlay,
@@ -404,65 +395,38 @@ function SingleOverlay({
         fontFamily: "nzxt-extrabold",
       }}
     >
-      {/* Number + Unit */}
+      {/* Number + Unit (natural typographic alignment) */}
       {!isClock ? (
         <div
           style={{
-            display: "flex",
+            display: "inline-flex",
+            alignItems: "baseline",
             justifyContent: "center",
             lineHeight: 0.9,
           }}
         >
-          {/* Number kutusu */}
-			{/* Number + Unit (inline layout → doğal hizalama) */}
-			<div
-			  style={{
-				display: "flex",
-				alignItems: "baseline",
-				justifyContent: "center",
-				lineHeight: 0.9,
-				pointerEvents: "none",
-			  }}
-			>
-			  {/* NUMBER */}
-			  <div
-				style={{
-				  display: "inline-block",
-				  fontSize: `${numberSize}px`,
-				  fontWeight: 700,
-				  color: numberColor,
-				  lineHeight: 0.9,
-				}}
-			  >
-				{valueNumber}
-			  </div>
+          <span
+            style={{
+              fontSize: `${numberSize}px`,
+              fontWeight: 700,
+              color: numberColor,
+            }}
+          >
+            {valueNumber}
+          </span>
 
-			  {/* UNIT (° or %) — DOĞAL TİPOGRAFİK HİZALAMA */}
-			  {valueUnit && (
-				<div
-				  style={{
-					display: "inline-block",
-					fontSize: `${unitSize}px`,
-					marginLeft: numberSize * 0.05, // sayıdan biraz uzaklaştır
-					color: numberColor,
-					fontWeight: 700,
-					lineHeight: 0.9,
-
-					// BURASI KRİTİK:
-					// ° → doğal olarak yukarı gelir, baseline bozma
-					// % → doğal olarak aşağı kayar, baseline bozma
-					verticalAlign:
-					  valueUnitType === "temp"
-						? "top"       // ° için
-						: valueUnitType === "percent"
-						? "bottom"    // % için
-						: "baseline",
-				  }}
-				>
-				  {valueUnit}
-				</div>
-			  )}
-			</div>
+          {valueUnit && (
+            <span
+              style={{
+                fontSize: `${unitSize}px`,
+                fontWeight: 700,
+                color: numberColor,
+                paddingLeft: 4,
+              }}
+            >
+              {valueUnit}
+            </span>
+          )}
         </div>
       ) : (
         <>
@@ -519,11 +483,9 @@ export default function KrakenOverlay() {
   const [settings, setSettings] = useState<Settings>(DEFAULTS);
   const metrics = useMonitoringMetrics();
 
-  // Determine LCD size from NZXT if available, otherwise default to 640.
   const lcdResolution = (window as any)?.nzxt?.v1?.width || 640;
-  const lcdSize = lcdResolution; // square LCD
+  const lcdSize = lcdResolution;
 
-  // Load from localStorage on mount
   useEffect(() => {
     const savedUrl = localStorage.getItem(URL_KEY);
     const savedCfg =
@@ -564,7 +526,6 @@ export default function KrakenOverlay() {
     }
   }, []);
 
-  // Listen for config changes (ConfigPreview updates localStorage + storage events)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === URL_KEY && e.newValue !== null) {
@@ -598,9 +559,6 @@ export default function KrakenOverlay() {
 
   const base = getBaseAlign(settings.align);
 
-  // IMPORTANT:
-  // - settings.x / settings.y are stored in REAL LCD px (not scaled).
-  // - Here we apply them directly as px offsets in objectPosition.
   const objectPosition = `calc(${base.x}% + ${settings.x}px) calc(${base.y}% + ${settings.y}px)`;
 
   const overlayConfig: OverlaySettings = {
@@ -652,7 +610,6 @@ export default function KrakenOverlay() {
         )
       )}
 
-      {/* Single Infographic overlay (more modes will be added later) */}
       <SingleOverlay overlay={overlayConfig} metrics={metrics} />
     </div>
   );
