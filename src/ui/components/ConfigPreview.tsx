@@ -535,19 +535,35 @@ export default function ConfigPreview() {
                 {/* Overlay Mode */}
                 <div className="setting-row">
                   <label>{t('overlayMode', lang)}</label>
-                  <select
-                    className="url-input select-narrow"
-                    value={overlayConfig.mode}
-                    onChange={(e) =>
-                      setSettings({
-                        ...settings,
-                        overlay: {
-                          ...overlayConfig,
-                          mode: e.target.value as OverlayMode,
-                        },
-                      })
-                    }
-                  >
+                    <select
+                      className="url-input select-narrow"
+                      value={overlayConfig.mode}
+                      onChange={(e) => {
+                        const newMode = e.target.value as OverlayMode;
+                        const updates: Partial<OverlaySettings> = { mode: newMode };
+                        
+                        // Set default values when switching to dual mode
+                        if (newMode === 'dual') {
+                          updates.numberSize = 120;
+                          updates.textSize = 35;
+                          updates.secondaryNumberSize = 120;
+                          updates.secondaryTextSize = 35;
+                          updates.primaryNumberColor = overlayConfig.primaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
+                          updates.primaryTextColor = overlayConfig.primaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor;
+                          updates.secondaryNumberColor = overlayConfig.secondaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
+                          updates.secondaryTextColor = overlayConfig.secondaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor;
+                          updates.gap = overlayConfig.gap || DEFAULT_OVERLAY.gap;
+                        }
+                        
+                        setSettings({
+                          ...settings,
+                          overlay: {
+                            ...overlayConfig,
+                            ...updates,
+                          },
+                        });
+                      }}
+                    >
                     <option value="none">None</option>
                     <option value="single">Single Infographic</option>
                     <option value="dual">Dual Infographic</option>
@@ -699,51 +715,216 @@ export default function ConfigPreview() {
                       </button>
                     </div>
 
-                    <div className="setting-row">
-                      <label>{t('numberColor', lang)}</label>
-                      <ColorPicker
-                        value={overlayConfig.numberColor}
-                        onChange={(color) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              numberColor: color,
-                            },
-                          })
-                        }
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('numberColor')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
+                    {/* Colors - different for dual mode */}
+                    {overlayConfig.mode === 'dual' ? (
+                      <>
+                        <div className="setting-row">
+                          <label>{t('primaryNumberColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.primaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  primaryNumberColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  primaryNumberColor: DEFAULT_OVERLAY.primaryNumberColor,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
 
-                    <div className="setting-row">
-                      <label>{t('textColor', lang)}</label>
-                      <ColorPicker
-                        value={overlayConfig.textColor}
-                        onChange={(color) =>
-                          setSettings({
-                            ...settings,
-                            overlay: {
-                              ...overlayConfig,
-                              textColor: color,
-                            },
-                          })
-                        }
-                      />
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetOverlayField('textColor')}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
+                        <div className="setting-row">
+                          <label>{t('primaryTextColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.primaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  primaryTextColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  primaryTextColor: DEFAULT_OVERLAY.primaryTextColor,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('secondaryNumberColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.secondaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryNumberColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryNumberColor: DEFAULT_OVERLAY.secondaryNumberColor,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('secondaryTextColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.secondaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryTextColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryTextColor: DEFAULT_OVERLAY.secondaryTextColor,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Gap setting */}
+                        <div className="setting-row">
+                          <label>{t('gap', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.gap || DEFAULT_OVERLAY.gap || 36}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  gap: parseInt(e.target.value || '36', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  gap: DEFAULT_OVERLAY.gap,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="setting-row">
+                          <label>{t('numberColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.numberColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  numberColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('numberColor')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('textColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.textColor}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  textColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => resetOverlayField('textColor')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                     {/* Number Size and Text Size - different labels for dual mode */}
                     {overlayConfig.mode === 'dual' ? (

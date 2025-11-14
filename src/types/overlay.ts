@@ -21,6 +21,11 @@ export interface OverlaySettings {
   tertiaryMetric?: OverlayMetricKey; // For triple mode
   numberColor: string;
   textColor: string;
+  // Dual mode specific colors
+  primaryNumberColor?: string; // For dual mode
+  primaryTextColor?: string; // For dual mode
+  secondaryNumberColor?: string; // For dual mode
+  secondaryTextColor?: string; // For dual mode
   numberSize: number;
   textSize: number;
   // Dual mode specific settings
@@ -29,6 +34,7 @@ export interface OverlaySettings {
   showDivider?: boolean; // Show divider between dual metrics
   dividerWidth?: number; // Divider line width
   dividerThickness?: number; // Divider line thickness
+  gap?: number; // Space between primary and secondary metrics (dual mode)
   x?: number; // Overlay X offset
   y?: number; // Overlay Y offset
 }
@@ -57,11 +63,16 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   numberSize: 180,
   textSize: 45, // Changed from 80 to 45
   // Dual mode defaults
+  primaryNumberColor: "rgba(255, 255, 255, 1)",
+  primaryTextColor: "rgba(255, 255, 255, 1)",
+  secondaryNumberColor: "rgba(255, 255, 255, 1)",
+  secondaryTextColor: "rgba(255, 255, 255, 1)",
   secondaryNumberSize: 120,
   secondaryTextSize: 35,
   showDivider: false,
   dividerWidth: 60, // Percentage of height
   dividerThickness: 2,
+  gap: 36, // Default gap (120 * 0.3)
   x: 0,
   y: 0,
 };

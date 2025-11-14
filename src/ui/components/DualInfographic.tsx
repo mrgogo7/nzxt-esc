@@ -30,8 +30,11 @@ export default function DualInfographic({
   const primaryInfo = getOverlayLabelAndValue(primaryKey, primaryValue);
   const secondaryInfo = getOverlayLabelAndValue(secondaryKey, secondaryValue);
 
-  const numberColor = overlay.numberColor;
-  const textColor = overlay.textColor;
+  // Use separate colors for primary and secondary in dual mode
+  const primaryNumberColor = overlay.primaryNumberColor || overlay.numberColor;
+  const primaryTextColor = overlay.primaryTextColor || overlay.textColor;
+  const secondaryNumberColor = overlay.secondaryNumberColor || overlay.numberColor;
+  const secondaryTextColor = overlay.secondaryTextColor || overlay.textColor;
 
   // Use separate sizes for primary and secondary in dual mode
   const primaryNumberSize = overlay.numberSize * scale;
@@ -44,7 +47,9 @@ export default function DualInfographic({
     info: typeof primaryInfo,
     isClock: boolean,
     unitSize: number,
-    numSize: number
+    numSize: number,
+    numColor: string,
+    txtColor: string
   ) => {
     if (!isClock) {
       return (
@@ -61,7 +66,7 @@ export default function DualInfographic({
             style={{
               fontSize: `${numSize}px`,
               fontWeight: 700,
-              color: numberColor,
+              color: numColor,
             }}
           >
             {info.valueNumber}
@@ -82,7 +87,7 @@ export default function DualInfographic({
                 style={{
                   fontSize: `${unitSize}px`,
                   fontWeight: 700,
-                  color: numberColor,
+                  color: numColor,
                   lineHeight: 1,
                 }}
               >
@@ -97,7 +102,7 @@ export default function DualInfographic({
               style={{
                 fontSize: `${unitSize}px`,
                 fontWeight: 700,
-                color: numberColor,
+                color: numColor,
                 paddingLeft: 4,
                 lineHeight: 1,
               }}
@@ -115,7 +120,7 @@ export default function DualInfographic({
             style={{
               fontSize: `${numSize}px`,
               fontWeight: 700,
-              color: numberColor,
+              color: numColor,
               lineHeight: 0.9,
             }}
           >
@@ -128,7 +133,7 @@ export default function DualInfographic({
               fontSize: `${unitSize}px`,
               marginTop: -numSize * 0.15,
               marginBottom: 6,
-              color: numberColor,
+              color: numColor,
             }}
           >
             MHz
@@ -165,7 +170,7 @@ export default function DualInfographic({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        gap: primaryNumberSize * 0.3, // Space between two metrics
+        gap: overlay.gap ? `${overlay.gap * scale}px` : `${primaryNumberSize * 0.3}px`, // Space between two metrics (configurable)
         pointerEvents: "none",
         fontFamily: "nzxt-extrabold",
       }}
@@ -179,13 +184,13 @@ export default function DualInfographic({
           alignItems: "center",
         }}
       >
-        {renderMetric(primaryInfo, primaryIsClock, primaryUnitSize, primaryNumberSize)}
+        {renderMetric(primaryInfo, primaryIsClock, primaryUnitSize, primaryNumberSize, primaryNumberColor, primaryTextColor)}
 
         {/* Label */}
         <div
           style={{
             fontSize: `${primaryTextSize}px`,
-            color: textColor,
+            color: primaryTextColor,
             textTransform: "uppercase",
             letterSpacing: 1,
             marginTop: primaryIsClock ? 0 : 4,
@@ -201,7 +206,7 @@ export default function DualInfographic({
           style={{
             width: `${overlay.dividerThickness || 2}px`,
             height: `${overlay.dividerWidth || 60}%`,
-            backgroundColor: numberColor,
+            backgroundColor: primaryNumberColor,
             opacity: 0.3,
             borderRadius: 1,
           }}
@@ -217,13 +222,13 @@ export default function DualInfographic({
           alignItems: "center",
         }}
       >
-        {renderMetric(secondaryInfo, secondaryIsClock, secondaryUnitSize, secondaryNumberSize)}
+        {renderMetric(secondaryInfo, secondaryIsClock, secondaryUnitSize, secondaryNumberSize, secondaryNumberColor, secondaryTextColor)}
 
         {/* Label */}
         <div
           style={{
             fontSize: `${secondaryTextSize}px`,
-            color: textColor,
+            color: secondaryTextColor,
             textTransform: "uppercase",
             letterSpacing: 1,
             marginTop: secondaryIsClock ? 0 : 4,
