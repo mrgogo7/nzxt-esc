@@ -1,4 +1,10 @@
 import React, { useEffect, useState } from "react";
+import {
+  OverlaySettings,
+  OverlayMetrics,
+  DEFAULT_OVERLAY,
+} from "./overlayTypes";
+import SingleInfographic from "./SingleInfographic";
 
 /*
   ================================================================
@@ -7,32 +13,12 @@ import React, { useEffect, useState } from "react";
 
    - Reads media URL + settings from localStorage (same keys as ConfigPreview)
    - Mirrors the LCD transform logic (scale, offset, align, fit)
-   - Adds basic "Single Infographic" overlay support
+   - Adds "Single Infographic" overlay support via SingleInfographic component
    - Registers window.nzxt.v1.onMonitoringDataUpdate so that CAM can
      push real monitoring data into this component on the Kraken Browser.
    - Does NOT require any props (safe for ?kraken=1 entry)
   ================================================================
 */
-
-type OverlayMode = "none" | "single" | "dual" | "triple";
-
-type OverlayMetricKey =
-  | "cpuTemp"
-  | "cpuLoad"
-  | "cpuClock"
-  | "liquidTemp"
-  | "gpuTemp"
-  | "gpuLoad"
-  | "gpuClock";
-
-interface OverlaySettings {
-  mode: OverlayMode;
-  primaryMetric: OverlayMetricKey;
-  numberColor: string;
-  textColor: string;
-  numberSize: number;
-  textSize: number;
-}
 
 interface Settings {
   scale: number;
@@ -47,18 +33,6 @@ interface Settings {
   showGuide?: boolean;
   overlay?: OverlaySettings; // optional to stay compatible with old saved configs
 }
-
-/**
- * Default overlay config when none is stored yet.
- */
-const DEFAULT_OVERLAY: OverlaySettings = {
-  mode: "none",
-  primaryMetric: "cpuTemp",
-  numberColor: "#ffffff",
-  textColor: "#cccccc",
-  numberSize: 180,
-  textSize: 80,
-};
 
 /**
  * Default visual settings (must match ConfigPreview logic).
@@ -115,19 +89,6 @@ function pickNumeric(...values: unknown[]): number {
   }
   return 0;
 }
-
-/**
- * Shape of the metrics we care about inside the overlay.
- */
-type OverlayMetrics = {
-  cpuTemp: number;
-  cpuLoad: number;
-  cpuClock: number;
-  liquidTemp: number;
-  gpuTemp: number;
-  gpuLoad: number;
-  gpuClock: number;
-};
 
 /**
  * Default metrics used before the first monitoring payload arrives.
@@ -301,207 +262,11 @@ function useMonitoringMetrics(): OverlayMetrics {
 }
 
 /**
- * Decide label + value string (with unit) for the given metric key.
- */
-function getOverlayLabelAndValue(
-  key: OverlayMetricKey,
-  rawValue: number
-): {
-  label: string;
-  valueNumber: string;
-  valueUnit: string;
-  valueUnitType: "temp" | "percent" | "clock" | "none";
-} {
-  let label: string;
-  let unit = "";
-  let unitType: "temp" | "percent" | "clock" | "none" = "none";
-
-  if (key.startsWith("cpu")) label = "CPU";
-  else if (key.startsWith("gpu")) label = "GPU";
-  else if (key === "liquidTemp") label = "Liquid";
-  else label = key.toUpperCase();
-
-  if (key === "cpuTemp" || key === "gpuTemp" || key === "liquidTemp") {
-    unit = "°";
-    unitType = "temp";
-  } else if (key === "cpuLoad" || key === "gpuLoad") {
-    unit = "%";
-    unitType = "percent";
-  } else if (key === "cpuClock" || key === "gpuClock") {
-    unit = "MHz";
-    unitType = "clock";
-  }
-
-  const rounded = Math.round(rawValue);
-  const valueNumber =
-    typeof rounded === "number" && !Number.isNaN(rounded)
-      ? `${rounded}`
-      : "-";
-
-  return {
-    label,
-    valueNumber,
-    valueUnit: unit,
-    valueUnitType: unitType,
-  };
-}
-
-/**
- * Single infographic overlay rendered on top of the media.
- */
-function SingleOverlay({
-  overlay,
-  metrics,
-}: {
-  overlay: OverlaySettings;
-  metrics: OverlayMetrics;
-}) {
-  if (overlay.mode !== "single") return null;
-
-  const key = overlay.primaryMetric;
-  const value = metrics[key];
-
-  const {
-    label,
-    valueNumber,
-    valueUnit,
-    valueUnitType,
-  } = getOverlayLabelAndValue(key, value);
-
-  const numberColor = overlay.numberColor;
-  const textColor = overlay.textColor;
-
-  const numberSize = overlay.numberSize;
-  const unitSize =
-    valueUnitType === "temp"
-      ? numberSize * 0.49
-      : valueUnitType === "percent"
-      ? numberSize * 0.35
-      : numberSize * 0.2;
-
-  const isClock = valueUnitType === "clock";
-
-  return (
-    <div
-      style={{
-        position: "absolute",
-        zIndex: 20,
-        inset: 0,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        pointerEvents: "none",
-        fontFamily: "nzxt-extrabold",
-      }}
-    >
-      {/* Number + Unit (natural typographic alignment) */}
-      {!isClock ? (
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "baseline",
-            justifyContent: "center",
-            lineHeight: 0.9,
-          }}
-        >
-          <span
-            style={{
-              fontSize: `${numberSize}px`,
-              fontWeight: 700,
-              color: numberColor,
-            }}
-          >
-            {valueNumber}
-          </span>
-
-			{valueUnit && valueUnitType === "temp" && (
-			  <span
-				style={{
-				  display: "inline-flex",
-				  flexDirection: "column",
-				  justifyContent: "flex-start",
-				  paddingLeft: 4,
-				  transform: "translateY(-65%)",
-				}}
-			  >
-				<span
-				  style={{
-					fontSize: `${unitSize}px`,
-					fontWeight: 700,
-					color: numberColor,
-					lineHeight: 1,
-				  }}
-				>
-				  {valueUnit}
-				</span>
-			  </span>
-			)}
-
-
-			{valueUnit && valueUnitType === "percent" && (
-			  <span
-				style={{
-				  fontSize: `${unitSize}px`,
-				  fontWeight: 700,
-				  color: numberColor,
-				  paddingLeft: 4,
-				  lineHeight: 1,
-				}}
-			  >
-				{valueUnit}
-			  </span>
-			)}
-        </div>
-      ) : (
-        <>
-          {/* CLOCK number */}
-          <div
-            style={{
-              fontSize: `${numberSize}px`,
-              fontWeight: 700,
-              color: numberColor,
-              lineHeight: 0.9,
-            }}
-          >
-            {valueNumber}
-          </div>
-
-          {/* MHz below */}
-          <div
-            style={{
-              fontSize: `${unitSize}px`,
-              marginTop: -numberSize * 0.15,
-              marginBottom: 6,
-              color: numberColor,
-            }}
-          >
-            MHz
-          </div>
-        </>
-      )}
-
-      {/* Label (CPU / GPU / Liquid) */}
-      <div
-        style={{
-          fontSize: `${overlay.textSize}px`,
-          color: textColor,
-          textTransform: "uppercase",
-          letterSpacing: 1,
-        }}
-      >
-        {label}
-      </div>
-    </div>
-  );
-}
-
-/**
  * KrakenOverlay:
  * - No props
  * - Reads from localStorage (same data model as ConfigPreview)
  * - Renders the LCD-sized media (640x640) with the same transform logic
- * - Draws overlays on top of the media
+ * - Draws overlays on top of the media via dedicated overlay components
  */
 export default function KrakenOverlay() {
   const [mediaUrl, setMediaUrl] = useState<string>("");
@@ -635,7 +400,8 @@ export default function KrakenOverlay() {
         )
       )}
 
-      <SingleOverlay overlay={overlayConfig} metrics={metrics} />
+      {/* Single Infographic overlay (more modes will be added later) */}
+      <SingleInfographic overlay={overlayConfig} metrics={metrics} />
     </div>
   );
 }
