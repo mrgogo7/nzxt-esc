@@ -177,48 +177,13 @@ export default function TripleInfographic({
   const secondaryIsClock = secondaryInfo.valueUnitType === "clock";
   const tertiaryIsClock = tertiaryInfo.valueUnitType === "clock";
 
-  // Calculate gapLeftRight - allow negative values for closer positioning
-  const gapLeftRightValue = overlay.gapLeftRight !== undefined 
-    ? overlay.gapLeftRight * scale 
-    : primaryNumberSize * 0.2;
-
-  // Estimate content widths (half-width from center) to ensure divider stays visually centered
-  // We need to calculate the distance from each section's center to its rightmost/leftmost edge
-  // Primary section: half of number width + unit + half of text width
-  const primaryNumberHalfWidth = primaryIsClock 
-    ? primaryNumberSize * 0.55 
-    : primaryNumberSize * 0.5 + (primaryInfo.valueUnit ? primaryUnitSize * 0.3 : 0);
-  const primaryTextHalfWidth = primaryTextSize * 0.5;
-  const primaryHalfWidth = primaryNumberHalfWidth + primaryTextHalfWidth;
+  // Primary/Divider offset (overlay.x and overlay.y)
+  const primaryOffsetX = (overlay.x || 0) * scale;
+  const primaryOffsetY = (overlay.y || 0) * scale;
   
-  // Right section: half of max content width (secondary or tertiary, whichever is wider)
-  const secondaryContentHalfWidth = secondaryIsClock
-    ? secondaryNumberSize * 0.55
-    : secondaryNumberSize * 0.5 + (secondaryInfo.valueUnit ? secondaryUnitSize * 0.3 : 0);
-  const tertiaryContentHalfWidth = tertiaryIsClock
-    ? tertiaryNumberSize * 0.55
-    : tertiaryNumberSize * 0.5 + (tertiaryInfo.valueUnit ? tertiaryUnitSize * 0.3 : 0);
-  const maxRightContentHalfWidth = Math.max(secondaryContentHalfWidth, tertiaryContentHalfWidth);
-  const rightTextHalfWidth = Math.max(secondaryTextSize, tertiaryTextSize) * 0.5;
-  // Add half of gap between secondary and tertiary
-  const gapBetweenSecondaryTertiary = overlay.gapSecondaryTertiary 
-    ? overlay.gapSecondaryTertiary * scale 
-    : secondaryNumberSize * 0.4;
-  const rightHalfWidth = maxRightContentHalfWidth + rightTextHalfWidth + (gapBetweenSecondaryTertiary / 2);
-
-  // Calculate the offset needed to keep divider visually centered
-  // This is the difference between the half-widths of left and right sections
-  const widthOffset = primaryHalfWidth - rightHalfWidth;
-  
-  // For negative gap: move sections towards center by the gap amount, plus width offset
-  // For positive gap: use normal gap, but still account for width offset
-  // We use the full gapLeftRightValue (not half) for more aggressive movement
-  const leftTransform = gapLeftRightValue < 0 
-    ? `translateX(${-gapLeftRightValue - widthOffset}px)` 
-    : widthOffset !== 0 ? `translateX(${-widthOffset}px)` : undefined;
-  const rightTransform = gapLeftRightValue < 0 
-    ? `translateX(${gapLeftRightValue + widthOffset}px)` 
-    : widthOffset !== 0 ? `translateX(${widthOffset}px)` : undefined;
+  // Secondary/Tertiary offset (separate from primary/divider)
+  const secondaryTertiaryOffsetX = (overlay.secondaryTertiaryOffsetX || 0) * scale;
+  const secondaryTertiaryOffsetY = (overlay.secondaryTertiaryOffsetY || 0) * scale;
 
   return (
     <div
@@ -226,24 +191,40 @@ export default function TripleInfographic({
         position: "absolute",
         zIndex: 20,
         inset: 0,
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: gapLeftRightValue >= 0 ? `${gapLeftRightValue}px` : '0px', // Use gap for positive values, 0 for negative (we'll use transform)
         pointerEvents: "none",
         fontFamily: "nzxt-extrabold",
       }}
     >
-      {/* Left section: Primary metric (large) */}
+      {/* Vertical divider line - Always centered, moves with primary offset */}
+      {overlay.showDivider && (
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            transform: `translate(calc(-50% + ${primaryOffsetX}px), calc(-50% + ${primaryOffsetY}px))`,
+            width: `${overlay.dividerThickness || 2}px`,
+            height: `${overlay.dividerWidth || 60}%`,
+            backgroundColor: overlay.dividerColor || primaryNumberColor,
+            opacity: overlay.dividerColor ? undefined : 0.3,
+            borderRadius: 1,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Left section: Primary metric (large) - Attached to divider */}
       <div
         style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: `translate(calc(-100% + ${primaryOffsetX}px), calc(-50% + ${primaryOffsetY}px))`,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          flex: 1,
-          transform: leftTransform,
+          pointerEvents: "none",
         }}
       >
         {renderMetric(
@@ -286,16 +267,19 @@ export default function TripleInfographic({
         />
       )}
 
-      {/* Right section: Secondary and tertiary metrics (stacked) */}
+      {/* Right section: Secondary and tertiary metrics (stacked) - Separate offset */}
       <div
         style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: `translate(${secondaryTertiaryOffsetX}px, calc(-50% + ${secondaryTertiaryOffsetY}px))`,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
           gap: overlay.gapSecondaryTertiary ? `${overlay.gapSecondaryTertiary * scale}px` : `${secondaryNumberSize * 0.4}px`, // Space between secondary and tertiary (configurable)
-          flex: 1,
-          transform: rightTransform,
+          pointerEvents: "none",
         }}
       >
         {/* Secondary metric (top) */}

@@ -61,9 +61,10 @@ const dict: Record<Lang, Record<string, string>> = {
     tertiaryNumberSize: "Tertiary Number Size",
     tertiaryTextSize: "Tertiary Text Size",
     gap: "Gap",
-    gapLeftRight: "Gap (Left-Right)",
     gapSecondaryTertiary: "Gap (Secondary-Tertiary)",
     dividerColor: "Divider Color",
+    primaryDividerPosition: "Primary/Divider Position",
+    secondaryTertiaryPosition: "Secondary/Tertiary Position",
   },
   tr: {
     appTitle: "NZXT Medya Ayarları",
@@ -121,9 +122,10 @@ const dict: Record<Lang, Record<string, string>> = {
     tertiaryNumberSize: "Üçüncül Sayı Boyutu",
     tertiaryTextSize: "Üçüncül Metin Boyutu",
     gap: "Mesafe",
-    gapLeftRight: "Mesafe (Sol-Sağ)",
     gapSecondaryTertiary: "Mesafe (İkincil-Üçüncül)",
     dividerColor: "Ayırıcı Rengi",
+    primaryDividerPosition: "Birincil/Ayırıcı Konumu",
+    secondaryTertiaryPosition: "İkincil/Üçüncül Konumu",
   },
 };
 

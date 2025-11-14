@@ -42,9 +42,11 @@ export default function ConfigPreview() {
   const metrics = useMonitoringMock(); // Mock data for preview (NZXT API not available)
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingOverlay, setIsDraggingOverlay] = useState(false);
+  const [isDraggingSecondaryTertiary, setIsDraggingSecondaryTertiary] = useState(false);
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const overlayDragStart = useRef<{ x: number; y: number } | null>(null);
+  const secondaryTertiaryDragStart = useRef<{ x: number; y: number } | null>(null);
   const hasLoadedRef = useRef(false);
   const hasInteractedRef = useRef(false);
   const lastSync = useRef(0);
@@ -161,8 +163,27 @@ export default function ConfigPreview() {
   const handleOverlayMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    overlayDragStart.current = { x: e.clientX, y: e.clientY };
-    setIsDraggingOverlay(true);
+    
+    // For triple mode, determine which section to drag based on click position
+    if (overlayConfig.mode === 'triple') {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const centerX = rect.width / 2;
+      
+      // If clicked on right half, drag secondary/tertiary
+      if (clickX > centerX) {
+        secondaryTertiaryDragStart.current = { x: e.clientX, y: e.clientY };
+        setIsDraggingSecondaryTertiary(true);
+      } else {
+        // Left half or center: drag primary/divider
+        overlayDragStart.current = { x: e.clientX, y: e.clientY };
+        setIsDraggingOverlay(true);
+      }
+    } else {
+      // For single/dual mode, drag entire overlay
+      overlayDragStart.current = { x: e.clientX, y: e.clientY };
+      setIsDraggingOverlay(true);
+    }
   };
 
   const handleOverlayMouseMove = useCallback((e: MouseEvent) => {
@@ -189,9 +210,38 @@ export default function ConfigPreview() {
     });
   }, [offsetScale, setSettings]);
 
+  const handleSecondaryTertiaryMouseMove = useCallback((e: MouseEvent) => {
+    if (!secondaryTertiaryDragStart.current) return;
+
+    const dx = e.clientX - secondaryTertiaryDragStart.current.x;
+    const dy = e.clientY - secondaryTertiaryDragStart.current.y;
+    secondaryTertiaryDragStart.current = { x: e.clientX, y: e.clientY };
+
+    // CRITICAL: Convert preview pixels to LCD pixels
+    const lcdDx = previewToLcd(dx, offsetScale);
+    const lcdDy = previewToLcd(dy, offsetScale);
+
+    // Use ref to get current settings value
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
+    setSettings({
+      ...currentSettings,
+      overlay: {
+        ...currentOverlay,
+        secondaryTertiaryOffsetX: (currentOverlay.secondaryTertiaryOffsetX || 0) + lcdDx,
+        secondaryTertiaryOffsetY: (currentOverlay.secondaryTertiaryOffsetY || 0) + lcdDy,
+      },
+    });
+  }, [offsetScale, setSettings]);
+
   const handleOverlayMouseUp = useCallback(() => {
     setIsDraggingOverlay(false);
     overlayDragStart.current = null;
+  }, []);
+
+  const handleSecondaryTertiaryMouseUp = useCallback(() => {
+    setIsDraggingSecondaryTertiary(false);
+    secondaryTertiaryDragStart.current = null;
   }, []);
 
   useEffect(() => {
@@ -489,7 +539,7 @@ export default function ConfigPreview() {
               <>
                 <div className="preview-title">{t('overlayPreviewTitle', lang)}</div>
                 <div
-                  className={`preview-circle overlay-preview ${isDraggingOverlay ? 'dragging' : ''}`}
+                  className={`preview-circle overlay-preview ${isDraggingOverlay || isDraggingSecondaryTertiary ? 'dragging' : ''}`}
                   onMouseDown={handleOverlayMouseDown}
                   style={{ position: 'relative', width: '200px', height: '200px' }}
                 >
@@ -563,8 +613,9 @@ export default function ConfigPreview() {
                           updates.secondaryTextSize = 20;
                           updates.tertiaryNumberSize = 80;
                           updates.tertiaryTextSize = 20;
-                          updates.gapLeftRight = 8;
                           updates.gapSecondaryTertiary = 20;
+                          updates.secondaryTertiaryOffsetX = 0;
+                          updates.secondaryTertiaryOffsetY = 0;
                           updates.primaryNumberColor = overlayConfig.primaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
                           updates.primaryTextColor = overlayConfig.primaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor;
                           updates.secondaryNumberColor = overlayConfig.secondaryNumberColor || overlayConfig.numberColor || DEFAULT_OVERLAY.numberColor;
@@ -1408,40 +1459,6 @@ export default function ConfigPreview() {
 
                         {/* SPACING & DIVIDER SETTINGS */}
                         <div className="setting-row">
-                          <label>{t('gapLeftRight', lang)}</label>
-                          <input
-                            type="number"
-                            value={overlayConfig.gapLeftRight ?? DEFAULT_OVERLAY.gapLeftRight ?? 8}
-                            onChange={(e) =>
-                              setSettings({
-                                ...settings,
-                                overlay: {
-                                  ...overlayConfig,
-                                  gapLeftRight: parseInt(e.target.value || '8', 10),
-                                },
-                              })
-                            }
-                            className="input-narrow"
-                            step="1"
-                          />
-                          <button
-                            className="reset-icon"
-                            title="Reset"
-                            onClick={() => {
-                              setSettings({
-                                ...settings,
-                                overlay: {
-                                  ...overlayConfig,
-                                  gapLeftRight: DEFAULT_OVERLAY.gapLeftRight,
-                                },
-                              });
-                            }}
-                          >
-                            <RefreshCw size={14} />
-                          </button>
-                        </div>
-
-                        <div className="setting-row">
                           <label>{t('gapSecondaryTertiary', lang)}</label>
                           <input
                             type="number"
@@ -1592,8 +1609,155 @@ export default function ConfigPreview() {
                                 <RefreshCw size={14} />
                               </button>
                             </div>
+
+                            <div className="setting-row">
+                              <label>{t('dividerColor', lang)}</label>
+                              <ColorPicker
+                                value={overlayConfig.dividerColor || DEFAULT_OVERLAY.dividerColor || 'rgba(255, 255, 255, 0.3)'}
+                                onChange={(color) =>
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerColor: color,
+                                    },
+                                  })
+                                }
+                              />
+                              <button
+                                className="reset-icon"
+                                title="Reset"
+                                onClick={() => {
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      dividerColor: DEFAULT_OVERLAY.dividerColor,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </button>
+                            </div>
                           </>
                         )}
+
+                        {/* Horizontal divider */}
+                        <hr className="settings-divider" />
+
+                        {/* PRIMARY/DIVIDER POSITION */}
+                        <div className="setting-row">
+                          <label>{t('primaryDividerPosition', lang)}</label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', color: '#9aa3ad' }}>X:</span>
+                            <input
+                              type="number"
+                              value={overlayConfig.x ?? 0}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  overlay: {
+                                    ...overlayConfig,
+                                    x: parseInt(e.target.value || '0', 10),
+                                  },
+                                })
+                              }
+                              className="input-narrow"
+                              style={{ width: '60px' }}
+                            />
+                            <span style={{ fontSize: '12px', color: '#9aa3ad' }}>Y:</span>
+                            <input
+                              type="number"
+                              value={overlayConfig.y ?? 0}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  overlay: {
+                                    ...overlayConfig,
+                                    y: parseInt(e.target.value || '0', 10),
+                                  },
+                                })
+                              }
+                              className="input-narrow"
+                              style={{ width: '60px' }}
+                            />
+                          </div>
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  x: DEFAULT_OVERLAY.x,
+                                  y: DEFAULT_OVERLAY.y,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Horizontal divider */}
+                        <hr className="settings-divider" />
+
+                        {/* SECONDARY/TERTIARY POSITION */}
+                        <div className="setting-row">
+                          <label>{t('secondaryTertiaryPosition', lang)}</label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '12px', color: '#9aa3ad' }}>X:</span>
+                            <input
+                              type="number"
+                              value={overlayConfig.secondaryTertiaryOffsetX ?? 0}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  overlay: {
+                                    ...overlayConfig,
+                                    secondaryTertiaryOffsetX: parseInt(e.target.value || '0', 10),
+                                  },
+                                })
+                              }
+                              className="input-narrow"
+                              style={{ width: '60px' }}
+                            />
+                            <span style={{ fontSize: '12px', color: '#9aa3ad' }}>Y:</span>
+                            <input
+                              type="number"
+                              value={overlayConfig.secondaryTertiaryOffsetY ?? 0}
+                              onChange={(e) =>
+                                setSettings({
+                                  ...settings,
+                                  overlay: {
+                                    ...overlayConfig,
+                                    secondaryTertiaryOffsetY: parseInt(e.target.value || '0', 10),
+                                  },
+                                })
+                              }
+                              className="input-narrow"
+                              style={{ width: '60px' }}
+                            />
+                          </div>
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryTertiaryOffsetX: DEFAULT_OVERLAY.secondaryTertiaryOffsetX,
+                                  secondaryTertiaryOffsetY: DEFAULT_OVERLAY.secondaryTertiaryOffsetY,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
                       </>
                     ) : (
                       <>

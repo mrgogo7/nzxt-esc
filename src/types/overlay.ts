@@ -42,10 +42,11 @@ export interface OverlaySettings {
   dividerThickness?: number; // Divider line thickness (pixels)
   dividerColor?: string; // Divider line color
   gap?: number; // Space between primary and secondary metrics (dual mode)
-  gapLeftRight?: number; // Space between left (primary) and right (secondary/tertiary) sections (triple mode)
   gapSecondaryTertiary?: number; // Space between secondary and tertiary metrics (triple mode)
-  x?: number; // Overlay X offset
-  y?: number; // Overlay Y offset
+  x?: number; // Overlay X offset (for primary/divider in triple mode, or general overlay position)
+  y?: number; // Overlay Y offset (for primary/divider in triple mode, or general overlay position)
+  secondaryTertiaryOffsetX?: number; // X offset for secondary/tertiary section in triple mode
+  secondaryTertiaryOffsetY?: number; // Y offset for secondary/tertiary section in triple mode
 }
 
 export type OverlayMetrics = {
@@ -88,10 +89,11 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   dividerThickness: 2,
   dividerColor: "rgba(255, 255, 255, 0.3)", // Default divider color
   gap: 36, // Default gap for dual mode (120 * 0.3)
-  gapLeftRight: 8, // Default gap between left and right sections in triple mode
   gapSecondaryTertiary: 20, // Default gap between secondary and tertiary in triple mode
   x: 0,
   y: 0,
+  secondaryTertiaryOffsetX: 0, // Default X offset for secondary/tertiary in triple mode
+  secondaryTertiaryOffsetY: 0, // Default Y offset for secondary/tertiary in triple mode
 };
 
 export type OverlayValueUnitType = "temp" | "percent" | "clock" | "none";
