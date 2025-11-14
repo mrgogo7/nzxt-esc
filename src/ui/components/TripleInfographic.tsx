@@ -182,6 +182,40 @@ export default function TripleInfographic({
     ? overlay.gapLeftRight * scale 
     : primaryNumberSize * 0.2;
 
+  // Estimate section widths based on font sizes to ensure divider stays visually centered
+  // Primary section: number size (with unit) + text size + some padding
+  // For clock type, add MHz label height
+  const primaryContentWidth = primaryIsClock 
+    ? primaryNumberSize * 1.1 
+    : primaryNumberSize * 1.15 + (primaryInfo.valueUnit ? primaryUnitSize * 0.5 : 0);
+  const estimatedPrimaryWidth = primaryContentWidth + primaryTextSize * 1.0;
+  
+  // Right section: max of secondary/tertiary content widths + gap between them
+  const secondaryContentWidth = secondaryIsClock
+    ? secondaryNumberSize * 1.1
+    : secondaryNumberSize * 1.15 + (secondaryInfo.valueUnit ? secondaryUnitSize * 0.5 : 0);
+  const tertiaryContentWidth = tertiaryIsClock
+    ? tertiaryNumberSize * 1.1
+    : tertiaryNumberSize * 1.15 + (tertiaryInfo.valueUnit ? tertiaryUnitSize * 0.5 : 0);
+  const maxRightContentWidth = Math.max(secondaryContentWidth, tertiaryContentWidth);
+  const rightTextSize = Math.max(secondaryTextSize, tertiaryTextSize);
+  const estimatedRightWidth = maxRightContentWidth + rightTextSize * 1.0 + 
+    (overlay.gapSecondaryTertiary ? overlay.gapSecondaryTertiary * scale : secondaryNumberSize * 0.4);
+
+  // Calculate the offset needed to keep divider visually centered
+  // When gap is negative, we want both sections to move towards center equally
+  // The offset accounts for the difference in section widths
+  const widthDifference = (estimatedPrimaryWidth - estimatedRightWidth) / 2;
+  
+  // For negative gap: move sections towards center, accounting for width difference
+  // For positive gap: use normal gap, but still account for width difference if needed
+  const leftTransform = gapLeftRightValue < 0 
+    ? `translateX(${(-gapLeftRightValue / 2) - widthDifference}px)` 
+    : widthDifference !== 0 ? `translateX(${-widthDifference}px)` : undefined;
+  const rightTransform = gapLeftRightValue < 0 
+    ? `translateX(${(gapLeftRightValue / 2) + widthDifference}px)` 
+    : widthDifference !== 0 ? `translateX(${widthDifference}px)` : undefined;
+
   return (
     <div
       style={{
@@ -205,7 +239,7 @@ export default function TripleInfographic({
           justifyContent: "center",
           alignItems: "center",
           flex: 1,
-          transform: gapLeftRightValue < 0 ? `translateX(${-gapLeftRightValue / 2}px)` : undefined, // Move right (positive translateX) when gap is negative to bring closer
+          transform: leftTransform,
         }}
       >
         {renderMetric(
@@ -257,7 +291,7 @@ export default function TripleInfographic({
           alignItems: "center",
           gap: overlay.gapSecondaryTertiary ? `${overlay.gapSecondaryTertiary * scale}px` : `${secondaryNumberSize * 0.4}px`, // Space between secondary and tertiary (configurable)
           flex: 1,
-          transform: gapLeftRightValue < 0 ? `translateX(${gapLeftRightValue / 2}px)` : undefined, // Move left (negative translateX) when gap is negative to bring closer
+          transform: rightTransform,
         }}
       >
         {/* Secondary metric (top) */}
