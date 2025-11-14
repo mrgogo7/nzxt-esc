@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { SketchPicker, ColorResult } from 'react-color';
-import 'react-color/lib/styles.css';
 import '../styles/ColorPicker.css';
 
 interface ColorPickerProps {

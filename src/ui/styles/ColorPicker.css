@@ -35,14 +35,24 @@
 }
 
 /* Override react-color styles to match dark theme */
-.color-picker-popup :global(.sketch-picker) {
+.color-picker-popup .sketch-picker {
   background: #121317 !important;
   border: 1px solid #242734 !important;
   border-radius: 8px !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
 }
 
-.color-picker-popup :global(.sketch-picker input) {
+.color-picker-popup .sketch-picker input {
+  background: #181a21 !important;
+  border: 1px solid #2d3140 !important;
+  color: #ffffff !important;
+}
+
+.color-picker-popup .sketch-picker .flexbox-fix {
+  border-top: 1px solid #242734 !important;
+}
+
+.color-picker-popup .sketch-picker .flexbox-fix input {
   background: #181a21 !important;
   border: 1px solid #2d3140 !important;
   color: #ffffff !important;
