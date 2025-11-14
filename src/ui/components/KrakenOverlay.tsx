@@ -34,9 +34,10 @@ export default function KrakenOverlay() {
     ...(settings.overlay || {}),
   };
 
-  // Apply overlay offset if present
-  const overlayOffsetX = overlayConfig.x || 0;
-  const overlayOffsetY = overlayConfig.y || 0;
+  // Apply overlay offset if present (only for single and dual modes)
+  // Triple mode handles offsets internally
+  const overlayOffsetX = overlayConfig.mode === 'triple' ? 0 : (overlayConfig.x || 0);
+  const overlayOffsetY = overlayConfig.mode === 'triple' ? 0 : (overlayConfig.y || 0);
 
   return (
     <div

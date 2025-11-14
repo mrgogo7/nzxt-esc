@@ -347,8 +347,10 @@ export default function ConfigPreview() {
   ];
 
   // Overlay positioning for preview
-  const overlayAdjX = lcdToPreview(overlayConfig.x || 0, offsetScale);
-  const overlayAdjY = lcdToPreview(overlayConfig.y || 0, offsetScale);
+  // Overlay offset for preview (only for single and dual modes)
+  // Triple mode handles offsets internally
+  const overlayAdjX = overlayConfig.mode === 'triple' ? 0 : lcdToPreview(overlayConfig.x || 0, offsetScale);
+  const overlayAdjY = overlayConfig.mode === 'triple' ? 0 : lcdToPreview(overlayConfig.y || 0, offsetScale);
 
   return (
     <div className="config-wrapper-vertical">

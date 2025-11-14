@@ -252,24 +252,6 @@ export default function TripleInfographic({
         </div>
       </div>
 
-      {/* Vertical divider line (optional) - Always centered */}
-      {overlay.showDivider && (
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            width: `${overlay.dividerThickness || 2}px`,
-            height: `${overlay.dividerWidth || 60}%`,
-            backgroundColor: overlay.dividerColor || primaryNumberColor,
-            opacity: overlay.dividerColor ? undefined : 0.3,
-            borderRadius: 1,
-            pointerEvents: "none",
-          }}
-        />
-      )}
-
       {/* Right section: Secondary and tertiary metrics (stacked) - Dual Readers offset */}
       <div
         style={{
