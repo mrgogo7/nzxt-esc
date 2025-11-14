@@ -415,7 +415,6 @@ function SingleOverlay({
             {valueNumber}
           </span>
 
-          {valueUnit && (
 			{valueUnit && valueUnitType === "temp" && (
 			  <span
 				style={{
@@ -451,7 +450,6 @@ function SingleOverlay({
 				{valueUnit}
 			  </span>
 			)}
-          )}
         </div>
       ) : (
         <>
