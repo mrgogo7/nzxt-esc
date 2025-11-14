@@ -6,6 +6,7 @@ on:
 permissions:
   actions: write
   contents: write
+  pages: write
 
 jobs:
   delete_runs:
@@ -16,27 +17,42 @@ jobs:
         with:
           script: |
             const currentRunId = process.env.GITHUB_RUN_ID;
+            let page = 1;
+            let totalDeleted = 0;
 
-            const runs = await github.rest.actions.listWorkflowRunsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 100
-            });
+            while (true) {
+              const { data } = await github.rest.actions.listWorkflowRunsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page
+              });
 
-            for (const run of runs.data.workflow_runs) {
-              if (String(run.id) === String(currentRunId)) {
-                console.log(`Skipping current run: ${run.id}`);
-                continue;
+              if (data.workflow_runs.length === 0) {
+                console.log("No more runs found.");
+                break;
               }
 
-              console.log("Deleting run:", run.id);
-              try {
-                await github.rest.actions.deleteWorkflowRun({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  run_id: run.id
-                });
-              } catch (err) {
-                console.log(`Failed to delete ${run.id}: ${err.message}`);
+              for (const run of data.workflow_runs) {
+                if (String(run.id) === String(currentRunId)) {
+                  console.log(`Skipping current run: ${run.id}`);
+                  continue;
+                }
+
+                try {
+                  await github.rest.actions.deleteWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id
+                  });
+                  console.log(`Deleted run: ${run.id}`);
+                  totalDeleted++;
+                } catch (err) {
+                  console.log(`Could not delete run ${run.id}: ${err.message}`);
+                }
               }
+
+              page++;
             }
+
+            console.log(`Total deleted: ${totalDeleted}`);
