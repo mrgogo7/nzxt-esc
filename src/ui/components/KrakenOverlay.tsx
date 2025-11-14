@@ -419,10 +419,10 @@ function SingleOverlay({
 			  <span
 				style={{
 				  display: "inline-flex",
-				  flexDirection: "column",
-				  justifyContent: "flex-start",
-				  lineHeight: 1,
+				  alignItems: "flex-start",
 				  paddingLeft: 4,
+				  lineHeight: 0.75,
+				  marginTop: `-${unitSize * 0.18}px`,
 				}}
 			  >
 				<span
@@ -430,12 +430,14 @@ function SingleOverlay({
 					fontSize: `${unitSize}px`,
 					fontWeight: 700,
 					color: numberColor,
+					lineHeight: 1,
 				  }}
 				>
 				  {valueUnit}
 				</span>
 			  </span>
 			)}
+
 
 			{valueUnit && valueUnitType === "percent" && (
 			  <span
