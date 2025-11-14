@@ -43,9 +43,11 @@ export interface OverlaySettings {
   dividerColor?: string; // Divider line color
   gap?: number; // Space between primary and secondary metrics (dual mode)
   gapSecondaryTertiary?: number; // Space between secondary and tertiary metrics (triple mode)
-  dividerGap?: number; // Space between primary and divider in triple mode
-  x?: number; // Primary X offset (for primary/divider in triple mode, or general overlay position)
-  y?: number; // Primary Y offset (for primary/divider in triple mode, or general overlay position)
+  dividerGap?: number; // Space between primary and divider (dual and triple modes)
+  x?: number; // Primary X offset (for primary/divider in dual and triple modes, or general overlay position)
+  y?: number; // Primary Y offset (for primary/divider in dual and triple modes, or general overlay position)
+  secondaryOffsetX?: number; // X offset for secondary section in dual mode
+  secondaryOffsetY?: number; // Y offset for secondary section in dual mode
   dualReadersOffsetX?: number; // X offset for secondary/tertiary section in triple mode (Dual Readers)
   dualReadersOffsetY?: number; // Y offset for secondary/tertiary section in triple mode (Dual Readers)
 }
@@ -89,11 +91,13 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   dividerWidth: 60, // Percentage of height
   dividerThickness: 2,
   dividerColor: "rgba(255, 255, 255, 0.3)", // Default divider color
-  gap: 36, // Default gap for dual mode (120 * 0.3)
+  gap: 36, // Default gap for dual mode (120 * 0.3) - deprecated, use dividerGap
   gapSecondaryTertiary: 20, // Default gap between secondary and tertiary in triple mode
-  dividerGap: 27, // Default gap between primary and divider in triple mode
+  dividerGap: 27, // Default gap between primary and divider (dual and triple modes)
   x: 0, // Default X offset (18 for triple mode primary, set in mode switch)
   y: 0, // Default Y offset
+  secondaryOffsetX: 0, // Default X offset for secondary in dual mode
+  secondaryOffsetY: 0, // Default Y offset for secondary in dual mode
   dualReadersOffsetX: 0, // Default X offset for secondary/tertiary in triple mode (Dual Readers) (60 for triple mode, set in mode switch)
   dualReadersOffsetY: 0, // Default Y offset for secondary/tertiary in triple mode (Dual Readers)
 };

@@ -159,28 +159,57 @@ export default function DualInfographic({
   const primaryIsClock = primaryInfo.valueUnitType === "clock";
   const secondaryIsClock = secondaryInfo.valueUnitType === "clock";
 
+  // Primary/Divider offset (overlay.x and overlay.y)
+  const primaryOffsetX = (overlay.x || 0) * scale;
+  const primaryOffsetY = (overlay.y || 0) * scale;
+  
+  // Secondary offset (secondaryOffsetX and secondaryOffsetY)
+  const secondaryOffsetX = (overlay.secondaryOffsetX || 0) * scale;
+  const secondaryOffsetY = (overlay.secondaryOffsetY || 0) * scale;
+  
+  // Divider gap - space between primary and divider
+  const dividerGap = (overlay.dividerGap || 27) * scale;
+
   return (
     <div
       style={{
         position: "absolute",
         zIndex: 20,
         inset: 0,
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        gap: overlay.gap ? `${overlay.gap * scale}px` : `${primaryNumberSize * 0.3}px`, // Space between two metrics (configurable)
         pointerEvents: "none",
         fontFamily: "nzxt-extrabold",
       }}
     >
-      {/* Primary metric (left) */}
+      {/* Vertical divider line - Always centered, moves with primary offset */}
+      {overlay.showDivider && (
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            transform: `translate(calc(-50% + ${primaryOffsetX}px), calc(-50% + ${primaryOffsetY}px))`,
+            width: `${overlay.dividerThickness || 2}px`,
+            height: `${overlay.dividerWidth || 60}%`,
+            backgroundColor: overlay.dividerColor || primaryNumberColor,
+            opacity: overlay.dividerColor ? undefined : 0.3,
+            borderRadius: 1,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {/* Left section: Primary metric - Attached to divider with gap */}
       <div
         style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: `translate(calc(-100% - ${dividerGap}px + ${primaryOffsetX}px), calc(-50% + ${primaryOffsetY}px))`,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          pointerEvents: "none",
         }}
       >
         {renderMetric(primaryInfo, primaryIsClock, primaryUnitSize, primaryNumberSize, primaryNumberColor)}
@@ -199,26 +228,18 @@ export default function DualInfographic({
         </div>
       </div>
 
-      {/* Divider (optional) */}
-      {overlay.showDivider && (
-        <div
-          style={{
-            width: `${overlay.dividerThickness || 2}px`,
-            height: `${overlay.dividerWidth || 60}%`,
-            backgroundColor: primaryNumberColor,
-            opacity: 0.3,
-            borderRadius: 1,
-          }}
-        />
-      )}
-
-      {/* Secondary metric (right) */}
+      {/* Right section: Secondary metric - Independent offset */}
       <div
         style={{
+          position: "absolute",
+          left: "50%",
+          top: "50%",
+          transform: `translate(${secondaryOffsetX}px, calc(-50% + ${secondaryOffsetY}px))`,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
+          pointerEvents: "none",
         }}
       >
         {renderMetric(secondaryInfo, secondaryIsClock, secondaryUnitSize, secondaryNumberSize, secondaryNumberColor)}

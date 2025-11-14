@@ -164,13 +164,13 @@ export default function ConfigPreview() {
     e.preventDefault();
     e.stopPropagation();
     
-    // For triple mode, determine which section to drag based on click position
-    if (overlayConfig.mode === 'triple') {
+    // For triple and dual modes, determine which section to drag based on click position
+    if (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') {
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       const clickX = e.clientX - rect.left;
       const centerX = rect.width / 2;
       
-      // If clicked on right half, drag secondary/tertiary
+      // If clicked on right half, drag secondary (dual) or secondary/tertiary (triple)
       if (clickX > centerX) {
         secondaryTertiaryDragStart.current = { x: e.clientX, y: e.clientY };
         setIsDraggingSecondaryTertiary(true);
@@ -180,7 +180,7 @@ export default function ConfigPreview() {
         setIsDraggingOverlay(true);
       }
     } else {
-      // For single/dual mode, drag entire overlay
+      // For single mode, drag entire overlay
       overlayDragStart.current = { x: e.clientX, y: e.clientY };
       setIsDraggingOverlay(true);
     }
@@ -347,10 +347,10 @@ export default function ConfigPreview() {
   ];
 
   // Overlay positioning for preview
-  // Overlay offset for preview (only for single and dual modes)
-  // Triple mode handles offsets internally
-  const overlayAdjX = overlayConfig.mode === 'triple' ? 0 : lcdToPreview(overlayConfig.x || 0, offsetScale);
-  const overlayAdjY = overlayConfig.mode === 'triple' ? 0 : lcdToPreview(overlayConfig.y || 0, offsetScale);
+  // Overlay offset for preview (only for single mode)
+  // Dual and triple modes handle offsets internally
+  const overlayAdjX = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : lcdToPreview(overlayConfig.x || 0, offsetScale);
+  const overlayAdjY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : lcdToPreview(overlayConfig.y || 0, offsetScale);
 
   return (
     <div className="config-wrapper-vertical">
@@ -749,6 +749,74 @@ export default function ConfigPreview() {
                         {/* Horizontal divider */}
                         <hr className="settings-divider" />
                         
+                        {/* PRIMARY GROUP */}
+                        {/* Primary X/Y Offset (at the beginning) */}
+                        <div className="setting-row">
+                          <label>{t('primaryXOffset', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.x ?? 0}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  x: parseInt(e.target.value || '0', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  x: DEFAULT_OVERLAY.x,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('primaryYOffset', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.y ?? 0}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  y: parseInt(e.target.value || '0', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  y: DEFAULT_OVERLAY.y,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
                         {/* PRIMARY SETTINGS */}
                         <div className="setting-row">
                           <label>{t('primaryNumberColor', lang)}</label>
@@ -857,6 +925,140 @@ export default function ConfigPreview() {
                             className="reset-icon"
                             title="Reset"
                             onClick={() => resetOverlayField('textSize')}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Gap - Space between primary and divider */}
+                        <div className="setting-row">
+                          <label>{t('dividerGap', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerGap ?? DEFAULT_OVERLAY.dividerGap ?? 27}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerGap: parseInt(e.target.value || '27', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerGap: DEFAULT_OVERLAY.dividerGap,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Width */}
+                        <div className="setting-row">
+                          <label>{t('dividerWidth', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerWidth || 60}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerWidth: parseInt(e.target.value || '60', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerWidth: DEFAULT_OVERLAY.dividerWidth,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Thickness */}
+                        <div className="setting-row">
+                          <label>{t('dividerThickness', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.dividerThickness || 2}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerThickness: parseInt(e.target.value || '2', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerThickness: DEFAULT_OVERLAY.dividerThickness,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        {/* Divider Color */}
+                        <div className="setting-row">
+                          <label>{t('dividerColor', lang)}</label>
+                          <ColorPicker
+                            value={overlayConfig.dividerColor || DEFAULT_OVERLAY.dividerColor || 'rgba(255, 255, 255, 0.3)'}
+                            onChange={(color) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerColor: color,
+                                },
+                              })
+                            }
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  dividerColor: DEFAULT_OVERLAY.dividerColor,
+                                },
+                              });
+                            }}
                           >
                             <RefreshCw size={14} />
                           </button>
@@ -994,21 +1196,18 @@ export default function ConfigPreview() {
                           </button>
                         </div>
 
-                        {/* Horizontal divider */}
-                        <hr className="settings-divider" />
-
-                        {/* SPACING & DIVIDER SETTINGS */}
+                        {/* Secondary X/Y Offset */}
                         <div className="setting-row">
-                          <label>{t('gap', lang)}</label>
+                          <label>{t('secondaryXOffset', lang)}</label>
                           <input
                             type="number"
-                            value={overlayConfig.gap || DEFAULT_OVERLAY.gap || 36}
+                            value={overlayConfig.secondaryOffsetX ?? 0}
                             onChange={(e) =>
                               setSettings({
                                 ...settings,
                                 overlay: {
                                   ...overlayConfig,
-                                  gap: parseInt(e.target.value || '36', 10),
+                                  secondaryOffsetX: parseInt(e.target.value || '0', 10),
                                 },
                               })
                             }
@@ -1022,7 +1221,40 @@ export default function ConfigPreview() {
                                 ...settings,
                                 overlay: {
                                   ...overlayConfig,
-                                  gap: DEFAULT_OVERLAY.gap,
+                                  secondaryOffsetX: DEFAULT_OVERLAY.secondaryOffsetX,
+                                },
+                              });
+                            }}
+                          >
+                            <RefreshCw size={14} />
+                          </button>
+                        </div>
+
+                        <div className="setting-row">
+                          <label>{t('secondaryYOffset', lang)}</label>
+                          <input
+                            type="number"
+                            value={overlayConfig.secondaryOffsetY ?? 0}
+                            onChange={(e) =>
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryOffsetY: parseInt(e.target.value || '0', 10),
+                                },
+                              })
+                            }
+                            className="input-narrow"
+                          />
+                          <button
+                            className="reset-icon"
+                            title="Reset"
+                            onClick={() => {
+                              setSettings({
+                                ...settings,
+                                overlay: {
+                                  ...overlayConfig,
+                                  secondaryOffsetY: DEFAULT_OVERLAY.secondaryOffsetY,
                                 },
                               });
                             }}
