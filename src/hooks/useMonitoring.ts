@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { OverlayMetrics } from '../types/overlay';
+import type { NZXTMonitoringData } from '../types/nzxt';
 import { DEFAULT_METRICS } from '../constants/defaults';
 import { mapMonitoringToOverlay } from '../utils/monitoring';
 
@@ -21,7 +22,7 @@ export function useMonitoring(): OverlayMetrics {
       return;
     }
 
-    const handler = (data: any) => {
+    const handler = (data: NZXTMonitoringData) => {
       try {
         const mapped = mapMonitoringToOverlay(data);
         setMetrics(mapped);
@@ -30,11 +31,10 @@ export function useMonitoring(): OverlayMetrics {
       }
     };
 
-    const w = window as any;
-    const prevNzxt = w.nzxt || {};
+    const prevNzxt = window.nzxt || {};
     const prevV1 = prevNzxt.v1 || {};
 
-    w.nzxt = {
+    window.nzxt = {
       ...prevNzxt,
       v1: {
         ...prevV1,
@@ -43,7 +43,7 @@ export function useMonitoring(): OverlayMetrics {
     };
 
     return () => {
-      const current = (window as any).nzxt?.v1;
+      const current = window.nzxt?.v1;
       if (current && current.onMonitoringDataUpdate === handler) {
         delete current.onMonitoringDataUpdate;
       }

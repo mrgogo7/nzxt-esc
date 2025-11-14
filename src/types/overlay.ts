@@ -1,5 +1,7 @@
-// Shared overlay types and helpers for Kraken LCD overlays.
-// This file intentionally does not contain any JSX.
+/**
+ * Shared overlay types and helpers for Kraken LCD overlays.
+ * This file intentionally does not contain any JSX.
+ */
 
 export type OverlayMode = "none" | "single" | "dual" | "triple";
 
