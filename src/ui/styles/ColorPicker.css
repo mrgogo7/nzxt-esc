@@ -102,20 +102,27 @@
 
 /* Ensure pointer/circle is visible in color picker */
 /* react-color SketchPicker uses nested divs for the pointer */
-/* Target all possible pointer elements within saturation area */
+/* The pointer is typically the direct child div of .saturation-white or .saturation-black */
 .color-picker-inline .sketch-picker .saturation-white > div,
-.color-picker-inline .sketch-picker .saturation-black > div,
+.color-picker-inline .sketch-picker .saturation-black > div {
+  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 4px !important;
+  height: 4px !important;
+  transform: translate(-2px, -2px) !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+}
+
+/* Also target nested divs (some versions use nested structure) */
 .color-picker-inline .sketch-picker .saturation-white > div > div,
 .color-picker-inline .sketch-picker .saturation-black > div > div {
   box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-}
-
-/* Ensure pointer has proper size and positioning */
-.color-picker-inline .sketch-picker .saturation-white > div > div,
-.color-picker-inline .sketch-picker .saturation-black > div > div {
   width: 4px !important;
   height: 4px !important;
   transform: translate(-2px, -2px) !important;
@@ -124,17 +131,24 @@
 
 /* Also for popup version */
 .color-picker-popup .sketch-picker .saturation-white > div,
-.color-picker-popup .sketch-picker .saturation-black > div,
+.color-picker-popup .sketch-picker .saturation-black > div {
+  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 4px !important;
+  height: 4px !important;
+  transform: translate(-2px, -2px) !important;
+  border-radius: 50% !important;
+  position: absolute !important;
+}
+
 .color-picker-popup .sketch-picker .saturation-white > div > div,
 .color-picker-popup .sketch-picker .saturation-black > div > div {
   box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-}
-
-.color-picker-popup .sketch-picker .saturation-white > div > div,
-.color-picker-popup .sketch-picker .saturation-black > div > div {
   width: 4px !important;
   height: 4px !important;
   transform: translate(-2px, -2px) !important;

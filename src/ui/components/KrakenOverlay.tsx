@@ -47,7 +47,8 @@ export default function KrakenOverlay() {
   const overlayOffsetY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : (overlayConfig.y || 0);
 
   // Determine if we should force color mode
-  const forceColorMode = activeTab === 'color';
+  // Force color mode if: activeTab is 'color' OR mediaUrl is empty (show black/color background)
+  const forceColorMode = activeTab === 'color' || !mediaUrl;
 
   return (
     <div
