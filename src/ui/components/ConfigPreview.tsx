@@ -642,11 +642,9 @@ export default function ConfigPreview() {
               <div className="panel-header">
                 <h3>{t('overlaySettingsTitle', lang)}</h3>
                 {/* Overlay Mode - moved to header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <label style={{ margin: 0, color: '#bfc6d4', fontSize: '12px', whiteSpace: 'nowrap' }}>{t('overlayMode', lang)}</label>
-                  <select
-                    className="url-input select-narrow"
-                    value={overlayConfig.mode}
+                <select
+                  className="url-input select-narrow"
+                  value={overlayConfig.mode}
                     onChange={(e) => {
                       const newMode = e.target.value as OverlayMode;
                       const updates: Partial<OverlaySettings> = { mode: newMode };
@@ -704,7 +702,6 @@ export default function ConfigPreview() {
                     <option value="dual">Dual Infographic</option>
                     <option value="triple">Triple Infographic</option>
                   </select>
-                </div>
               </div>
 
               {/* Description and Revert button */}
