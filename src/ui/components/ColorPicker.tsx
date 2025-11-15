@@ -35,23 +35,42 @@ export default function ColorPicker({
   const currentColor = normalizeToHex(value);
 
   // Handle color change from picker
-  // Package returns HEX string in onChange callback
-  const handleColorChange = (hexColor: string) => {
-    // Convert HEX to RGBA (project standard format)
-    const rgbaString = normalizeToRgba(hexColor);
-    // If alpha is not allowed, ensure alpha is 1
-    if (!allowAlpha) {
-      const parsed = parseColorToRgba(rgbaString);
-      const finalRgba = rgbaObjectToString({
-        r: parsed.r,
-        g: parsed.g,
-        b: parsed.b,
-        a: 1,
+  // Package v3.0.14 may return different formats - handle all cases
+  const handleColorChange = (color: string | { r: number; g: number; b: number; a?: number }) => {
+    console.log('[ColorPicker] handleColorChange called with:', color, 'type:', typeof color);
+    
+    let rgbaString: string;
+    
+    // Check if color is an object (RGBA object) or string (HEX/RGBA string)
+    if (typeof color === 'object' && color !== null && 'r' in color) {
+      // Color object with r, g, b, a
+      rgbaString = rgbaObjectToString({
+        r: color.r,
+        g: color.g,
+        b: color.b,
+        a: allowAlpha ? (color.a ?? 1) : 1,
       });
-      onChange(finalRgba);
+    } else if (typeof color === 'string') {
+      // Color string - normalize to RGBA
+      rgbaString = normalizeToRgba(color);
+      // If alpha is not allowed, ensure alpha is 1
+      if (!allowAlpha) {
+        const parsed = parseColorToRgba(rgbaString);
+        rgbaString = rgbaObjectToString({
+          r: parsed.r,
+          g: parsed.g,
+          b: parsed.b,
+          a: 1,
+        });
+      }
     } else {
-      onChange(rgbaString);
+      // Fallback - use current value
+      console.warn('[ColorPicker] Unknown color format:', color);
+      rgbaString = normalizeToRgba(value);
     }
+    
+    console.log('[ColorPicker] Converted to RGBA:', rgbaString);
+    onChange(rgbaString);
   };
 
   // Calculate popup position to avoid viewport overflow

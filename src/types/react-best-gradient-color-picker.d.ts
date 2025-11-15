@@ -8,7 +8,7 @@ declare module 'react-best-gradient-color-picker' {
 
   interface ColorPickerProps {
     value?: string; // Color value in HEX format (e.g., "#ffffff")
-    onChange?: (color: string) => void; // Callback with HEX color string
+    onChange?: (color: string | { r: number; g: number; b: number; a?: number }) => void; // Callback with HEX string or RGBA object
     hideAlpha?: boolean; // If true, hides alpha channel control
     hideGradient?: boolean; // If true, hides gradient control
   }
