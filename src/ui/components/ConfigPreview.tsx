@@ -477,35 +477,40 @@ export default function ConfigPreview() {
 
               <div className="settings-grid-modern">
                 {/* SCALE / X / Y */}
-                {[
-                  { field: 'scale', label: t('scale', lang), step: 0.1 },
-                  { field: 'x', label: t('xOffset', lang) },
-                  { field: 'y', label: t('yOffset', lang) },
-                ].map(({ field, label, step }) => (
-                  <div className="setting-row" key={field}>
-                    <label>{label}</label>
+                {([
+                  { field: 'scale' as const, label: t('scale', lang), step: 0.1 },
+                  { field: 'x' as const, label: t('xOffset', lang) },
+                  { field: 'y' as const, label: t('yOffset', lang) },
+                ] as const).map(({ field, label, step }) => {
+                  // Type-safe access to numeric settings
+                  const numericValue = settings[field];
+                  
+                  return (
+                    <div className="setting-row" key={field}>
+                      <label>{label}</label>
 
-                    <input
-                      type="number"
-                      step={step || 1}
-                      value={(settings as any)[field]}
-                      onChange={(e) =>
-                        setSettings({
-                          ...settings,
-                          [field]: parseFloat(e.target.value || '0'),
-                        })
-                      }
-                    />
+                      <input
+                        type="number"
+                        step={step || 1}
+                        value={numericValue}
+                        onChange={(e) =>
+                          setSettings({
+                            ...settings,
+                            [field]: parseFloat(e.target.value || '0'),
+                          })
+                        }
+                      />
 
-                    <button
-                      className="reset-icon"
-                      title="Reset"
-                      onClick={() => resetField(field as keyof AppSettings)}
-                    >
-                      <RefreshCw size={14} />
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        className="reset-icon"
+                        title="Reset"
+                        onClick={() => resetField(field)}
+                      >
+                        <RefreshCw size={14} />
+                      </button>
+                    </div>
+                  );
+                })}
 
                 {/* ALIGN */}
                 <div className="setting-row">
