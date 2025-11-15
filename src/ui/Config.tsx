@@ -107,37 +107,28 @@ export default function Config() {
         </div>
 
         <div className="header-actions">
-          {/* Language - En üst sağ köşe */}
-          <div className="header-actions-top">
-            <label className="lang-label" htmlFor="lang-select">
-              {t("language", lang)}
-            </label>
-            <select
-              id="lang-select"
-              className="lang-select"
-              value={lang}
-              onChange={handleLangChange}
-            >
-              <option value="en">English</option>
-              <option value="tr">Türkçe</option>
-            </select>
-          </div>
+          <button className="reset-btn" onClick={handleReset}>
+            {t("reset", lang)}
+          </button>
 
-          {/* Quick Presets ve Reset - Altında */}
-          <div className="header-actions-bottom">
-            <button className="quick-presets-btn" disabled title={t("quickPresets", lang)}>
-              {t("quickPresets", lang)}
-            </button>
-            <button className="reset-btn" onClick={handleReset}>
-              {t("reset", lang)}
-            </button>
-          </div>
+          <label className="lang-label" htmlFor="lang-select">
+            {t("language", lang)}
+          </label>
+          <select
+            id="lang-select"
+            className="lang-select"
+            value={lang}
+            onChange={handleLangChange}
+          >
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+          </select>
         </div>
       </header>
 
-      {/* URL Section */}
+      {/* URL + Save */}
       <section className="url-section">
-        <label className="url-label">
+        <label className="url-label" htmlFor="mediaUrl">
           {t("urlLabel", lang)}
         </label>
         <div className="url-row">
