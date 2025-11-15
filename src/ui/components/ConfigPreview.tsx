@@ -609,6 +609,25 @@ export default function ConfigPreview() {
                     </div>
                   )}
                 </div>
+                {/* Mock data warning */}
+                {!isRealDataReceived && overlayConfig.mode !== 'none' && (
+                  <div
+                    style={{
+                      marginTop: '12px',
+                      padding: '8px 12px',
+                      background: 'rgba(255, 193, 7, 0.15)',
+                      border: '1px solid rgba(255, 193, 7, 0.3)',
+                      borderRadius: '8px',
+                      color: '#ffc107',
+                      fontSize: '11px',
+                      lineHeight: '1.4',
+                      textAlign: 'center',
+                      maxWidth: '200px',
+                    }}
+                  >
+                    {t('mockDataWarning', lang)}
+                  </div>
+                )}
               </>
             ) : (
               <div className="preview-title" style={{ opacity: 0.5 }}>
