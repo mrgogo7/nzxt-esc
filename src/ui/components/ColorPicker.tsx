@@ -135,8 +135,6 @@ export default function ColorPicker({
         const triggerTopRelative = triggerRect.top - wrapperRect.top;
         const triggerRightRelative = triggerRect.right - wrapperRect.left;
         const triggerBottomRelative = triggerRect.bottom - wrapperRect.top;
-        const triggerWidth = triggerRect.width;
-        const triggerHeight = triggerRect.height;
 
         // Horizontal positioning: prefer left (for NZXT CAM compatibility), fallback to right
         if (triggerRect.left >= popupWidth + spacing) {
