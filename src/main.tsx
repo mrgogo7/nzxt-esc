@@ -2,10 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import Config from "./ui/Config";
 import KrakenOverlay from "./ui/components/KrakenOverlay";
+import TestColorPicker from "./ui/TestColorPicker";
 
-// Detect Kraken Browser (?kraken=1) vs Configuration Browser
+// Detect page type from URL parameters
 const searchParams = new URLSearchParams(window.location.search);
 const isKraken = searchParams.get("kraken") === "1";
+const isTest = searchParams.get("test") === "1";
 
 const rootElement = document.getElementById("root");
 
@@ -16,6 +18,6 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    {isKraken ? <KrakenOverlay /> : <Config />}
+    {isTest ? <TestColorPicker /> : isKraken ? <KrakenOverlay /> : <Config />}
   </React.StrictMode>
 );
