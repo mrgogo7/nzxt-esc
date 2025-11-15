@@ -31,14 +31,14 @@ export default function ColorPicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [popupPosition, setPopupPosition] = useState<{ top?: string; bottom?: string; left?: string; right?: string }>({});
 
-  // Normalize color to HEX for the picker (picker expects HEX format)
-  // But also try RGBA format if HEX doesn't work
-  const currentColor = normalizeToHex(value);
+  // Package expects RGBA format in value prop (e.g., 'rgba(255,255,255,1)')
+  // Convert to RGBA if needed
+  const currentColor = normalizeToRgba(value);
   
   // Debug: Log the color being passed to picker
   useEffect(() => {
     console.log('[ColorPicker] Value prop:', value);
-    console.log('[ColorPicker] Normalized to HEX:', currentColor);
+    console.log('[ColorPicker] Normalized to RGBA:', currentColor);
   }, [value, currentColor]);
 
   // Handle color change from picker
