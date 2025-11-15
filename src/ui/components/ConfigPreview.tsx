@@ -428,33 +428,21 @@ export default function ConfigPreview() {
 
   return (
     <div className="config-wrapper-vertical">
-      {/* Background Section - Only show when Media mode is active */}
-      {!isColor && (
-        <div className="section-group">
-          <h2 className="section-title">{t('backgroundSectionTitle', lang)}</h2>
-          <div className="section-content">
-            {/* Background Preview */}
-            <div className="preview-column">
-              <div className="preview-title">{t('previewTitle', lang)}</div>
-              <div
-                className={`preview-circle ${isDragging ? 'dragging' : ''}`}
-                onMouseDown={handleBackgroundMouseDown}
-              >
-                <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
+      {/* Background Section */}
+      <div className="section-group">
+        <h2 className="section-title">{t('backgroundSectionTitle', lang)}</h2>
+        <div className="section-content">
+          {/* Background Preview */}
+          <div className="preview-column">
+            <div className="preview-title">{t('previewTitle', lang)}</div>
+            <div
+              className={`preview-circle ${isDragging ? 'dragging' : ''}`}
+              onMouseDown={handleBackgroundMouseDown}
+            >
+              <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
 
-                {/* Show color background if Color mode is active */}
-                {isColor ? (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      backgroundColor: settings.backgroundColor || '#000000',
-                    }}
-                  />
-                ) : (
-                  <>
-                    {/* Show media if URL exists, otherwise show black */}
-                    {mediaUrl ? (
+              {/* Show media if URL exists, otherwise show black */}
+              {mediaUrl ? (
                       isVideo ? (
                         <video
                           key={mediaUrl}
