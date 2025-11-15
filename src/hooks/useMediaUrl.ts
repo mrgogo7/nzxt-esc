@@ -13,19 +13,32 @@ import { useStorageSync } from './useStorageSync';
 export function useMediaUrl() {
   // Try to get URL from multiple sources (priority order)
   const getInitialUrl = (): string => {
-    // 1. Try storage.ts (with cookie fallback)
-    const fromStorage = getMediaUrl();
-    if (fromStorage) return fromStorage;
+    // 1. Try storage.ts (with cookie fallback) - this is the source of truth
+    // Check if localStorage key exists first (to distinguish between "not set" and "empty string")
+    let storageKeyExists = false;
+    try {
+      storageKeyExists = localStorage.getItem('media_url') !== null;
+    } catch (e) {
+      // Ignore
+    }
     
-    // 2. Try direct localStorage 'media_url' key
+    const fromStorage = getMediaUrl();
+    // If storage key exists (even with empty string), use it as source of truth
+    // Empty string is a valid value (means cleared), so return it
+    if (storageKeyExists) {
+      return fromStorage;
+    }
+    
+    // 2. Try direct localStorage 'media_url' key (backward compatibility)
     try {
       const fromLocalStorage = localStorage.getItem(STORAGE_KEYS.MEDIA_URL);
-      if (fromLocalStorage) return fromLocalStorage;
+      if (fromLocalStorage !== null) return fromLocalStorage;
     } catch (e) {
       console.warn('[useMediaUrl] localStorage read failed:', e);
     }
     
-    // 3. Try config object (Config.tsx writes URL there too)
+    // 3. Try config object (ConfigPreview writes URL there for backward compatibility)
+    // Only if storage.ts is truly empty (not set, not just empty string)
     try {
       const configStr = localStorage.getItem(STORAGE_KEYS.CONFIG) || 
                         localStorage.getItem(STORAGE_KEYS.CONFIG_COMPAT);
@@ -47,7 +60,8 @@ export function useMediaUrl() {
   useEffect(() => {
     const unsubscribe = subscribe((url) => {
       // Handle both empty and non-empty URLs (important for reset functionality)
-      if (url !== mediaUrl) {
+      // Use ref to avoid stale closure issues
+      if (url !== lastCheckedUrlRef.current) {
         setMediaUrlState(url);
         lastCheckedUrlRef.current = url;
       }
@@ -55,7 +69,7 @@ export function useMediaUrl() {
     return () => {
       unsubscribe();
     };
-  }, [mediaUrl]);
+  }, []); // Empty deps - subscribe once, use ref for current value
 
   // Also listen to direct localStorage 'media_url' key (for Config.tsx compatibility)
   // BUT: Don't call setMediaUrl() here to avoid circular updates
@@ -73,16 +87,25 @@ export function useMediaUrl() {
 
   // Listen to config object changes (ConfigPreview writes URL there for backward compatibility)
   // But we prioritize storage.ts as the source of truth
+  // IMPORTANT: Only sync from config if storage.ts key doesn't exist (truly empty, not cleared)
   useEffect(() => {
     const checkConfigUrl = () => {
       try {
+        // Check if storage.ts key exists (even with empty string, key exists means it was set/cleared)
+        const storageKeyExists = localStorage.getItem('media_url') !== null;
+        
+        // Only sync from config if storage.ts key doesn't exist (backward compatibility)
+        // If key exists (even with empty string), it means storage.ts is the source of truth
+        if (storageKeyExists) {
+          return; // Don't override storage.ts
+        }
+        
         const configStr = localStorage.getItem(STORAGE_KEYS.CONFIG) || 
                           localStorage.getItem(STORAGE_KEYS.CONFIG_COMPAT);
         if (configStr) {
           const config = JSON.parse(configStr);
-          // Only sync from config if storage.ts is empty (backward compatibility)
-          const currentFromStorage = getMediaUrl();
-          if (config.url && !currentFromStorage && config.url !== mediaUrl && config.url !== lastCheckedUrlRef.current) {
+          // Only sync if config has URL and storage.ts key doesn't exist
+          if (config.url && config.url !== lastCheckedUrlRef.current) {
             setMediaUrlState(config.url);
             lastCheckedUrlRef.current = config.url;
             // Sync to storage.ts (source of truth)
@@ -101,11 +124,11 @@ export function useMediaUrl() {
     };
 
     window.addEventListener('storage', onConfigChange);
-    // Also check on mount
+    // Also check on mount (only once for backward compatibility)
     checkConfigUrl();
     
     return () => window.removeEventListener('storage', onConfigChange);
-  }, [mediaUrl]);
+  }, []); // Empty deps - check once, use ref for current value
 
   const updateMediaUrl = (url: string) => {
     setMediaUrl(url); // storage.ts (with cookie fallback)

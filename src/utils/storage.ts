@@ -51,12 +51,16 @@ export function setMediaUrl(url: string) {
 export function getMediaUrl(): string {
   try {
     const v = localStorage.getItem(KEY)
-    if (v) return v
+    // Check if key exists (even if value is empty string)
+    if (v !== null) return v
   } catch (e) {
     console.warn('[NZXT] localStorage read failed:', e)
   }
 
-  const match = document.cookie.match(/(?:^|;\s*)media_url=([^;]+)/)
+  // Cookie regex: match media_url=value (including empty string)
+  // Use (?:^|;\s*) to match start or after semicolon
+  // Use ([^;]*) instead of ([^;]+) to allow empty string
+  const match = document.cookie.match(/(?:^|;\s*)media_url=([^;]*)/)
   return match ? decodeURIComponent(match[1]) : ''
 }
 
