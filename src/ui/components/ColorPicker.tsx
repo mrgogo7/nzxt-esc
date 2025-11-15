@@ -132,6 +132,38 @@ export default function ColorPicker({
     };
   }, [isOpen]);
 
+  // Check if ColorPickerComponent is available
+  if (!ColorPickerComponent) {
+    console.error('[ColorPicker] ColorPickerComponent is not available');
+    return (
+      <div className="color-picker-wrapper">
+        <button
+          type="button"
+          className="color-picker-trigger"
+          disabled
+          style={{ opacity: 0.5, cursor: 'not-allowed' }}
+        >
+          <span 
+            className="color-picker-preview" 
+            style={{
+              backgroundColor: value || '#ffffff',
+            }}
+          />
+        </button>
+        <div style={{ fontSize: '10px', color: '#ff6b6b', marginTop: '4px' }}>
+          Color picker not available
+        </div>
+      </div>
+    );
+  }
+
+  // Debug: Log component and props
+  useEffect(() => {
+    console.log('[ColorPicker] Component available:', !!ColorPickerComponent);
+    console.log('[ColorPicker] Current color:', currentColor);
+    console.log('[ColorPicker] Props:', { allowAlpha, allowGradient, showInline });
+  }, [currentColor, allowAlpha, allowGradient, showInline]);
+
   // If showInline is true, show picker directly without trigger button
   if (showInline) {
     return (
@@ -168,12 +200,18 @@ export default function ColorPicker({
           className="color-picker-popup"
           style={popupPosition}
         >
-          <ColorPickerComponent
-            value={currentColor}
-            onChange={handleColorChange}
-            hideAlpha={!allowAlpha}
-            hideGradient={!allowGradient}
-          />
+          {ColorPickerComponent ? (
+            <ColorPickerComponent
+              value={currentColor}
+              onChange={handleColorChange}
+              hideAlpha={!allowAlpha}
+              hideGradient={!allowGradient}
+            />
+          ) : (
+            <div style={{ padding: '20px', color: '#fff', background: '#121317' }}>
+              ColorPicker component not loaded
+            </div>
+          )}
         </div>
       )}
     </div>
