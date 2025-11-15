@@ -82,16 +82,28 @@ export default function ColorPicker({ value, onChange, showInline = false }: Col
       }
 
       // Vertical positioning: prefer top (for NZXT CAM compatibility)
-      if (triggerRect.top >= popupHeight + spacing) {
+      // But ensure popup stays within viewport
+      const spaceAbove = triggerRect.top;
+      const spaceBelow = viewportHeight - triggerRect.bottom;
+      
+      if (spaceAbove >= popupHeight + spacing) {
         // Enough space above, open above
         position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
       } else {
-        // Not enough space above, try below
-        if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
+        // Not enough space above - open below
+        // Calculate where popup would be in viewport
+        const popupTopInViewport = triggerRect.bottom + spacing;
+        
+        // Check if popup would overflow viewport bottom
+        if (popupTopInViewport + popupHeight <= viewportHeight) {
+          // Fits below - use normal position
           position.top = `${triggerBottom + spacing}px`;
         } else {
-          // Not enough space on either side, open above anyway
-          position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
+          // Would overflow - position to fit in viewport
+          // Place popup so its bottom aligns with viewport bottom
+          const maxTopInViewport = viewportHeight - popupHeight;
+          const maxTopRelative = maxTopInViewport - (triggerRect.top - wrapperRect.top);
+          position.top = `${Math.max(triggerBottom + spacing, maxTopRelative)}px`;
         }
       }
 
