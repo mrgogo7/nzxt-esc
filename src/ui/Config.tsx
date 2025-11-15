@@ -56,10 +56,10 @@ export default function Config() {
       {/* top header */}
       <header className="config-header">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <h1 className="config-title" style={{ margin: 0, fontSize: '20px', fontWeight: 700 }}>
+          <h1 className="config-title" style={{ margin: 0, fontSize: '20px', fontWeight: 700, lineHeight: '1.2' }}>
             NZXT Elite Screen Customizer v5.11.15
           </h1>
-          <div style={{ fontSize: '12px', color: '#9aa3ad', fontWeight: 400 }}>
+          <div style={{ fontSize: '12px', color: '#9aa3ad', fontWeight: 400, lineHeight: '1.2' }}>
             by Gokhan AKGUL (mRGogo)
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
