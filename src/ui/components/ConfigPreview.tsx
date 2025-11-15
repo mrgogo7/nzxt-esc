@@ -443,49 +443,47 @@ export default function ConfigPreview() {
 
               {/* Show media if URL exists, otherwise show black */}
               {mediaUrl ? (
-                      isVideo ? (
-                        <video
-                          key={mediaUrl}
-                          src={mediaUrl}
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: settings.fit,
-                            objectPosition,
-                            transform: `scale(${settings.scale})`,
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                      ) : (
-                        <img
-                          key={mediaUrl}
-                          src={mediaUrl}
-                          alt="preview"
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: settings.fit,
-                            objectPosition,
-                            transform: `scale(${settings.scale})`,
-                            transformOrigin: 'center center',
-                          }}
-                        />
-                      )
-                    ) : (
-                      <div
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          backgroundColor: '#000000',
-                        }}
-                      />
-                    )}
-                  </>
-                )}
+                isVideo ? (
+                  <video
+                    key={mediaUrl}
+                    src={mediaUrl}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: settings.fit,
+                      objectPosition,
+                      transform: `scale(${settings.scale})`,
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                ) : (
+                  <img
+                    key={mediaUrl}
+                    src={mediaUrl}
+                    alt="preview"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: settings.fit,
+                      objectPosition,
+                      transform: `scale(${settings.scale})`,
+                      transformOrigin: 'center center',
+                    }}
+                  />
+                )
+              ) : (
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#000000',
+                  }}
+                />
+              )}
 
                 {/* Overlay guide - only for alignment reference */}
                 {settings.showGuide && (
