@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting to NZXT Elite Screen Customizer...</title>
+  <script>
+    // Immediate redirect to new location
+    const currentPath = window.location.pathname;
+    const currentSearch = window.location.search;
+    const currentHash = window.location.hash;
+    
+    // Build new URL
+    let newPath = '/nzxt-esc';
+    if (currentPath !== '/' && currentPath !== '/index.html') {
+      // Preserve sub-paths
+      newPath = currentPath.replace('/nzxt-web-integration-amc', '/nzxt-esc');
+      if (!newPath.startsWith('/nzxt-esc')) {
+        newPath = '/nzxt-esc' + newPath;
+      }
+    } else {
+      newPath = '/nzxt-esc/';
+    }
+    
+    const newUrl = 'https://mrgogo7.github.io' + newPath + currentSearch + currentHash;
+    window.location.replace(newUrl);
+  </script>
+  <meta http-equiv="refresh" content="0; url=https://mrgogo7.github.io/nzxt-esc/">
+  <link rel="canonical" href="https://mrgogo7.github.io/nzxt-esc/">
+</head>
+<body>
+  <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; text-align: center;">
+    <h1>Repository Moved</h1>
+    <p>This repository has been moved to a new location.</p>
+    <p>Redirecting to <a href="https://mrgogo7.github.io/nzxt-esc/">NZXT Elite Screen Customizer</a>...</p>
+    <p style="margin-top: 20px; color: #666; font-size: 14px;">
+      If you're not redirected automatically, 
+      <a href="https://mrgogo7.github.io/nzxt-esc/">click here</a>.
+    </p>
+  </div>
+</body>
+</html>
+

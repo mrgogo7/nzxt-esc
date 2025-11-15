@@ -273,4 +273,4 @@ MIT © 2025 — Free for personal and non-commercial use.
 
 ---
 
-**Note:** If you're accessing this project via the old URL (`nzxt-web-integration-amc`), you'll be automatically redirected to the new location.
+**Note:** If you're accessing this project via the old URL (`nzxt-web-integration-amc`), you'll be automatically redirected to the new location. The old repository contains redirect pages to ensure backward compatibility.
