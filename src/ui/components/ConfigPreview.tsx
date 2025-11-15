@@ -631,7 +631,6 @@ export default function ConfigPreview() {
             </div>
           </div>
         </div>
-      )}
 
       {/* Overlay Section */}
       <div className="section-group">
