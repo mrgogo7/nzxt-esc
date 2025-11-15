@@ -1,6 +1,6 @@
 .test-color-picker-page {
   padding: 20px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   background: #0a0b0e;
   color: #ffffff;
@@ -12,9 +12,19 @@
   color: #ffffff;
 }
 
-.test-color-picker-page > p {
+.test-intro {
   margin-bottom: 30px;
+  padding: 15px;
+  background: #121317;
+  border: 1px solid #242734;
+  border-radius: 6px;
   color: #a0a0a0;
+}
+
+.test-description {
+  margin-bottom: 15px;
+  color: #a0a0a0;
+  font-size: 14px;
 }
 
 .test-section {
@@ -45,6 +55,10 @@
   gap: 10px;
 }
 
+.picker-container {
+  margin-bottom: 15px;
+}
+
 .test-info {
   padding: 10px;
   background: #181a21;
@@ -58,12 +72,28 @@
   padding: 2px 6px;
   border-radius: 4px;
   color: #4a9eff;
+  word-break: break-all;
 }
 
-.test-warning {
-  color: #ffa500;
+.test-note {
   margin-top: 8px;
-  font-weight: 500;
+  padding: 8px;
+  background: #0a0b0e;
+  border-left: 3px solid #4a9eff;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.test-note:has-text("✅") {
+  color: #4ade80;
+}
+
+.test-note:has-text("❌") {
+  color: #f87171;
+}
+
+.test-note:has-text("⚠️") {
+  color: #fbbf24;
 }
 
 .test-box {
@@ -119,5 +149,40 @@
 
 .debug-info strong {
   color: #4a9eff;
+}
+
+.checklist {
+  padding: 15px;
+  background: #181a21;
+  border: 1px solid #2d3140;
+  border-radius: 6px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.checklist-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checklist-item label {
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.instructions {
+  padding-left: 20px;
+  color: #a0a0a0;
+  line-height: 1.8;
+}
+
+.instructions li {
+  margin-bottom: 8px;
 }
 
