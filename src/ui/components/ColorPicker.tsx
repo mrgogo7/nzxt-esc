@@ -31,19 +31,31 @@ export default function ColorPicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [popupPosition, setPopupPosition] = useState<{ top?: string; bottom?: string; left?: string; right?: string }>({});
 
-  // Normalize color to HEX for the picker (picker likely uses HEX internally)
+  // Normalize color to HEX for the picker (picker expects HEX format)
+  // But also try RGBA format if HEX doesn't work
   const currentColor = normalizeToHex(value);
+  
+  // Debug: Log the color being passed to picker
+  useEffect(() => {
+    console.log('[ColorPicker] Value prop:', value);
+    console.log('[ColorPicker] Normalized to HEX:', currentColor);
+  }, [value, currentColor]);
 
   // Handle color change from picker
-  // Package v3.0.14 may return different formats - handle all cases
+  // Package v3.0.14 returns string format (RGBA or gradient string)
   const handleColorChange = (color: string | { r: number; g: number; b: number; a?: number }) => {
-    console.log('[ColorPicker] handleColorChange called with:', color, 'type:', typeof color);
+    console.log('[ColorPicker] handleColorChange CALLED!');
+    console.log('[ColorPicker] Received color:', color);
+    console.log('[ColorPicker] Color type:', typeof color);
+    console.log('[ColorPicker] Color is string?', typeof color === 'string');
+    console.log('[ColorPicker] Color is object?', typeof color === 'object' && color !== null);
     
     let rgbaString: string;
     
-    // Check if color is an object (RGBA object) or string (HEX/RGBA string)
+    // Check if color is an object (RGBA object) or string (HEX/RGBA/gradient string)
     if (typeof color === 'object' && color !== null && 'r' in color) {
       // Color object with r, g, b, a
+      console.log('[ColorPicker] Processing as RGBA object');
       rgbaString = rgbaObjectToString({
         r: color.r,
         g: color.g,
@@ -51,8 +63,26 @@ export default function ColorPicker({
         a: allowAlpha ? (color.a ?? 1) : 1,
       });
     } else if (typeof color === 'string') {
-      // Color string - normalize to RGBA
-      rgbaString = normalizeToRgba(color);
+      // Color string - could be RGBA, HEX, or gradient
+      console.log('[ColorPicker] Processing as string:', color);
+      
+      // Check if it's a gradient string (package supports gradients)
+      if (color.includes('gradient') || color.includes('linear-gradient')) {
+        // For gradients, we need to extract the first color or use a fallback
+        console.warn('[ColorPicker] Gradient detected, extracting first color');
+        // Extract first rgba from gradient if possible
+        const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (rgbaMatch) {
+          rgbaString = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
+        } else {
+          // Fallback to current value if gradient parsing fails
+          rgbaString = normalizeToRgba(value);
+        }
+      } else {
+        // Regular color string (RGBA or HEX)
+        rgbaString = normalizeToRgba(color);
+      }
+      
       // If alpha is not allowed, ensure alpha is 1
       if (!allowAlpha) {
         const parsed = parseColorToRgba(rgbaString);
@@ -65,11 +95,12 @@ export default function ColorPicker({
       }
     } else {
       // Fallback - use current value
-      console.warn('[ColorPicker] Unknown color format:', color);
+      console.warn('[ColorPicker] Unknown color format, using current value');
       rgbaString = normalizeToRgba(value);
     }
     
-    console.log('[ColorPicker] Converted to RGBA:', rgbaString);
+    console.log('[ColorPicker] Final RGBA string:', rgbaString);
+    console.log('[ColorPicker] Calling onChange with:', rgbaString);
     onChange(rgbaString);
   };
 
@@ -190,6 +221,7 @@ export default function ColorPicker({
         <ColorPickerComponent
           value={currentColor}
           onChange={handleColorChange}
+          onColorChange={handleColorChange}
           hideAlpha={!allowAlpha}
           hideGradient={!allowGradient}
         />
@@ -223,6 +255,7 @@ export default function ColorPicker({
             <ColorPickerComponent
               value={currentColor}
               onChange={handleColorChange}
+              onColorChange={handleColorChange}
               hideAlpha={!allowAlpha}
               hideGradient={!allowGradient}
             />
