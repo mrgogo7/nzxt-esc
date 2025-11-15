@@ -56,115 +56,111 @@ export default function ColorPicker({
    * Handle color change from package.
    * Package returns RGBA string or gradient string directly.
    * Debug logging added for Firefox compatibility check.
+   * 
+   * Important: If allowGradient is false, always convert gradient strings to RGBA.
+   * If allowGradient is true, keep gradient strings as is.
    */
   const handleColorChange = useCallback((color: string) => {
     // Debug: Log what we receive
-    console.log('[ColorPicker] onChange called with:', color, 'type:', typeof color);
+    console.log('[ColorPicker] onChange called with:', color, 'type:', typeof color, 'allowGradient:', allowGradient);
     
     // Package returns RGBA string or gradient string
-    let rgbaString: string;
+    let finalColor: string;
 
     if (typeof color === 'string') {
       // Check if it's a gradient string
-      if (color.includes('gradient') || color.includes('linear-gradient')) {
-        // Extract first rgba from gradient if allowGradient is false
+      const isGradient = color.includes('gradient') || color.includes('linear-gradient');
+      
+      if (isGradient) {
+        // If gradient is not allowed, extract first rgba from gradient
         if (!allowGradient) {
-          const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+          // Extract first rgba from gradient string (case-insensitive)
+          const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
           if (rgbaMatch) {
-            rgbaString = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
+            finalColor = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
+            console.log('[ColorPicker] Extracted RGBA from gradient:', finalColor);
           } else {
-            rgbaString = currentColor;
+            // Fallback: use current color if extraction fails
+            console.warn('[ColorPicker] Failed to extract RGBA from gradient, using currentColor:', currentColor);
+            finalColor = currentColor;
           }
         } else {
           // If gradient is allowed, use gradient string as is
-          rgbaString = color;
+          finalColor = color;
         }
       } else {
-        // Regular RGBA string - use directly
-        rgbaString = color;
+        // Regular RGBA/HEX string - use directly
+        finalColor = color;
       }
     } else {
       console.warn('[ColorPicker] onChange received non-string value:', color);
-      rgbaString = currentColor;
+      finalColor = currentColor;
     }
 
     // Only override alpha if allowAlpha is false
-    if (!allowAlpha && rgbaString.includes('rgba')) {
-      const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+    // Only process if it's not a gradient string (gradient strings handled above)
+    if (!allowAlpha && !finalColor.includes('gradient')) {
+      const match = finalColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
       if (match) {
-        rgbaString = `rgba(${match[1]}, ${match[2]}, ${match[3]}, 1)`;
+        finalColor = `rgba(${match[1]}, ${match[2]}, ${match[3]}, 1)`;
       }
     }
 
-    console.log('[ColorPicker] Final value to parent onChange:', rgbaString);
-    onChange(rgbaString);
+    console.log('[ColorPicker] Final value to parent onChange:', finalColor);
+    onChange(finalColor);
   }, [currentColor, allowAlpha, allowGradient, onChange]);
 
   /**
    * Calculate popup position - positioned relative to trigger button.
-   * Fixed to properly calculate relative to wrapper.
+   * Uses same logic as old ColorPicker: relative to wrapper with calc() values.
    */
   useEffect(() => {
-    if (isOpen && triggerRef.current && pickerRef.current) {
-      // Small delay to ensure DOM is ready
-      const timeoutId = setTimeout(() => {
-        if (!triggerRef.current || !pickerRef.current) return;
+    if (isOpen && triggerRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const popupWidth = 280; // Approximate width of GradientColorPicker
+      const popupHeight = 400; // Approximate height of GradientColorPicker
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const spacing = 8; // gap between trigger and popup
 
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const wrapperRect = pickerRef.current.getBoundingClientRect();
-        const popupWidth = 280;
-        const popupHeight = 400;
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const spacing = 8;
+      const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
 
-        const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
-
-        // Calculate relative positions from wrapper
-        const triggerLeft = triggerRect.left - wrapperRect.left;
-        const triggerTop = triggerRect.top - wrapperRect.top;
-        const triggerRight = triggerRect.right - wrapperRect.left;
-        const triggerBottom = triggerRect.bottom - wrapperRect.top;
-
-        // Horizontal: prefer left (for NZXT CAM compatibility), fallback to right
-        if (triggerRect.left >= popupWidth + spacing) {
-          // Enough space on left - position to the left of trigger
-          position.right = `${wrapperRect.width - triggerLeft + spacing}px`;
+      // Horizontal positioning: prefer left (for NZXT CAM compatibility), fallback to right
+      if (triggerRect.left >= popupWidth + spacing) {
+        // Enough space on left, open to the left (wrapper's right side)
+        position.right = '0';
+      } else {
+        // Not enough space on left, try right
+        if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
+          // Enough space on right, open to the right (wrapper's left side)
+          position.left = '0';
         } else {
-          // Not enough space on left, try right
-          if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
-            // Enough space on right - position to the right of trigger
-            position.left = `${triggerRight - wrapperRect.left + spacing}px`;
-          } else {
-            // Not enough space on either side, open to the left anyway
-            position.right = `${wrapperRect.width - triggerLeft + spacing}px`;
-          }
+          // Not enough space on either side, open to the left anyway
+          position.right = '0';
         }
+      }
 
-        // Vertical: prefer top (for NZXT CAM compatibility), fallback to below
-        if (triggerRect.top >= popupHeight + spacing) {
-          // Enough space above - position above trigger
-          position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
+      // Vertical positioning: prefer top (for NZXT CAM compatibility), fallback to below
+      if (triggerRect.top >= popupHeight + spacing) {
+        // Enough space above, open above (wrapper's bottom)
+        position.bottom = 'calc(100% + 8px)';
+      } else {
+        // Not enough space above, try below
+        if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
+          // Enough space below, open below (wrapper's top)
+          position.top = 'calc(100% + 8px)';
         } else {
-          // Not enough space above, try below
-          if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
-            // Enough space below - position below trigger
-            position.top = `${triggerBottom - wrapperRect.top + spacing}px`;
-          } else {
-            // Not enough space on either side, open above anyway
-            position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
-          }
+          // Not enough space on either side, open above anyway
+          position.bottom = 'calc(100% + 8px)';
         }
+      }
 
-        console.log('[ColorPicker] Popup position calculated:', position, {
-          triggerRect: { left: triggerRect.left, top: triggerRect.top, right: triggerRect.right, bottom: triggerRect.bottom },
-          wrapperRect: { left: wrapperRect.left, top: wrapperRect.top, width: wrapperRect.width, height: wrapperRect.height },
-        });
+      console.log('[ColorPicker] Popup position calculated:', position, {
+        triggerRect: { left: triggerRect.left, top: triggerRect.top, right: triggerRect.right, bottom: triggerRect.bottom },
+        viewport: { width: viewportWidth, height: viewportHeight },
+      });
 
-        setPopupPosition(position);
-      }, 0);
-
-      return () => clearTimeout(timeoutId);
+      setPopupPosition(position);
     }
   }, [isOpen]);
 

@@ -31,6 +31,12 @@ export default function TestColorPicker() {
   // Test 7: Wrapper ColorPicker - Popup açılma testi
   const [color7, setColor7] = useState('rgba(255, 0, 255, 1)');
 
+  // Test 9: Gradient String Handling - allowGradient=false olduğunda RGBA'ya dönüşüm
+  const [color9, setColor9] = useState('rgba(255, 0, 0, 1)');
+
+  // Test 10: EyeDropper detaylı testi
+  const [eyeDropColor, setEyeDropColor] = useState('rgba(18, 19, 23, 1)');
+
   // EyeDropper testi için renk örnekleri
   const renkOrnekleri = [
     { isim: 'Kırmızı', renk: '#ff0000' },
@@ -376,6 +382,115 @@ export default function TestColorPicker() {
         </div>
       </div>
 
+      {/* Test 9: Gradient String Handling - allowGradient=false olduğunda RGBA'ya dönüşüm */}
+      <div className="test-section">
+        <h2>Test 9: Gradient String Handling (allowGradient=false)</h2>
+        <p className="test-description">
+          allowGradient=false olduğunda, paket gradient string döndürse bile RGBA'ya dönüştürülmeli.
+          Wrapper component'inin gradient string handling'ini test edin.
+        </p>
+        <div className="test-row">
+          <div className="test-controls">
+            <div className="picker-container">
+              <GradientColorPicker
+                value={color9}
+                onChange={(newColor) => {
+                  console.log('[Test 9] Package returned:', newColor);
+                  setColor9(newColor);
+                }}
+                hideAlpha={false}
+                hideGradient={true}
+              />
+            </div>
+            <div className="test-info">
+              <p><strong>Mevcut değer (Package):</strong> <code>{color9}</code></p>
+              <p className="test-note">
+                ⚠️ Paket hideGradient=true olduğunda bile bazen gradient string döndürebilir. 
+                Wrapper component bunu RGBA'ya dönüştürmeli.
+              </p>
+            </div>
+          </div>
+          <div className="test-controls">
+            <ColorPicker
+              value={color9}
+              onChange={(newColor) => {
+                console.log('[Test 9] Wrapper returned:', newColor);
+                setColor9(newColor);
+              }}
+              showInline={false}
+              allowAlpha={true}
+              allowGradient={false}
+            />
+            <div className="test-info">
+              <p><strong>Wrapper Component (allowGradient=false):</strong></p>
+              <p className="test-note">
+                ✅ Wrapper her zaman RGBA döndürmeli (gradient string olsa bile)
+              </p>
+            </div>
+          </div>
+          <div className="test-preview-area">
+            <div className="test-box" style={{ backgroundColor: color9 }}>
+              Gradient String Handling Testi
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Test 10: EyeDropper Detaylı Testi */}
+      <div className="test-section test-highlight">
+        <h2>Test 10: EyeDropper Detaylı Testi</h2>
+        <p className="test-description">
+          EyeDropper sorununu detaylı test edin. EyeDropper butonuna tıklayın, sonra yukarıdaki Renk Örnekleri'nden veya ekrandaki herhangi bir renge tıklayın.
+          Console'da seçilen rengi kontrol edin.
+        </p>
+        <div className="test-row">
+          <div className="test-controls">
+            <div className="picker-container">
+              <GradientColorPicker
+                value={eyeDropColor}
+                onChange={(newColor) => {
+                  console.log('[Test 10 - EyeDropper] Package returned:', newColor);
+                  setEyeDropColor(newColor);
+                }}
+                hideAlpha={false}
+                hideGradient={false}
+              />
+            </div>
+            <div className="test-info">
+              <p><strong>Seçilen Renk:</strong> <code>{eyeDropColor}</code></p>
+              <p className="test-note">
+                ⚠️ EyeDropper yanlış renk seçiyor: 121317 rengini seçiyor ama farklı bir renk seçiliyor.
+                Console'da seçilen gerçek rengi kontrol edin.
+              </p>
+              <p className="test-note">
+                🔍 Test Adımları:
+              </p>
+              <ol style={{ marginLeft: '20px', marginTop: '10px' }}>
+                <li>EyeDropper butonuna tıklayın</li>
+                <li>Yukarıdaki Renk Örnekleri'nden birine tıklayın (örn: Kırmızı #ff0000)</li>
+                <li>Console'da dönen değeri kontrol edin</li>
+                <li>Aşağıdaki önizleme kutusunda seçilen rengi görün</li>
+              </ol>
+            </div>
+          </div>
+          <div className="test-preview-area">
+            <div className="test-box-alpha-container">
+              <div className="test-box-alpha-background" />
+              <div 
+                className="test-box-alpha-foreground" 
+                style={{ background: eyeDropColor }}
+              >
+                EyeDropper Önizleme
+                <div style={{ marginTop: '10px', fontSize: '12px' }}>
+                  Beklenen: Renk Örnekleri'nden seçtiğiniz renk<br />
+                  Gerçek: {eyeDropColor}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Özellik Kontrol Listesi */}
       <div className="test-section">
         <h2>Özellik Kontrol Listesi</h2>
@@ -426,6 +541,20 @@ export default function TestColorPicker() {
           <p><strong>Renk 5 (Temel):</strong> {color5}</p>
           <p><strong>Renk 6 (Çalışan Örnek):</strong> {color6}</p>
           <p><strong>Renk 7 (Wrapper):</strong> {color7}</p>
+          <p><strong>Renk 9 (Gradient Handling):</strong> {color9}</p>
+          <p><strong>EyeDropper Renk:</strong> {eyeDropColor}</p>
+        </div>
+        <div className="test-info" style={{ marginTop: '20px' }}>
+          <p className="test-note">
+            🔍 Console'u açın (F12) ve şu log'ları kontrol edin:
+          </p>
+          <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+            <li><code>[ColorPicker] onChange called with:</code> - Paket'in döndürdüğü ham değer</li>
+            <li><code>[ColorPicker] Final value to parent onChange:</code> - Wrapper'ın döndürdüğü işlenmiş değer</li>
+            <li><code>[ColorPicker] Popup position calculated:</code> - Popup pozisyon hesaplaması</li>
+            <li><code>[Test 9] Package returned:</code> - Test 9'da paket'in döndürdüğü değer</li>
+            <li><code>[Test 10 - EyeDropper] Package returned:</code> - EyeDropper'ın seçtiği renk</li>
+          </ul>
         </div>
       </div>
 
