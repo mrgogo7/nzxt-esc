@@ -1170,8 +1170,6 @@ export default function ConfigPreview() {
                                 },
                               })
                             }
-                            allowAlpha={true}
-                            allowGradient={false}
                           />
                           <button
                             className="reset-icon"
@@ -1696,8 +1694,6 @@ export default function ConfigPreview() {
                                 },
                               })
                             }
-                            allowAlpha={true}
-                            allowGradient={false}
                           />
                           <button
                             className="reset-icon"

@@ -166,13 +166,11 @@ export default function Config() {
           <label className="background-color-label">
             {t("colorPickerTitle", lang)}
           </label>
-          <ColorPicker
-            value={settings.backgroundColor || '#000000'}
-            onChange={handleBackgroundColorChange}
-            showInline={false}
-            allowAlpha={false}
-            allowGradient={true}
-          />
+            <ColorPicker
+              value={settings.backgroundColor || '#000000'}
+              onChange={handleBackgroundColorChange}
+              showInline={false}
+            />
         </div>
       </section>
 

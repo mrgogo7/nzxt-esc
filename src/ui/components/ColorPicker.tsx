@@ -1,185 +1,99 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { SketchPicker, ColorResult } from 'react-color';
 import '../styles/ColorPicker.css';
-import { normalizeToRgba } from '../../utils/color';
-import GradientColorPicker from 'react-best-gradient-color-picker';
 
-/**
- * ColorPicker component props.
- * Follows react-best-gradient-color-picker package API.
- */
 interface ColorPickerProps {
-  /** Current color value in RGBA or HEX format */
-  value: string;
-  /** Callback when color changes, receives RGBA string */
+  value: string; // RGBA or HEX color
   onChange: (color: string) => void;
-  /** If true, show picker inline without trigger button */
-  showInline?: boolean;
-  /** If true, allow alpha channel (default: false) */
-  allowAlpha?: boolean;
-  /** If true, allow gradient selection (default: false for text colors, true for background) */
-  allowGradient?: boolean;
+  showInline?: boolean; // If true, show picker inline without trigger button
 }
 
 /**
- * ColorPicker component using react-best-gradient-color-picker.
- * 
- * Package API:
- * - value: RGBA string (e.g., 'rgba(255,255,255,1)') or gradient string
- * - onChange: (color: string) => void - receives RGBA string or gradient string
- * - hideAlpha: boolean - hides alpha control
- * - hideGradient: boolean - hides gradient control
- * 
- * This component adapts the project to the package, not vice versa.
+ * ColorPicker component using react-color SketchPicker.
+ * Returns color in rgba() format for alpha support.
+ * Positioned to avoid viewport overflow, prioritizing top-left for NZXT CAM compatibility.
+ * Can be used inline (showInline=true) or as a popup (showInline=false).
  */
-export default function ColorPicker({ 
-  value, 
-  onChange, 
-  showInline = false,
-  allowAlpha = false,
-  allowGradient = false,
-}: ColorPickerProps) {
+export default function ColorPicker({ value, onChange, showInline = false }: ColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const [popupPosition, setPopupPosition] = useState<{ 
-    top?: string; 
-    bottom?: string; 
-    left?: string; 
-    right?: string 
-  }>({});
+  const [popupPosition, setPopupPosition] = useState<{ top?: string; bottom?: string; left?: string; right?: string }>({});
 
-  // Convert value to RGBA format (package expects RGBA or gradient string)
-  // If gradient string, keep it as is (package handles it)
-  const currentColor = normalizeToRgba(value);
-
-  /**
-   * Handle color change from package.
-   * Package returns RGBA string or gradient string directly.
-   * Debug logging added for Firefox compatibility check.
-   * 
-   * Important: If allowGradient is false, always convert gradient strings to RGBA.
-   * If allowGradient is true, keep gradient strings as is.
-   */
-  const handleColorChange = useCallback((color: string) => {
-    // Debug: Log what we receive
-    console.log('[ColorPicker] onChange called with:', color, 'type:', typeof color, 'allowGradient:', allowGradient);
-    
-    // Package returns RGBA string or gradient string
-    let finalColor: string;
-
-    if (typeof color === 'string') {
-      // Check if it's a gradient string
-      const isGradient = color.includes('gradient') || color.includes('linear-gradient');
-      
-      if (isGradient) {
-        // If gradient is not allowed, extract first rgba from gradient
-        if (!allowGradient) {
-          // Extract first rgba from gradient string (case-insensitive)
-          const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
-          if (rgbaMatch) {
-            finalColor = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
-            console.log('[ColorPicker] Extracted RGBA from gradient:', finalColor);
-          } else {
-            // Fallback: use current color if extraction fails
-            console.warn('[ColorPicker] Failed to extract RGBA from gradient, using currentColor:', currentColor);
-            finalColor = currentColor;
-          }
-        } else {
-          // If gradient is allowed, use gradient string as is
-          finalColor = color;
-        }
-      } else {
-        // Regular RGBA/HEX string - use directly
-        finalColor = color;
-      }
-    } else {
-      console.warn('[ColorPicker] onChange received non-string value:', color);
-      finalColor = currentColor;
-    }
-
-    // Only override alpha if allowAlpha is false
-    // Only process if it's not a gradient string (gradient strings handled above)
-    if (!allowAlpha && !finalColor.includes('gradient')) {
-      const match = finalColor.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  // Parse color value to hex for react-color
+  const parseColor = (color: string): string => {
+    if (color.startsWith('rgba')) {
+      const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
       if (match) {
-        finalColor = `rgba(${match[1]}, ${match[2]}, ${match[3]}, 1)`;
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        // Convert to hex (react-color uses hex, alpha is handled separately)
+        const hex = `#${[r, g, b].map(x => {
+          const hex = x.toString(16);
+          return hex.length === 1 ? '0' + hex : hex;
+        }).join('')}`;
+        return hex;
       }
+    } else if (color.startsWith('#')) {
+      return color;
     }
+    return '#ffffff';
+  };
 
-    console.log('[ColorPicker] Final value to parent onChange:', finalColor);
-    onChange(finalColor);
-  }, [currentColor, allowAlpha, allowGradient, onChange]);
+  const currentColor = parseColor(value);
 
-  /**
-   * Calculate popup position - positioned relative to trigger button.
-   * Fixed: Use pixel values relative to wrapper, not calc() values.
-   */
+  // Handle color change from react-color
+  const handleColorChange = (color: ColorResult) => {
+    const rgba = `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a || 1})`;
+    onChange(rgba);
+  };
+
+  // Calculate popup position to avoid viewport overflow
   useEffect(() => {
-    if (isOpen && triggerRef.current && pickerRef.current) {
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
-        if (!triggerRef.current || !pickerRef.current) return;
+    if (isOpen && triggerRef.current) {
+      const triggerRect = triggerRef.current.getBoundingClientRect();
+      const popupWidth = 220; // SketchPicker approximate width
+      const popupHeight = 320; // SketchPicker approximate height
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const spacing = 8; // gap between trigger and popup
 
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        const wrapperRect = pickerRef.current.getBoundingClientRect();
-        const popupWidth = 280; // Approximate width of GradientColorPicker
-        const popupHeight = 400; // Approximate height of GradientColorPicker
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const spacing = 8; // gap between trigger and popup
+      const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
 
-        const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
-
-        // Calculate trigger position relative to wrapper
-        const triggerLeftRelative = triggerRect.left - wrapperRect.left;
-        const triggerTopRelative = triggerRect.top - wrapperRect.top;
-        const triggerRightRelative = triggerRect.right - wrapperRect.left;
-        const triggerBottomRelative = triggerRect.bottom - wrapperRect.top;
-
-        // Horizontal positioning: prefer left (for NZXT CAM compatibility), fallback to right
-        if (triggerRect.left >= popupWidth + spacing) {
-          // Enough space on left, open to the left of trigger
-          position.right = `${wrapperRect.width - triggerLeftRelative + spacing}px`;
+      // Horizontal positioning: prefer left (for NZXT CAM compatibility)
+      if (triggerRect.left >= popupWidth + spacing) {
+        // Enough space on left, open to the left
+        position.right = '0';
+      } else {
+        // Not enough space on left, try right
+        if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
+          position.left = '0';
         } else {
-          // Not enough space on left, try right
-          if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
-            // Enough space on right, open to the right of trigger
-            position.left = `${triggerRightRelative + spacing}px`;
-          } else {
-            // Not enough space on either side, open to the left anyway
-            position.right = `${wrapperRect.width - triggerLeftRelative + spacing}px`;
-          }
+          // Not enough space on either side, open to the left anyway
+          position.right = '0';
         }
+      }
 
-        // Vertical positioning: prefer top (for NZXT CAM compatibility), fallback to below
-        if (triggerRect.top >= popupHeight + spacing) {
-          // Enough space above, open above trigger
-          position.bottom = `${wrapperRect.height - triggerTopRelative + spacing}px`;
+      // Vertical positioning: prefer top (for NZXT CAM compatibility)
+      if (triggerRect.top >= popupHeight + spacing) {
+        // Enough space above, open above
+        position.bottom = 'calc(100% + 8px)';
+      } else {
+        // Not enough space above, try below
+        if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
+          position.top = 'calc(100% + 8px)';
         } else {
-          // Not enough space above, try below
-          if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
-            // Enough space below, open below trigger
-            position.top = `${triggerBottomRelative + spacing}px`;
-          } else {
-            // Not enough space on either side, open above anyway
-            position.bottom = `${wrapperRect.height - triggerTopRelative + spacing}px`;
-          }
+          // Not enough space on either side, open above anyway
+          position.bottom = 'calc(100% + 8px)';
         }
+      }
 
-        console.log('[ColorPicker] Popup position calculated:', position, {
-          triggerRect: { left: triggerRect.left, top: triggerRect.top, right: triggerRect.right, bottom: triggerRect.bottom },
-          wrapperRect: { left: wrapperRect.left, top: wrapperRect.top, width: wrapperRect.width, height: wrapperRect.height },
-          relative: { left: triggerLeftRelative, top: triggerTopRelative, right: triggerRightRelative, bottom: triggerBottomRelative },
-        });
-
-        setPopupPosition(position);
-      });
+      setPopupPosition(position);
     }
   }, [isOpen]);
 
-  /**
-   * Close picker when clicking outside.
-   */
+  // Close picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
@@ -196,21 +110,29 @@ export default function ColorPicker({
     };
   }, [isOpen]);
 
-  // Inline mode
+  // If showInline is true, show picker directly without trigger button
   if (showInline) {
     return (
       <div className="color-picker-wrapper color-picker-inline" ref={pickerRef}>
-        <GradientColorPicker
-          value={currentColor}
+        <SketchPicker
+          color={currentColor}
           onChange={handleColorChange}
-          hideAlpha={!allowAlpha}
-          hideGradient={!allowGradient}
+          onChangeComplete={handleColorChange}
+          disableAlpha={true}
+          presetColors={[
+            '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff',
+            '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080',
+            '#ffc0cb', '#a52a2a', '#808080', '#c0c0c0', '#008000',
+            '#000080', '#800000', '#808000', '#008080', '#ff6347',
+            '#ff1493', '#00ced1', '#ffd700', '#da70d6', '#cd5c5c',
+            '#4169e1', '#32cd32', '#ff4500', '#9370db', '#20b2aa',
+          ]}
         />
       </div>
     );
   }
 
-  // Popup mode
+  // Default popup behavior
   return (
     <div className="color-picker-wrapper" ref={pickerRef}>
       <button
@@ -218,7 +140,6 @@ export default function ColorPicker({
         type="button"
         className="color-picker-trigger"
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Open color picker"
       >
         <span 
           className="color-picker-preview" 
@@ -233,11 +154,18 @@ export default function ColorPicker({
           className="color-picker-popup"
           style={popupPosition}
         >
-          <GradientColorPicker
-            value={currentColor}
+          <SketchPicker
+            color={currentColor}
             onChange={handleColorChange}
-            hideAlpha={!allowAlpha}
-            hideGradient={!allowGradient}
+            disableAlpha={true}
+            presetColors={[
+              '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff',
+              '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080',
+              '#ffc0cb', '#a52a2a', '#808080', '#c0c0c0', '#008000',
+              '#000080', '#800000', '#808000', '#008080', '#ff6347',
+              '#ff1493', '#00ced1', '#ffd700', '#da70d6', '#cd5c5c',
+              '#4169e1', '#32cd32', '#ff4500', '#9370db', '#20b2aa',
+            ]}
           />
         </div>
       )}

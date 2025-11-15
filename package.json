@@ -12,13 +12,12 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-best-gradient-color-picker": "^3.0.14",
-    "lodash": "^4.17.21"
+    "react-color": "^2.19.3"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/lodash": "^4.14.202",
+    "@types/react-color": "^3.0.9",
     "@vitejs/plugin-react": "^4.3.2",
     "@vitejs/plugin-legacy": "^5.2.0",
     "vite": "^5.4.2",
