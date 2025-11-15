@@ -440,6 +440,8 @@ export default function ConfigPreview({ activeTab }: { activeTab?: 'media' | 'co
                       />
                     )
                   )}
+                </>
+              )}
 
               {/* Overlay guide - only for alignment reference */}
               {settings.showGuide && (
