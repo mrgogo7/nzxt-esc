@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { isVideoUrl } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import type { AppSettings } from '../../constants/defaults';
@@ -34,50 +34,11 @@ export default function MediaRenderer({
     ...style,
   };
 
-  // If no URL but backgroundColor exists, show color background
-  if (!url && settings.backgroundColor) {
-    return (
-      <div
-        className={className}
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: settings.backgroundColor,
-          ...style,
-        }}
-      />
-    );
-  }
-
-  // If no URL and no backgroundColor, show black
-  if (!url) {
-    return (
-      <div
-        className={className}
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#000000',
-          ...style,
-        }}
-      />
-    );
-  }
+  if (!url) return null;
 
   if (isVideo) {
-    const videoRef = useRef<HTMLVideoElement>(null);
-
-    // Force video reload when URL changes
-    useEffect(() => {
-      if (videoRef.current && url) {
-        videoRef.current.load();
-      }
-    }, [url]);
-
     return (
       <video
-        ref={videoRef}
-        key={url}
         src={url}
         autoPlay={settings.autoplay}
         loop={settings.loop}
@@ -85,18 +46,12 @@ export default function MediaRenderer({
         playsInline
         className={className}
         style={mediaStyle}
-        onError={(e) => {
-          // If video fails to load, show black background
-          const target = e.target as HTMLVideoElement;
-          target.style.display = 'none';
-        }}
       />
     );
   }
 
   return (
     <img
-      key={url}
       src={url}
       alt="Media"
       className={className}

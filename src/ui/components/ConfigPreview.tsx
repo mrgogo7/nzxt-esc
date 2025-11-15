@@ -13,7 +13,6 @@ import {
   AlignVerticalSpaceAround,
 } from 'lucide-react';
 import { DEFAULT_SETTINGS, type AppSettings } from '../../constants/defaults';
-import { STORAGE_KEYS } from '../../constants/storage';
 import { DEFAULT_OVERLAY, type OverlayMode, type OverlayMetricKey, type OverlaySettings } from '../../types/overlay';
 import { NZXT_DEFAULTS } from '../../constants/nzxt';
 import { useConfig } from '../../hooks/useConfig';
@@ -69,8 +68,6 @@ export default function ConfigPreview() {
   const hasInteractedRef = useRef(false);
   const lastSync = useRef(0);
   const settingsRef = useRef(settings);
-  const lastSavedUrlRef = useRef<string>(mediaUrl);
-  const isResettingRef = useRef(false);
 
   // CRITICAL: offsetScale formula - must be preserved
   const lcdResolution = window.nzxt?.v1?.width || NZXT_DEFAULTS.LCD_WIDTH;
@@ -120,63 +117,22 @@ export default function ConfigPreview() {
     hasLoadedRef.current = true;
   }, []);
 
-  // Check if reset is in progress
-  useEffect(() => {
-    const checkReset = () => {
-      try {
-        const resetting = localStorage.getItem('nzxtResetting');
-        isResettingRef.current = resetting === 'true';
-      } catch (e) {
-        // Ignore
-      }
-    };
-    
-    checkReset();
-    const interval = setInterval(checkReset, 100);
-    return () => clearInterval(interval);
-  }, []);
-
   // Throttled save (100ms) - CRITICAL for real-time sync
-  // ONLY save when mediaUrl changes, NOT when settings change (prevents infinite loop)
   useEffect(() => {
     if (!hasLoadedRef.current || !hasInteractedRef.current) return;
-    if (isResettingRef.current) return; // Skip during reset
-
-    // Only save if mediaUrl actually changed
-    if (mediaUrl === lastSavedUrlRef.current) return;
 
     const now = Date.now();
     if (now - lastSync.current < 100) return;
     lastSync.current = now;
-    lastSavedUrlRef.current = mediaUrl;
 
     // Save settings with URL for backward compatibility
-    // Use settingsRef to avoid dependency on settings (prevents loop)
-    // Only save URL, don't merge with existing settings (prevents overwriting)
-    const currentSettings = settingsRef.current;
     const save: AppSettings & { url?: string } = {
-      ...currentSettings,
+      ...settings,
       url: mediaUrl, // Include URL in config for backward compatibility
     };
 
-    // Only update if URL actually changed in the save object
-    // This prevents unnecessary updates
-    try {
-      const currentConfig = localStorage.getItem(STORAGE_KEYS.CONFIG) || 
-                           localStorage.getItem(STORAGE_KEYS.CONFIG_COMPAT);
-      if (currentConfig) {
-        const parsed = JSON.parse(currentConfig);
-        if (parsed.url === mediaUrl) {
-          // URL already matches, skip save to prevent loop
-          return;
-        }
-      }
-    } catch (e) {
-      // Ignore parse errors, continue with save
-    }
-
     setSettings(save);
-  }, [mediaUrl, setSettings]); // Removed 'settings' from dependencies to prevent loop
+  }, [mediaUrl, settings, setSettings]);
 
   // Video detection
   const isVideo = isVideoUrl(mediaUrl);
@@ -441,28 +397,25 @@ export default function ConfigPreview() {
             >
               <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
 
-              {/* Show media if URL exists, otherwise show black */}
-              {mediaUrl ? (
-                isVideo ? (
-                  <video
-                    key={mediaUrl}
-                    src={mediaUrl}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: settings.fit,
-                      objectPosition,
-                      transform: `scale(${settings.scale})`,
-                      transformOrigin: 'center center',
-                    }}
-                  />
-                ) : (
+              {isVideo ? (
+                <video
+                  src={mediaUrl}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: settings.fit,
+                    objectPosition,
+                    transform: `scale(${settings.scale})`,
+                    transformOrigin: 'center center',
+                  }}
+                />
+              ) : (
+                mediaUrl && (
                   <img
-                    key={mediaUrl}
                     src={mediaUrl}
                     alt="preview"
                     style={{
@@ -475,97 +428,84 @@ export default function ConfigPreview() {
                     }}
                   />
                 )
-              ) : (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: '#000000',
-                  }}
-                />
               )}
 
-                {/* Overlay guide - only for alignment reference */}
-                {settings.showGuide && (
-                  <div
-                    className="overlay-guide"
-                    style={{
-                      transform: `translate(${adjX}px, ${adjY}px) scale(${settings.scale})`,
-                      transformOrigin: 'center center',
-                    }}
-                  >
-                    <div className="crosshair horizontal" />
-                    <div className="crosshair vertical" />
-                  </div>
-                )}
-
-                <div className="zoom-buttons-bottom">
-                  <button onClick={() => adjustScale(-0.1)}>−</button>
-                  <button onClick={() => adjustScale(0.1)}>＋</button>
+              {/* Overlay guide - only for alignment reference */}
+              {settings.showGuide && (
+                <div
+                  className="overlay-guide"
+                  style={{
+                    transform: `translate(${adjX}px, ${adjY}px) scale(${settings.scale})`,
+                    transformOrigin: 'center center',
+                  }}
+                >
+                  <div className="crosshair horizontal" />
+                  <div className="crosshair vertical" />
                 </div>
+              )}
+
+              <div className="zoom-buttons-bottom">
+                <button onClick={() => adjustScale(-0.1)}>−</button>
+                <button onClick={() => adjustScale(0.1)}>＋</button>
               </div>
             </div>
+          </div>
 
-            {/* Media Settings - Only show when Media tab is active */}
-            <div className="settings-column">
-              <div className="panel">
-                <div className="panel-header">
-                  <h3>{t('settingsTitle', lang)}</h3>
+          {/* Background Settings */}
+          <div className="settings-column">
+            <div className="panel">
+              <div className="panel-header">
+                <h3>{t('settingsTitle', lang)}</h3>
 
-                  <div className="overlay-toggle-compact">
-                    <span>{t('overlayGuide', lang)}</span>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={!!settings.showGuide}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            showGuide: e.target.checked,
-                          })
-                        }
-                      />
-                      <span className="slider" />
-                    </label>
-                  </div>
+                <div className="overlay-toggle-compact">
+                  <span>{t('overlayGuide', lang)}</span>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={!!settings.showGuide}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          showGuide: e.target.checked,
+                        })
+                      }
+                    />
+                    <span className="slider" />
+                  </label>
                 </div>
+              </div>
 
-                <div className="settings-grid-modern">
+              <div className="settings-grid-modern">
                 {/* SCALE / X / Y */}
-                {([
-                  { field: 'scale' as const, label: t('scale', lang), step: 0.1 },
-                  { field: 'x' as const, label: t('xOffset', lang), step: 1 },
-                  { field: 'y' as const, label: t('yOffset', lang), step: 1 },
-                ] as const).map(({ field, label, step }) => {
-                  // Type-safe access to numeric settings
-                  const numericValue = settings[field];
-                  
-                  return (
-                    <div className="setting-row" key={field}>
-                      <label>{label}</label>
+                {[
+                  { field: 'scale', label: t('scale', lang), step: 0.1 },
+                  { field: 'x', label: t('xOffset', lang) },
+                  { field: 'y', label: t('yOffset', lang) },
+                ].map(({ field, label, step }) => (
+                  <div className="setting-row" key={field}>
+                    <label>{label}</label>
 
-                      <input
-                        type="number"
-                        step={step}
-                        value={numericValue}
-                        onChange={(e) =>
-                          setSettings({
-                            ...settings,
-                            [field]: parseFloat(e.target.value || '0'),
-                          })
-                        }
-                      />
+                    <input
+                      type="number"
+                      step={step || 1}
+                      value={(settings as any)[field]}
+                      onChange={(e) =>
+                        setSettings({
+                          ...settings,
+                          [field]: parseFloat(e.target.value || '0'),
+                        })
+                      }
+                    />
 
-                      <button
-                        className="reset-icon"
-                        title="Reset"
-                        onClick={() => resetField(field)}
-                      >
-                        <RefreshCw size={14} />
-                      </button>
-                    </div>
-                  );
-                })}
+                    <button
+                      className="reset-icon"
+                      title="Reset"
+                      onClick={() => resetField(field as keyof AppSettings)}
+                    >
+                      <RefreshCw size={14} />
+                    </button>
+                  </div>
+                ))}
 
                 {/* ALIGN */}
                 <div className="setting-row">

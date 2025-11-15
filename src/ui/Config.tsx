@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LANG_KEY, Lang, t, getInitialLang, setLang } from '../i18n';
 import ConfigPreview from './components/ConfigPreview';
 import './styles/ConfigPreview.css';
-import { DEFAULT_SETTINGS } from '../constants/defaults';
-import { STORAGE_KEYS } from '../constants/storage';
+import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
 
@@ -12,15 +11,11 @@ export default function Config() {
   const { mediaUrl, setMediaUrl } = useMediaUrl();
   const { setSettings } = useConfig();
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
-  const [isInputFocused, setIsInputFocused] = useState(false);
 
-  // Sync urlInput with mediaUrl changes ONLY when input is not focused
-  // This prevents overwriting user input while typing
+  // Sync urlInput with mediaUrl changes
   useEffect(() => {
-    if (!isInputFocused) {
-      setUrlInput(mediaUrl);
-    }
-  }, [mediaUrl, isInputFocused]);
+    setUrlInput(mediaUrl);
+  }, [mediaUrl]);
 
   // language sync listener
   useEffect(() => {
@@ -47,44 +42,13 @@ export default function Config() {
   const handleReset = () => {
     if (!window.confirm(t('resetConfirm', lang))) return;
 
-    // Set resetting flag to prevent ConfigPreview throttled save from interfering
-    // This flag will be checked in ConfigPreview's useEffect
-    try {
-      localStorage.setItem('nzxtResetting', 'true');
-    } catch (e) {
-      // Ignore
-    }
-
-    // 1. Media URL'i temizle (storage.ts'den de temizle)
-    setMediaUrl('');
-    setUrlInput('');
+    // Reset to defaults
+    setMediaUrl(DEFAULT_MEDIA_URL);
+    setUrlInput(DEFAULT_MEDIA_URL);
     
-    // 2. Tüm ayarları varsayılana döndür (backgroundColor'ı da temizle)
-    // Clear localStorage config keys completely
-    try {
-      localStorage.removeItem(STORAGE_KEYS.CONFIG);
-      localStorage.removeItem(STORAGE_KEYS.CONFIG_COMPAT);
-      localStorage.removeItem(STORAGE_KEYS.MEDIA_URL);
-    } catch (e) {
-      // Ignore
-    }
-    
-    setSettings({
-      ...DEFAULT_SETTINGS,
-      backgroundColor: undefined,
-    });
-    
-    // 3. Input focus durumunu sıfırla
-    setIsInputFocused(false);
-
-    // Clear resetting flag after a longer delay to ensure all operations complete
-    setTimeout(() => {
-      try {
-        localStorage.removeItem('nzxtResetting');
-      } catch (e) {
-        // Ignore
-      }
-    }, 1000);
+    // Reset settings to defaults (including overlay)
+    // Note: url is stored separately via useMediaUrl, not in settings
+    setSettings(DEFAULT_SETTINGS);
   };
 
 
