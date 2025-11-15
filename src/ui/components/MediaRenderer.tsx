@@ -20,7 +20,6 @@ export default function MediaRenderer({
   settings,
   className,
   style,
-  forceColorMode = false,
 }: MediaRendererProps) {
   const isVideo = isVideoUrl(url);
   const objectPosition = getObjectPosition(settings.align, settings.x, settings.y);

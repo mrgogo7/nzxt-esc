@@ -6,7 +6,6 @@ import { DEFAULT_SETTINGS } from '../constants/defaults';
 import { STORAGE_KEYS } from '../constants/storage';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
-import ColorPicker from './components/ColorPicker';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
@@ -14,15 +13,6 @@ export default function Config() {
   const { settings, setSettings } = useConfig();
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const [activeTab, setActiveTab] = useState<'media' | 'color'>(() => {
-    const saved = localStorage.getItem('nzxtActiveTab');
-    return (saved === 'media' || saved === 'color') ? saved : 'media';
-  });
-
-  // Save activeTab to localStorage
-  useEffect(() => {
-    localStorage.setItem('nzxtActiveTab', activeTab);
-  }, [activeTab]);
 
   // Sync urlInput with mediaUrl changes ONLY when input is not focused
   // This prevents overwriting user input while typing
@@ -74,6 +64,7 @@ export default function Config() {
     try {
       localStorage.removeItem(STORAGE_KEYS.CONFIG);
       localStorage.removeItem(STORAGE_KEYS.CONFIG_COMPAT);
+      localStorage.removeItem(STORAGE_KEYS.MEDIA_URL);
     } catch (e) {
       // Ignore
     }
@@ -83,10 +74,7 @@ export default function Config() {
       backgroundColor: undefined,
     });
     
-    // 4. Tab'ı Media'ya döndür
-    setActiveTab('media');
-    
-    // 5. Input focus durumunu sıfırla
+    // 3. Input focus durumunu sıfırla
     setIsInputFocused(false);
 
     // Clear resetting flag after a longer delay to ensure all operations complete
@@ -99,22 +87,6 @@ export default function Config() {
     }, 1000);
   };
 
-  const handleBackgroundColorChange = (color: string) => {
-    // Remove alpha channel (convert rgba to rgb)
-    const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (rgbMatch) {
-      const rgb = `rgb(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]})`;
-      setSettings({
-        ...settings,
-        backgroundColor: rgb,
-      });
-    } else {
-      setSettings({
-        ...settings,
-        backgroundColor: color,
-      });
-    }
-  };
 
   return (
     <div className="config-page">
@@ -199,65 +171,31 @@ export default function Config() {
         </div>
       </header>
 
-      {/* Background Section with Mode Buttons */}
+      {/* URL Section */}
       <section className="url-section">
-        <div className="background-mode-header">
-          <label className="url-label">
-            {t("background", lang)}
-          </label>
-          
-          {/* Mode Selection Buttons */}
-          <div className="background-mode-buttons">
-            <button
-              className={`mode-btn ${activeTab === 'media' ? 'active' : ''}`}
-              onClick={() => setActiveTab('media')}
-            >
-              {t("mediaTab", lang)}
-            </button>
-            <button
-              className={`mode-btn ${activeTab === 'color' ? 'active' : ''}`}
-              onClick={() => setActiveTab('color')}
-            >
-              {t("colorTab", lang)}
-            </button>
-          </div>
+        <label className="url-label">
+          {t("urlLabel", lang)}
+        </label>
+        <div className="url-row">
+          <input
+            id="mediaUrl"
+            type="text"
+            className="url-input"
+            placeholder={t("urlPlaceholder", lang)}
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            onFocus={() => setIsInputFocused(true)}
+            onBlur={() => setIsInputFocused(false)}
+          />
+          <button onClick={handleSave} className="save-btn">
+            {t("save", lang)}
+          </button>
         </div>
-
-        {/* Content based on selected mode */}
-        {activeTab === 'media' ? (
-          <>
-            <div className="url-row">
-              <input
-                id="mediaUrl"
-                type="text"
-                className="url-input"
-                placeholder={t("urlPlaceholder", lang)}
-                value={urlInput}
-                onChange={(e) => setUrlInput(e.target.value)}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
-              />
-              <button onClick={handleSave} className="save-btn">
-                {t("save", lang)}
-              </button>
-            </div>
-            <p className="hint">{t("note", lang)}</p>
-          </>
-        ) : (
-          <div className="color-picker-section">
-            <h3 className="color-picker-title">{t("colorPickerTitle", lang)}</h3>
-            <p className="color-picker-description">{t("colorPickerDescription", lang)}</p>
-            <ColorPicker
-              value={settings.backgroundColor || '#000000'}
-              onChange={handleBackgroundColorChange}
-              showInline={true}
-            />
-          </div>
-        )}
+        <p className="hint">{t("note", lang)}</p>
       </section>
 
       {/* Preview + Settings */}
-      <ConfigPreview activeTab={activeTab} />
+      <ConfigPreview />
     </div>
   );
 }
