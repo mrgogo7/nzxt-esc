@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import '../styles/ColorPicker.css';
-import { normalizeToRgba, parseColorToRgba, rgbaObjectToString } from '../../utils/color';
+import { normalizeToRgba } from '../../utils/color';
 import GradientColorPicker from 'react-best-gradient-color-picker';
 
 /**
  * ColorPicker component props.
- * Wraps react-best-gradient-color-picker with project-specific functionality.
+ * Follows react-best-gradient-color-picker package API.
  */
 interface ColorPickerProps {
   /** Current color value in RGBA or HEX format */
@@ -23,11 +23,13 @@ interface ColorPickerProps {
 /**
  * ColorPicker component using react-best-gradient-color-picker.
  * 
- * Adapts project to package API:
- * - Package expects RGBA format strings
- * - Package onChange receives RGBA strings directly
- * - Alpha control is managed by hideAlpha prop
- * - Internal state ensures controlled component behavior
+ * Package API:
+ * - value: RGBA string (e.g., 'rgba(255,255,255,1)')
+ * - onChange: (color: string) => void - receives RGBA string
+ * - hideAlpha: boolean - hides alpha control
+ * - hideGradient: boolean - hides gradient control
+ * 
+ * This component adapts the project to the package, not vice versa.
  */
 export default function ColorPicker({ 
   value, 
@@ -46,74 +48,51 @@ export default function ColorPicker({
     right?: string 
   }>({});
 
-  // Internal state - package works better with controlled component
-  const [internalColor, setInternalColor] = useState(() => normalizeToRgba(value));
-
-  // Sync internal state when external value changes
-  useEffect(() => {
-    const normalized = normalizeToRgba(value);
-    if (normalized !== internalColor) {
-      setInternalColor(normalized);
-    }
-  }, [value, internalColor]);
+  // Convert value to RGBA format (package expects RGBA)
+  const currentColor = normalizeToRgba(value);
 
   /**
    * Handle color change from package.
-   * Package returns RGBA string directly when allowAlpha is true.
-   * Package returns RGBA string with alpha=1 when allowAlpha is false.
+   * Package returns RGBA string directly.
    */
-  const handleColorChange = useCallback((color: string) => {
+  const handleColorChange = (color: string) => {
+    // Package returns RGBA string or gradient string
     let rgbaString: string;
 
     if (typeof color === 'string') {
-      // Package returns RGBA string or gradient string
       if (color.includes('gradient') || color.includes('linear-gradient')) {
         // Extract first rgba from gradient
         const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
         if (rgbaMatch) {
           rgbaString = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
         } else {
-          rgbaString = internalColor;
+          rgbaString = currentColor;
         }
       } else {
         // Regular RGBA string - use directly
         rgbaString = color;
       }
     } else {
-      rgbaString = internalColor;
+      rgbaString = currentColor;
     }
 
     // Only override alpha if allowAlpha is false
-    if (!allowAlpha) {
-      const parsed = parseColorToRgba(rgbaString);
-      rgbaString = rgbaObjectToString({
-        r: parsed.r,
-        g: parsed.g,
-        b: parsed.b,
-        a: 1,
-      });
+    if (!allowAlpha && rgbaString.includes('rgba')) {
+      const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+      if (match) {
+        rgbaString = `rgba(${match[1]}, ${match[2]}, ${match[3]}, 1)`;
+      }
     }
 
-    // Validate
-    const parsed = parseColorToRgba(rgbaString);
-    if (isNaN(parsed.r) || isNaN(parsed.g) || isNaN(parsed.b) || isNaN(parsed.a)) {
-      rgbaString = internalColor;
-    }
-
-    // Update internal state
-    setInternalColor(rgbaString);
-    
-    // Call parent onChange
     onChange(rgbaString);
-  }, [internalColor, allowAlpha, onChange]);
+  };
 
   /**
-   * Calculate popup position - opens next to trigger button.
+   * Calculate popup position - simple relative positioning like old ColorPicker.
    */
   useEffect(() => {
-    if (isOpen && triggerRef.current && pickerRef.current) {
+    if (isOpen && triggerRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect();
-      const wrapperRect = pickerRef.current.getBoundingClientRect();
       const popupWidth = 280;
       const popupHeight = 400;
       const viewportWidth = window.innerWidth;
@@ -122,41 +101,31 @@ export default function ColorPicker({
 
       const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
 
-      // Calculate relative positions
-      const triggerLeft = triggerRect.left - wrapperRect.left;
-      const triggerTop = triggerRect.top - wrapperRect.top;
-      const triggerRight = triggerRect.right - wrapperRect.left;
-
-      // Horizontal: prefer right side of trigger
-      if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
-        // Enough space on right - position to the right of trigger
-        position.left = `${triggerRight - wrapperRect.left + spacing}px`;
-      } else if (triggerRect.left >= popupWidth + spacing) {
-        // Enough space on left - position to the left of trigger
-        position.right = `${wrapperRect.width - triggerLeft + spacing}px`;
+      // Horizontal: prefer left (like old ColorPicker), fallback to right
+      if (triggerRect.left >= popupWidth + spacing) {
+        // Enough space on left
+        position.right = '0';
       } else {
-        // Default to right, even if it overflows slightly
-        position.left = `${triggerRight - wrapperRect.left + spacing}px`;
+        // Not enough space on left, try right
+        if (triggerRect.right + popupWidth + spacing <= viewportWidth) {
+          position.left = '0';
+        } else {
+          // Not enough space on either side, open to the left anyway
+          position.right = '0';
+        }
       }
 
-      // Vertical: prefer below trigger, align top with trigger
-      if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
-        // Enough space below - align top with trigger top
-        position.top = `${triggerTop}px`;
-      } else if (triggerRect.top >= popupHeight + spacing) {
-        // Enough space above - position above trigger
-        position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
+      // Vertical: prefer top (like old ColorPicker), fallback to below
+      if (triggerRect.top >= popupHeight + spacing) {
+        // Enough space above
+        position.bottom = 'calc(100% + 8px)';
       } else {
-        // Adjust to fit in viewport
-        const spaceBelow = viewportHeight - triggerRect.bottom;
-        const spaceAbove = triggerRect.top;
-        
-        if (spaceBelow >= spaceAbove) {
-          // More space below - use it
-          position.top = `${triggerTop}px`;
+        // Not enough space above, try below
+        if (triggerRect.bottom + popupHeight + spacing <= viewportHeight) {
+          position.top = 'calc(100% + 8px)';
         } else {
-          // More space above - position above
-          position.bottom = `${wrapperRect.height - triggerTop + spacing}px`;
+          // Not enough space on either side, open above anyway
+          position.bottom = 'calc(100% + 8px)';
         }
       }
 
@@ -188,7 +157,7 @@ export default function ColorPicker({
     return (
       <div className="color-picker-wrapper color-picker-inline" ref={pickerRef}>
         <GradientColorPicker
-          value={internalColor}
+          value={currentColor}
           onChange={handleColorChange}
           hideAlpha={!allowAlpha}
           hideGradient={!allowGradient}
@@ -221,7 +190,7 @@ export default function ColorPicker({
           style={popupPosition}
         >
           <GradientColorPicker
-            value={internalColor}
+            value={currentColor}
             onChange={handleColorChange}
             hideAlpha={!allowAlpha}
             hideGradient={!allowGradient}
