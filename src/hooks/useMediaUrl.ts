@@ -46,7 +46,8 @@ export function useMediaUrl() {
   // Subscribe to storage.ts changes (handles cross-process sync)
   useEffect(() => {
     const unsubscribe = subscribe((url) => {
-      if (url && url !== mediaUrl) {
+      // Handle both empty and non-empty URLs (important for reset functionality)
+      if (url !== mediaUrl) {
         setMediaUrlState(url);
         lastCheckedUrlRef.current = url;
       }
@@ -58,11 +59,13 @@ export function useMediaUrl() {
 
   // Also listen to direct localStorage 'media_url' key (for Config.tsx compatibility)
   useStorageSync(STORAGE_KEYS.MEDIA_URL, (newValue) => {
-    if (newValue && newValue !== mediaUrl) {
-      setMediaUrlState(newValue);
-      lastCheckedUrlRef.current = newValue;
+    // Handle both empty and non-empty URLs (important for reset functionality)
+    const urlValue = newValue || '';
+    if (urlValue !== mediaUrl) {
+      setMediaUrlState(urlValue);
+      lastCheckedUrlRef.current = urlValue;
       // Also sync to storage.ts
-      setMediaUrl(newValue);
+      setMediaUrl(urlValue);
     }
   }, true); // immediate = true to get initial value
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { DEFAULT_OVERLAY, type OverlaySettings } from '../../types/overlay';
 import { NZXT_DEFAULTS } from '../../constants/nzxt';
 import { useConfig } from '../../hooks/useConfig';
@@ -25,11 +26,39 @@ export default function KrakenOverlay() {
   const metrics = useMonitoring();
 
   // Get activeTab from localStorage (default to 'media')
-  const activeTab = (() => {
+  // Use state to ensure re-render when localStorage changes
+  const [activeTab, setActiveTab] = useState<'media' | 'color'>(() => {
     if (typeof window === 'undefined') return 'media';
     const saved = localStorage.getItem('nzxtActiveTab');
     return (saved === 'media' || saved === 'color') ? saved : 'media';
-  })();
+  });
+
+  // Listen to localStorage changes for activeTab
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'nzxtActiveTab' && e.newValue) {
+        const newTab = (e.newValue === 'media' || e.newValue === 'color') ? e.newValue : 'media';
+        setActiveTab(newTab);
+      }
+    };
+
+    // Also poll for changes (in case storage event doesn't fire)
+    const pollInterval = setInterval(() => {
+      const saved = localStorage.getItem('nzxtActiveTab');
+      if (saved) {
+        const newTab = (saved === 'media' || saved === 'color') ? saved : 'media';
+        if (newTab !== activeTab) {
+          setActiveTab(newTab);
+        }
+      }
+    }, 500);
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(pollInterval);
+    };
+  }, [activeTab]);
 
   // Get LCD resolution from NZXT API or use default
   const lcdResolution = window.nzxt?.v1?.width || NZXT_DEFAULTS.LCD_WIDTH;
