@@ -512,7 +512,7 @@ export default function ConfigPreview() {
             <div className="settings-column">
               <div className="panel">
                 <div className="panel-header">
-                  <h3>{t('mediaOptionsTitle', lang)}</h3>
+                  <h3>{t('settingsTitle', lang)}</h3>
 
                   <div className="overlay-toggle-compact">
                     <span>{t('overlayGuide', lang)}</span>
