@@ -479,8 +479,8 @@ export default function ConfigPreview() {
                 {/* SCALE / X / Y */}
                 {([
                   { field: 'scale' as const, label: t('scale', lang), step: 0.1 },
-                  { field: 'x' as const, label: t('xOffset', lang) },
-                  { field: 'y' as const, label: t('yOffset', lang) },
+                  { field: 'x' as const, label: t('xOffset', lang), step: 1 },
+                  { field: 'y' as const, label: t('yOffset', lang), step: 1 },
                 ] as const).map(({ field, label, step }) => {
                   // Type-safe access to numeric settings
                   const numericValue = settings[field];
@@ -491,7 +491,7 @@ export default function ConfigPreview() {
 
                       <input
                         type="number"
-                        step={step || 1}
+                        step={step}
                         value={numericValue}
                         onChange={(e) =>
                           setSettings({
