@@ -23,13 +23,8 @@ interface ColorPickerProps {
 /**
  * ColorPicker component using react-best-gradient-color-picker.
  * 
- * Features:
- * - Returns color in rgba() format for alpha support
- * - Positioned to avoid viewport overflow, prioritizing top-left for NZXT CAM compatibility
- * - Supports inline (showInline=true) or popup (showInline=false) modes
- * - Handles both solid colors and gradients (when allowGradient=true)
- * 
- * @param props - ColorPicker component props
+ * Uses internal state to handle color changes properly, especially for pointer/slider interactions.
+ * The package may return colors in different formats, so we normalize everything to RGBA.
  */
 export default function ColorPicker({ 
   value, 
@@ -48,55 +43,109 @@ export default function ColorPicker({
     right?: string 
   }>({});
 
-  // Normalize color to RGBA format (package expects rgba format)
-  const currentColor = normalizeToRgba(value);
+  // Internal state for the picker - allows controlled updates
+  const [internalColor, setInternalColor] = useState(() => normalizeToRgba(value));
+
+  // Sync internal state when external value changes
+  useEffect(() => {
+    const normalized = normalizeToRgba(value);
+    setInternalColor(normalized);
+  }, [value]);
 
   /**
    * Handle color change from the picker.
-   * Package returns string format (RGBA or gradient string).
-   * Converts to project standard RGBA format.
+   * Package may return different formats - handle all cases aggressively.
    */
-  const handleColorChange = useCallback((color: string) => {
-    // Package returns string in format: 'rgba(r,g,b,a)' or 'linear-gradient(...)'
+  const handleColorChange = useCallback((color: any) => {
+    // Debug: Log what we receive
+    console.log('[ColorPicker] onChange received:', color, 'type:', typeof color);
+    
     let rgbaString: string;
 
+    // Handle different input types aggressively
     if (typeof color === 'string') {
-      // Check if it's a gradient string
+      // String input - could be RGBA, HEX, or gradient
+      console.log('[ColorPicker] Processing string:', color);
+      
+      // Check if it's a gradient
       if (color.includes('gradient') || color.includes('linear-gradient')) {
-        // Extract first rgba color from gradient
+        // Extract first rgba from gradient
         const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
         if (rgbaMatch) {
           rgbaString = `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${rgbaMatch[4] || 1})`;
         } else {
-          // Fallback to current value if gradient parsing fails
-          rgbaString = normalizeToRgba(value);
+          // If no rgba found, try to parse as HEX in gradient
+          const hexMatch = color.match(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})/);
+          if (hexMatch) {
+            rgbaString = normalizeToRgba(hexMatch[0]);
+          } else {
+            // Fallback to current internal color
+            rgbaString = internalColor;
+          }
         }
       } else {
-        // Regular color string (RGBA or HEX)
-        rgbaString = normalizeToRgba(color);
+        // Regular color string - try to normalize
+        // First check if it's already valid RGBA
+        if (color.startsWith('rgba(') || color.startsWith('rgb(')) {
+          rgbaString = color;
+        } else if (color.startsWith('#')) {
+          // HEX format
+          rgbaString = normalizeToRgba(color);
+        } else {
+          // Unknown format - try to parse anyway
+          rgbaString = normalizeToRgba(color);
+        }
       }
-
-      // If alpha is not allowed, ensure alpha is 1
-      if (!allowAlpha) {
-        const parsed = parseColorToRgba(rgbaString);
+    } else if (typeof color === 'object' && color !== null) {
+      // Object input - could be {r, g, b, a} or similar
+      console.log('[ColorPicker] Processing object:', color);
+      
+      if ('r' in color && 'g' in color && 'b' in color) {
         rgbaString = rgbaObjectToString({
-          r: parsed.r,
-          g: parsed.g,
-          b: parsed.b,
-          a: 1,
+          r: Number(color.r),
+          g: Number(color.g),
+          b: Number(color.b),
+          a: allowAlpha ? (Number(color.a) || 1) : 1,
         });
+      } else {
+        // Unknown object format - fallback
+        rgbaString = internalColor;
       }
     } else {
-      // Fallback - use current value
-      rgbaString = normalizeToRgba(value);
+      // Unknown type - fallback to current color
+      console.warn('[ColorPicker] Unknown color format:', color);
+      rgbaString = internalColor;
     }
 
+    // Ensure alpha is correct
+    if (!allowAlpha) {
+      const parsed = parseColorToRgba(rgbaString);
+      rgbaString = rgbaObjectToString({
+        r: parsed.r,
+        g: parsed.g,
+        b: parsed.b,
+        a: 1,
+      });
+    }
+
+    // Validate the result
+    const parsed = parseColorToRgba(rgbaString);
+    if (isNaN(parsed.r) || isNaN(parsed.g) || isNaN(parsed.b)) {
+      console.error('[ColorPicker] Invalid color after processing:', rgbaString);
+      rgbaString = internalColor; // Fallback to current
+    }
+
+    console.log('[ColorPicker] Final RGBA:', rgbaString);
+    
+    // Update internal state immediately
+    setInternalColor(rgbaString);
+    
+    // Call parent onChange
     onChange(rgbaString);
-  }, [value, allowAlpha, onChange]);
+  }, [internalColor, allowAlpha, onChange]);
 
   /**
    * Calculate popup position to avoid viewport overflow.
-   * Prioritizes top-left positioning for NZXT CAM compatibility.
    */
   useEffect(() => {
     if (isOpen && triggerRef.current && pickerRef.current) {
@@ -110,12 +159,11 @@ export default function ColorPicker({
 
       const position: { top?: string; bottom?: string; left?: string; right?: string } = {};
 
-      // Calculate relative position from wrapper
       const triggerLeft = triggerRect.left - wrapperRect.left;
       const triggerTop = triggerRect.top - wrapperRect.top;
       const triggerBottom = triggerRect.bottom - wrapperRect.top;
 
-      // Horizontal positioning: prefer left
+      // Horizontal positioning
       if (triggerRect.left >= popupWidth + spacing) {
         position.right = `${wrapperRect.width - triggerLeft}px`;
       } else {
@@ -126,7 +174,7 @@ export default function ColorPicker({
         }
       }
 
-      // Vertical positioning: prefer top, but ensure popup stays within viewport
+      // Vertical positioning
       const spaceAbove = triggerRect.top;
       
       if (spaceAbove >= popupHeight + spacing) {
@@ -166,12 +214,12 @@ export default function ColorPicker({
     };
   }, [isOpen]);
 
-  // Inline mode: show picker directly without trigger button
+  // Inline mode
   if (showInline) {
     return (
       <div className="color-picker-wrapper color-picker-inline" ref={pickerRef}>
         <GradientColorPicker
-          value={currentColor}
+          value={internalColor}
           onChange={handleColorChange}
           hideAlpha={!allowAlpha}
           hideGradient={!allowGradient}
@@ -180,7 +228,7 @@ export default function ColorPicker({
     );
   }
 
-  // Popup mode: show trigger button with popup
+  // Popup mode
   return (
     <div className="color-picker-wrapper" ref={pickerRef}>
       <button
@@ -204,7 +252,7 @@ export default function ColorPicker({
           style={popupPosition}
         >
           <GradientColorPicker
-            value={currentColor}
+            value={internalColor}
             onChange={handleColorChange}
             hideAlpha={!allowAlpha}
             hideGradient={!allowGradient}
