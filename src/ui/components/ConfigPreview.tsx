@@ -842,7 +842,7 @@ export default function ConfigPreview() {
                                 style={{
                                   position: 'absolute',
                                   top: '-18px',
-                                  left: '0px',
+                                  left: '-4px',
                                   fontSize: '8px',
                                   color: 'rgba(255, 255, 255, 0.7)',
                                   fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
@@ -939,7 +939,7 @@ export default function ConfigPreview() {
                                 style={{
                                   position: 'absolute',
                                   top: '-18px',
-                                  left: '0px',
+                                  left: '-4px',
                                   fontSize: '8px',
                                   color: 'rgba(255, 255, 255, 0.7)',
                                   fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
@@ -3824,6 +3824,7 @@ export default function ConfigPreview() {
       <Tooltip id="move-text-up-tooltip" />
       <Tooltip id="move-text-down-tooltip" />
       <Tooltip id="remove-text-tooltip" />
+      <Tooltip id="revert-to-defaults-tooltip" />
     </div>
   );
 }
