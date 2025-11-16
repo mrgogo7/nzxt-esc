@@ -264,7 +264,7 @@ Special thanks to the open-source community for keeping NZXT integrations alive 
 
 ## 🏷️ License
 
-MIT © 2025 — Free for personal and non-commercial use.
+MIT © 2025 — Free for personal and non-commercial use. See [LICENSE](LICENSE) for details.
 
 ---
 
