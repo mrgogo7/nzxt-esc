@@ -14,9 +14,9 @@ const dict: Record<Lang, Record<string, string>> = {
     urlPlaceholder: "https://...mp4 / ...jpg / ...gif",
     save: "Save / Update",
     clear: "Clear",
-    backgroundMediaUrlLabel: "Background Media URL",
+    backgroundMediaUrlLabel: "Background URL",
     note:
-      "Enter the URL you want to display on your device. After entering the URL, you can fine-tune the position in the preview below.",
+      "Enter the background media URL (video/image) you want to display. After entering the URL, you can fine-tune the position in the preview below. You can also set a background color that will be shown when no media URL is set or as a fallback.",
     background: "Background",
     mediaTab: "Media",
     colorTab: "Color",
@@ -98,9 +98,9 @@ const dict: Record<Lang, Record<string, string>> = {
     urlPlaceholder: "https://...mp4 / ...jpg / ...gif",
     save: "Kaydet / Güncelle",
     clear: "Temizle",
-    backgroundMediaUrlLabel: "Arka Plan Medya URL",
+    backgroundMediaUrlLabel: "Arka Plan URL",
     note:
-      "Cihazınızda göstermek istediğiniz URL'yi giriniz. URL'yi girdikten sonra konumu aşağıdaki önizlemede ayarlayabilirsiniz.",
+      "Göstermek istediğiniz arka plan medya URL'sini (video/resim) giriniz. URL'yi girdikten sonra konumu aşağıdaki önizlemede ayarlayabilirsiniz. Medya URL'si olmadığında veya yedek olarak gösterilecek bir arka plan rengi de ayarlayabilirsiniz.",
     quickPresets: "Hızlı Ayarlar",
     previewTitle: "Background Önizleme",
     overlayPreviewTitle: "Overlay Önizleme",

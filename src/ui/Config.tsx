@@ -6,6 +6,7 @@ import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
 import ColorPicker from './components/ColorPicker';
+import { Save, X } from 'lucide-react';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
@@ -151,15 +152,23 @@ export default function Config() {
             placeholder={t("urlPlaceholder", lang)}
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
+            onFocus={(e) => e.target.select()}
           />
-          <button onClick={handleSave} className="save-btn">
-            {t("save", lang)}
+          <button 
+            onClick={handleSave} 
+            className="save-btn icon-btn"
+            title={t("save", lang)}
+          >
+            <Save size={18} />
           </button>
-          <button onClick={handleClear} className="clear-btn">
-            {t("clear", lang)}
+          <button 
+            onClick={handleClear} 
+            className="clear-btn icon-btn"
+            title={t("clear", lang)}
+          >
+            <X size={18} />
           </button>
         </div>
-        <p className="hint">{t("note", lang)}</p>
         
         {/* Background Color Picker */}
         <div className="background-color-section">
@@ -174,6 +183,8 @@ export default function Config() {
             popupPosition="bottom-right"
           />
         </div>
+        
+        <p className="hint">{t("note", lang)}</p>
       </section>
 
       {/* Preview + Settings */}
