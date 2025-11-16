@@ -23,6 +23,15 @@ export interface CustomReading {
   y: number; // Y offset in LCD coordinates
 }
 
+export interface CustomText {
+  id: string; // Unique identifier for the text
+  text: string; // Plain text content (max 120 characters, sanitized)
+  textColor: string;
+  textSize: number; // Minimum 6
+  x: number; // X offset in LCD coordinates
+  y: number; // Y offset in LCD coordinates
+}
+
 export interface OverlaySettings {
   mode: OverlayMode;
   primaryMetric: OverlayMetricKey;
@@ -61,6 +70,7 @@ export interface OverlaySettings {
   dualReadersOffsetY?: number; // Y offset for secondary/tertiary section in triple mode (Dual Readers)
   // Custom mode specific settings
   customReadings?: CustomReading[]; // Array of custom readings (max 4)
+  customTexts?: CustomText[]; // Array of custom texts (max 4)
 }
 
 export type OverlayMetrics = {
@@ -113,6 +123,7 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   dualReadersOffsetY: 0, // Default Y offset for secondary/tertiary in triple mode (Dual Readers)
   // Custom mode defaults
   customReadings: [], // Empty array by default, readings will be added by user
+  customTexts: [], // Empty array by default, texts will be added by user
 };
 
 export type OverlayValueUnitType = "temp" | "percent" | "clock" | "none";

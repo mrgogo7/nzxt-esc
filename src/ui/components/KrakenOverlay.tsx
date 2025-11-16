@@ -98,6 +98,37 @@ export default function KrakenOverlay() {
               ))}
             </>
           )}
+          {overlayConfig.mode === 'custom' && overlayConfig.customTexts && overlayConfig.customTexts.length > 0 && (
+            <>
+              {overlayConfig.customTexts.map((text) => (
+                <div
+                  key={text.id}
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    transform: `translate(calc(-50% + ${text.x}px), calc(-50% + ${text.y}px))`,
+                    pointerEvents: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: `${text.textSize}px`,
+                      color: text.textColor,
+                      fontFamily: 'nzxt-extrabold',
+                      whiteSpace: 'nowrap',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {text.text}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>

@@ -197,6 +197,17 @@ const dict: Record<Lang, Record<string, string>> = {
     size: "Size",
     customXOffset: "X Offset",
     customYOffset: "Y Offset",
+    // Custom text labels
+    addText: "Add Text",
+    removeText: "Remove Text",
+    firstText: "1st Text",
+    secondText: "2nd Text",
+    thirdText: "3rd Text",
+    fourthText: "4th Text",
+    text: "Text",
+    textInput: "Text",
+    moveTextUp: "Move Up",
+    moveTextDown: "Move Down",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -308,6 +319,17 @@ const dict: Record<Lang, Record<string, string>> = {
     size: "Boyut",
     customXOffset: "X Ofset",
     customYOffset: "Y Ofset",
+    // Custom text labels
+    addText: "Text Ekle",
+    removeText: "Text Kaldır",
+    firstText: "1. Text",
+    secondText: "2. Text",
+    thirdText: "3. Text",
+    fourthText: "4. Text",
+    text: "Text",
+    textInput: "Text",
+    moveTextUp: "Yukarı Taşı",
+    moveTextDown: "Aşağı Taşı",
   },
 };
 
