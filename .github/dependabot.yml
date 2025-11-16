@@ -1,0 +1,63 @@
+version: 2
+updates:
+  # npm bağımlılıkları için güncellemeler
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: 1
+      time: "09:00"
+      timezone: "Europe/Istanbul"
+    # Aynı anda açık olacak maksimum PR sayısı
+    open-pull-requests-limit: 10
+    # Otomatik merge ayarları (sadece patch güncellemeleri için)
+    pull-request-branch-name:
+      separator: "/"
+    # Commit mesaj formatı
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    # PR etiketleri
+    labels:
+      - "dependencies"
+      - "automated"
+    # Minor ve patch güncellemeleri gruplandır
+    groups:
+      # Production dependencies - minor ve patch güncellemeleri
+      production-dependencies-minor-patch:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "framer-motion"
+          - "react-colorful"
+          - "react-tooltip"
+        update-types:
+          - "minor"
+          - "patch"
+      # Development dependencies - minor ve patch güncellemeleri
+      development-dependencies-minor-patch:
+        patterns:
+          - "@types/*"
+          - "@vitejs/*"
+          - "typescript"
+          - "vite"
+          - "lucide-react"
+          - "terser"
+        update-types:
+          - "minor"
+          - "patch"
+    # Major güncellemeleri ayrı PR olarak aç (daha dikkatli inceleme için)
+    ignore:
+      # Major React güncellemeleri için manuel kontrol gerekli
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      # Major TypeScript güncellemeleri için manuel kontrol gerekli
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Major Vite güncellemeleri için manuel kontrol gerekli
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+
