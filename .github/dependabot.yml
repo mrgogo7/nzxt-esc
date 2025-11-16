@@ -5,7 +5,7 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
-      day: 1
+      day: "monday"
       time: "09:00"
       timezone: "Europe/Istanbul"
     # Aynı anda açık olacak maksimum PR sayısı
