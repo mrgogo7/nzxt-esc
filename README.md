@@ -2,7 +2,25 @@
 
 **The Ultimate Customization Tool for NZXT Kraken Elite LCD Displays**
 
-Transform your NZXT Kraken Elite LCD into a personalized information hub with real-time system monitoring, custom media display, and advanced overlay configurations. NZXT-ESC provides complete control over your LCD screen with drag-and-drop positioning, live preview, and instant synchronization.
+---
+
+## 📖 About
+
+**NZXT Elite Screen Customizer (NZXT-ESC)** is a powerful, open-source web application designed to unlock the full potential of your NZXT Kraken Elite AIO liquid cooler's LCD display. Whether you want to showcase custom media, monitor real-time system performance metrics, or create stunning visual overlays, NZXT-ESC provides everything you need to transform your Kraken Elite LCD into a personalized information center.
+
+### What Makes NZXT-ESC Special?
+
+**NZXT-ESC** seamlessly integrates with NZXT CAM software through Web Integration technology, offering a comprehensive customization platform for your Kraken Elite's circular LCD screen. Unlike basic customization tools, NZXT-ESC enables you to combine multiple elements—custom videos, images, GIFs, and real-time hardware monitoring data—into beautiful, fully personalized displays.
+
+**Key Advantages:**
+- 🎨 **Complete Visual Control** — Drag-and-drop interface for intuitive positioning of media and monitoring overlays
+- 📊 **Real-Time System Monitoring** — Display CPU temperature, GPU stats, clock speeds, and liquid temperature with animated metrics
+- 🎥 **Multi-Format Media Support** — Upload and display MP4 videos, JPG images, and animated GIFs on your LCD
+- ⚡ **Instant Synchronization** — See your changes reflected in real-time on both the preview and actual LCD display
+- 🌍 **Multi-Language Interface** — Full support for English and Turkish with easy language switching
+- 🔄 **Cross-Process Sync** — Seamless data synchronization between configuration and display pages
+
+Perfect for gamers, PC enthusiasts, content creators, and anyone who wants to make their NZXT Kraken Elite LCD display truly unique. NZXT-ESC works entirely within your browser and NZXT CAM, requiring no additional software installation or complex setup procedures.
 
 ---
 
@@ -236,7 +254,7 @@ NZXT-ESC is designed to be extensible and future-proof:
 
 If you find NZXT-ESC useful, consider supporting the project:
 
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/mrgogo)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-181717?logo=github&logoColor=white)](https://github.com/sponsors/mrgogo7) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/mrgogo)
 
 ---
 
