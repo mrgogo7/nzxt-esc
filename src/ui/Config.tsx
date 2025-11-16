@@ -6,17 +6,20 @@ import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
 import ColorPicker from './components/ColorPicker';
-import { X } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import { motion } from 'framer-motion';
 import 'react-tooltip/dist/react-tooltip.css';
 import './styles/tooltip.css';
+import { normalizePinterestUrl, fetchPinterestMedia } from '../utils/pinterest';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
   const { mediaUrl, setMediaUrl } = useMediaUrl();
   const { settings, setSettings } = useConfig();
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
+  const [isResolving, setIsResolving] = useState(false);
+  const [resolveMessage, setResolveMessage] = useState<string | null>(null);
 
   // Sync urlInput with mediaUrl changes
   useEffect(() => {
@@ -40,15 +43,79 @@ export default function Config() {
     setLang(newLang);
   };
 
-  const handleSave = () => {
-    // Update media URL (useMediaUrl hook handles storage sync)
-    setMediaUrl(urlInput);
+  /**
+   * Checks if URL is a direct media URL (ends with .mp4, .jpg, .gif, etc.)
+   */
+  const isDirectMediaUrl = (url: string): boolean => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim().toLowerCase();
+    return /\.(mp4|webm|jpg|jpeg|png|gif|webp)($|\?)/i.test(trimmed);
+  };
+
+  const handleSave = async () => {
+    const trimmedUrl = urlInput.trim();
+    
+    // If empty, clear and return
+    if (!trimmedUrl) {
+      setMediaUrl('');
+      return;
+    }
+
+    // If it's a direct media URL (ends with .mp4, .jpg, .gif, etc.), save directly
+    if (isDirectMediaUrl(trimmedUrl)) {
+      setMediaUrl(trimmedUrl);
+      return;
+    }
+
+    // Check if it's a Pinterest URL
+    const normalizedPinterestUrl = normalizePinterestUrl(trimmedUrl);
+    if (normalizedPinterestUrl) {
+      // It's a Pinterest URL, resolve it
+      setIsResolving(true);
+      setResolveMessage(t('resolvingUrl', lang));
+
+      // Timeout protection (25 seconds)
+      const timeoutId = setTimeout(() => {
+        setIsResolving(false);
+        setResolveMessage(t('urlResolveTimeout', lang));
+        setTimeout(() => setResolveMessage(null), 5000);
+      }, 25000);
+
+      try {
+        const resolvedUrl = await fetchPinterestMedia(trimmedUrl);
+        clearTimeout(timeoutId);
+
+        if (resolvedUrl) {
+          setMediaUrl(resolvedUrl);
+          setResolveMessage(t('urlResolved', lang));
+          setTimeout(() => {
+            setIsResolving(false);
+            setResolveMessage(null);
+          }, 2000);
+        } else {
+          setIsResolving(false);
+          setResolveMessage(t('urlResolveError', lang));
+          setTimeout(() => setResolveMessage(null), 5000);
+        }
+      } catch (error) {
+        clearTimeout(timeoutId);
+        setIsResolving(false);
+        setResolveMessage(t('urlResolveError', lang));
+        console.error('[Config] Pinterest URL resolution error:', error);
+        setTimeout(() => setResolveMessage(null), 5000);
+      }
+    } else {
+      // Not a Pinterest URL and not a direct media URL, save as-is (let user handle)
+      setMediaUrl(trimmedUrl);
+    }
   };
 
   const handleClear = () => {
     // Clear media URL
     setMediaUrl('');
     setUrlInput('');
+    setIsResolving(false);
+    setResolveMessage(null);
   };
 
   const handleBackgroundColorChange = (color: string) => {
@@ -190,13 +257,29 @@ export default function Config() {
           <motion.button 
             onClick={handleSave} 
             className="save-btn"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            disabled={isResolving}
+            whileHover={!isResolving ? { scale: 1.02 } : {}}
+            whileTap={!isResolving ? { scale: 0.98 } : {}}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            {t("save", lang)}
+            {isResolving ? (
+              <>
+                <Loader2 size={16} className="spinner" style={{ marginRight: '6px' }} />
+                {t("save", lang)}
+              </>
+            ) : (
+              t("save", lang)
+            )}
           </motion.button>
         </div>
+        
+        {/* Resolve message */}
+        {resolveMessage && (
+          <div className={`resolve-message ${isResolving ? 'resolving' : resolveMessage.includes('success') || resolveMessage.includes('başarıyla') ? 'success' : 'error'}`}>
+            {isResolving && <Loader2 size={14} className="spinner" style={{ marginRight: '6px' }} />}
+            {resolveMessage}
+          </div>
+        )}
         
         {/* Background Color Picker */}
         <div className="background-color-section">

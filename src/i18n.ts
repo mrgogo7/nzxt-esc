@@ -169,6 +169,14 @@ const dict: Record<Lang, Record<string, string>> = {
     copy: "Copy",
     // Paste button tooltip - pastes color code from clipboard (used in ColorPicker component)
     paste: "Paste",
+    // Message shown when resolving Pinterest URL - displayed during URL extraction
+    resolvingUrl: "Please wait, URL is being resolved...",
+    // Success message when URL is resolved successfully
+    urlResolved: "URL resolved successfully",
+    // Error message when URL resolution fails
+    urlResolveError: "Failed to resolve URL. Please check the URL or try again later.",
+    // Timeout message when URL resolution takes too long
+    urlResolveTimeout: "URL resolution timed out. Please try again.",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -252,6 +260,14 @@ const dict: Record<Lang, Record<string, string>> = {
     mockDataWarning: "⚠️ Tarayıcı modunda çalışıyor. NZXT CAM API'sine erişilemiyor. Görüntülenen değerler mock veridir ve gerçek sistem metriklerini yansıtmaz.",
     copy: "Kopyala",
     paste: "Yapıştır",
+    // Message shown when resolving Pinterest URL - displayed during URL extraction
+    resolvingUrl: "Lütfen bekleyin, URL çözümleniyor...",
+    // Success message when URL is resolved successfully
+    urlResolved: "URL başarıyla çözümlendi",
+    // Error message when URL resolution fails
+    urlResolveError: "URL çözümlenemedi. Lütfen URL'yi kontrol edin veya daha sonra tekrar deneyin.",
+    // Timeout message when URL resolution takes too long
+    urlResolveTimeout: "URL çözümleme zaman aşımına uğradı. Lütfen tekrar deneyin.",
   },
 };
 
