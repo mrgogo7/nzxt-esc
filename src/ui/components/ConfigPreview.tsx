@@ -68,12 +68,15 @@ export default function ConfigPreview() {
   const [isDraggingSecondaryTertiary, setIsDraggingSecondaryTertiary] = useState(false);
   const [draggingReadingId, setDraggingReadingId] = useState<string | null>(null);
   const [draggingTextId, setDraggingTextId] = useState<string | null>(null);
+  const [selectedReadingId, setSelectedReadingId] = useState<string | null>(null);
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const overlayDragStart = useRef<{ x: number; y: number } | null>(null);
   const secondaryTertiaryDragStart = useRef<{ x: number; y: number } | null>(null);
   const customReadingDragStart = useRef<{ x: number; y: number; readingId: string } | null>(null);
   const customTextDragStart = useRef<{ x: number; y: number; textId: string } | null>(null);
+  const selectedItemMousePos = useRef<{ x: number; y: number } | null>(null);
   const hasLoadedRef = useRef(false);
   const hasInteractedRef = useRef(false);
   const lastSync = useRef(0);
@@ -294,7 +297,10 @@ export default function ConfigPreview() {
     e.preventDefault();
     e.stopPropagation();
     setDraggingReadingId(readingId);
+    setSelectedReadingId(readingId);
+    setSelectedTextId(null); // Deselect text if reading is selected
     customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
+    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
   }, []);
 
   const handleCustomReadingMouseMove = useCallback((e: MouseEvent) => {
@@ -334,6 +340,7 @@ export default function ConfigPreview() {
   const handleCustomReadingMouseUp = useCallback(() => {
     setDraggingReadingId(null);
     customReadingDragStart.current = null;
+    // Don't deselect on mouse up - keep selected for click-to-move
   }, []);
 
   useEffect(() => {
@@ -385,7 +392,10 @@ export default function ConfigPreview() {
     e.preventDefault();
     e.stopPropagation();
     setDraggingTextId(textId);
+    setSelectedTextId(textId);
+    setSelectedReadingId(null); // Deselect reading if text is selected
     customTextDragStart.current = { x: e.clientX, y: e.clientY, textId };
+    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
   }, []);
 
   const handleCustomTextMouseMove = useCallback((e: MouseEvent) => {
@@ -423,6 +433,7 @@ export default function ConfigPreview() {
   const handleCustomTextMouseUp = useCallback(() => {
     setDraggingTextId(null);
     customTextDragStart.current = null;
+    // Don't deselect on mouse up - keep selected for click-to-move
   }, []);
 
   useEffect(() => {
@@ -435,6 +446,123 @@ export default function ConfigPreview() {
       };
     }
   }, [draggingTextId, handleCustomTextMouseMove, handleCustomTextMouseUp]);
+
+  // Click-to-select and move handlers for readings
+  const handleSelectedReadingMouseMove = useCallback((e: MouseEvent) => {
+    if (!selectedReadingId || !selectedItemMousePos.current) return;
+
+    const dx = e.clientX - selectedItemMousePos.current.x;
+    const dy = e.clientY - selectedItemMousePos.current.y;
+    
+    // Only move if mouse has moved significantly (threshold: 3px)
+    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+
+    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
+
+    const lcdDx = previewToLcd(dx, offsetScale);
+    const lcdDy = previewToLcd(dy, offsetScale);
+
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
+    const currentReadings = currentOverlay.customReadings || [];
+    const readingIndex = currentReadings.findIndex(r => r.id === selectedReadingId);
+    
+    if (readingIndex !== -1) {
+      const updatedReadings = [...currentReadings];
+      updatedReadings[readingIndex] = {
+        ...updatedReadings[readingIndex],
+        x: updatedReadings[readingIndex].x + lcdDx,
+        y: updatedReadings[readingIndex].y + lcdDy,
+      };
+      setSettings({
+        ...currentSettings,
+        overlay: {
+          ...currentOverlay,
+          customReadings: updatedReadings,
+        },
+      });
+    }
+  }, [selectedReadingId, offsetScale, setSettings]);
+
+  // Click-to-select and move handlers for texts
+  const handleSelectedTextMouseMove = useCallback((e: MouseEvent) => {
+    if (!selectedTextId || !selectedItemMousePos.current) return;
+
+    const dx = e.clientX - selectedItemMousePos.current.x;
+    const dy = e.clientY - selectedItemMousePos.current.y;
+    
+    // Only move if mouse has moved significantly (threshold: 3px)
+    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
+
+    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
+
+    const lcdDx = previewToLcd(dx, offsetScale);
+    const lcdDy = previewToLcd(dy, offsetScale);
+
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
+    const currentTexts = currentOverlay.customTexts || [];
+    const textIndex = currentTexts.findIndex(t => t.id === selectedTextId);
+    
+    if (textIndex !== -1) {
+      const updatedTexts = [...currentTexts];
+      updatedTexts[textIndex] = {
+        ...updatedTexts[textIndex],
+        x: updatedTexts[textIndex].x + lcdDx,
+        y: updatedTexts[textIndex].y + lcdDy,
+      };
+      setSettings({
+        ...currentSettings,
+        overlay: {
+          ...currentOverlay,
+          customTexts: updatedTexts,
+        },
+      });
+    }
+  }, [selectedTextId, offsetScale, setSettings]);
+
+  // Handle click outside to deselect
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      // Only deselect if clicking on preview area but not on a reading/text
+      const target = e.target as HTMLElement;
+      const previewCircle = target.closest('.preview-circle');
+      const isReading = target.closest('[data-reading-id]');
+      const isText = target.closest('[data-text-id]');
+      
+      if (previewCircle && !isReading && !isText) {
+        setSelectedReadingId(null);
+        setSelectedTextId(null);
+        selectedItemMousePos.current = null;
+      }
+    };
+
+    if (selectedReadingId || selectedTextId) {
+      window.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        window.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [selectedReadingId, selectedTextId]);
+
+  // Mouse move handlers for selected items
+  useEffect(() => {
+    if (selectedReadingId) {
+      window.addEventListener('mousemove', handleSelectedReadingMouseMove);
+      return () => {
+        window.removeEventListener('mousemove', handleSelectedReadingMouseMove);
+      };
+    }
+  }, [selectedReadingId, handleSelectedReadingMouseMove]);
+
+  useEffect(() => {
+    if (selectedTextId) {
+      window.addEventListener('mousemove', handleSelectedTextMouseMove);
+      return () => {
+        window.removeEventListener('mousemove', handleSelectedTextMouseMove);
+      };
+    }
+  }, [selectedTextId, handleSelectedTextMouseMove]);
 
   // Zoom handler for background
   useEffect(() => {
@@ -796,9 +924,12 @@ export default function ConfigPreview() {
                         ];
                         const readingLabel = readingLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
                         
+                        const isSelected = selectedReadingId === reading.id;
+                        
                         return (
                           <div
                             key={reading.id}
+                            data-reading-id={reading.id}
                             onMouseDown={(e) => {
                               // Only handle if clicking on this specific reading's content area
                               const rect = e.currentTarget.getBoundingClientRect();
@@ -822,12 +953,12 @@ export default function ConfigPreview() {
                               width: `${hitAreaWidth}px`,
                               height: `${hitAreaHeight}px`,
                               transform: `translate(calc(-50% + ${readingX}px), calc(-50% + ${readingY}px))`,
-                              cursor: isDraggingThis ? 'grabbing' : 'grab',
+                              cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
                               pointerEvents: 'auto',
                               zIndex: zIndex,
-                              // Visual feedback: show outline when dragging
-                              outline: isDraggingThis ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
-                              outlineOffset: isDraggingThis ? '4px' : '0',
+                              // Visual feedback: show outline when dragging or selected
+                              outline: (isDraggingThis || isSelected) ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
+                              outlineOffset: (isDraggingThis || isSelected) ? '4px' : '0',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -836,8 +967,8 @@ export default function ConfigPreview() {
                               paddingBottom: `${scaledNumberSize * 0.02}px`, // Minimal bottom padding
                             }}
                           >
-                            {/* Label outside bounding box - only visible when dragging */}
-                            {isDraggingThis && (
+                            {/* Label outside bounding box - only visible when dragging or selected */}
+                            {(isDraggingThis || isSelected) && (
                               <div
                                 style={{
                                   position: 'absolute',
@@ -898,10 +1029,12 @@ export default function ConfigPreview() {
                           t('fourthText', lang),
                         ];
                         const textLabel = textLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
+                        const isSelected = selectedTextId === text.id;
                         
                         return (
                           <div
                             key={text.id}
+                            data-text-id={text.id}
                             onMouseDown={(e) => {
                               const rect = e.currentTarget.getBoundingClientRect();
                               const clickX = e.clientX - rect.left;
@@ -923,18 +1056,18 @@ export default function ConfigPreview() {
                               width: `${hitAreaWidth}px`,
                               height: `${hitAreaHeight}px`,
                               transform: `translate(calc(-50% + ${textX}px), calc(-50% + ${textY}px))`,
-                              cursor: isDraggingThis ? 'grabbing' : 'grab',
+                              cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
                               pointerEvents: 'auto',
                               zIndex: zIndex,
-                              outline: isDraggingThis ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
-                              outlineOffset: isDraggingThis ? '4px' : '0',
+                              outline: (isDraggingThis || isSelected) ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
+                              outlineOffset: (isDraggingThis || isSelected) ? '4px' : '0',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                             }}
                           >
-                            {/* Label outside bounding box - only visible when dragging */}
-                            {isDraggingThis && (
+                            {/* Label outside bounding box - only visible when dragging or selected */}
+                            {(isDraggingThis || isSelected) && (
                               <div
                                 style={{
                                   position: 'absolute',
