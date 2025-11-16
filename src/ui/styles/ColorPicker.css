@@ -34,28 +34,62 @@
   z-index: 1000;
 }
 
-/* Override react-color styles to match dark theme */
-.color-picker-popup .sketch-picker {
-  background: #121317 !important;
-  border: 1px solid #242734 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+.color-picker-container {
+  background: #121317;
+  border: 1px solid #242734;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.color-picker-popup .sketch-picker input {
-  background: #181a21 !important;
-  border: 1px solid #2d3140 !important;
-  color: #ffffff !important;
+/* react-colorful styles */
+.color-picker-container .react-colorful {
+  width: 100%;
+  height: 200px;
 }
 
-.color-picker-popup .sketch-picker .flexbox-fix {
-  border-top: 1px solid #242734 !important;
+.color-picker-container .react-colorful__saturation {
+  border-radius: 6px 6px 0 0;
 }
 
-.color-picker-popup .sketch-picker .flexbox-fix input {
-  background: #181a21 !important;
-  border: 1px solid #2d3140 !important;
-  color: #ffffff !important;
+.color-picker-container .react-colorful__hue {
+  height: 20px;
+  border-radius: 0 0 6px 6px;
+}
+
+.color-picker-container .react-colorful__pointer {
+  width: 16px;
+  height: 16px;
+}
+
+/* Preset colors */
+.color-picker-presets {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #242734;
+}
+
+.color-picker-preset {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid #2d3140;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  transition: all 0.15s ease;
+}
+
+.color-picker-preset:hover {
+  border-color: #4a5683;
+  transform: scale(1.1);
+  z-index: 1;
+  position: relative;
 }
 
 /* Inline color picker styles */
@@ -65,92 +99,7 @@
   max-width: 300px;
 }
 
-.color-picker-inline .sketch-picker {
-  background: #121317 !important;
-  border: 1px solid #242734 !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
-  width: 100% !important;
-  padding: 10px !important;
-}
-
-.color-picker-inline .sketch-picker > div {
-  width: 100% !important;
-}
-
-.color-picker-inline .sketch-picker .saturation-white,
-.color-picker-inline .sketch-picker .saturation-black {
-  width: 100% !important;
-  padding-bottom: 55% !important;
-}
-
-.color-picker-inline .sketch-picker input {
-  background: #181a21 !important;
-  border: 1px solid #2d3140 !important;
-  color: #ffffff !important;
-}
-
-.color-picker-inline .sketch-picker .flexbox-fix {
-  border-top: 1px solid #242734 !important;
-}
-
-.color-picker-inline .sketch-picker .flexbox-fix input {
-  background: #181a21 !important;
-  border: 1px solid #2d3140 !important;
-  color: #ffffff !important;
-}
-
-/* Ensure pointer/circle is visible in color picker */
-/* react-color SketchPicker uses nested divs for the pointer */
-/* The pointer is typically the direct child div of .saturation-white or .saturation-black */
-.color-picker-inline .sketch-picker .saturation-white > div,
-.color-picker-inline .sketch-picker .saturation-black > div {
-  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 4px !important;
-  height: 4px !important;
-  transform: translate(-2px, -2px) !important;
-  border-radius: 50% !important;
-  position: absolute !important;
-}
-
-/* Also target nested divs (some versions use nested structure) */
-.color-picker-inline .sketch-picker .saturation-white > div > div,
-.color-picker-inline .sketch-picker .saturation-black > div > div {
-  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 4px !important;
-  height: 4px !important;
-  transform: translate(-2px, -2px) !important;
-  border-radius: 50% !important;
-}
-
-/* Also for popup version */
-.color-picker-popup .sketch-picker .saturation-white > div,
-.color-picker-popup .sketch-picker .saturation-black > div {
-  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 4px !important;
-  height: 4px !important;
-  transform: translate(-2px, -2px) !important;
-  border-radius: 50% !important;
-  position: absolute !important;
-}
-
-.color-picker-popup .sketch-picker .saturation-white > div > div,
-.color-picker-popup .sketch-picker .saturation-black > div > div {
-  box-shadow: 0 0 0 1.5px #fff, inset 0 0 1px 1px rgba(0,0,0,.15), 0 0 1px 2px rgba(0,0,0,.15) !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 4px !important;
-  height: 4px !important;
-  transform: translate(-2px, -2px) !important;
-  border-radius: 50% !important;
+.color-picker-inline .color-picker-container {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+  width: 100%;
 }
