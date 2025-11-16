@@ -27,6 +27,7 @@ Transform your NZXT Kraken Elite LCD into a personalized information hub with re
 ### 📊 System Monitoring Overlays
 - **Single, Dual, and Triple infographic modes** — Display 1, 2, or 3 metrics simultaneously
 - **Real-time monitoring** — CPU/GPU temperature, load, clock speeds, liquid temperature
+- **Smooth number animations** — Spring-based animations for metric value changes
 - **Customizable appearance** — Individual colors, sizes, and positioning for each metric
 - **Smart positioning** — Independent offset controls for primary and secondary/tertiary groups
 - **Divider customization** — Adjustable width, thickness, color, and gap
@@ -127,6 +128,8 @@ NZXT-ESC uses the same storage event system as NZXT Web Integration, enabling in
 | **React 18** | Modern UI framework |
 | **TypeScript** | Type-safe development |
 | **Vite** | Fast build tool and dev server |
+| **Framer Motion** | Smooth animations and transitions |
+| **React Colorful** | Color picker component |
 | **Lucide Icons** | Modern icon library |
 | **CSS Modules** | Scoped styling |
 | **NZXT API** | Real-time monitoring data and LCD sync |
@@ -141,6 +144,7 @@ src/
 │   │   ├── SingleInfographic.tsx     # Single metric overlay
 │   │   ├── DualInfographic.tsx       # Dual metric overlay
 │   │   ├── TripleInfographic.tsx     # Triple metric overlay
+│   │   ├── AnimateNumber.tsx         # Animated number component
 │   │   ├── KrakenOverlay.tsx         # LCD display component
 │   │   ├── MediaRenderer.tsx         # Media rendering
 │   │   └── ColorPicker.tsx           # Color selection
@@ -210,7 +214,7 @@ NZXT-ESC is designed to be extensible and future-proof:
 
 - **Plugin System** — Potential for custom metric plugins
 - **Theme Support** — Customizable color schemes and themes
-- **Animation Support** — Smooth transitions and animations
+- **Animation Support** — ✅ Implemented: Smooth number transitions with spring physics
 - **Export/Import** — Share configurations with others
 - **Preset Library** — Pre-configured setups for common use cases
 - **API Integration** — Connect to external data sources
@@ -273,6 +277,10 @@ MIT © 2025 — Free for personal and non-commercial use.
 - Improved UI/UX with labeled dividers
 - Real-time monitoring data integration
 - Mock data support for browser testing
+- **Animation Enhancements:**
+  - Added AnimateNumber component for smooth metric transitions
+  - Spring-based physics animations using Framer Motion
+  - Replaced pulse effects with smooth counting animations
 - **Code Quality Improvements:**
   - Refactored to modular architecture (hooks, utils, constants)
   - Migrated inline styles to CSS modules
