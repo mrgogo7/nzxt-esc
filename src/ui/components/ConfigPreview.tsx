@@ -394,6 +394,9 @@ export default function ConfigPreview() {
             <div
               className={`preview-circle ${isDragging ? 'dragging' : ''}`}
               onMouseDown={handleBackgroundMouseDown}
+              style={{
+                backgroundColor: settings.backgroundColor || '#000000',
+              }}
             >
               <div className="scale-label">Scale: {settings.scale.toFixed(2)}×</div>
 

@@ -34,6 +34,7 @@ export default function ColorPicker({
   const [colorInput, setColorInput] = useState<string>('');
   const [isSelecting, setIsSelecting] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const inputFocusedRef = useRef(false);
   const lang = getInitialLang();
 
   // Parse color value to RGBA object or hex string
@@ -113,9 +114,10 @@ export default function ColorPicker({
 
   const currentColor = parseColor(value);
 
-  // Update color input when value changes (but not when user is typing/selecting)
+  // Update color input when value changes (but not when user is typing/selecting/focused)
   useEffect(() => {
-    if (!isSelecting && !isUserTyping) {
+    // Only update if input is not focused to prevent selection loss
+    if (!inputFocusedRef.current && !isSelecting && !isUserTyping) {
       if (enableAlpha && typeof currentColor === 'object') {
         const newInput = rgbaToHex(currentColor, true);
         // Only update if different to avoid disrupting user input
@@ -235,32 +237,34 @@ export default function ColorPicker({
   // Color input component
   const ColorInput = () => {
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      inputFocusedRef.current = true;
       setIsSelecting(true);
       setIsUserTyping(true);
       // Select all text on focus for easy editing
       requestAnimationFrame(() => {
         e.target.select();
-        // Reset flags after selection is complete
-        setTimeout(() => {
-          setIsSelecting(false);
-          // Keep userTyping true to prevent selection loss during editing
-          setTimeout(() => setIsUserTyping(false), 1000);
-        }, 200);
       });
+    };
+
+    const handleBlur = () => {
+      inputFocusedRef.current = false;
+      setIsSelecting(false);
+      setIsUserTyping(false);
     };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
       // Prevent popup from closing when clicking on input
       e.stopPropagation();
       // Allow normal text selection behavior
+      inputFocusedRef.current = true;
       setIsSelecting(true);
       setIsUserTyping(true);
-      // Reset flags after a delay to allow selection
-      setTimeout(() => {
-        setIsSelecting(false);
-        // Keep userTyping true longer to prevent selection loss
-        setTimeout(() => setIsUserTyping(false), 1000);
-      }, 500);
+    };
+
+    const handleSelect = () => {
+      // Keep flags active during text selection
+      setIsSelecting(true);
+      setIsUserTyping(true);
     };
 
     const handleClick = (e: React.MouseEvent<HTMLInputElement>) => {
@@ -309,7 +313,9 @@ export default function ColorPicker({
             prefixed
             className="color-picker-input"
             onFocus={handleFocus}
+            onBlur={handleBlur}
             onMouseDown={handleMouseDown}
+            onSelect={handleSelect}
             onClick={handleClick}
           />
           <div className="color-picker-input-actions">
