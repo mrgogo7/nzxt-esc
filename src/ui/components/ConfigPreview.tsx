@@ -1020,6 +1020,8 @@ export default function ConfigPreview() {
                 </p>
                 {(overlayConfig.mode === 'single' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'triple' || overlayConfig.mode === 'custom') && (
                   <span
+                    data-tooltip-id="revert-to-defaults-tooltip"
+                    data-tooltip-content={overlayConfig.mode === 'custom' ? t('revertToDefaultsCustom', lang) : t('revertToDefaults', lang)}
                     onClick={() => {
                       const mode = overlayConfig.mode;
                       
@@ -2922,7 +2924,7 @@ export default function ConfigPreview() {
                           if (currentTexts.length < 4 && totalItems < 8) {
                             const newText: CustomText = {
                               id: `text-${Date.now()}-${Math.random()}`,
-                              text: '',
+                              text: 'Text',
                               textColor: DEFAULT_OVERLAY.textColor,
                               textSize: 45,
                               x: 0,
@@ -3517,8 +3519,32 @@ export default function ConfigPreview() {
                                   });
                                 }}
                                 className="input-narrow"
-                                placeholder="Enter text (max 120 characters)"
+                                placeholder={t('textInputPlaceholder', lang)}
                               />
+                              <motion.button
+                                className="reset-icon"
+                                data-tooltip-id="reset-tooltip"
+                                data-tooltip-content={t('reset', lang)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                onClick={() => {
+                                  const currentTexts = [...(overlayConfig.customTexts || [])];
+                                  currentTexts[index] = {
+                                    ...currentTexts[index],
+                                    text: 'Text',
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customTexts: currentTexts,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </motion.button>
                             </div>
 
                             {/* Text Color */}

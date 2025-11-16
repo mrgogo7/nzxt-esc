@@ -155,6 +155,7 @@ const dict: Record<Lang, Record<string, string>> = {
     overlayOptionsDescription: "Settings take effect immediately. Adjust overlay appearance and positioning in real-time.",
     // Button to reset overlay settings to default values
     revertToDefaults: "Revert to Defaults",
+    revertToDefaultsCustom: "Reset all reading and text options to defaults (keeps items)",
     // Generic reader options section title
     readerOptions: "Reader Options",
     // First reader options section title in Triple mode
@@ -208,6 +209,7 @@ const dict: Record<Lang, Record<string, string>> = {
     textInput: "Text",
     moveTextUp: "Move Up",
     moveTextDown: "Move Down",
+    textInputPlaceholder: "Please enter text (max 120 characters)",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -284,6 +286,7 @@ const dict: Record<Lang, Record<string, string>> = {
     dualReadersYOffset: "İkili Okuyucular Y Ofset",
     overlayOptionsDescription: "Ayarlar anında geçerli olur. Overlay görünümünü ve konumunu gerçek zamanlı olarak ayarlayın.",
     revertToDefaults: "Varsayılana Döndür",
+    revertToDefaultsCustom: "Tüm reading ve text seçeneklerini varsayılanlara sıfırla (öğeleri korur)",
     readerOptions: "Okuyucu Seçenekleri",
     firstReaderOptions: "1. Okuyucu Seçenekleri",
     secondReaderOptions: "2. Okuyucu Seçenekleri",
@@ -330,6 +333,7 @@ const dict: Record<Lang, Record<string, string>> = {
     textInput: "Text",
     moveTextUp: "Yukarı Taşı",
     moveTextDown: "Aşağı Taşı",
+    textInputPlaceholder: "Lütfen metin giriniz (maksimum 120 karakter)",
   },
 };
 
