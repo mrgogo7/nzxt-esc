@@ -447,8 +447,8 @@ export default function ConfigPreview() {
   // Overlay positioning for preview
   // Overlay offset for preview (only for single mode)
   // Dual and triple modes handle offsets internally
-  const overlayAdjX = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : lcdToPreview(overlayConfig.x || 0, offsetScale);
-  const overlayAdjY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : lcdToPreview(overlayConfig.y || 0, offsetScale);
+  const overlayAdjX = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'custom') ? 0 : lcdToPreview(overlayConfig.x || 0, offsetScale);
+  const overlayAdjY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'custom') ? 0 : lcdToPreview(overlayConfig.y || 0, offsetScale);
 
   return (
     <div className="config-wrapper-vertical">
@@ -707,43 +707,43 @@ export default function ConfigPreview() {
                       {overlayConfig.mode === 'triple' && (
                         <TripleInfographic overlay={overlayConfig} metrics={metrics} scale={overlayPreviewScale} />
                       )}
-                      {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
-                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                          {overlayConfig.customReadings.map((reading) => {
-                            const readingX = lcdToPreview(reading.x, offsetScale);
-                            const readingY = lcdToPreview(reading.y, offsetScale);
-                            const isDraggingThis = draggingReadingId === reading.id;
-                            return (
-                              <div
-                                key={reading.id}
-                                onMouseDown={(e) => handleCustomReadingMouseDown(e, reading.id)}
-                                style={{
-                                  position: 'absolute',
-                                  left: `${readingX}px`,
-                                  top: `${readingY}px`,
-                                  transform: 'translate(-50%, -50%)',
-                                  cursor: isDraggingThis ? 'grabbing' : 'grab',
-                                  pointerEvents: 'auto',
-                                }}
-                              >
-                                <SingleInfographic
-                                  overlay={{
-                                    ...overlayConfig,
-                                    mode: 'single',
-                                    primaryMetric: reading.metric,
-                                    numberColor: reading.numberColor,
-                                    numberSize: reading.numberSize,
-                                    textColor: 'transparent',
-                                    textSize: 0,
-                                  }}
-                                  metrics={metrics}
-                                  scale={overlayPreviewScale}
-                                />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
+                    </div>
+                  )}
+                  {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
+                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                      {overlayConfig.customReadings.map((reading) => {
+                        const readingX = lcdToPreview(reading.x, offsetScale);
+                        const readingY = lcdToPreview(reading.y, offsetScale);
+                        const isDraggingThis = draggingReadingId === reading.id;
+                        return (
+                          <div
+                            key={reading.id}
+                            onMouseDown={(e) => handleCustomReadingMouseDown(e, reading.id)}
+                            style={{
+                              position: 'absolute',
+                              left: `${readingX}px`,
+                              top: `${readingY}px`,
+                              transform: 'translate(-50%, -50%)',
+                              cursor: isDraggingThis ? 'grabbing' : 'grab',
+                              pointerEvents: 'auto',
+                            }}
+                          >
+                            <SingleInfographic
+                              overlay={{
+                                ...overlayConfig,
+                                mode: 'single',
+                                primaryMetric: reading.metric,
+                                numberColor: reading.numberColor,
+                                numberSize: reading.numberSize,
+                                textColor: 'transparent',
+                                textSize: 0,
+                              }}
+                              metrics={metrics}
+                              scale={overlayPreviewScale}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
