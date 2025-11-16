@@ -86,6 +86,8 @@ const dict: Record<Lang, Record<string, string>> = {
     secondReaderOptions: "2nd Reader Options",
     thirdReaderOptions: "3rd Reader Options",
     mockDataWarning: "⚠️ Running in browser mode. NZXT CAM API is not available. Displayed values are mock data and do not reflect actual system metrics.",
+    copy: "Copy",
+    paste: "Paste",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -162,6 +164,8 @@ const dict: Record<Lang, Record<string, string>> = {
     secondReaderOptions: "2. Okuyucu Seçenekleri",
     thirdReaderOptions: "3. Okuyucu Seçeneki",
     mockDataWarning: "⚠️ Tarayıcı modunda çalışıyor. NZXT CAM API'sine erişilemiyor. Görüntülenen değerler mock veridir ve gerçek sistem metriklerini yansıtmaz.",
+    copy: "Kopyala",
+    paste: "Yapıştır",
   },
 };
 

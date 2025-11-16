@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { HexColorPicker, RgbaColorPicker, HexColorInput } from 'react-colorful';
 import type { RgbaColor } from 'react-colorful';
+import { Copy, ClipboardPaste } from 'lucide-react';
+import { t, getInitialLang } from '../../i18n';
 import '../styles/ColorPicker.css';
 
 interface ColorPickerProps {
@@ -30,6 +32,8 @@ export default function ColorPicker({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [popupStyle, setPopupStyle] = useState<{ top?: string; bottom?: string; left?: string; right?: string }>({});
   const [colorInput, setColorInput] = useState<string>('');
+  const [isSelecting, setIsSelecting] = useState(false);
+  const lang = getInitialLang();
 
   // Parse color value to RGBA object or hex string
   const parseColor = (color: string): RgbaColor | string => {
@@ -108,14 +112,16 @@ export default function ColorPicker({
 
   const currentColor = parseColor(value);
 
-  // Update color input when value changes
+  // Update color input when value changes (but not when user is selecting)
   useEffect(() => {
-    if (enableAlpha && typeof currentColor === 'object') {
-      setColorInput(rgbaToHex(currentColor, true));
-    } else if (typeof currentColor === 'string') {
-      setColorInput(currentColor);
+    if (!isSelecting) {
+      if (enableAlpha && typeof currentColor === 'object') {
+        setColorInput(rgbaToHex(currentColor, true));
+      } else if (typeof currentColor === 'string') {
+        setColorInput(currentColor);
+      }
     }
-  }, [value, enableAlpha, currentColor]);
+  }, [value, enableAlpha, currentColor, isSelecting]);
 
   // Handle color change from react-colorful
   const handleColorChange = (color: RgbaColor | string) => {
@@ -130,7 +136,7 @@ export default function ColorPicker({
   const handleInputChange = (inputValue: string) => {
     setColorInput(inputValue);
     
-    // Validate and convert input
+    // Validate and convert input - only call onChange for valid colors
     if (inputValue.startsWith('#')) {
       const cleanHex = inputValue.replace('#', '');
       if (cleanHex.length === 6 || cleanHex.length === 8) {
@@ -150,11 +156,32 @@ export default function ColorPicker({
     }
   };
 
+  // Handle copy
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(colorInput);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  // Handle paste
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        handleInputChange(text);
+      }
+    } catch (err) {
+      console.error('Failed to paste:', err);
+    }
+  };
+
   // Calculate popup position to avoid viewport overflow
   useEffect(() => {
     if (isOpen && triggerRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect();
-      const popupWidth = 232; // Color picker width (200px + padding)
+      const popupWidth = 242; // Color picker width (210px + padding)
       const popupHeight = enableAlpha ? 300 : 280; // Color picker approximate height (with alpha slider and input)
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
@@ -221,23 +248,54 @@ export default function ColorPicker({
   // Color input component
   const ColorInput = () => {
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsSelecting(true);
       // Select all text on focus for easy editing
-      // Use setTimeout to ensure the input is fully focused
       setTimeout(() => {
         e.target.select();
+        // Reset selecting flag after a short delay
+        setTimeout(() => setIsSelecting(false), 100);
       }, 0);
+    };
+
+    const handleMouseDown = (e: React.MouseEvent<HTMLInputElement>) => {
+      // Don't select if user is clicking to position cursor
+      if (e.detail === 1) {
+        setIsSelecting(true);
+        setTimeout(() => setIsSelecting(false), 200);
+      }
     };
 
     return (
       <div className="color-picker-input-wrapper">
-        <HexColorInput
-          color={colorInput}
-          onChange={handleInputChange}
-          alpha={enableAlpha}
-          prefixed
-          className="color-picker-input"
-          onFocus={handleFocus}
-        />
+        <div className="color-picker-input-group">
+          <HexColorInput
+            color={colorInput}
+            onChange={handleInputChange}
+            alpha={enableAlpha}
+            prefixed
+            className="color-picker-input"
+            onFocus={handleFocus}
+            onMouseDown={handleMouseDown}
+          />
+          <div className="color-picker-input-actions">
+            <button
+              type="button"
+              className="color-picker-action-btn"
+              onClick={handleCopy}
+              title={t('copy', lang)}
+            >
+              <Copy size={14} />
+            </button>
+            <button
+              type="button"
+              className="color-picker-action-btn"
+              onClick={handlePaste}
+              title={t('paste', lang)}
+            >
+              <ClipboardPaste size={14} />
+            </button>
+          </div>
+        </div>
       </div>
     );
   };
