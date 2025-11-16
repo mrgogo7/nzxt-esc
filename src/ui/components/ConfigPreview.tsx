@@ -714,20 +714,48 @@ export default function ConfigPreview() {
                   )}
                   {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
                     <>
-                      {overlayConfig.customReadings.map((reading) => {
+                      {/* Render in reverse order so last added reading is on top (higher z-index) */}
+                      {[...overlayConfig.customReadings].reverse().map((reading, reverseIndex) => {
+                        const originalIndex = overlayConfig.customReadings!.length - 1 - reverseIndex;
                         const readingX = lcdToPreview(reading.x, offsetScale);
                         const readingY = lcdToPreview(reading.y, offsetScale);
                         const isDraggingThis = draggingReadingId === reading.id;
+                        const zIndex = 10 + originalIndex; // Higher z-index for later readings
+                        
                         return (
                           <div
                             key={reading.id}
-                            onMouseDown={(e) => handleCustomReadingMouseDown(e, reading.id)}
+                            onMouseDown={(e) => {
+                              // Only handle if clicking on this specific reading's content area
+                              // Check if click is within a reasonable hit area around the content
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const clickY = e.clientY - rect.top;
+                              const centerX = rect.width / 2;
+                              const centerY = rect.height / 2;
+                              
+                              // Calculate approximate content size based on numberSize
+                              const contentWidth = (reading.numberSize * overlayPreviewScale) * 1.5;
+                              const contentHeight = (reading.numberSize * overlayPreviewScale) * 1.2;
+                              
+                              // Only handle if click is within content area
+                              const distanceX = Math.abs(clickX - centerX);
+                              const distanceY = Math.abs(clickY - centerY);
+                              
+                              if (distanceX < contentWidth / 2 && distanceY < contentHeight / 2) {
+                                handleCustomReadingMouseDown(e, reading.id);
+                              }
+                            }}
                             style={{
                               position: 'absolute',
                               inset: 0,
                               transform: `translate(${readingX}px, ${readingY}px)`,
                               cursor: isDraggingThis ? 'grabbing' : 'grab',
                               pointerEvents: 'auto',
+                              zIndex: zIndex,
+                              // Visual feedback: show outline when dragging
+                              outline: isDraggingThis ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
+                              outlineOffset: isDraggingThis ? '4px' : '0',
                             }}
                           >
                             <SingleInfographic
