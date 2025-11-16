@@ -289,13 +289,11 @@ export default function ConfigPreview() {
 
   // Custom reading drag handlers
   const handleCustomReadingMouseDown = useCallback((e: React.MouseEvent, readingId: string) => {
-    if (overlayConfig.mode === 'custom') {
-      e.preventDefault();
-      e.stopPropagation();
-      setDraggingReadingId(readingId);
-      customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
-    }
-  }, [overlayConfig.mode]);
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingReadingId(readingId);
+    customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
+  }, []);
 
   const handleCustomReadingMouseMove = useCallback((e: MouseEvent) => {
     if (!customReadingDragStart.current) return;
@@ -715,7 +713,7 @@ export default function ConfigPreview() {
                     </div>
                   )}
                   {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
-                    <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+                    <>
                       {overlayConfig.customReadings.map((reading) => {
                         const readingX = lcdToPreview(reading.x, offsetScale);
                         const readingY = lcdToPreview(reading.y, offsetScale);
@@ -726,9 +724,8 @@ export default function ConfigPreview() {
                             onMouseDown={(e) => handleCustomReadingMouseDown(e, reading.id)}
                             style={{
                               position: 'absolute',
-                              left: `${readingX}px`,
-                              top: `${readingY}px`,
-                              transform: 'translate(-50%, -50%)',
+                              inset: 0,
+                              transform: `translate(${readingX}px, ${readingY}px)`,
                               cursor: isDraggingThis ? 'grabbing' : 'grab',
                               pointerEvents: 'auto',
                             }}
@@ -749,7 +746,7 @@ export default function ConfigPreview() {
                           </div>
                         );
                       })}
-                    </div>
+                    </>
                   )}
                 </div>
                 {/* Mock data warning */}

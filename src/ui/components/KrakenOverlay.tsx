@@ -77,9 +77,9 @@ export default function KrakenOverlay() {
                   key={reading.id}
                   style={{
                     position: 'absolute',
-                    left: `${reading.x}px`,
-                    top: `${reading.y}px`,
-                    transform: 'translate(-50%, -50%)',
+                    inset: 0,
+                    transform: `translate(${reading.x}px, ${reading.y}px)`,
+                    pointerEvents: 'none',
                   }}
                 >
                   <SingleInfographic
