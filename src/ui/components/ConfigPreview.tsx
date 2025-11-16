@@ -787,6 +787,15 @@ export default function ConfigPreview() {
                         const hitAreaWidth = scaledNumberSize * 1.5; // 1.5x multiplier for width (narrower)
                         const hitAreaHeight = scaledNumberSize * 0.85; // 0.85x multiplier for height (minimal vertical space, no text labels)
                         
+                        // Get reading label
+                        const readingLabels = [
+                          t('firstReading', lang),
+                          t('secondReading', lang),
+                          t('thirdReading', lang),
+                          t('fourthReading', lang),
+                        ];
+                        const readingLabel = readingLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
+                        
                         return (
                           <div
                             key={reading.id}
@@ -827,6 +836,24 @@ export default function ConfigPreview() {
                               paddingBottom: `${scaledNumberSize * 0.02}px`, // Minimal bottom padding
                             }}
                           >
+                            {/* Label in top-left corner */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '2px',
+                                left: '2px',
+                                fontSize: '8px',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+                                fontWeight: 500,
+                                pointerEvents: 'none',
+                                userSelect: 'none',
+                                zIndex: zIndex + 1,
+                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
+                              }}
+                            >
+                              {readingLabel}
+                            </div>
                             <SingleInfographic
                               overlay={{
                                 ...overlayConfig,
@@ -859,6 +886,15 @@ export default function ConfigPreview() {
                         const scaledTextSize = text.textSize * overlayPreviewScale;
                         const hitAreaWidth = Math.max(scaledTextSize * text.text.length * 0.6, scaledTextSize * 2); // Based on text length
                         const hitAreaHeight = scaledTextSize * 1.2;
+                        
+                        // Get text label
+                        const textLabels = [
+                          t('firstText', lang),
+                          t('secondText', lang),
+                          t('thirdText', lang),
+                          t('fourthText', lang),
+                        ];
+                        const textLabel = textLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
                         
                         return (
                           <div
@@ -894,6 +930,24 @@ export default function ConfigPreview() {
                               justifyContent: 'center',
                             }}
                           >
+                            {/* Label in top-left corner */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '2px',
+                                left: '2px',
+                                fontSize: '8px',
+                                color: 'rgba(255, 255, 255, 0.5)',
+                                fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
+                                fontWeight: 500,
+                                pointerEvents: 'none',
+                                userSelect: 'none',
+                                zIndex: zIndex + 1,
+                                textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
+                              }}
+                            >
+                              {textLabel}
+                            </div>
                             <div
                               style={{
                                 fontSize: `${scaledTextSize}px`,
