@@ -27,7 +27,6 @@ export default function SingleInfographic({
 
   const {
     label,
-    valueNumber,
     valueUnit,
     valueUnitType,
   } = getOverlayLabelAndValue(key, value);
