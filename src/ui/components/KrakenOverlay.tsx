@@ -35,9 +35,9 @@ export default function KrakenOverlay() {
   };
 
   // Apply overlay offset if present (only for single mode)
-  // Dual and triple modes handle offsets internally
-  const overlayOffsetX = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : (overlayConfig.x || 0);
-  const overlayOffsetY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual') ? 0 : (overlayConfig.y || 0);
+  // Dual, triple, and custom modes handle offsets internally
+  const overlayOffsetX = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'custom') ? 0 : (overlayConfig.x || 0);
+  const overlayOffsetY = (overlayConfig.mode === 'triple' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'custom') ? 0 : (overlayConfig.y || 0);
 
   // Get background color from settings, default to #000000
   const backgroundColor = settings.backgroundColor || '#000000';
@@ -69,6 +69,34 @@ export default function KrakenOverlay() {
           )}
           {overlayConfig.mode === 'triple' && (
             <TripleInfographic overlay={overlayConfig} metrics={metrics} />
+          )}
+          {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
+            <>
+              {overlayConfig.customReadings.map((reading) => (
+                <div
+                  key={reading.id}
+                  style={{
+                    position: 'absolute',
+                    left: `${reading.x}px`,
+                    top: `${reading.y}px`,
+                    transform: 'translate(-50%, -50%)',
+                  }}
+                >
+                  <SingleInfographic
+                    overlay={{
+                      ...overlayConfig,
+                      mode: 'single',
+                      primaryMetric: reading.metric,
+                      numberColor: reading.numberColor,
+                      numberSize: reading.numberSize,
+                      textColor: 'transparent',
+                      textSize: 0,
+                    }}
+                    metrics={metrics}
+                  />
+                </div>
+              ))}
+            </>
           )}
         </div>
       )}

@@ -3,7 +3,7 @@
  * This file intentionally does not contain any JSX.
  */
 
-export type OverlayMode = "none" | "single" | "dual" | "triple";
+export type OverlayMode = "none" | "single" | "dual" | "triple" | "custom";
 
 export type OverlayMetricKey =
   | "cpuTemp"
@@ -13,6 +13,15 @@ export type OverlayMetricKey =
   | "gpuTemp"
   | "gpuLoad"
   | "gpuClock";
+
+export interface CustomReading {
+  id: string; // Unique identifier for the reading
+  metric: OverlayMetricKey;
+  numberColor: string;
+  numberSize: number;
+  x: number; // X offset in LCD coordinates
+  y: number; // Y offset in LCD coordinates
+}
 
 export interface OverlaySettings {
   mode: OverlayMode;
@@ -50,6 +59,8 @@ export interface OverlaySettings {
   secondaryOffsetY?: number; // Y offset for secondary section in dual mode
   dualReadersOffsetX?: number; // X offset for secondary/tertiary section in triple mode (Dual Readers)
   dualReadersOffsetY?: number; // Y offset for secondary/tertiary section in triple mode (Dual Readers)
+  // Custom mode specific settings
+  customReadings?: CustomReading[]; // Array of custom readings (max 4)
 }
 
 export type OverlayMetrics = {
@@ -100,6 +111,8 @@ export const DEFAULT_OVERLAY: OverlaySettings = {
   secondaryOffsetY: 0, // Default Y offset for secondary in dual mode
   dualReadersOffsetX: 0, // Default X offset for secondary/tertiary in triple mode (Dual Readers) (60 for triple mode, set in mode switch)
   dualReadersOffsetY: 0, // Default Y offset for secondary/tertiary in triple mode (Dual Readers)
+  // Custom mode defaults
+  customReadings: [], // Empty array by default, readings will be added by user
 };
 
 export type OverlayValueUnitType = "temp" | "percent" | "clock" | "none";

@@ -13,9 +13,13 @@ import {
   AlignStartVertical,
   AlignEndVertical,
   AlignVerticalSpaceAround,
+  ChevronUp,
+  ChevronDown,
+  Plus,
+  X,
 } from 'lucide-react';
 import { DEFAULT_SETTINGS, type AppSettings } from '../../constants/defaults';
-import { DEFAULT_OVERLAY, type OverlayMode, type OverlayMetricKey, type OverlaySettings } from '../../types/overlay';
+import { DEFAULT_OVERLAY, type OverlayMode, type OverlayMetricKey, type OverlaySettings, type CustomReading } from '../../types/overlay';
 import { NZXT_DEFAULTS } from '../../constants/nzxt';
 import { useConfig } from '../../hooks/useConfig';
 import { useMediaUrl } from '../../hooks/useMediaUrl';
@@ -62,10 +66,12 @@ export default function ConfigPreview() {
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingOverlay, setIsDraggingOverlay] = useState(false);
   const [isDraggingSecondaryTertiary, setIsDraggingSecondaryTertiary] = useState(false);
+  const [draggingReadingId, setDraggingReadingId] = useState<string | null>(null);
 
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const overlayDragStart = useRef<{ x: number; y: number } | null>(null);
   const secondaryTertiaryDragStart = useRef<{ x: number; y: number } | null>(null);
+  const customReadingDragStart = useRef<{ x: number; y: number; readingId: string } | null>(null);
   const hasLoadedRef = useRef(false);
   const hasInteractedRef = useRef(false);
   const lastSync = useRef(0);
@@ -276,6 +282,55 @@ export default function ConfigPreview() {
     secondaryTertiaryDragStart.current = null;
   }, []);
 
+  // Custom reading drag handlers
+  const handleCustomReadingMouseDown = useCallback((e: React.MouseEvent, readingId: string) => {
+    if (overlayConfig.mode === 'custom') {
+      e.preventDefault();
+      e.stopPropagation();
+      setDraggingReadingId(readingId);
+      customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
+    }
+  }, [overlayConfig.mode]);
+
+  const handleCustomReadingMouseMove = useCallback((e: MouseEvent) => {
+    if (!customReadingDragStart.current) return;
+
+    const dx = e.clientX - customReadingDragStart.current.x;
+    const dy = e.clientY - customReadingDragStart.current.y;
+    customReadingDragStart.current = { ...customReadingDragStart.current, x: e.clientX, y: e.clientY };
+
+    // CRITICAL: Convert preview pixels to LCD pixels
+    const lcdDx = previewToLcd(dx, offsetScale);
+    const lcdDy = previewToLcd(dy, offsetScale);
+
+    // Use ref to get current settings value
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
+    const currentReadings = currentOverlay.customReadings || [];
+    const readingIndex = currentReadings.findIndex(r => r.id === customReadingDragStart.current!.readingId);
+    
+    if (readingIndex !== -1) {
+      const updatedReadings = [...currentReadings];
+      updatedReadings[readingIndex] = {
+        ...updatedReadings[readingIndex],
+        x: updatedReadings[readingIndex].x + lcdDx,
+        y: updatedReadings[readingIndex].y + lcdDy,
+      };
+      setSettings({
+        ...currentSettings,
+        overlay: {
+          ...currentOverlay,
+          customReadings: updatedReadings,
+        },
+      });
+    }
+  }, [offsetScale, setSettings]);
+
+  const handleCustomReadingMouseUp = useCallback(() => {
+    setDraggingReadingId(null);
+    customReadingDragStart.current = null;
+  }, []);
+
   useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleBackgroundMouseMove);
@@ -308,6 +363,17 @@ export default function ConfigPreview() {
       };
     }
   }, [isDraggingSecondaryTertiary, handleSecondaryTertiaryMouseMove, handleSecondaryTertiaryMouseUp]);
+
+  useEffect(() => {
+    if (draggingReadingId) {
+      window.addEventListener('mousemove', handleCustomReadingMouseMove);
+      window.addEventListener('mouseup', handleCustomReadingMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleCustomReadingMouseMove);
+        window.removeEventListener('mouseup', handleCustomReadingMouseUp);
+      };
+    }
+  }, [draggingReadingId, handleCustomReadingMouseMove, handleCustomReadingMouseUp]);
 
   // Zoom handler for background
   useEffect(() => {
@@ -617,7 +683,7 @@ export default function ConfigPreview() {
               <>
                 <div className="preview-title">{t('overlayPreviewTitle', lang)}</div>
                 <div
-                  className={`preview-circle overlay-preview ${isDraggingOverlay || isDraggingSecondaryTertiary ? 'dragging' : ''}`}
+                  className={`preview-circle overlay-preview ${isDraggingOverlay || isDraggingSecondaryTertiary || draggingReadingId ? 'dragging' : ''}`}
                   onMouseDown={handleOverlayMouseDown}
                   style={{ position: 'relative', width: '200px', height: '200px' }}
                 >
@@ -640,6 +706,43 @@ export default function ConfigPreview() {
                       )}
                       {overlayConfig.mode === 'triple' && (
                         <TripleInfographic overlay={overlayConfig} metrics={metrics} scale={overlayPreviewScale} />
+                      )}
+                      {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
+                        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                          {overlayConfig.customReadings.map((reading) => {
+                            const readingX = lcdToPreview(reading.x, offsetScale);
+                            const readingY = lcdToPreview(reading.y, offsetScale);
+                            const isDraggingThis = draggingReadingId === reading.id;
+                            return (
+                              <div
+                                key={reading.id}
+                                onMouseDown={(e) => handleCustomReadingMouseDown(e, reading.id)}
+                                style={{
+                                  position: 'absolute',
+                                  left: `${readingX}px`,
+                                  top: `${readingY}px`,
+                                  transform: 'translate(-50%, -50%)',
+                                  cursor: isDraggingThis ? 'grabbing' : 'grab',
+                                  pointerEvents: 'auto',
+                                }}
+                              >
+                                <SingleInfographic
+                                  overlay={{
+                                    ...overlayConfig,
+                                    mode: 'single',
+                                    primaryMetric: reading.metric,
+                                    numberColor: reading.numberColor,
+                                    numberSize: reading.numberSize,
+                                    textColor: 'transparent',
+                                    textSize: 0,
+                                  }}
+                                  metrics={metrics}
+                                  scale={overlayPreviewScale}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
                   )}
@@ -723,6 +826,11 @@ export default function ConfigPreview() {
                         updates.tertiaryTextColor = overlayConfig.tertiaryTextColor || overlayConfig.textColor || DEFAULT_OVERLAY.textColor;
                       }
                       
+                      // Set default values when switching to custom mode
+                      if (newMode === 'custom') {
+                        updates.customReadings = overlayConfig.customReadings || [];
+                      }
+                      
                       setSettings({
                         ...settings,
                         overlay: {
@@ -736,6 +844,7 @@ export default function ConfigPreview() {
                     <option value="single">Single Infographic</option>
                     <option value="dual">Dual Infographic</option>
                     <option value="triple">Triple Infographic</option>
+                    <option value="custom">{t('customMode', lang)}</option>
                   </select>
               </div>
 
@@ -744,7 +853,7 @@ export default function ConfigPreview() {
                 <p style={{ margin: 0, color: '#9aa3ad', fontSize: '12px', lineHeight: '1.4' }}>
                   {t('overlayOptionsDescription', lang)}
                 </p>
-                {(overlayConfig.mode === 'single' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'triple') && (
+                {(overlayConfig.mode === 'single' || overlayConfig.mode === 'dual' || overlayConfig.mode === 'triple' || overlayConfig.mode === 'custom') && (
                   <button
                     onClick={() => {
                       const mode = overlayConfig.mode;
@@ -2552,6 +2661,432 @@ export default function ConfigPreview() {
                     </div>
                   </>
                 )}
+
+                {/* CUSTOM MODE UI */}
+                {overlayConfig.mode === 'custom' && (
+                  <>
+                    {/* Add Reading Button */}
+                    <div style={{ marginBottom: '16px' }}>
+                      <button
+                        onClick={() => {
+                          const currentReadings = overlayConfig.customReadings || [];
+                          if (currentReadings.length < 4) {
+                            const newReading: CustomReading = {
+                              id: `reading-${Date.now()}-${Math.random()}`,
+                              metric: 'cpuTemp',
+                              numberColor: DEFAULT_OVERLAY.numberColor,
+                              numberSize: 180,
+                              x: 320, // Center of 640x640 LCD
+                              y: 320,
+                            };
+                            setSettings({
+                              ...settings,
+                              overlay: {
+                                ...overlayConfig,
+                                customReadings: [...currentReadings, newReading],
+                              },
+                            });
+                          }
+                        }}
+                        disabled={(overlayConfig.customReadings || []).length >= 4}
+                        style={{
+                          background: (overlayConfig.customReadings || []).length >= 4 ? '#1a1f2e' : '#263146',
+                          border: '1px solid #3b5a9a',
+                          color: (overlayConfig.customReadings || []).length >= 4 ? '#5a6b7d' : '#d9e6ff',
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          cursor: (overlayConfig.customReadings || []).length >= 4 ? 'not-allowed' : 'pointer',
+                          fontSize: '13px',
+                          fontWeight: 500,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          if ((overlayConfig.customReadings || []).length < 4) {
+                            e.currentTarget.style.background = '#2e3a55';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if ((overlayConfig.customReadings || []).length < 4) {
+                            e.currentTarget.style.background = '#263146';
+                          }
+                        }}
+                      >
+                        <Plus size={16} />
+                        {t('addReading', lang)}
+                      </button>
+                    </div>
+
+                    {/* Custom Readings List */}
+                    {(overlayConfig.customReadings || []).map((reading, index) => {
+                      const readingLabels = [
+                        t('firstReading', lang),
+                        t('secondReading', lang),
+                        t('thirdReading', lang),
+                        t('fourthReading', lang),
+                      ];
+                      
+                      return (
+                        <div key={reading.id} style={{ marginBottom: '24px' }}>
+                          {/* Reading Header */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              marginBottom: '12px',
+                              padding: '8px 12px',
+                              background: '#1a1f2e',
+                              borderRadius: '6px',
+                              border: '1px solid #2a3441',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
+                                {readingLabels[index]}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {/* Move Up Button */}
+                              <button
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  if (index > 0) {
+                                    [currentReadings[index - 1], currentReadings[index]] = [
+                                      currentReadings[index],
+                                      currentReadings[index - 1],
+                                    ];
+                                    setSettings({
+                                      ...settings,
+                                      overlay: {
+                                        ...overlayConfig,
+                                        customReadings: currentReadings,
+                                      },
+                                    });
+                                  }
+                                }}
+                                disabled={index === 0}
+                                style={{
+                                  background: index === 0 ? '#1a1f2e' : '#263146',
+                                  border: '1px solid #3b5a9a',
+                                  color: index === 0 ? '#5a6b7d' : '#d9e6ff',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  cursor: index === 0 ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                }}
+                                data-tooltip-id="move-up-tooltip"
+                                data-tooltip-content={t('moveReadingUp', lang)}
+                              >
+                                <ChevronUp size={14} />
+                              </button>
+                              {/* Move Down Button */}
+                              <button
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  if (index < currentReadings.length - 1) {
+                                    [currentReadings[index], currentReadings[index + 1]] = [
+                                      currentReadings[index + 1],
+                                      currentReadings[index],
+                                    ];
+                                    setSettings({
+                                      ...settings,
+                                      overlay: {
+                                        ...overlayConfig,
+                                        customReadings: currentReadings,
+                                      },
+                                    });
+                                  }
+                                }}
+                                disabled={index === (overlayConfig.customReadings || []).length - 1}
+                                style={{
+                                  background: index === (overlayConfig.customReadings || []).length - 1 ? '#1a1f2e' : '#263146',
+                                  border: '1px solid #3b5a9a',
+                                  color: index === (overlayConfig.customReadings || []).length - 1 ? '#5a6b7d' : '#d9e6ff',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  cursor: index === (overlayConfig.customReadings || []).length - 1 ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                }}
+                                data-tooltip-id="move-down-tooltip"
+                                data-tooltip-content={t('moveReadingDown', lang)}
+                              >
+                                <ChevronDown size={14} />
+                              </button>
+                              {/* Remove Button */}
+                              <button
+                                onClick={() => {
+                                  const currentReadings = (overlayConfig.customReadings || []).filter(
+                                    (r) => r.id !== reading.id
+                                  );
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                                style={{
+                                  background: '#3a1f1f',
+                                  border: '1px solid #5a2a2a',
+                                  color: '#ff6b6b',
+                                  padding: '4px 8px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                  marginLeft: '8px',
+                                }}
+                                data-tooltip-id="remove-reading-tooltip"
+                                data-tooltip-content={t('removeReading', lang)}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.background = '#4a2f2f';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.background = '#3a1f1f';
+                                }}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Reading Options */}
+                          <div className="settings-grid-modern">
+                            {/* Metric Selection */}
+                            <div className="setting-row">
+                              <label>{t('primaryReading', lang)}</label>
+                              <select
+                                className="url-input select-narrow"
+                                value={reading.metric}
+                                onChange={(e) => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    metric: e.target.value as OverlayMetricKey,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              >
+                                <option value="cpuTemp">CPU Temperature</option>
+                                <option value="cpuLoad">CPU Load</option>
+                                <option value="cpuClock">CPU Clock</option>
+                                <option value="liquidTemp">Liquid Temperature</option>
+                                <option value="gpuTemp">GPU Temperature</option>
+                                <option value="gpuLoad">GPU Load</option>
+                                <option value="gpuClock">GPU Clock</option>
+                              </select>
+                            </div>
+
+                            {/* Number Color */}
+                            <div className="setting-row">
+                              <label>{t('numberColor', lang)}</label>
+                              <ColorPicker
+                                value={reading.numberColor}
+                                onChange={(color) => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    numberColor: color,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              />
+                              <motion.button
+                                className="reset-icon"
+                                data-tooltip-id="reset-tooltip"
+                                data-tooltip-content={t('reset', lang)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    numberColor: DEFAULT_OVERLAY.numberColor,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </motion.button>
+                            </div>
+
+                            {/* Number Size */}
+                            <div className="setting-row">
+                              <label>{t('numberSize', lang)}</label>
+                              <input
+                                type="number"
+                                value={reading.numberSize}
+                                onChange={(e) => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    numberSize: parseInt(e.target.value || '180', 10),
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                                className="input-narrow"
+                              />
+                              <motion.button
+                                className="reset-icon"
+                                data-tooltip-id="reset-tooltip"
+                                data-tooltip-content={t('reset', lang)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    numberSize: 180,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </motion.button>
+                            </div>
+
+                            {/* X Offset */}
+                            <div className="setting-row">
+                              <label>{t('overlayXOffset', lang)}</label>
+                              <input
+                                type="number"
+                                value={reading.x}
+                                onChange={(e) => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    x: parseInt(e.target.value || '320', 10),
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                                className="input-narrow"
+                              />
+                              <motion.button
+                                className="reset-icon"
+                                data-tooltip-id="reset-tooltip"
+                                data-tooltip-content={t('reset', lang)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    x: 320,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </motion.button>
+                            </div>
+
+                            {/* Y Offset */}
+                            <div className="setting-row">
+                              <label>{t('overlayYOffset', lang)}</label>
+                              <input
+                                type="number"
+                                value={reading.y}
+                                onChange={(e) => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    y: parseInt(e.target.value || '320', 10),
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                                className="input-narrow"
+                              />
+                              <motion.button
+                                className="reset-icon"
+                                data-tooltip-id="reset-tooltip"
+                                data-tooltip-content={t('reset', lang)}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                onClick={() => {
+                                  const currentReadings = [...(overlayConfig.customReadings || [])];
+                                  currentReadings[index] = {
+                                    ...currentReadings[index],
+                                    y: 320,
+                                  };
+                                  setSettings({
+                                    ...settings,
+                                    overlay: {
+                                      ...overlayConfig,
+                                      customReadings: currentReadings,
+                                    },
+                                  });
+                                }}
+                              >
+                                <RefreshCw size={14} />
+                              </motion.button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -2566,6 +3101,9 @@ export default function ConfigPreview() {
       <Tooltip id="fit-cover-tooltip" />
       <Tooltip id="fit-contain-tooltip" />
       <Tooltip id="fit-fill-tooltip" />
+      <Tooltip id="move-up-tooltip" />
+      <Tooltip id="move-down-tooltip" />
+      <Tooltip id="remove-reading-tooltip" />
     </div>
   );
 }

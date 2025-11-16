@@ -177,6 +177,16 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolveError: "Failed to resolve URL. Please check the URL or try again later.",
     // Timeout message when URL resolution takes too long
     urlResolveTimeout: "URL resolution timed out. Please try again.",
+    // Custom mode specific translations
+    customMode: "Custom InfoGraphic(s)",
+    addReading: "Add Reading",
+    removeReading: "Remove Reading",
+    firstReading: "1st Reading",
+    secondReading: "2nd Reading",
+    thirdReading: "3rd Reading",
+    fourthReading: "4th Reading",
+    moveReadingUp: "Move Up",
+    moveReadingDown: "Move Down",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -268,6 +278,16 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolveError: "URL çözümlenemedi. Lütfen URL'yi kontrol edin veya daha sonra tekrar deneyin.",
     // Timeout message when URL resolution takes too long
     urlResolveTimeout: "URL çözümleme zaman aşımına uğradı. Lütfen tekrar deneyin.",
+    // Custom mode specific translations
+    customMode: "Özel Bilgi Grafiği(ler)",
+    addReading: "Reading Ekle",
+    removeReading: "Reading Kaldır",
+    firstReading: "1. Reading",
+    secondReading: "2. Reading",
+    thirdReading: "3. Reading",
+    fourthReading: "4. Reading",
+    moveReadingUp: "Yukarı Taşı",
+    moveReadingDown: "Aşağı Taşı",
   },
 };
 
