@@ -43,8 +43,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-width: 250px;
-  width: 250px;
+  min-width: 200px;
+  width: 200px;
+  box-sizing: border-box;
 }
 
 /* react-colorful styles */
@@ -88,6 +89,8 @@
 .color-picker-input-wrapper {
   padding-top: 12px;
   border-top: 1px solid #242734;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .color-picker-input {
@@ -100,6 +103,7 @@
   font-family: monospace;
   font-size: 13px;
   transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
 .color-picker-input:focus {
@@ -122,6 +126,6 @@
 .color-picker-inline .color-picker-container {
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
   width: 100%;
-  min-width: 250px;
-  max-width: 300px;
+  min-width: 200px;
+  max-width: 200px;
 }
