@@ -87,19 +87,19 @@
 /* Preset colors */
 .color-picker-presets {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 4px;
   padding-top: 12px;
   border-top: 1px solid #242734;
 }
 
 .color-picker-preset {
   width: 100%;
-  min-width: 32px;
-  min-height: 32px;
+  min-width: 16px;
+  min-height: 16px;
   aspect-ratio: 1;
-  border: 2px solid #2d3140;
-  border-radius: 6px;
+  border: 1px solid #2d3140;
+  border-radius: 4px;
   cursor: pointer;
   padding: 0;
   background: none;
