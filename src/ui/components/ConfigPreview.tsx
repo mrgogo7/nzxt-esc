@@ -296,12 +296,18 @@ export default function ConfigPreview() {
   const handleCustomReadingMouseDown = useCallback((e: React.MouseEvent, readingId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setDraggingReadingId(readingId);
-    setSelectedReadingId(readingId);
-    setSelectedTextId(null); // Deselect text if reading is selected
-    customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
-    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
-  }, []);
+    
+    // If already selected, start dragging immediately
+    if (selectedReadingId === readingId) {
+      setDraggingReadingId(readingId);
+      customReadingDragStart.current = { x: e.clientX, y: e.clientY, readingId };
+    } else {
+      // First click: just select, don't start dragging
+      setSelectedReadingId(readingId);
+      setSelectedTextId(null); // Deselect text if reading is selected
+      selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
+    }
+  }, [selectedReadingId]);
 
   const handleCustomReadingMouseMove = useCallback((e: MouseEvent) => {
     if (!customReadingDragStart.current) return;
@@ -340,7 +346,7 @@ export default function ConfigPreview() {
   const handleCustomReadingMouseUp = useCallback(() => {
     setDraggingReadingId(null);
     customReadingDragStart.current = null;
-    // Don't deselect on mouse up - keep selected for click-to-move
+    // Keep selected after drag ends - user can click again to drag
   }, []);
 
   useEffect(() => {
@@ -391,12 +397,18 @@ export default function ConfigPreview() {
   const handleCustomTextMouseDown = useCallback((e: React.MouseEvent, textId: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setDraggingTextId(textId);
-    setSelectedTextId(textId);
-    setSelectedReadingId(null); // Deselect reading if text is selected
-    customTextDragStart.current = { x: e.clientX, y: e.clientY, textId };
-    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
-  }, []);
+    
+    // If already selected, start dragging immediately
+    if (selectedTextId === textId) {
+      setDraggingTextId(textId);
+      customTextDragStart.current = { x: e.clientX, y: e.clientY, textId };
+    } else {
+      // First click: just select, don't start dragging
+      setSelectedTextId(textId);
+      setSelectedReadingId(null); // Deselect reading if text is selected
+      selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
+    }
+  }, [selectedTextId]);
 
   const handleCustomTextMouseMove = useCallback((e: MouseEvent) => {
     if (!customTextDragStart.current) return;
@@ -433,7 +445,7 @@ export default function ConfigPreview() {
   const handleCustomTextMouseUp = useCallback(() => {
     setDraggingTextId(null);
     customTextDragStart.current = null;
-    // Don't deselect on mouse up - keep selected for click-to-move
+    // Keep selected after drag ends - user can click again to drag
   }, []);
 
   useEffect(() => {
@@ -446,80 +458,6 @@ export default function ConfigPreview() {
       };
     }
   }, [draggingTextId, handleCustomTextMouseMove, handleCustomTextMouseUp]);
-
-  // Click-to-select and move handlers for readings
-  const handleSelectedReadingMouseMove = useCallback((e: MouseEvent) => {
-    if (!selectedReadingId || !selectedItemMousePos.current) return;
-
-    const dx = e.clientX - selectedItemMousePos.current.x;
-    const dy = e.clientY - selectedItemMousePos.current.y;
-    
-    // Only move if mouse has moved significantly (threshold: 3px)
-    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
-
-    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
-
-    const lcdDx = previewToLcd(dx, offsetScale);
-    const lcdDy = previewToLcd(dy, offsetScale);
-
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
-    const currentReadings = currentOverlay.customReadings || [];
-    const readingIndex = currentReadings.findIndex(r => r.id === selectedReadingId);
-    
-    if (readingIndex !== -1) {
-      const updatedReadings = [...currentReadings];
-      updatedReadings[readingIndex] = {
-        ...updatedReadings[readingIndex],
-        x: updatedReadings[readingIndex].x + lcdDx,
-        y: updatedReadings[readingIndex].y + lcdDy,
-      };
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...currentOverlay,
-          customReadings: updatedReadings,
-        },
-      });
-    }
-  }, [selectedReadingId, offsetScale, setSettings]);
-
-  // Click-to-select and move handlers for texts
-  const handleSelectedTextMouseMove = useCallback((e: MouseEvent) => {
-    if (!selectedTextId || !selectedItemMousePos.current) return;
-
-    const dx = e.clientX - selectedItemMousePos.current.x;
-    const dy = e.clientY - selectedItemMousePos.current.y;
-    
-    // Only move if mouse has moved significantly (threshold: 3px)
-    if (Math.abs(dx) < 3 && Math.abs(dy) < 3) return;
-
-    selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
-
-    const lcdDx = previewToLcd(dx, offsetScale);
-    const lcdDy = previewToLcd(dy, offsetScale);
-
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay || DEFAULT_OVERLAY;
-    const currentTexts = currentOverlay.customTexts || [];
-    const textIndex = currentTexts.findIndex(t => t.id === selectedTextId);
-    
-    if (textIndex !== -1) {
-      const updatedTexts = [...currentTexts];
-      updatedTexts[textIndex] = {
-        ...updatedTexts[textIndex],
-        x: updatedTexts[textIndex].x + lcdDx,
-        y: updatedTexts[textIndex].y + lcdDy,
-      };
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...currentOverlay,
-          customTexts: updatedTexts,
-        },
-      });
-    }
-  }, [selectedTextId, offsetScale, setSettings]);
 
   // Handle click outside to deselect
   useEffect(() => {
@@ -544,25 +482,6 @@ export default function ConfigPreview() {
       };
     }
   }, [selectedReadingId, selectedTextId]);
-
-  // Mouse move handlers for selected items
-  useEffect(() => {
-    if (selectedReadingId) {
-      window.addEventListener('mousemove', handleSelectedReadingMouseMove);
-      return () => {
-        window.removeEventListener('mousemove', handleSelectedReadingMouseMove);
-      };
-    }
-  }, [selectedReadingId, handleSelectedReadingMouseMove]);
-
-  useEffect(() => {
-    if (selectedTextId) {
-      window.addEventListener('mousemove', handleSelectedTextMouseMove);
-      return () => {
-        window.removeEventListener('mousemove', handleSelectedTextMouseMove);
-      };
-    }
-  }, [selectedTextId, handleSelectedTextMouseMove]);
 
   // Zoom handler for background
   useEffect(() => {
