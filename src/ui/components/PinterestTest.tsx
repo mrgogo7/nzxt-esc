@@ -25,7 +25,7 @@ export default function PinterestTest() {
     try {
       const normalized = normalizePinterestUrl(url);
       if (!normalized) {
-        setError('Geçersiz Pinterest URL formatı. Örnek: https://tr.pinterest.com/pin/685391637080855586/');
+        setError('Invalid Pinterest URL format. Example: https://tr.pinterest.com/pin/685391637080855586/');
         setLoading(false);
         return;
       }
@@ -35,10 +35,10 @@ export default function PinterestTest() {
       if (extractedUrl) {
         setMediaUrl(extractedUrl);
       } else {
-        setError('Medya URL\'si bulunamadı. Pinterest sayfasının yapısı değişmiş olabilir.');
+        setError('Media URL not found. Pinterest page structure may have changed.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu.');
+      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       console.error('[PinterestTest] Error:', err);
     } finally {
       setLoading(false);
@@ -50,9 +50,9 @@ export default function PinterestTest() {
   return (
     <div className="pinterest-test">
       <div className="pinterest-test-container">
-        <h1>Pinterest Medya Çözücü Test</h1>
+        <h1>Pinterest Media Extractor Test</h1>
         <p className="pinterest-test-description">
-          Pinterest pin URL'lerinden medya URL'lerini çıkarmak için test sayfası.
+          Test page for extracting media URLs from Pinterest pin URLs.
         </p>
 
         <form onSubmit={handleSubmit} className="pinterest-test-form">
@@ -63,7 +63,7 @@ export default function PinterestTest() {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://tr.pinterest.com/pin/685391637080855586/ veya https://pin.it/2h7rjiNxi"
+              placeholder="https://tr.pinterest.com/pin/685391637080855586/ or https://pin.it/2h7rjiNxi"
               disabled={loading}
               className="pinterest-test-input"
             />
@@ -73,20 +73,20 @@ export default function PinterestTest() {
             disabled={loading || !url.trim()}
             className="pinterest-test-button"
           >
-            {loading ? 'Çözülüyor...' : 'Çöz'}
+            {loading ? 'Extracting...' : 'Extract'}
           </button>
         </form>
 
         {error && (
           <div className="pinterest-test-error">
-            <strong>Hata:</strong> {error}
+            <strong>Error:</strong> {error}
           </div>
         )}
 
         {mediaUrl && (
           <div className="pinterest-test-result">
             <div className="pinterest-test-url-display">
-              <strong>Bulunan Medya URL:</strong>
+              <strong>Found Media URL:</strong>
               <a 
                 href={mediaUrl} 
                 target="_blank" 
@@ -107,17 +107,17 @@ export default function PinterestTest() {
                   controls
                   className="pinterest-test-video"
                 >
-                  Tarayıcınız video oynatmayı desteklemiyor.
+                  Your browser does not support video playback.
                 </video>
               ) : mediaType === 'image' ? (
                 <img
                   src={mediaUrl}
-                  alt="Pinterest Medya"
+                  alt="Pinterest Media"
                   className="pinterest-test-image"
                 />
               ) : (
                 <div className="pinterest-test-unknown">
-                  Bilinmeyen medya türü. URL'yi doğrudan açmayı deneyin.
+                  Unknown media type. Try opening the URL directly.
                 </div>
               )}
             </div>

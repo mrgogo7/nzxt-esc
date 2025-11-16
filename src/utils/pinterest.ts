@@ -197,8 +197,8 @@ function findMediaInJson(obj: any, depth = 0): string | null {
     if (obj.images) {
       // Try to get highest quality image
       if (obj.images.orig) return obj.images.orig.url;
-      if (obj.images.736x) return obj.images['736x'].url;
-      if (obj.images.564x) return obj.images['564x'].url;
+      if (obj.images['736x']) return obj.images['736x'].url;
+      if (obj.images['564x']) return obj.images['564x'].url;
       // Get first available image
       const firstImage = Object.values(obj.images)[0] as any;
       if (firstImage && firstImage.url) return firstImage.url;
