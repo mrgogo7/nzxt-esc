@@ -10,18 +10,6 @@ interface ColorPickerProps {
   enableAlpha?: boolean; // If true, show alpha slider (default: true)
 }
 
-// Preset colors - 8 carefully selected colors for NZXT overlay (distinct, vibrant colors)
-const PRESET_COLORS = [
-  '#ffffff', // White
-  '#000000', // Black
-  '#ff0000', // Red
-  '#00ff00', // Green
-  '#0000ff', // Blue
-  '#ffff00', // Yellow
-  '#ff00ff', // Magenta
-  '#00ffff', // Cyan
-];
-
 /**
  * ColorPicker component using react-colorful.
  * Returns color in rgba() format.
@@ -160,27 +148,12 @@ export default function ColorPicker({
     }
   };
 
-  // Handle preset color selection
-  const handlePresetSelect = (hex: string) => {
-    if (enableAlpha) {
-      // Convert hex to RGBA object
-      const cleanHex = hex.replace('#', '');
-      const r = parseInt(cleanHex.substring(0, 2), 16);
-      const g = parseInt(cleanHex.substring(2, 4), 16);
-      const b = parseInt(cleanHex.substring(4, 6), 16);
-      const rgba: RgbaColor = { r, g, b, a: 1 };
-      onChange(rgbaToString(rgba));
-    } else {
-      onChange(hexToRgba(hex));
-    }
-  };
-
   // Calculate popup position to avoid viewport overflow
   useEffect(() => {
     if (isOpen && triggerRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect();
       const popupWidth = 282; // Color picker width (250px + padding)
-      const popupHeight = enableAlpha ? 380 : 360; // Color picker approximate height (with alpha slider and presets)
+      const popupHeight = enableAlpha ? 300 : 280; // Color picker approximate height (with alpha slider and input)
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       const spacing = 8; // gap between trigger and popup
@@ -236,22 +209,6 @@ export default function ColorPicker({
     };
   }, [isOpen]);
 
-  // Preset colors component
-  const PresetColors = ({ onSelect }: { onSelect: (color: string) => void }) => (
-    <div className="color-picker-presets">
-      {PRESET_COLORS.map((color) => (
-        <button
-          key={color}
-          type="button"
-          className="color-picker-preset"
-          style={{ backgroundColor: color }}
-          onClick={() => onSelect(color)}
-          title={color}
-        />
-      ))}
-    </div>
-  );
-
   // Color input component
   const ColorInput = () => (
     <div className="color-picker-input-wrapper">
@@ -281,10 +238,7 @@ export default function ColorPicker({
               onChange={handleColorChange as (color: string) => void}
             />
           )}
-          <div className="color-picker-bottom-section">
-            <ColorInput />
-            <PresetColors onSelect={handlePresetSelect} />
-          </div>
+          <ColorInput />
         </div>
       </div>
     );
@@ -324,10 +278,7 @@ export default function ColorPicker({
                 onChange={handleColorChange as (color: string) => void}
               />
             )}
-            <div className="color-picker-bottom-section">
-              <ColorInput />
-              <PresetColors onSelect={handlePresetSelect} />
-            </div>
+            <ColorInput />
           </div>
         </div>
       )}
