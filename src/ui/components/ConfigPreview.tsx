@@ -186,6 +186,11 @@ export default function ConfigPreview() {
 
   // Overlay drag handler - FIXED: Use correct offsetScale
   const handleOverlayMouseDown = (e: React.MouseEvent) => {
+    // Don't handle drag for custom mode - each reading has its own drag handler
+    if (overlayConfig.mode === 'custom') {
+      return;
+    }
+    
     e.preventDefault();
     e.stopPropagation();
     
@@ -2676,8 +2681,8 @@ export default function ConfigPreview() {
                               metric: 'cpuTemp',
                               numberColor: DEFAULT_OVERLAY.numberColor,
                               numberSize: 180,
-                              x: 320, // Center of 640x640 LCD
-                              y: 320,
+                              x: 0, // Center point (same as single/dual/triple modes)
+                              y: 0,
                             };
                             setSettings({
                               ...settings,
@@ -2996,7 +3001,7 @@ export default function ConfigPreview() {
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   currentReadings[index] = {
                                     ...currentReadings[index],
-                                    x: parseInt(e.target.value || '320', 10),
+                                    x: parseInt(e.target.value || '0', 10),
                                   };
                                   setSettings({
                                     ...settings,
@@ -3019,7 +3024,7 @@ export default function ConfigPreview() {
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   currentReadings[index] = {
                                     ...currentReadings[index],
-                                    x: 320,
+                                    x: 0,
                                   };
                                   setSettings({
                                     ...settings,
@@ -3044,7 +3049,7 @@ export default function ConfigPreview() {
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   currentReadings[index] = {
                                     ...currentReadings[index],
-                                    y: parseInt(e.target.value || '320', 10),
+                                    y: parseInt(e.target.value || '0', 10),
                                   };
                                   setSettings({
                                     ...settings,
@@ -3067,7 +3072,7 @@ export default function ConfigPreview() {
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   currentReadings[index] = {
                                     ...currentReadings[index],
-                                    y: 320,
+                                    y: 0,
                                   };
                                   setSettings({
                                     ...settings,
