@@ -10,14 +10,24 @@ interface ColorPickerProps {
   enableAlpha?: boolean; // If true, show alpha slider (default: true)
 }
 
-// Preset colors
+// Preset colors - 16 carefully selected colors
 const PRESET_COLORS = [
-  '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff',
-  '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#800080',
-  '#ffc0cb', '#a52a2a', '#808080', '#c0c0c0', '#008000',
-  '#000080', '#800000', '#808000', '#008080', '#ff6347',
-  '#ff1493', '#00ced1', '#ffd700', '#da70d6', '#cd5c5c',
-  '#4169e1', '#32cd32', '#ff4500', '#9370db', '#20b2aa',
+  '#ffffff', // White
+  '#000000', // Black
+  '#ff0000', // Red
+  '#00ff00', // Green
+  '#0000ff', // Blue
+  '#ffff00', // Yellow
+  '#ff00ff', // Magenta
+  '#00ffff', // Cyan
+  '#ffa500', // Orange
+  '#800080', // Purple
+  '#ff6347', // Tomato
+  '#4169e1', // Royal Blue
+  '#32cd32', // Lime Green
+  '#ffd700', // Gold
+  '#9370db', // Medium Purple
+  '#20b2aa', // Light Sea Green
 ];
 
 /**

@@ -87,8 +87,8 @@
 /* Preset colors */
 .color-picker-presets {
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
-  gap: 4px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
   padding-top: 12px;
   border-top: 1px solid #242734;
 }
