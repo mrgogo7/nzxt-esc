@@ -105,23 +105,3 @@ export function subscribe(fn: Listener) {
   return () => listeners.delete(fn)
 }
 
-/**
- * Helper Functions
- */
-
-/**
- * Retrieve CAM LCD viewstate (expected resolution or scale factor).
- * Stored as "viewstate=<number>" inside a cookie.
- */
-export function getViewState(): number {
-  const match = document.cookie.match(/viewstate=(\d+)/)
-  return match ? Number(match[1]) : 640
-}
-
-/**
- * Determine if running inside NZXT CAM (kraken=1 query flag).
- */
-export function isKraken(): boolean {
-  const sp = new URLSearchParams(location.search)
-  return sp.get('kraken') === '1'
-}

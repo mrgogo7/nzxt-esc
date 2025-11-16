@@ -1,13 +1,13 @@
-import React from 'react';
 import { isVideoUrl } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import type { AppSettings } from '../../constants/defaults';
+import type { CSSProperties } from 'react';
 
 interface MediaRendererProps {
   url: string;
   settings: AppSettings;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 /**
@@ -23,7 +23,7 @@ export default function MediaRenderer({
   const isVideo = isVideoUrl(url);
   const objectPosition = getObjectPosition(settings.align, settings.x, settings.y);
 
-  const mediaStyle: React.CSSProperties = {
+  const mediaStyle: CSSProperties = {
     width: '100%',
     height: '100%',
     objectFit: settings.fit,
