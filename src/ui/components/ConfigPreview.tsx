@@ -837,16 +837,12 @@ export default function ConfigPreview() {
                         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
                         .reverse()
                         .map((reading, reverseIndex) => {
-                        const allItems = [
-                          ...(overlayConfig.customReadings || []).map(r => ({ ...r, type: 'reading' as const })),
-                          ...(overlayConfig.customTexts || []).map(t => ({ ...t, type: 'text' as const })),
-                        ].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-                        const unifiedIndex = allItems.findIndex(item => item.id === reading.id && item.type === 'reading');
-                        const originalIndex = unifiedIndex >= 0 ? unifiedIndex : reverseIndex;
+                        // Use labelIndex for label, not order-based index
+                        const readingLabelIndex = reading.labelIndex ?? reverseIndex;
                         const readingX = lcdToPreview(reading.x, offsetScale);
                         const readingY = lcdToPreview(reading.y, offsetScale);
                         const isDraggingThis = draggingReadingId === reading.id;
-                        const zIndex = 10 + originalIndex; // Higher z-index for later readings
+                        const zIndex = 10 + (reading.order ?? reverseIndex); // Higher z-index for higher order
                         
                         // Calculate hit area size based on numberSize
                         // Hit area should be slightly larger than content for easier interaction
@@ -855,7 +851,7 @@ export default function ConfigPreview() {
                         const hitAreaWidth = scaledNumberSize * 1.5; // 1.5x multiplier for width (narrower)
                         const hitAreaHeight = scaledNumberSize * 0.85; // 0.85x multiplier for height (minimal vertical space, no text labels)
                         
-                        // Get reading label based on unified order
+                        // Get reading label based on labelIndex (creation order, not display order)
                         const allLabels = [
                           t('firstReading', lang),
                           t('secondReading', lang),
@@ -866,7 +862,7 @@ export default function ConfigPreview() {
                           t('seventhReading', lang),
                           t('eighthReading', lang),
                         ];
-                        const readingLabel = allLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
+                        const readingLabel = allLabels[readingLabelIndex] || `${readingLabelIndex + 1}${readingLabelIndex === 0 ? 'st' : readingLabelIndex === 1 ? 'nd' : readingLabelIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
                         
                         const isSelected = selectedReadingId === reading.id;
                         
@@ -957,24 +953,19 @@ export default function ConfigPreview() {
                         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
                         .reverse()
                         .map((text, reverseIndex) => {
-                        const allItems = [
-                          ...(overlayConfig.customReadings || []).map(r => ({ ...r, type: 'reading' as const })),
-                          ...(overlayConfig.customTexts || []).map(t => ({ ...t, type: 'text' as const })),
-                        ].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-                        const unifiedIndex = allItems.findIndex(item => item.id === text.id && item.type === 'text');
-                        const originalIndex = unifiedIndex >= 0 ? unifiedIndex : reverseIndex;
+                        // Use labelIndex for label, not order-based index
+                        const textLabelIndex = text.labelIndex ?? reverseIndex;
                         const textX = lcdToPreview(text.x, offsetScale);
                         const textY = lcdToPreview(text.y, offsetScale);
                         const isDraggingThis = draggingTextId === text.id;
-                        const zIndex = 20 + originalIndex; // Higher z-index than readings
+                        const zIndex = 20 + (text.order ?? reverseIndex); // Higher z-index than readings, based on order
                         
                         // Calculate hit area size based on textSize
                         const scaledTextSize = text.textSize * overlayPreviewScale;
                         const hitAreaWidth = Math.max(scaledTextSize * text.text.length * 0.6, scaledTextSize * 2); // Based on text length
                         const hitAreaHeight = scaledTextSize * 1.2;
                         
-                        // Get text label
-                        // Get text label based on unified order
+                        // Get text label based on labelIndex (creation order, not display order)
                         const allLabels = [
                           t('firstReading', lang),
                           t('secondReading', lang),
@@ -985,7 +976,7 @@ export default function ConfigPreview() {
                           t('seventhReading', lang),
                           t('eighthReading', lang),
                         ];
-                        const textLabel = allLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
+                        const textLabel = allLabels[textLabelIndex] || `${textLabelIndex + 1}${textLabelIndex === 0 ? 'st' : textLabelIndex === 1 ? 'nd' : textLabelIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
                         const isSelected = selectedTextId === text.id;
                         
                         return (
@@ -3024,6 +3015,11 @@ export default function ConfigPreview() {
                               ...currentTexts.map(t => t.order ?? 0),
                               -1
                             );
+                            const maxLabelIndex = Math.max(
+                              ...currentReadings.map(r => r.labelIndex ?? 0),
+                              ...currentTexts.map(t => t.labelIndex ?? 0),
+                              -1
+                            );
                             const newReading: CustomReading = {
                               id: `reading-${Date.now()}-${Math.random()}`,
                               metric: 'cpuTemp',
@@ -3032,6 +3028,7 @@ export default function ConfigPreview() {
                               x: 0, // Center point (same as single/dual/triple modes)
                               y: 0,
                               order: maxOrder + 1,
+                              labelIndex: maxLabelIndex + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3083,6 +3080,11 @@ export default function ConfigPreview() {
                               ...currentTexts.map(t => t.order ?? 0),
                               -1
                             );
+                            const maxLabelIndex = Math.max(
+                              ...currentReadings.map(r => r.labelIndex ?? 0),
+                              ...currentTexts.map(t => t.labelIndex ?? 0),
+                              -1
+                            );
                             const newText: CustomText = {
                               id: `text-${Date.now()}-${Math.random()}`,
                               text: 'Text',
@@ -3091,6 +3093,7 @@ export default function ConfigPreview() {
                               x: 0,
                               y: 0,
                               order: maxOrder + 1,
+                              labelIndex: maxLabelIndex + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3135,15 +3138,17 @@ export default function ConfigPreview() {
 
                     {/* Unified Custom Items List (Readings + Texts) */}
                     {(() => {
-                      // Merge readings and texts, add order if missing (migration), and sort by order
+                      // Merge readings and texts, add order/labelIndex if missing (migration), and sort by order
                       const readings = (overlayConfig.customReadings || []).map((r, idx) => ({
                         ...r,
                         order: r.order ?? idx,
+                        labelIndex: r.labelIndex ?? idx,
                         type: 'reading' as const,
                       }));
                       const texts = (overlayConfig.customTexts || []).map((t, idx) => ({
                         ...t,
                         order: t.order ?? (readings.length + idx),
+                        labelIndex: t.labelIndex ?? (readings.length + idx),
                         type: 'text' as const,
                       }));
                       const unifiedItems = [...readings, ...texts].sort((a, b) => a.order - b.order);
@@ -3179,7 +3184,7 @@ export default function ConfigPreview() {
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                    {allLabels[unifiedIndex] || `${unifiedIndex + 1}${unifiedIndex === 0 ? 'st' : unifiedIndex === 1 ? 'nd' : unifiedIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
+                                    {allLabels[reading.labelIndex ?? unifiedIndex] || `${(reading.labelIndex ?? unifiedIndex) + 1}${(reading.labelIndex ?? unifiedIndex) === 0 ? 'st' : (reading.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (reading.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
                                   </span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -3636,7 +3641,7 @@ export default function ConfigPreview() {
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                    {allLabels[unifiedIndex] || `${unifiedIndex + 1}${unifiedIndex === 0 ? 'st' : unifiedIndex === 1 ? 'nd' : unifiedIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
+                                    {allLabels[text.labelIndex ?? unifiedIndex] || `${(text.labelIndex ?? unifiedIndex) + 1}${(text.labelIndex ?? unifiedIndex) === 0 ? 'st' : (text.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (text.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
                                   </span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>

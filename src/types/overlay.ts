@@ -22,6 +22,7 @@ export interface CustomReading {
   x: number; // X offset in LCD coordinates
   y: number; // Y offset in LCD coordinates
   order: number; // Display order (for unified sorting with texts)
+  labelIndex: number; // Fixed label index based on creation order (0 = 1st, 1 = 2nd, etc.)
 }
 
 export interface CustomText {
@@ -32,6 +33,7 @@ export interface CustomText {
   x: number; // X offset in LCD coordinates
   y: number; // Y offset in LCD coordinates
   order: number; // Display order (for unified sorting with readings)
+  labelIndex: number; // Fixed label index based on creation order (0 = 1st, 1 = 2nd, etc.)
 }
 
 export interface OverlaySettings {
