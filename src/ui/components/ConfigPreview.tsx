@@ -852,7 +852,7 @@ export default function ConfigPreview() {
                         const hitAreaHeight = scaledNumberSize * 0.85; // 0.85x multiplier for height (minimal vertical space, no text labels)
                         
                         // Get reading label based on labelIndex (creation order, not display order)
-                        const allLabels = [
+                        const readingLabels = [
                           t('firstReading', lang),
                           t('secondReading', lang),
                           t('thirdReading', lang),
@@ -862,7 +862,7 @@ export default function ConfigPreview() {
                           t('seventhReading', lang),
                           t('eighthReading', lang),
                         ];
-                        const readingLabel = allLabels[readingLabelIndex] || `${readingLabelIndex + 1}${readingLabelIndex === 0 ? 'st' : readingLabelIndex === 1 ? 'nd' : readingLabelIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
+                        const readingLabel = readingLabels[readingLabelIndex] || `${readingLabelIndex + 1}${readingLabelIndex === 0 ? 'st' : readingLabelIndex === 1 ? 'nd' : readingLabelIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
                         
                         const isSelected = selectedReadingId === reading.id;
                         
@@ -966,17 +966,13 @@ export default function ConfigPreview() {
                         const hitAreaHeight = scaledTextSize * 1.2;
                         
                         // Get text label based on labelIndex (creation order, not display order)
-                        const allLabels = [
-                          t('firstReading', lang),
-                          t('secondReading', lang),
-                          t('thirdReading', lang),
-                          t('fourthReading', lang),
-                          t('fifthReading', lang),
-                          t('sixthReading', lang),
-                          t('seventhReading', lang),
-                          t('eighthReading', lang),
+                        const textLabels = [
+                          t('firstText', lang),
+                          t('secondText', lang),
+                          t('thirdText', lang),
+                          t('fourthText', lang),
                         ];
-                        const textLabel = allLabels[textLabelIndex] || `${textLabelIndex + 1}${textLabelIndex === 0 ? 'st' : textLabelIndex === 1 ? 'nd' : textLabelIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
+                        const textLabel = textLabels[textLabelIndex] || `${textLabelIndex + 1}${textLabelIndex === 0 ? 'st' : textLabelIndex === 1 ? 'nd' : textLabelIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
                         const isSelected = selectedTextId === text.id;
                         
                         return (
@@ -3153,7 +3149,7 @@ export default function ConfigPreview() {
                       }));
                       const unifiedItems = [...readings, ...texts].sort((a, b) => a.order - b.order);
                       
-                      const allLabels = [
+                      const readingLabels = [
                         t('firstReading', lang),
                         t('secondReading', lang),
                         t('thirdReading', lang),
@@ -3162,6 +3158,13 @@ export default function ConfigPreview() {
                         t('sixthReading', lang),
                         t('seventhReading', lang),
                         t('eighthReading', lang),
+                      ];
+                      
+                      const textLabels = [
+                        t('firstText', lang),
+                        t('secondText', lang),
+                        t('thirdText', lang),
+                        t('fourthText', lang),
                       ];
                       
                       return unifiedItems.map((item, unifiedIndex) => {
@@ -3184,7 +3187,7 @@ export default function ConfigPreview() {
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                    {allLabels[reading.labelIndex ?? unifiedIndex] || `${(reading.labelIndex ?? unifiedIndex) + 1}${(reading.labelIndex ?? unifiedIndex) === 0 ? 'st' : (reading.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (reading.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
+                                    {readingLabels[reading.labelIndex ?? unifiedIndex] || `${(reading.labelIndex ?? unifiedIndex) + 1}${(reading.labelIndex ?? unifiedIndex) === 0 ? 'st' : (reading.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (reading.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
                                   </span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -3641,7 +3644,7 @@ export default function ConfigPreview() {
                               >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                    {allLabels[text.labelIndex ?? unifiedIndex] || `${(text.labelIndex ?? unifiedIndex) + 1}${(text.labelIndex ?? unifiedIndex) === 0 ? 'st' : (text.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (text.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
+                                    {textLabels[text.labelIndex ?? unifiedIndex] || `${(text.labelIndex ?? unifiedIndex) + 1}${(text.labelIndex ?? unifiedIndex) === 0 ? 'st' : (text.labelIndex ?? unifiedIndex) === 1 ? 'nd' : (text.labelIndex ?? unifiedIndex) === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
                                   </span>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
