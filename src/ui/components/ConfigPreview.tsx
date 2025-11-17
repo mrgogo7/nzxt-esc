@@ -3011,9 +3011,9 @@ export default function ConfigPreview() {
                               ...currentTexts.map(t => t.order ?? 0),
                               -1
                             );
-                            const maxLabelIndex = Math.max(
+                            // labelIndex should be based on reading count only (not text count)
+                            const maxReadingLabelIndex = Math.max(
                               ...currentReadings.map(r => r.labelIndex ?? 0),
-                              ...currentTexts.map(t => t.labelIndex ?? 0),
                               -1
                             );
                             const newReading: CustomReading = {
@@ -3024,7 +3024,7 @@ export default function ConfigPreview() {
                               x: 0, // Center point (same as single/dual/triple modes)
                               y: 0,
                               order: maxOrder + 1,
-                              labelIndex: maxLabelIndex + 1,
+                              labelIndex: maxReadingLabelIndex + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3076,8 +3076,8 @@ export default function ConfigPreview() {
                               ...currentTexts.map(t => t.order ?? 0),
                               -1
                             );
-                            const maxLabelIndex = Math.max(
-                              ...currentReadings.map(r => r.labelIndex ?? 0),
+                            // labelIndex should be based on text count only (not reading count)
+                            const maxTextLabelIndex = Math.max(
                               ...currentTexts.map(t => t.labelIndex ?? 0),
                               -1
                             );
@@ -3089,7 +3089,7 @@ export default function ConfigPreview() {
                               x: 0,
                               y: 0,
                               order: maxOrder + 1,
-                              labelIndex: maxLabelIndex + 1,
+                              labelIndex: maxTextLabelIndex + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3144,7 +3144,7 @@ export default function ConfigPreview() {
                       const texts = (overlayConfig.customTexts || []).map((t, idx) => ({
                         ...t,
                         order: t.order ?? (readings.length + idx),
-                        labelIndex: t.labelIndex ?? (readings.length + idx),
+                        labelIndex: t.labelIndex ?? idx, // Text labelIndex: 0, 1, 2... (only among texts)
                         type: 'text' as const,
                       }));
                       const unifiedItems = [...readings, ...texts].sort((a, b) => a.order - b.order);
