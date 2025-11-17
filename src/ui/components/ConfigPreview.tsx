@@ -832,9 +832,17 @@ export default function ConfigPreview() {
                   )}
                   {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
                     <>
-                      {/* Render in reverse order so last added reading is on top (higher z-index) */}
-                      {[...overlayConfig.customReadings].reverse().map((reading, reverseIndex) => {
-                        const originalIndex = overlayConfig.customReadings!.length - 1 - reverseIndex;
+                      {/* Render in order (reverse for z-index: higher order = higher z-index) */}
+                      {[...overlayConfig.customReadings]
+                        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                        .reverse()
+                        .map((reading, reverseIndex) => {
+                        const allItems = [
+                          ...(overlayConfig.customReadings || []).map(r => ({ ...r, type: 'reading' as const })),
+                          ...(overlayConfig.customTexts || []).map(t => ({ ...t, type: 'text' as const })),
+                        ].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                        const unifiedIndex = allItems.findIndex(item => item.id === reading.id && item.type === 'reading');
+                        const originalIndex = unifiedIndex >= 0 ? unifiedIndex : reverseIndex;
                         const readingX = lcdToPreview(reading.x, offsetScale);
                         const readingY = lcdToPreview(reading.y, offsetScale);
                         const isDraggingThis = draggingReadingId === reading.id;
@@ -847,14 +855,18 @@ export default function ConfigPreview() {
                         const hitAreaWidth = scaledNumberSize * 1.5; // 1.5x multiplier for width (narrower)
                         const hitAreaHeight = scaledNumberSize * 0.85; // 0.85x multiplier for height (minimal vertical space, no text labels)
                         
-                        // Get reading label
-                        const readingLabels = [
+                        // Get reading label based on unified order
+                        const allLabels = [
                           t('firstReading', lang),
                           t('secondReading', lang),
                           t('thirdReading', lang),
                           t('fourthReading', lang),
+                          t('fifthReading', lang),
+                          t('sixthReading', lang),
+                          t('seventhReading', lang),
+                          t('eighthReading', lang),
                         ];
-                        const readingLabel = readingLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
+                        const readingLabel = allLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
                         
                         const isSelected = selectedReadingId === reading.id;
                         
@@ -940,9 +952,17 @@ export default function ConfigPreview() {
                   )}
                   {overlayConfig.mode === 'custom' && overlayConfig.customTexts && overlayConfig.customTexts.length > 0 && (
                     <>
-                      {/* Render texts in reverse order so last added text is on top (higher z-index) */}
-                      {[...overlayConfig.customTexts].reverse().map((text, reverseIndex) => {
-                        const originalIndex = overlayConfig.customTexts!.length - 1 - reverseIndex;
+                      {/* Render texts in order (reverse for z-index: higher order = higher z-index) */}
+                      {[...overlayConfig.customTexts]
+                        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                        .reverse()
+                        .map((text, reverseIndex) => {
+                        const allItems = [
+                          ...(overlayConfig.customReadings || []).map(r => ({ ...r, type: 'reading' as const })),
+                          ...(overlayConfig.customTexts || []).map(t => ({ ...t, type: 'text' as const })),
+                        ].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+                        const unifiedIndex = allItems.findIndex(item => item.id === text.id && item.type === 'text');
+                        const originalIndex = unifiedIndex >= 0 ? unifiedIndex : reverseIndex;
                         const textX = lcdToPreview(text.x, offsetScale);
                         const textY = lcdToPreview(text.y, offsetScale);
                         const isDraggingThis = draggingTextId === text.id;
@@ -954,13 +974,18 @@ export default function ConfigPreview() {
                         const hitAreaHeight = scaledTextSize * 1.2;
                         
                         // Get text label
-                        const textLabels = [
-                          t('firstText', lang),
-                          t('secondText', lang),
-                          t('thirdText', lang),
-                          t('fourthText', lang),
+                        // Get text label based on unified order
+                        const allLabels = [
+                          t('firstReading', lang),
+                          t('secondReading', lang),
+                          t('thirdReading', lang),
+                          t('fourthReading', lang),
+                          t('fifthReading', lang),
+                          t('sixthReading', lang),
+                          t('seventhReading', lang),
+                          t('eighthReading', lang),
                         ];
-                        const textLabel = textLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
+                        const textLabel = allLabels[originalIndex] || `${originalIndex + 1}${originalIndex === 0 ? 'st' : originalIndex === 1 ? 'nd' : originalIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
                         const isSelected = selectedTextId === text.id;
                         
                         return (
@@ -2993,7 +3018,12 @@ export default function ConfigPreview() {
                           const currentReadings = overlayConfig.customReadings || [];
                           const currentTexts = overlayConfig.customTexts || [];
                           const totalItems = currentReadings.length + currentTexts.length;
-                          if (currentReadings.length < 4 && totalItems < 8) {
+                          if (currentReadings.length < 8 && totalItems < 8) {
+                            const maxOrder = Math.max(
+                              ...currentReadings.map(r => r.order ?? 0),
+                              ...currentTexts.map(t => t.order ?? 0),
+                              -1
+                            );
                             const newReading: CustomReading = {
                               id: `reading-${Date.now()}-${Math.random()}`,
                               metric: 'cpuTemp',
@@ -3001,6 +3031,7 @@ export default function ConfigPreview() {
                               numberSize: 180,
                               x: 0, // Center point (same as single/dual/triple modes)
                               y: 0,
+                              order: maxOrder + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3047,6 +3078,11 @@ export default function ConfigPreview() {
                           const currentTexts = overlayConfig.customTexts || [];
                           const totalItems = currentReadings.length + currentTexts.length;
                           if (currentTexts.length < 4 && totalItems < 8) {
+                            const maxOrder = Math.max(
+                              ...currentReadings.map(r => r.order ?? 0),
+                              ...currentTexts.map(t => t.order ?? 0),
+                              -1
+                            );
                             const newText: CustomText = {
                               id: `text-${Date.now()}-${Math.random()}`,
                               text: 'Text',
@@ -3054,6 +3090,7 @@ export default function ConfigPreview() {
                               textSize: 45,
                               x: 0,
                               y: 0,
+                              order: maxOrder + 1,
                             };
                             setSettings({
                               ...settings,
@@ -3096,9 +3133,22 @@ export default function ConfigPreview() {
                       </button>
                     </div>
 
-                    {/* Custom Readings List */}
-                    {(overlayConfig.customReadings || []).map((reading, index) => {
-                      const readingLabels = [
+                    {/* Unified Custom Items List (Readings + Texts) */}
+                    {(() => {
+                      // Merge readings and texts, add order if missing (migration), and sort by order
+                      const readings = (overlayConfig.customReadings || []).map((r, idx) => ({
+                        ...r,
+                        order: r.order ?? idx,
+                        type: 'reading' as const,
+                      }));
+                      const texts = (overlayConfig.customTexts || []).map((t, idx) => ({
+                        ...t,
+                        order: t.order ?? (readings.length + idx),
+                        type: 'text' as const,
+                      }));
+                      const unifiedItems = [...readings, ...texts].sort((a, b) => a.order - b.order);
+                      
+                      const allLabels = [
                         t('firstReading', lang),
                         t('secondReading', lang),
                         t('thirdReading', lang),
@@ -3109,772 +3159,937 @@ export default function ConfigPreview() {
                         t('eighthReading', lang),
                       ];
                       
-                      return (
-                        <div key={reading.id} style={{ marginBottom: '24px' }}>
-                          {/* Reading Header */}
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              marginBottom: '12px',
-                              padding: '8px 12px',
-                              background: '#1a1f2e',
-                              borderRadius: '6px',
-                              border: '1px solid #2a3441',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                {readingLabels[index]}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {/* Move Up Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  if (index > 0) {
-                                    [currentReadings[index - 1], currentReadings[index]] = [
-                                      currentReadings[index],
-                                      currentReadings[index - 1],
-                                    ];
-                                    setSettings({
-                                      ...settings,
-                                      overlay: {
-                                        ...overlayConfig,
-                                        customReadings: currentReadings,
-                                      },
-                                    });
-                                  }
-                                }}
-                                disabled={index === 0}
+                      return unifiedItems.map((item, unifiedIndex) => {
+                        if (item.type === 'reading') {
+                          const reading = item as CustomReading & { type: 'reading' };
+                          return (
+                            <div key={reading.id} style={{ marginBottom: '24px' }}>
+                              {/* Reading Header */}
+                              <div
                                 style={{
-                                  background: index === 0 ? '#1a1f2e' : '#263146',
-                                  border: '1px solid #3b5a9a',
-                                  color: index === 0 ? '#5a6b7d' : '#d9e6ff',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: index === 0 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  transition: 'all 0.15s ease',
+                                  justifyContent: 'space-between',
+                                  marginBottom: '12px',
+                                  padding: '8px 12px',
+                                  background: '#1a1f2e',
+                                  borderRadius: '6px',
+                                  border: '1px solid #2a3441',
                                 }}
-                                data-tooltip-id="move-up-tooltip"
-                                data-tooltip-content={t('moveReadingUp', lang)}
                               >
-                                <ChevronUp size={14} />
-                              </button>
-                              {/* Move Down Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  if (index < currentReadings.length - 1) {
-                                    [currentReadings[index], currentReadings[index + 1]] = [
-                                      currentReadings[index + 1],
-                                      currentReadings[index],
-                                    ];
-                                    setSettings({
-                                      ...settings,
-                                      overlay: {
-                                        ...overlayConfig,
-                                        customReadings: currentReadings,
-                                      },
-                                    });
-                                  }
-                                }}
-                                disabled={index === (overlayConfig.customReadings || []).length - 1}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
+                                    {allLabels[unifiedIndex] || `${unifiedIndex + 1}${unifiedIndex === 0 ? 'st' : unifiedIndex === 1 ? 'nd' : unifiedIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  {/* Move Up Button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (unifiedIndex > 0) {
+                                        const prevItem = unifiedItems[unifiedIndex - 1];
+                                        const currentReadings = [...(overlayConfig.customReadings || [])];
+                                        const currentTexts = [...(overlayConfig.customTexts || [])];
+                                        
+                                        // Swap orders
+                                        const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                        if (readingIndex !== -1) {
+                                          currentReadings[readingIndex] = {
+                                            ...currentReadings[readingIndex],
+                                            order: prevItem.order,
+                                          };
+                                        }
+                                        
+                                        if (prevItem.type === 'reading') {
+                                          const prevReadingIndex = currentReadings.findIndex(r => r.id === prevItem.id);
+                                          if (prevReadingIndex !== -1) {
+                                            currentReadings[prevReadingIndex] = {
+                                              ...currentReadings[prevReadingIndex],
+                                              order: reading.order,
+                                            };
+                                          }
+                                        } else {
+                                          const prevTextIndex = currentTexts.findIndex(t => t.id === prevItem.id);
+                                          if (prevTextIndex !== -1) {
+                                            currentTexts[prevTextIndex] = {
+                                              ...currentTexts[prevTextIndex],
+                                              order: reading.order,
+                                            };
+                                          }
+                                        }
+                                        
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    disabled={unifiedIndex === 0}
+                                    style={{
+                                      background: unifiedIndex === 0 ? '#1a1f2e' : '#263146',
+                                      border: '1px solid #3b5a9a',
+                                      color: unifiedIndex === 0 ? '#5a6b7d' : '#d9e6ff',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                    data-tooltip-id="move-up-tooltip"
+                                    data-tooltip-content={t('moveReadingUp', lang)}
+                                  >
+                                    <ChevronUp size={14} />
+                                  </button>
+                                  {/* Move Down Button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (unifiedIndex < unifiedItems.length - 1) {
+                                        const nextItem = unifiedItems[unifiedIndex + 1];
+                                        const currentReadings = [...(overlayConfig.customReadings || [])];
+                                        const currentTexts = [...(overlayConfig.customTexts || [])];
+                                        
+                                        // Swap orders
+                                        const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                        if (readingIndex !== -1) {
+                                          currentReadings[readingIndex] = {
+                                            ...currentReadings[readingIndex],
+                                            order: nextItem.order,
+                                          };
+                                        }
+                                        
+                                        if (nextItem.type === 'reading') {
+                                          const nextReadingIndex = currentReadings.findIndex(r => r.id === nextItem.id);
+                                          if (nextReadingIndex !== -1) {
+                                            currentReadings[nextReadingIndex] = {
+                                              ...currentReadings[nextReadingIndex],
+                                              order: reading.order,
+                                            };
+                                          }
+                                        } else {
+                                          const nextTextIndex = currentTexts.findIndex(t => t.id === nextItem.id);
+                                          if (nextTextIndex !== -1) {
+                                            currentTexts[nextTextIndex] = {
+                                              ...currentTexts[nextTextIndex],
+                                              order: reading.order,
+                                            };
+                                          }
+                                        }
+                                        
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    disabled={unifiedIndex === unifiedItems.length - 1}
+                                    style={{
+                                      background: unifiedIndex === unifiedItems.length - 1 ? '#1a1f2e' : '#263146',
+                                      border: '1px solid #3b5a9a',
+                                      color: unifiedIndex === unifiedItems.length - 1 ? '#5a6b7d' : '#d9e6ff',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: unifiedIndex === unifiedItems.length - 1 ? 'not-allowed' : 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                    data-tooltip-id="move-down-tooltip"
+                                    data-tooltip-content={t('moveReadingDown', lang)}
+                                  >
+                                    <ChevronDown size={14} />
+                                  </button>
+                                  {/* Remove Button */}
+                                  <button
+                                    onClick={() => {
+                                      const currentReadings = (overlayConfig.customReadings || []).filter(
+                                        (r) => r.id !== reading.id
+                                      );
+                                      setSettings({
+                                        ...settings,
+                                        overlay: {
+                                          ...overlayConfig,
+                                          customReadings: currentReadings,
+                                        },
+                                      });
+                                    }}
+                                    style={{
+                                      background: '#3a1f1f',
+                                      border: '1px solid #5a2a2a',
+                                      color: '#ff6b6b',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                      marginLeft: '8px',
+                                    }}
+                                    data-tooltip-id="remove-reading-tooltip"
+                                    data-tooltip-content={t('removeReading', lang)}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = '#4a2f2f';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = '#3a1f1f';
+                                    }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Reading Options */}
+                              <div className="settings-grid-modern">
+                                {/* Metric Selection */}
+                                <div className="setting-row">
+                                  <label>{t('reading', lang)}</label>
+                                  <select
+                                    className="url-input select-narrow"
+                                    value={reading.metric}
+                                    onChange={(e) => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          metric: e.target.value as OverlayMetricKey,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <option value="cpuTemp">CPU Temperature</option>
+                                    <option value="cpuLoad">CPU Load</option>
+                                    <option value="cpuClock">CPU Clock</option>
+                                    <option value="liquidTemp">Liquid Temperature</option>
+                                    <option value="gpuTemp">GPU Temperature</option>
+                                    <option value="gpuLoad">GPU Load</option>
+                                    <option value="gpuClock">GPU Clock</option>
+                                  </select>
+                                </div>
+
+                                {/* Number Color */}
+                                <div className="setting-row">
+                                  <label>{t('color', lang)}</label>
+                                  <ColorPicker
+                                    value={reading.numberColor}
+                                    onChange={(color) => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          numberColor: color,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          numberColor: DEFAULT_OVERLAY.numberColor,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
+
+                                {/* Number Size */}
+                                <div className="setting-row">
+                                  <label>{t('size', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={reading.numberSize}
+                                    onChange={(e) => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          numberSize: parseInt(e.target.value || '180', 10),
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          numberSize: 180,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
+
+                                {/* X Offset */}
+                                <div className="setting-row">
+                                  <label>{t('customXOffset', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={reading.x}
+                                    onChange={(e) => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          x: parseInt(e.target.value || '0', 10),
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          x: 0,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
+
+                                {/* Y Offset */}
+                                <div className="setting-row">
+                                  <label>{t('customYOffset', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={reading.y}
+                                    onChange={(e) => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          y: parseInt(e.target.value || '0', 10),
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentReadings = [...(overlayConfig.customReadings || [])];
+                                      const readingIndex = currentReadings.findIndex(r => r.id === reading.id);
+                                      if (readingIndex !== -1) {
+                                        currentReadings[readingIndex] = {
+                                          ...currentReadings[readingIndex],
+                                          y: 0,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          // Text rendering
+                          const text = item as CustomText & { type: 'text' };
+                          
+                          // Sanitize text input - remove HTML tags and dangerous characters
+                          const sanitizeText = (input: string): string => {
+                            // Remove HTML tags
+                            let sanitized = input.replace(/<[^>]*>/g, '');
+                            // Remove script tags and event handlers
+                            sanitized = sanitized.replace(/javascript:/gi, '');
+                            sanitized = sanitized.replace(/on\w+\s*=/gi, '');
+                            // Limit to 120 characters
+                            sanitized = sanitized.substring(0, 120);
+                            return sanitized;
+                          };
+                          
+                          return (
+                            <div key={text.id} style={{ marginBottom: '24px' }}>
+                              {/* Text Header */}
+                              <div
                                 style={{
-                                  background: index === (overlayConfig.customReadings || []).length - 1 ? '#1a1f2e' : '#263146',
-                                  border: '1px solid #3b5a9a',
-                                  color: index === (overlayConfig.customReadings || []).length - 1 ? '#5a6b7d' : '#d9e6ff',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: index === (overlayConfig.customReadings || []).length - 1 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
-                                  transition: 'all 0.15s ease',
-                                }}
-                                data-tooltip-id="move-down-tooltip"
-                                data-tooltip-content={t('moveReadingDown', lang)}
-                              >
-                                <ChevronDown size={14} />
-                              </button>
-                              {/* Remove Button */}
-                              <button
-                                onClick={() => {
-                                  const currentReadings = (overlayConfig.customReadings || []).filter(
-                                    (r) => r.id !== reading.id
-                                  );
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                                style={{
-                                  background: '#3a1f1f',
-                                  border: '1px solid #5a2a2a',
-                                  color: '#ff6b6b',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  transition: 'all 0.15s ease',
-                                  marginLeft: '8px',
-                                }}
-                                data-tooltip-id="remove-reading-tooltip"
-                                data-tooltip-content={t('removeReading', lang)}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = '#4a2f2f';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = '#3a1f1f';
+                                  justifyContent: 'space-between',
+                                  marginBottom: '12px',
+                                  padding: '8px 12px',
+                                  background: '#1a1f2e',
+                                  borderRadius: '6px',
+                                  border: '1px solid #2a3441',
                                 }}
                               >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
+                                    {allLabels[unifiedIndex] || `${unifiedIndex + 1}${unifiedIndex === 0 ? 'st' : unifiedIndex === 1 ? 'nd' : unifiedIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  {/* Move Up Button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (unifiedIndex > 0) {
+                                        const prevItem = unifiedItems[unifiedIndex - 1];
+                                        const currentReadings = [...(overlayConfig.customReadings || [])];
+                                        const currentTexts = [...(overlayConfig.customTexts || [])];
+                                        
+                                        // Swap orders
+                                        const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                        if (textIndex !== -1) {
+                                          currentTexts[textIndex] = {
+                                            ...currentTexts[textIndex],
+                                            order: prevItem.order,
+                                          };
+                                        }
+                                        
+                                        if (prevItem.type === 'reading') {
+                                          const prevReadingIndex = currentReadings.findIndex(r => r.id === prevItem.id);
+                                          if (prevReadingIndex !== -1) {
+                                            currentReadings[prevReadingIndex] = {
+                                              ...currentReadings[prevReadingIndex],
+                                              order: text.order,
+                                            };
+                                          }
+                                        } else {
+                                          const prevTextIndex = currentTexts.findIndex(t => t.id === prevItem.id);
+                                          if (prevTextIndex !== -1) {
+                                            currentTexts[prevTextIndex] = {
+                                              ...currentTexts[prevTextIndex],
+                                              order: text.order,
+                                            };
+                                          }
+                                        }
+                                        
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    disabled={unifiedIndex === 0}
+                                    style={{
+                                      background: unifiedIndex === 0 ? '#1a1f2e' : '#263146',
+                                      border: '1px solid #3b5a9a',
+                                      color: unifiedIndex === 0 ? '#5a6b7d' : '#d9e6ff',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                    data-tooltip-id="move-text-up-tooltip"
+                                    data-tooltip-content={t('moveTextUp', lang)}
+                                  >
+                                    <ChevronUp size={14} />
+                                  </button>
+                                  {/* Move Down Button */}
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      if (unifiedIndex < unifiedItems.length - 1) {
+                                        const nextItem = unifiedItems[unifiedIndex + 1];
+                                        const currentReadings = [...(overlayConfig.customReadings || [])];
+                                        const currentTexts = [...(overlayConfig.customTexts || [])];
+                                        
+                                        // Swap orders
+                                        const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                        if (textIndex !== -1) {
+                                          currentTexts[textIndex] = {
+                                            ...currentTexts[textIndex],
+                                            order: nextItem.order,
+                                          };
+                                        }
+                                        
+                                        if (nextItem.type === 'reading') {
+                                          const nextReadingIndex = currentReadings.findIndex(r => r.id === nextItem.id);
+                                          if (nextReadingIndex !== -1) {
+                                            currentReadings[nextReadingIndex] = {
+                                              ...currentReadings[nextReadingIndex],
+                                              order: text.order,
+                                            };
+                                          }
+                                        } else {
+                                          const nextTextIndex = currentTexts.findIndex(t => t.id === nextItem.id);
+                                          if (nextTextIndex !== -1) {
+                                            currentTexts[nextTextIndex] = {
+                                              ...currentTexts[nextTextIndex],
+                                              order: text.order,
+                                            };
+                                          }
+                                        }
+                                        
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customReadings: currentReadings,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    disabled={unifiedIndex === unifiedItems.length - 1}
+                                    style={{
+                                      background: unifiedIndex === unifiedItems.length - 1 ? '#1a1f2e' : '#263146',
+                                      border: '1px solid #3b5a9a',
+                                      color: unifiedIndex === unifiedItems.length - 1 ? '#5a6b7d' : '#d9e6ff',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: unifiedIndex === unifiedItems.length - 1 ? 'not-allowed' : 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                    }}
+                                    data-tooltip-id="move-text-down-tooltip"
+                                    data-tooltip-content={t('moveTextDown', lang)}
+                                  >
+                                    <ChevronDown size={14} />
+                                  </button>
+                                  {/* Remove Button */}
+                                  <button
+                                    onClick={() => {
+                                      const currentTexts = (overlayConfig.customTexts || []).filter(
+                                        (t) => t.id !== text.id
+                                      );
+                                      setSettings({
+                                        ...settings,
+                                        overlay: {
+                                          ...overlayConfig,
+                                          customTexts: currentTexts,
+                                        },
+                                      });
+                                    }}
+                                    style={{
+                                      background: '#3a1f1f',
+                                      border: '1px solid #5a2a2a',
+                                      color: '#ff6b6b',
+                                      padding: '4px 8px',
+                                      borderRadius: '4px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      transition: 'all 0.15s ease',
+                                      marginLeft: '8px',
+                                    }}
+                                    data-tooltip-id="remove-text-tooltip"
+                                    data-tooltip-content={t('removeText', lang)}
+                                    onMouseEnter={(e) => {
+                                      e.currentTarget.style.background = '#4a2f2f';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = '#3a1f1f';
+                                    }}
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              </div>
 
-                          {/* Reading Options */}
-                          <div className="settings-grid-modern">
-                            {/* Metric Selection */}
-                            <div className="setting-row">
-                              <label>{t('reading', lang)}</label>
-                              <select
-                                className="url-input select-narrow"
-                                value={reading.metric}
-                                onChange={(e) => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    metric: e.target.value as OverlayMetricKey,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              >
-                                <option value="cpuTemp">CPU Temperature</option>
-                                <option value="cpuLoad">CPU Load</option>
-                                <option value="cpuClock">CPU Clock</option>
-                                <option value="liquidTemp">Liquid Temperature</option>
-                                <option value="gpuTemp">GPU Temperature</option>
-                                <option value="gpuLoad">GPU Load</option>
-                                <option value="gpuClock">GPU Clock</option>
-                              </select>
-                            </div>
+                              {/* Text Options */}
+                              <div className="settings-grid-modern">
+                                {/* Text Input */}
+                                <div className="setting-row">
+                                  <label>{t('textInput', lang)}</label>
+                                  <input
+                                    type="text"
+                                    value={text.text}
+                                    maxLength={120}
+                                    onChange={(e) => {
+                                      const sanitized = sanitizeText(e.target.value);
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          text: sanitized,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                    placeholder={t('textInputPlaceholder', lang)}
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          text: 'Text',
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
 
-                            {/* Number Color */}
-                            <div className="setting-row">
-                              <label>{t('color', lang)}</label>
-                              <ColorPicker
-                                value={reading.numberColor}
-                                onChange={(color) => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    numberColor: color,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    numberColor: DEFAULT_OVERLAY.numberColor,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
+                                {/* Text Color */}
+                                <div className="setting-row">
+                                  <label>{t('color', lang)}</label>
+                                  <ColorPicker
+                                    value={text.textColor}
+                                    onChange={(color) => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          textColor: color,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          textColor: DEFAULT_OVERLAY.textColor,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
 
-                            {/* Number Size */}
-                            <div className="setting-row">
-                              <label>{t('size', lang)}</label>
-                              <input
-                                type="number"
-                                value={reading.numberSize}
-                                onChange={(e) => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    numberSize: parseInt(e.target.value || '180', 10),
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    numberSize: 180,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
+                                {/* Text Size */}
+                                <div className="setting-row">
+                                  <label>{t('size', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={text.textSize}
+                                    min={6}
+                                    onChange={(e) => {
+                                      const value = parseInt(e.target.value || '45', 10);
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          textSize: Math.max(6, value), // Minimum 6
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          textSize: 45,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
 
-                            {/* X Offset */}
-                            <div className="setting-row">
-                              <label>{t('customXOffset', lang)}</label>
-                              <input
-                                type="number"
-                                value={reading.x}
-                                onChange={(e) => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    x: parseInt(e.target.value || '0', 10),
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    x: 0,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
+                                {/* X Offset */}
+                                <div className="setting-row">
+                                  <label>{t('customXOffset', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={text.x}
+                                    onChange={(e) => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          x: parseInt(e.target.value || '0', 10),
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          x: 0,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
 
-                            {/* Y Offset */}
-                            <div className="setting-row">
-                              <label>{t('customYOffset', lang)}</label>
-                              <input
-                                type="number"
-                                value={reading.y}
-                                onChange={(e) => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    y: parseInt(e.target.value || '0', 10),
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentReadings = [...(overlayConfig.customReadings || [])];
-                                  currentReadings[index] = {
-                                    ...currentReadings[index],
-                                    y: 0,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customReadings: currentReadings,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
+                                {/* Y Offset */}
+                                <div className="setting-row">
+                                  <label>{t('customYOffset', lang)}</label>
+                                  <input
+                                    type="number"
+                                    value={text.y}
+                                    onChange={(e) => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          y: parseInt(e.target.value || '0', 10),
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                    className="input-narrow"
+                                  />
+                                  <motion.button
+                                    className="reset-icon"
+                                    data-tooltip-id="reset-tooltip"
+                                    data-tooltip-content={t('reset', lang)}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                    onClick={() => {
+                                      const currentTexts = [...(overlayConfig.customTexts || [])];
+                                      const textIndex = currentTexts.findIndex(t => t.id === text.id);
+                                      if (textIndex !== -1) {
+                                        currentTexts[textIndex] = {
+                                          ...currentTexts[textIndex],
+                                          y: 0,
+                                        };
+                                        setSettings({
+                                          ...settings,
+                                          overlay: {
+                                            ...overlayConfig,
+                                            customTexts: currentTexts,
+                                          },
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <RefreshCw size={14} />
+                                  </motion.button>
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-
-                    {/* Custom Texts List */}
-                    {(overlayConfig.customTexts || []).map((text, index) => {
-                      const textLabels = [
-                        t('firstText', lang),
-                        t('secondText', lang),
-                        t('thirdText', lang),
-                        t('fourthText', lang),
-                      ];
-                      
-                      // Sanitize text input - remove HTML tags and dangerous characters
-                      const sanitizeText = (input: string): string => {
-                        // Remove HTML tags
-                        let sanitized = input.replace(/<[^>]*>/g, '');
-                        // Remove script tags and event handlers
-                        sanitized = sanitized.replace(/javascript:/gi, '');
-                        sanitized = sanitized.replace(/on\w+\s*=/gi, '');
-                        // Limit to 120 characters
-                        sanitized = sanitized.substring(0, 120);
-                        return sanitized;
-                      };
-                      
-                      return (
-                        <div key={text.id} style={{ marginBottom: '24px' }}>
-                          {/* Text Header */}
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              marginBottom: '12px',
-                              padding: '8px 12px',
-                              background: '#1a1f2e',
-                              borderRadius: '6px',
-                              border: '1px solid #2a3441',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ color: '#d9e6ff', fontSize: '13px', fontWeight: 600 }}>
-                                {textLabels[index]}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {/* Move Up Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  if (index > 0) {
-                                    [currentTexts[index - 1], currentTexts[index]] = [
-                                      currentTexts[index],
-                                      currentTexts[index - 1],
-                                    ];
-                                    setSettings({
-                                      ...settings,
-                                      overlay: {
-                                        ...overlayConfig,
-                                        customTexts: currentTexts,
-                                      },
-                                    });
-                                  }
-                                }}
-                                disabled={index === 0}
-                                style={{
-                                  background: index === 0 ? '#1a1f2e' : '#263146',
-                                  border: '1px solid #3b5a9a',
-                                  color: index === 0 ? '#5a6b7d' : '#d9e6ff',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: index === 0 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  transition: 'all 0.15s ease',
-                                }}
-                                data-tooltip-id="move-text-up-tooltip"
-                                data-tooltip-content={t('moveTextUp', lang)}
-                              >
-                                <ChevronUp size={14} />
-                              </button>
-                              {/* Move Down Button */}
-                              <button
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  if (index < currentTexts.length - 1) {
-                                    [currentTexts[index], currentTexts[index + 1]] = [
-                                      currentTexts[index + 1],
-                                      currentTexts[index],
-                                    ];
-                                    setSettings({
-                                      ...settings,
-                                      overlay: {
-                                        ...overlayConfig,
-                                        customTexts: currentTexts,
-                                      },
-                                    });
-                                  }
-                                }}
-                                disabled={index === (overlayConfig.customTexts || []).length - 1}
-                                style={{
-                                  background: index === (overlayConfig.customTexts || []).length - 1 ? '#1a1f2e' : '#263146',
-                                  border: '1px solid #3b5a9a',
-                                  color: index === (overlayConfig.customTexts || []).length - 1 ? '#5a6b7d' : '#d9e6ff',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: index === (overlayConfig.customTexts || []).length - 1 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  transition: 'all 0.15s ease',
-                                }}
-                                data-tooltip-id="move-text-down-tooltip"
-                                data-tooltip-content={t('moveTextDown', lang)}
-                              >
-                                <ChevronDown size={14} />
-                              </button>
-                              {/* Remove Button */}
-                              <button
-                                onClick={() => {
-                                  const currentTexts = (overlayConfig.customTexts || []).filter(
-                                    (t) => t.id !== text.id
-                                  );
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                                style={{
-                                  background: '#3a1f1f',
-                                  border: '1px solid #5a2a2a',
-                                  color: '#ff6b6b',
-                                  padding: '4px 8px',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  transition: 'all 0.15s ease',
-                                  marginLeft: '8px',
-                                }}
-                                data-tooltip-id="remove-text-tooltip"
-                                data-tooltip-content={t('removeText', lang)}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = '#4a2f2f';
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                }}
-                              >
-                                <X size={14} />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Text Options */}
-                          <div className="settings-grid-modern">
-                            {/* Text Input */}
-                            <div className="setting-row">
-                              <label>{t('textInput', lang)}</label>
-                              <input
-                                type="text"
-                                value={text.text}
-                                maxLength={120}
-                                onChange={(e) => {
-                                  const sanitized = sanitizeText(e.target.value);
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    text: sanitized,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                                placeholder={t('textInputPlaceholder', lang)}
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    text: 'Text',
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
-
-                            {/* Text Color */}
-                            <div className="setting-row">
-                              <label>{t('color', lang)}</label>
-                              <ColorPicker
-                                value={text.textColor}
-                                onChange={(color) => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    textColor: color,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    textColor: DEFAULT_OVERLAY.textColor,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
-
-                            {/* Text Size */}
-                            <div className="setting-row">
-                              <label>{t('size', lang)}</label>
-                              <input
-                                type="number"
-                                value={text.textSize}
-                                min={6}
-                                onChange={(e) => {
-                                  const value = parseInt(e.target.value || '45', 10);
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    textSize: Math.max(6, value), // Minimum 6
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    textSize: 45,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
-
-                            {/* X Offset */}
-                            <div className="setting-row">
-                              <label>{t('customXOffset', lang)}</label>
-                              <input
-                                type="number"
-                                value={text.x}
-                                onChange={(e) => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    x: parseInt(e.target.value || '0', 10),
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    x: 0,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
-
-                            {/* Y Offset */}
-                            <div className="setting-row">
-                              <label>{t('customYOffset', lang)}</label>
-                              <input
-                                type="number"
-                                value={text.y}
-                                onChange={(e) => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    y: parseInt(e.target.value || '0', 10),
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                                className="input-narrow"
-                              />
-                              <motion.button
-                                className="reset-icon"
-                                data-tooltip-id="reset-tooltip"
-                                data-tooltip-content={t('reset', lang)}
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                onClick={() => {
-                                  const currentTexts = [...(overlayConfig.customTexts || [])];
-                                  currentTexts[index] = {
-                                    ...currentTexts[index],
-                                    y: 0,
-                                  };
-                                  setSettings({
-                                    ...settings,
-                                    overlay: {
-                                      ...overlayConfig,
-                                      customTexts: currentTexts,
-                                    },
-                                  });
-                                }}
-                              >
-                                <RefreshCw size={14} />
-                              </motion.button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+                          );
+                        }
+                      });
+                    })()}
+                    
+                    {/* Legacy lists removed - now using unified list above */}
                   </>
                 )}
               </div>

@@ -21,6 +21,7 @@ export interface CustomReading {
   numberSize: number;
   x: number; // X offset in LCD coordinates
   y: number; // Y offset in LCD coordinates
+  order: number; // Display order (for unified sorting with texts)
 }
 
 export interface CustomText {
@@ -30,6 +31,7 @@ export interface CustomText {
   textSize: number; // Minimum 6
   x: number; // X offset in LCD coordinates
   y: number; // Y offset in LCD coordinates
+  order: number; // Display order (for unified sorting with readings)
 }
 
 export interface OverlaySettings {
