@@ -3132,7 +3132,9 @@ export default function ConfigPreview() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               {/* Move Up Button */}
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   if (index > 0) {
                                     [currentReadings[index - 1], currentReadings[index]] = [
@@ -3167,7 +3169,9 @@ export default function ConfigPreview() {
                               </button>
                               {/* Move Down Button */}
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   const currentReadings = [...(overlayConfig.customReadings || [])];
                                   if (index < currentReadings.length - 1) {
                                     [currentReadings[index], currentReadings[index + 1]] = [
@@ -3511,7 +3515,9 @@ export default function ConfigPreview() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               {/* Move Up Button */}
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   const currentTexts = [...(overlayConfig.customTexts || [])];
                                   if (index > 0) {
                                     [currentTexts[index - 1], currentTexts[index]] = [
@@ -3546,7 +3552,9 @@ export default function ConfigPreview() {
                               </button>
                               {/* Move Down Button */}
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   const currentTexts = [...(overlayConfig.customTexts || [])];
                                   if (index < currentTexts.length - 1) {
                                     [currentTexts[index], currentTexts[index + 1]] = [
