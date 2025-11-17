@@ -1,6 +1,5 @@
 // Simple i18n helper with localStorage persistence.
 // All inline comments are in English as requested.
-// Deploy test - GitHub Pages deployment trigger
 
 export type Lang = "en" | "tr";
 export const LANG_KEY = "nzxtLang";

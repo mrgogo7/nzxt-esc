@@ -9,9 +9,6 @@ import { isNZXTCAM } from "./environment";
  * 
  * Detects environment and renders either Config page (browser) or KrakenOverlay (NZXT CAM).
  * Uses centralized environment detection module.
- * 
- * Test değişikliği - GitHub push testi
- * Deploy test - GitHub Pages deployment trigger
  */
 
 const rootElement = document.getElementById("root");
