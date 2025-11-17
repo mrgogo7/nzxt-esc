@@ -11,6 +11,7 @@ import { isNZXTCAM } from "./environment";
  * Uses centralized environment detection module.
  * 
  * Test değişikliği - GitHub push testi
+ * Deploy test - GitHub Pages deployment trigger
  */
 
 const rootElement = document.getElementById("root");
