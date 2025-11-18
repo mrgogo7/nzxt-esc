@@ -155,8 +155,7 @@ export interface DividerElementData {
 
 /**
  * Overlay element.
- * FAZ1: Simple model - only id, type, x, y, zIndex, and data.
- * Rotation and opacity fields are NOT included (reserved for future).
+ * Phase 4.2: Added rotation support.
  */
 export interface OverlayElement {
   id: string;
@@ -164,6 +163,7 @@ export interface OverlayElement {
   x: number; // X position in LCD coordinates
   y: number; // Y position in LCD coordinates
   zIndex?: number; // Render order (default: element index in array)
+  angle?: number; // Rotation angle in degrees (0-360, default: 0)
   data: MetricElementData | TextElementData | DividerElementData; // Discriminated union based on type
 }
 

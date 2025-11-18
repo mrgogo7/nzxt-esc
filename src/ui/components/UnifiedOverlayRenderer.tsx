@@ -4,8 +4,11 @@
  * 
  * FAZ1: Simple rendering pipeline - visual accuracy is NOT critical.
  * The goal is to display elements on screen with z-index ordering.
+ * 
+ * Phase 4.2: Performance optimization with memoization.
  */
 
+import { memo } from 'react';
 import type { Overlay, OverlayMetrics } from '../../types/overlay';
 import OverlayElementRenderer from './OverlayElementRenderer';
 
@@ -19,7 +22,7 @@ interface UnifiedOverlayRendererProps {
  * UnifiedOverlayRenderer
  * Renders all overlay elements in the correct z-index order.
  */
-export default function UnifiedOverlayRenderer({
+function UnifiedOverlayRenderer({
   overlay,
   metrics,
   scale = 1,
@@ -38,6 +41,12 @@ export default function UnifiedOverlayRenderer({
   return (
     <>
       {sortedElements.map((element) => {
+        const angle = element.angle ?? 0;
+        // Apply rotation before translation (rotate around center, then translate)
+        const transform = angle !== 0
+          ? `translate(calc(-50% + ${element.x * scale}px), calc(-50% + ${element.y * scale}px)) rotate(${angle}deg)`
+          : `translate(calc(-50% + ${element.x * scale}px), calc(-50% + ${element.y * scale}px))`;
+        
         return (
           <div
             key={element.id}
@@ -45,7 +54,7 @@ export default function UnifiedOverlayRenderer({
               position: 'absolute',
               left: '50%',
               top: '50%',
-              transform: `translate(calc(-50% + ${element.x * scale}px), calc(-50% + ${element.y * scale}px))`,
+              transform,
               pointerEvents: 'none',
               zIndex: element.zIndex !== undefined ? element.zIndex : 0,
             }}
@@ -61,4 +70,7 @@ export default function UnifiedOverlayRenderer({
     </>
   );
 }
+
+// Phase 4.2: Memoize to prevent unnecessary re-renders
+export default memo(UnifiedOverlayRenderer);
 

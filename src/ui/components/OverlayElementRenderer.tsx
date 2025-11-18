@@ -4,8 +4,11 @@
  * 
  * FAZ1: Simple rendering - visual accuracy is NOT critical.
  * The goal is to display elements on screen with basic features.
+ * 
+ * Phase 4.2: Performance optimization with memoization.
  */
 
+import { memo } from 'react';
 import type { OverlayElement, OverlayMetrics, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
 import { getOverlayLabelAndValue } from '../../types/overlay';
 import AnimateNumber from './AnimateNumber';
@@ -174,7 +177,7 @@ function renderDividerElement(
  * OverlayElementRenderer
  * Renders a single overlay element based on its type.
  */
-export default function OverlayElementRenderer({
+function OverlayElementRenderer({
   element,
   metrics,
   scale = 1,
@@ -193,4 +196,7 @@ export default function OverlayElementRenderer({
       return null;
   }
 }
+
+// Phase 4.2: Memoize to prevent unnecessary re-renders
+export default memo(OverlayElementRenderer);
 

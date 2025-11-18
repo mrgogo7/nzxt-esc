@@ -1,5 +1,17 @@
 import type { AppSettings } from '../constants/defaults';
 import type { Overlay, OverlayElement, MetricElementData, TextElementData } from '../types/overlay';
+import {
+  bringToFront,
+  sendToBack,
+  distributeHorizontally,
+  distributeVertically,
+  alignLeft,
+  alignRight,
+  alignTop,
+  alignBottom,
+  alignCenterX,
+  alignCenterY,
+} from './alignment';
 
 // ============================================================================
 // LEGACY HELPERS (Deprecated - kept for backward compatibility)
@@ -303,4 +315,208 @@ export function updateOverlayElementPosition(
   y: number
 ): AppSettings {
   return updateOverlayElement(settings, overlay, elementId, { x, y });
+}
+
+/**
+ * Updates an overlay element's rotation angle.
+ */
+export function updateOverlayElementAngle(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementId: string,
+  angle: number
+): AppSettings {
+  // Normalize angle to 0-360 range
+  let normalizedAngle = angle % 360;
+  if (normalizedAngle < 0) {
+    normalizedAngle += 360;
+  }
+  // Omit angle if 0 for cleaner data
+  return updateOverlayElement(settings, overlay, elementId, { 
+    angle: normalizedAngle === 0 ? undefined : normalizedAngle 
+  });
+}
+
+/**
+ * Phase 4.2: Alignment helper functions.
+ */
+
+/**
+ * Brings an element to the front (highest z-index).
+ */
+export function bringElementToFront(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementId: string
+): AppSettings {
+  const updatedElements = bringToFront(overlay.elements, elementId);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Sends an element to the back (lowest z-index).
+ */
+export function sendElementToBack(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementId: string
+): AppSettings {
+  const updatedElements = sendToBack(overlay.elements, elementId);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Distributes selected elements horizontally with equal spacing.
+ */
+export function distributeElementsHorizontally(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = distributeHorizontally(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Distributes selected elements vertically with equal spacing.
+ */
+export function distributeElementsVertically(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = distributeVertically(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Aligns selected elements to the left.
+ */
+export function alignElementsLeft(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignLeft(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Aligns selected elements to the right.
+ */
+export function alignElementsRight(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignRight(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Aligns selected elements to the top.
+ */
+export function alignElementsTop(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignTop(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Aligns selected elements to the bottom.
+ */
+export function alignElementsBottom(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignBottom(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Centers selected elements horizontally (x = 0).
+ */
+export function alignElementsCenterX(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignCenterX(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Centers selected elements vertically (y = 0).
+ */
+export function alignElementsCenterY(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementIds: string[]
+): AppSettings {
+  const updatedElements = alignCenterY(overlay.elements, elementIds);
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
 }

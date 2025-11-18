@@ -9,6 +9,8 @@ import { useMonitoring, useMonitoringMock } from '../../hooks/useMonitoring';
 import { usePreviewScaling } from '../../hooks/usePreviewScaling';
 import { useSettingsSync } from '../../hooks/useSettingsSync';
 import { useDragHandlers } from '../../hooks/useDragHandlers';
+import { useResizeHandlers } from '../../hooks/useResizeHandlers';
+import { useRotationHandlers } from '../../hooks/useRotationHandlers';
 import { useOverlayConfig } from '../../hooks/useOverlayConfig';
 import { hasRealMonitoring } from '../../environment';
 import { lcdToPreview, getBaseAlign } from '../../utils/positioning';
@@ -66,7 +68,14 @@ export default function ConfigPreview() {
     draggingElementId,
     selectedElementId,
     handleElementMouseDown,
+    activeGuides,
   } = useDragHandlers(offsetScale, settingsRef, setSettings);
+
+  // Phase 4.2: Resize handlers
+  const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(offsetScale, settingsRef, setSettings);
+  
+  // Phase 4.2: Rotation handlers
+  const { rotatingElementId, handleRotationMouseDown } = useRotationHandlers(offsetScale, settingsRef, setSettings);
 
   // Language sync
   useEffect(() => {
@@ -183,6 +192,11 @@ export default function ConfigPreview() {
             draggingElementId={draggingElementId}
             selectedElementId={selectedElementId}
             onElementMouseDown={handleElementMouseDown}
+            activeGuides={activeGuides}
+            resizingElementId={resizingElementId}
+            onResizeMouseDown={handleResizeMouseDown}
+            rotatingElementId={rotatingElementId}
+            onRotationMouseDown={handleRotationMouseDown}
             isRealDataReceived={isRealDataReceived}
             lang={lang}
             t={t}

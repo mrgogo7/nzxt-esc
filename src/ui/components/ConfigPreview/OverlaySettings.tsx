@@ -3,7 +3,7 @@ import { ChevronUp, ChevronDown, Plus, X } from 'lucide-react';
 import type { AppSettings } from '../../../constants/defaults';
 import { DEFAULT_OVERLAY, type Overlay, type OverlayMetricKey, type OverlayElement, type MetricElementData, type TextElementData } from '../../../types/overlay';
 import type { Lang, t as tFunction } from '../../../i18n';
-import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateOverlayElementPosition } from '../../../utils/overlaySettingsHelpers';
+import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateOverlayElementPosition, updateOverlayElementAngle } from '../../../utils/overlaySettingsHelpers';
 import OverlayField from './OverlayField';
 import ResetButton from './ResetButton';
 
@@ -475,6 +475,19 @@ export default function OverlaySettingsComponent({
                               lang={lang}
                               t={t}
                             />
+
+                            {/* Angle */}
+                            <OverlayField
+                              type="number"
+                              label={t('angle', lang) || 'Angle'}
+                              value={element.angle ?? 0}
+                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
+                              lang={lang}
+                              t={t}
+                              min={0}
+                              max={360}
+                            />
                           </div>
                         </div>
                       );
@@ -693,6 +706,19 @@ export default function OverlaySettingsComponent({
                               onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, 0))}
                               lang={lang}
                               t={t}
+                            />
+
+                            {/* Angle */}
+                            <OverlayField
+                              type="number"
+                              label={t('angle', lang) || 'Angle'}
+                              value={element.angle ?? 0}
+                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
+                              lang={lang}
+                              t={t}
+                              min={0}
+                              max={360}
                             />
                           </div>
                         </div>
