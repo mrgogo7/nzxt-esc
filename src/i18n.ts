@@ -210,6 +210,19 @@ const dict: Record<Lang, Record<string, string>> = {
     moveTextUp: "Move Up",
     moveTextDown: "Move Down",
     textInputPlaceholder: "Please enter text (max 120 characters)",
+    // Metric selection options
+    metricCpuTemp: "CPU Temperature",
+    metricCpuLoad: "CPU Load",
+    metricCpuClock: "CPU Clock",
+    metricLiquidTemp: "Liquid Temperature",
+    metricGpuTemp: "GPU Temperature",
+    metricGpuLoad: "GPU Load",
+    metricGpuClock: "GPU Clock",
+    // Element management
+    noElements: "No elements added yet. Use the buttons above to add readings or text.",
+    elementCount: "Elements",
+    // Reset tooltips
+    resetToDefault: "Reset to default value",
   },
   tr: {
     appTitle: "NZXT Elite Screen Customizer",
@@ -334,6 +347,19 @@ const dict: Record<Lang, Record<string, string>> = {
     moveTextUp: "Yukarı Taşı",
     moveTextDown: "Aşağı Taşı",
     textInputPlaceholder: "Lütfen metin giriniz (maksimum 120 karakter)",
+    // Metric selection options
+    metricCpuTemp: "CPU Sıcaklığı",
+    metricCpuLoad: "CPU Yükü",
+    metricCpuClock: "CPU Saat Hızı",
+    metricLiquidTemp: "Sıvı Sıcaklığı",
+    metricGpuTemp: "GPU Sıcaklığı",
+    metricGpuLoad: "GPU Yükü",
+    metricGpuClock: "GPU Saat Hızı",
+    // Element management
+    noElements: "Henüz öğe eklenmedi. Yukarıdaki butonları kullanarak reading veya text ekleyin.",
+    elementCount: "Öğeler",
+    // Reset tooltips
+    resetToDefault: "Varsayılan değere sıfırla",
   },
 };
 

@@ -1,5 +1,6 @@
 import ColorPicker from '../ColorPicker';
 import ResetButton from './ResetButton';
+import type { Lang, t as tFunction } from '../../../i18n';
 
 interface OverlayFieldProps {
   field?: string; // Optional, kept for backward compatibility (no longer used for type safety)
@@ -13,6 +14,8 @@ interface OverlayFieldProps {
   min?: number;
   max?: number;
   className?: string;
+  lang?: Lang;
+  t?: typeof tFunction;
 }
 
 /**
@@ -33,7 +36,11 @@ export default function OverlayField({
   min,
   max,
   className = 'input-narrow',
+  lang,
+  t,
 }: OverlayFieldProps) {
+  const resetTooltip = t && lang ? t('resetToDefault', lang) : 'Reset';
+  
   return (
     <div className="setting-row">
       <label>{label}</label>
@@ -78,7 +85,7 @@ export default function OverlayField({
       
       <ResetButton
         onClick={onReset}
-        tooltipContent="Reset"
+        tooltipContent={resetTooltip}
       />
     </div>
   );
