@@ -1,9 +1,8 @@
-import type { OverlaySettings } from '../../../types/overlay';
 import ColorPicker from '../ColorPicker';
 import ResetButton from './ResetButton';
 
 interface OverlayFieldProps {
-  field?: keyof OverlaySettings; // Optional, used for type safety
+  field?: string; // Optional, kept for backward compatibility (no longer used for type safety)
   type: 'number' | 'color' | 'select';
   label: string;
   value: any;

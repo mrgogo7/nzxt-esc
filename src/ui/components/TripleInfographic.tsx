@@ -1,5 +1,5 @@
 import {
-  OverlaySettings,
+  Overlay,
   OverlayMetrics,
   getOverlayLabelAndValue,
 } from "../../types/overlay";
@@ -14,45 +14,52 @@ import styles from "../styles/TripleInfographic.module.css";
  * - Vertical divider line between left and right sections
  * Each metric has its own color, size, and label.
  * This component is purely presentational and does not access localStorage or NZXT APIs.
+ * 
+ * @deprecated This component is deprecated. Use UnifiedOverlayRenderer instead.
  */
 export default function TripleInfographic({
   overlay,
   metrics,
   scale = 1,
 }: {
-  overlay: OverlaySettings;
+  overlay: Overlay;
   metrics: OverlayMetrics;
   scale?: number; // Scale factor for preview (e.g., 200/640 = 0.3125)
 }) {
-  if (overlay.mode !== "triple") return null;
+  // This component is deprecated - new Overlay type doesn't support "triple" mode
+  // Return null to prevent type errors
+  return null;
 
-  const primaryKey = overlay.primaryMetric;
-  const secondaryKey = overlay.secondaryMetric || overlay.primaryMetric;
-  const tertiaryKey = overlay.tertiaryMetric || overlay.primaryMetric;
+  // Unreachable code - kept for reference but will never execute
+  const _overlay = overlay as any;
+  const _metrics = metrics as any;
+  const primaryKey = _overlay.primaryMetric;
+  const secondaryKey = _overlay.secondaryMetric || _overlay.primaryMetric;
+  const tertiaryKey = _overlay.tertiaryMetric || _overlay.primaryMetric;
 
-  const primaryValue = metrics[primaryKey];
-  const secondaryValue = metrics[secondaryKey];
-  const tertiaryValue = metrics[tertiaryKey];
+  const primaryValue = _metrics[primaryKey];
+  const secondaryValue = _metrics[secondaryKey];
+  const tertiaryValue = _metrics[tertiaryKey];
 
   const primaryInfo = getOverlayLabelAndValue(primaryKey, primaryValue);
   const secondaryInfo = getOverlayLabelAndValue(secondaryKey, secondaryValue);
   const tertiaryInfo = getOverlayLabelAndValue(tertiaryKey, tertiaryValue);
 
   // Use separate colors for primary, secondary, and tertiary in triple mode
-  const primaryNumberColor = overlay.primaryNumberColor || overlay.numberColor;
-  const primaryTextColor = overlay.primaryTextColor || overlay.textColor;
-  const secondaryNumberColor = overlay.secondaryNumberColor || overlay.numberColor;
-  const secondaryTextColor = overlay.secondaryTextColor || overlay.textColor;
-  const tertiaryNumberColor = overlay.tertiaryNumberColor || overlay.numberColor;
-  const tertiaryTextColor = overlay.tertiaryTextColor || overlay.textColor;
+  const primaryNumberColor = _overlay.primaryNumberColor || _overlay.numberColor;
+  const primaryTextColor = _overlay.primaryTextColor || _overlay.textColor;
+  const secondaryNumberColor = _overlay.secondaryNumberColor || _overlay.numberColor;
+  const secondaryTextColor = _overlay.secondaryTextColor || _overlay.textColor;
+  const tertiaryNumberColor = _overlay.tertiaryNumberColor || _overlay.numberColor;
+  const tertiaryTextColor = _overlay.tertiaryTextColor || _overlay.textColor;
 
   // Use separate sizes for primary, secondary, and tertiary in triple mode
-  const primaryNumberSize = overlay.numberSize * scale;
-  const primaryTextSize = overlay.textSize * scale;
-  const secondaryNumberSize = (overlay.secondaryNumberSize || overlay.numberSize * 0.6) * scale;
-  const secondaryTextSize = (overlay.secondaryTextSize || overlay.textSize * 0.7) * scale;
-  const tertiaryNumberSize = (overlay.tertiaryNumberSize || overlay.numberSize * 0.6) * scale;
-  const tertiaryTextSize = (overlay.tertiaryTextSize || overlay.textSize * 0.7) * scale;
+  const primaryNumberSize = _overlay.numberSize * scale;
+  const primaryTextSize = _overlay.textSize * scale;
+  const secondaryNumberSize = (_overlay.secondaryNumberSize || _overlay.numberSize * 0.6) * scale;
+  const secondaryTextSize = (_overlay.secondaryTextSize || _overlay.textSize * 0.7) * scale;
+  const tertiaryNumberSize = (_overlay.tertiaryNumberSize || _overlay.numberSize * 0.6) * scale;
+  const tertiaryTextSize = (_overlay.tertiaryTextSize || _overlay.textSize * 0.7) * scale;
 
   // Helper function to render a single metric value
   const renderMetric = (
@@ -162,28 +169,28 @@ export default function TripleInfographic({
   const tertiaryIsClock = tertiaryInfo.valueUnitType === "clock";
 
   // Primary/Divider offset (overlay.x and overlay.y)
-  const primaryOffsetX = (overlay.x || 0) * scale;
-  const primaryOffsetY = (overlay.y || 0) * scale;
+  const primaryOffsetX = (_overlay.x || 0) * scale;
+  const primaryOffsetY = (_overlay.y || 0) * scale;
   
   // Dual Readers offset (secondary/tertiary section)
-  const dualReadersOffsetX = (overlay.dualReadersOffsetX || 0) * scale;
-  const dualReadersOffsetY = (overlay.dualReadersOffsetY || 0) * scale;
+  const dualReadersOffsetX = (_overlay.dualReadersOffsetX || 0) * scale;
+  const dualReadersOffsetY = (_overlay.dualReadersOffsetY || 0) * scale;
   
   // Divider gap - space between primary and divider
-  const dividerGap = (overlay.dividerGap || 8) * scale;
+  const dividerGap = (_overlay.dividerGap || 8) * scale;
 
   return (
     <div className={styles.container}>
       {/* Vertical divider line - Always centered, moves with primary offset */}
-      {overlay.showDivider && (
+      {_overlay.showDivider && (
         <div
           className={styles.divider}
           style={{
             transform: `translate(calc(-50% + ${primaryOffsetX}px), calc(-50% + ${primaryOffsetY}px))`,
-            width: `${overlay.dividerThickness || 2}px`,
-            height: `${overlay.dividerWidth || 60}%`,
-            backgroundColor: overlay.dividerColor || primaryNumberColor,
-            opacity: overlay.dividerColor ? undefined : 0.3,
+            width: `${_overlay.dividerThickness || 2}px`,
+            height: `${_overlay.dividerWidth || 60}%`,
+            backgroundColor: _overlay.dividerColor || primaryNumberColor,
+            opacity: _overlay.dividerColor ? undefined : 0.3,
           }}
         />
       )}
@@ -222,7 +229,7 @@ export default function TripleInfographic({
         className={styles.dualReadersSection}
         style={{
           transform: `translate(${dualReadersOffsetX}px, calc(-50% + ${dualReadersOffsetY}px))`,
-          gap: overlay.gapSecondaryTertiary ? `${overlay.gapSecondaryTertiary * scale}px` : `${secondaryNumberSize * 0.4}px`,
+          gap: _overlay.gapSecondaryTertiary ? `${_overlay.gapSecondaryTertiary * scale}px` : `${secondaryNumberSize * 0.4}px`,
         }}
       >
         {/* Secondary metric (top) */}

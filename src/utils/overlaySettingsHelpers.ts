@@ -1,5 +1,5 @@
 import type { AppSettings } from '../constants/defaults';
-import type { Overlay, OverlayElement, OverlaySettings, MetricElementData, TextElementData } from '../types/overlay';
+import type { Overlay, OverlayElement, MetricElementData, TextElementData } from '../types/overlay';
 
 // ============================================================================
 // LEGACY HELPERS (Deprecated - kept for backward compatibility)
@@ -11,7 +11,7 @@ import type { Overlay, OverlayElement, OverlaySettings, MetricElementData, TextE
  */
 export function updateOverlayField(
   settings: AppSettings,
-  overlayConfig: OverlaySettings | Overlay,
+  overlayConfig: Overlay,
   field: string,
   value: any
 ): AppSettings {
@@ -30,7 +30,7 @@ export function updateOverlayField(
  */
 export function resetOverlayFieldValue(
   settings: AppSettings,
-  overlayConfig: OverlaySettings | Overlay,
+  overlayConfig: Overlay,
   field: string,
   defaultValue: any
 ): AppSettings {
@@ -43,8 +43,8 @@ export function resetOverlayFieldValue(
  */
 export function updateOverlayFields(
   settings: AppSettings,
-  overlayConfig: OverlaySettings | Overlay,
-  updates: Partial<OverlaySettings | Overlay>
+  overlayConfig: Overlay,
+  updates: Partial<Overlay>
 ): AppSettings {
   return {
     ...settings,
@@ -61,27 +61,12 @@ export function updateOverlayFields(
  */
 export function updateCustomReading(
   settings: AppSettings,
-  overlayConfig: OverlaySettings | Overlay,
+  overlayConfig: Overlay,
   readingId: string,
   updates: Partial<{ metric: any; numberColor: string; numberSize: number; x: number; y: number }>
 ): AppSettings {
-  // If it's new format, use updateOverlayElement
-  if ('elements' in overlayConfig) {
-    return updateOverlayElement(settings, overlayConfig, readingId, updates);
-  }
-  
-  // Legacy format
-  const currentReadings = [...((overlayConfig as OverlaySettings).customReadings || [])];
-  const readingIndex = currentReadings.findIndex(r => r.id === readingId);
-  
-  if (readingIndex !== -1) {
-    currentReadings[readingIndex] = {
-      ...currentReadings[readingIndex],
-      ...updates,
-    };
-  }
-  
-  return updateOverlayField(settings, overlayConfig, 'customReadings', currentReadings);
+  // Use updateOverlayElement for element-based format
+  return updateOverlayElement(settings, overlayConfig, readingId, updates);
 }
 
 /**
@@ -90,27 +75,12 @@ export function updateCustomReading(
  */
 export function updateCustomText(
   settings: AppSettings,
-  overlayConfig: OverlaySettings | Overlay,
+  overlayConfig: Overlay,
   textId: string,
   updates: Partial<{ text: string; textColor: string; textSize: number; x: number; y: number }>
 ): AppSettings {
-  // If it's new format, use updateOverlayElement
-  if ('elements' in overlayConfig) {
-    return updateOverlayElement(settings, overlayConfig, textId, updates);
-  }
-  
-  // Legacy format
-  const currentTexts = [...((overlayConfig as OverlaySettings).customTexts || [])];
-  const textIndex = currentTexts.findIndex(t => t.id === textId);
-  
-  if (textIndex !== -1) {
-    currentTexts[textIndex] = {
-      ...currentTexts[textIndex],
-      ...updates,
-    };
-  }
-  
-  return updateOverlayField(settings, overlayConfig, 'customTexts', currentTexts);
+  // Use updateOverlayElement for element-based format
+  return updateOverlayElement(settings, overlayConfig, textId, updates);
 }
 
 // ============================================================================

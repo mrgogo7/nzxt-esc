@@ -1,4 +1,4 @@
-import { DEFAULT_OVERLAY, type Overlay, type OverlaySettings } from '../types/overlay';
+import { DEFAULT_OVERLAY, type Overlay } from '../types/overlay';
 
 /**
  * Application settings interface.
@@ -15,7 +15,7 @@ export interface AppSettings {
   mute: boolean;
   resolution: string;
   showGuide?: boolean;
-  overlay?: Overlay | OverlaySettings; // Can be new Overlay or legacy OverlaySettings (for migration)
+  overlay?: Overlay; // Migration from legacy OverlaySettings is handled by useOverlayConfig hook
   // Optional: url can be included in saved config for backward compatibility
   url?: string;
   // Optional: backgroundColor for color tab (solid color background)

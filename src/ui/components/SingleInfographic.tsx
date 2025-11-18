@@ -1,5 +1,5 @@
 import {
-  OverlaySettings,
+  Overlay,
   OverlayMetrics,
   getOverlayLabelAndValue,
 } from "../../types/overlay";
@@ -10,20 +10,27 @@ import styles from "../styles/SingleInfographic.module.css";
  * SingleInfographic
  * Renders a single NZXT-style infographic overlay on top of the LCD media.
  * This component is purely presentational and does not access localStorage or NZXT APIs.
+ * 
+ * @deprecated This component is deprecated. Use UnifiedOverlayRenderer instead.
  */
 export default function SingleInfographic({
   overlay,
   metrics,
   scale = 1,
 }: {
-  overlay: OverlaySettings;
+  overlay: Overlay;
   metrics: OverlayMetrics;
   scale?: number; // Scale factor for preview (e.g., 200/640 = 0.3125)
 }) {
-  if (overlay.mode !== "single") return null;
+  // This component is deprecated - new Overlay type doesn't support "single" mode
+  // Return null to prevent type errors
+  return null;
 
-  const key = overlay.primaryMetric;
-  const value = metrics[key];
+  // Unreachable code - kept for reference but will never execute
+  const _overlay = overlay as any;
+  const _metrics = metrics as any;
+  const key = _overlay.primaryMetric;
+  const value = _metrics[key];
 
   const {
     label,
@@ -31,10 +38,10 @@ export default function SingleInfographic({
     valueUnitType,
   } = getOverlayLabelAndValue(key, value);
 
-  const numberColor = overlay.numberColor;
-  const textColor = overlay.textColor;
+  const numberColor = _overlay.numberColor;
+  const textColor = _overlay.textColor;
 
-  const numberSize = overlay.numberSize * scale;
+  const numberSize = _overlay.numberSize * scale;
   const unitSize =
     valueUnitType === "temp"
       ? numberSize * 0.49
@@ -116,11 +123,11 @@ export default function SingleInfographic({
       )}
 
       {/* Label (CPU / GPU / Liquid) - Hide if textSize is 0 or textColor is transparent */}
-      {(overlay.textSize > 0 && textColor !== 'transparent') && (
+      {(_overlay.textSize > 0 && textColor !== 'transparent') && (
         <div
           className={styles.label}
           style={{
-            fontSize: `${overlay.textSize * scale}px`,
+            fontSize: `${_overlay.textSize * scale}px`,
             color: textColor,
           }}
         >
