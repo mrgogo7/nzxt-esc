@@ -19,7 +19,10 @@ interface OverlaySettingsProps {
  * Overlay settings component.
  * Provides controls for overlay mode and element-based settings.
  * 
- * FAZ1: Element-based overlay settings - uses unified element array.
+ * FAZ3: Fully migrated to element-based system.
+ * - Uses unified element array (Overlay.elements)
+ * - Element-based add/remove/reorder operations
+ * - Element-specific settings (metric, text, divider)
  */
 export default function OverlaySettingsComponent({
   overlayConfig,
@@ -43,7 +46,7 @@ export default function OverlaySettingsComponent({
       <div className="panel">
         <div className="panel-header">
           <h3>{t('overlaySettingsTitle', lang)}</h3>
-          {/* Overlay Mode - FAZ1: Only none and custom modes */}
+          {/* Overlay Mode - FAZ3: Only none and custom modes (single/dual/triple removed) */}
           <select
             className="url-input select-narrow"
             value={overlayConfig.mode}
@@ -141,7 +144,7 @@ export default function OverlaySettingsComponent({
         </div>
 
         <div className="settings-grid-modern">
-          {/* FAZ1: Mode-specific settings (single/dual/triple) removed - only custom mode UI remains */}
+          {/* FAZ3: Mode-specific settings (single/dual/triple) removed - only custom mode UI remains */}
           {/* CUSTOM MODE UI - Element-based */}
           {overlayConfig.mode === 'custom' && (
             <>

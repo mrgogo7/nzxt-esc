@@ -1,26 +1,18 @@
-import SingleInfographic from '../SingleInfographic';
-import DualInfographic from '../DualInfographic';
-import TripleInfographic from '../TripleInfographic';
-import type { OverlaySettings, OverlayMetrics } from '../../../types/overlay';
+import UnifiedOverlayRenderer from '../UnifiedOverlayRenderer';
+import type { Overlay, OverlayMetrics } from '../../../types/overlay';
 import type { Lang, t as tFunction } from '../../../i18n';
 import { lcdToPreview } from '../../../utils/positioning';
 
 interface OverlayPreviewProps {
-  overlayConfig: OverlaySettings;
+  overlayConfig: Overlay;
   metrics: OverlayMetrics;
   overlayPreviewScale: number;
   offsetScale: number;
   overlayAdjX: number;
   overlayAdjY: number;
-  isDraggingOverlay: boolean;
-  isDraggingSecondaryTertiary: boolean;
-  draggingReadingId: string | null;
-  draggingTextId: string | null;
-  selectedReadingId: string | null;
-  selectedTextId: string | null;
-  onOverlayMouseDown: (e: React.MouseEvent) => void;
-  onCustomReadingMouseDown: (e: React.MouseEvent, readingId: string) => void;
-  onCustomTextMouseDown: (e: React.MouseEvent, textId: string) => void;
+  draggingElementId: string | null;
+  selectedElementId: string | null;
+  onElementMouseDown: (elementId: string, e: React.MouseEvent) => void;
   isRealDataReceived: boolean;
   lang: Lang;
   t: typeof tFunction;
@@ -28,7 +20,12 @@ interface OverlayPreviewProps {
 
 /**
  * Overlay preview component.
- * Displays overlay preview for single/dual/triple/custom modes with drag support.
+ * Displays overlay preview with element-based rendering and drag support.
+ * 
+ * FAZ3: Fully migrated to element-based system.
+ * - Uses UnifiedOverlayRenderer for all element types
+ * - Unified element drag handlers for all element types
+ * - Element-based hit area calculation
  */
 export default function OverlayPreview({
   overlayConfig,
@@ -37,15 +34,9 @@ export default function OverlayPreview({
   offsetScale,
   overlayAdjX,
   overlayAdjY,
-  isDraggingOverlay,
-  isDraggingSecondaryTertiary,
-  draggingReadingId,
-  draggingTextId,
-  selectedReadingId,
-  selectedTextId,
-  onOverlayMouseDown,
-  onCustomReadingMouseDown,
-  onCustomTextMouseDown,
+  draggingElementId,
+  selectedElementId,
+  onElementMouseDown,
   isRealDataReceived,
   lang,
   t,
@@ -56,86 +47,68 @@ export default function OverlayPreview({
         <>
           <div className="preview-title">{t('overlayPreviewTitle', lang)}</div>
           <div
-            className={`preview-circle overlay-preview ${isDraggingOverlay || isDraggingSecondaryTertiary || draggingReadingId ? 'dragging' : ''}`}
-            onMouseDown={onOverlayMouseDown}
+            className={`preview-circle overlay-preview ${draggingElementId ? 'dragging' : ''}`}
             style={{ position: 'relative', width: '200px', height: '200px' }}
           >
-            {(overlayConfig.mode === 'single' ||
-              overlayConfig.mode === 'dual' ||
-              overlayConfig.mode === 'triple') && (
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  transform: `translate(${overlayAdjX}px, ${overlayAdjY}px)`,
-                  pointerEvents: 'none',
-                }}
-              >
-                {overlayConfig.mode === 'single' && (
-                  <SingleInfographic overlay={overlayConfig} metrics={metrics} scale={overlayPreviewScale} />
-                )}
-                {overlayConfig.mode === 'dual' && (
-                  <DualInfographic overlay={overlayConfig} metrics={metrics} scale={overlayPreviewScale} />
-                )}
-                {overlayConfig.mode === 'triple' && (
-                  <TripleInfographic overlay={overlayConfig} metrics={metrics} scale={overlayPreviewScale} />
-                )}
-              </div>
-            )}
-            {overlayConfig.mode === 'custom' && overlayConfig.customReadings && overlayConfig.customReadings.length > 0 && (
+            {/* Unified overlay renderer for all elements */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                transform: `translate(${overlayAdjX}px, ${overlayAdjY}px)`,
+                pointerEvents: 'none',
+              }}
+            >
+              <UnifiedOverlayRenderer
+                overlay={overlayConfig}
+                metrics={metrics}
+                scale={overlayPreviewScale}
+              />
+            </div>
+            
+            {/* Unified element drag handlers for all element types */}
+            {overlayConfig.mode === 'custom' && overlayConfig.elements && overlayConfig.elements.length > 0 && (
               <>
-                {/* Render in order (reverse for z-index: higher order = higher z-index) */}
-                {[...overlayConfig.customReadings]
-                  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                  .reverse()
-                  .map((reading, reverseIndex) => {
-                  // Use labelIndex for label, not order-based index
-                  const readingLabelIndex = reading.labelIndex ?? reverseIndex;
-                  const readingX = lcdToPreview(reading.x, offsetScale);
-                  const readingY = lcdToPreview(reading.y, offsetScale);
-                  const isDraggingThis = draggingReadingId === reading.id;
-                  const zIndex = 10 + (reading.order ?? reverseIndex); // Higher z-index for higher order
+                {overlayConfig.elements.map((element) => {
+                  const elementX = lcdToPreview(element.x, offsetScale);
+                  const elementY = lcdToPreview(element.y, offsetScale);
+                  const isDraggingThis = draggingElementId === element.id;
+                  const isSelected = selectedElementId === element.id;
                   
-                  // Calculate hit area size based on numberSize
-                  // Hit area should be slightly larger than content for easier interaction
-                  // Note: Custom mode doesn't show text labels, so we don't need extra space for that
-                  const scaledNumberSize = reading.numberSize * overlayPreviewScale;
-                  const hitAreaWidth = scaledNumberSize * 1.5; // 1.5x multiplier for width (narrower)
-                  const hitAreaHeight = scaledNumberSize * 0.85; // 0.85x multiplier for height (minimal vertical space, no text labels)
+                  // Calculate hit area based on element type
+                  let hitAreaWidth = 100;
+                  let hitAreaHeight = 100;
                   
-                  // Get reading label based on labelIndex (creation order, not display order)
-                  const readingLabels = [
-                    t('firstReading', lang),
-                    t('secondReading', lang),
-                    t('thirdReading', lang),
-                    t('fourthReading', lang),
-                    t('fifthReading', lang),
-                    t('sixthReading', lang),
-                    t('seventhReading', lang),
-                    t('eighthReading', lang),
-                  ];
-                  const readingLabel = readingLabels[readingLabelIndex] || `${readingLabelIndex + 1}${readingLabelIndex === 0 ? 'st' : readingLabelIndex === 1 ? 'nd' : readingLabelIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
-                  
-                  const isSelected = selectedReadingId === reading.id;
+                  if (element.type === 'metric') {
+                    const data = element.data as any;
+                    const scaledNumberSize = (data.numberSize || 180) * overlayPreviewScale;
+                    hitAreaWidth = scaledNumberSize * 1.5;
+                    hitAreaHeight = scaledNumberSize * 0.85;
+                  } else if (element.type === 'text') {
+                    const data = element.data as any;
+                    const scaledTextSize = (data.textSize || 45) * overlayPreviewScale;
+                    hitAreaWidth = Math.max(scaledTextSize * (data.text?.length || 0) * 0.6, scaledTextSize * 2);
+                    hitAreaHeight = scaledTextSize * 1.2;
+                  } else if (element.type === 'divider') {
+                    const data = element.data as any;
+                    hitAreaWidth = data.thickness || 2;
+                    hitAreaHeight = 200; // Full height for vertical divider
+                  }
                   
                   return (
                     <div
-                      key={reading.id}
-                      data-reading-id={reading.id}
+                      key={element.id}
+                      data-element-id={element.id}
                       onMouseDown={(e) => {
-                        // Only handle if clicking on this specific reading's content area
                         const rect = e.currentTarget.getBoundingClientRect();
                         const clickX = e.clientX - rect.left;
                         const clickY = e.clientY - rect.top;
                         const centerX = rect.width / 2;
                         const centerY = rect.height / 2;
-                        
-                        // Check if click is within hit area
                         const distanceX = Math.abs(clickX - centerX);
                         const distanceY = Math.abs(clickY - centerY);
-                        
                         if (distanceX < hitAreaWidth / 2 && distanceY < hitAreaHeight / 2) {
-                          onCustomReadingMouseDown(e, reading.id);
+                          onElementMouseDown(element.id, e);
                         }
                       }}
                       style={{
@@ -144,158 +117,17 @@ export default function OverlayPreview({
                         top: '50%',
                         width: `${hitAreaWidth}px`,
                         height: `${hitAreaHeight}px`,
-                        transform: `translate(calc(-50% + ${readingX}px), calc(-50% + ${readingY}px))`,
+                        transform: `translate(calc(-50% + ${elementX}px), calc(-50% + ${elementY}px))`,
                         cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
                         pointerEvents: 'auto',
-                        zIndex: zIndex,
-                        // Visual feedback: show outline when dragging or selected
-                        outline: (isDraggingThis || isSelected) ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
-                        outlineOffset: (isDraggingThis || isSelected) ? '4px' : '0',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        // Asymmetric padding: less space at bottom (no text), slightly less at top
-                        paddingTop: `${scaledNumberSize * 0.05}px`, // Small top padding
-                        paddingBottom: `${scaledNumberSize * 0.02}px`, // Minimal bottom padding
-                      }}
-                    >
-                      {/* Label outside bounding box - only visible when dragging or selected */}
-                      {(isDraggingThis || isSelected) && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '-18px',
-                            left: '-4px',
-                            fontSize: '8px',
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
-                            fontWeight: 500,
-                            pointerEvents: 'none',
-                            userSelect: 'none',
-                            zIndex: zIndex + 1,
-                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {readingLabel}
-                        </div>
-                      )}
-                      <SingleInfographic
-                        overlay={{
-                          ...overlayConfig,
-                          mode: 'single',
-                          primaryMetric: reading.metric,
-                          numberColor: reading.numberColor,
-                          numberSize: reading.numberSize,
-                          textColor: 'transparent',
-                          textSize: 0,
-                        }}
-                        metrics={metrics}
-                        scale={overlayPreviewScale}
-                      />
-                    </div>
-                  );
-                })}
-              </>
-            )}
-            {overlayConfig.mode === 'custom' && overlayConfig.customTexts && overlayConfig.customTexts.length > 0 && (
-              <>
-                {/* Render texts in order (reverse for z-index: higher order = higher z-index) */}
-                {[...overlayConfig.customTexts]
-                  .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                  .reverse()
-                  .map((text, reverseIndex) => {
-                  // Use labelIndex for label, not order-based index
-                  const textLabelIndex = text.labelIndex ?? reverseIndex;
-                  const textX = lcdToPreview(text.x, offsetScale);
-                  const textY = lcdToPreview(text.y, offsetScale);
-                  const isDraggingThis = draggingTextId === text.id;
-                  const zIndex = 20 + (text.order ?? reverseIndex); // Higher z-index than readings, based on order
-                  
-                  // Calculate hit area size based on textSize
-                  const scaledTextSize = text.textSize * overlayPreviewScale;
-                  const hitAreaWidth = Math.max(scaledTextSize * text.text.length * 0.6, scaledTextSize * 2); // Based on text length
-                  const hitAreaHeight = scaledTextSize * 1.2;
-                  
-                  // Get text label based on labelIndex (creation order, not display order)
-                  const textLabels = [
-                    t('firstText', lang),
-                    t('secondText', lang),
-                    t('thirdText', lang),
-                    t('fourthText', lang),
-                  ];
-                  const textLabel = textLabels[textLabelIndex] || `${textLabelIndex + 1}${textLabelIndex === 0 ? 'st' : textLabelIndex === 1 ? 'nd' : textLabelIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
-                  const isSelected = selectedTextId === text.id;
-                  
-                  return (
-                    <div
-                      key={text.id}
-                      data-text-id={text.id}
-                      onMouseDown={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        const clickX = e.clientX - rect.left;
-                        const clickY = e.clientY - rect.top;
-                        const centerX = rect.width / 2;
-                        const centerY = rect.height / 2;
-                        
-                        const distanceX = Math.abs(clickX - centerX);
-                        const distanceY = Math.abs(clickY - centerY);
-                        
-                        if (distanceX < hitAreaWidth / 2 && distanceY < hitAreaHeight / 2) {
-                          onCustomTextMouseDown(e, text.id);
-                        }
-                      }}
-                      style={{
-                        position: 'absolute',
-                        left: '50%',
-                        top: '50%',
-                        width: `${hitAreaWidth}px`,
-                        height: `${hitAreaHeight}px`,
-                        transform: `translate(calc(-50% + ${textX}px), calc(-50% + ${textY}px))`,
-                        cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
-                        pointerEvents: 'auto',
-                        zIndex: zIndex,
+                        zIndex: element.zIndex !== undefined ? element.zIndex + 100 : 100,
                         outline: (isDraggingThis || isSelected) ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
                         outlineOffset: (isDraggingThis || isSelected) ? '4px' : '0',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}
-                    >
-                      {/* Label outside bounding box - only visible when dragging or selected */}
-                      {(isDraggingThis || isSelected) && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '-18px',
-                            left: '-4px',
-                            fontSize: '8px',
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            fontFamily: 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif',
-                            fontWeight: 500,
-                            pointerEvents: 'none',
-                            userSelect: 'none',
-                            zIndex: zIndex + 1,
-                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.8)',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {textLabel}
-                        </div>
-                      )}
-                      <div
-                        style={{
-                          fontSize: `${scaledTextSize}px`,
-                          color: text.textColor,
-                          fontFamily: 'nzxt-extrabold',
-                          whiteSpace: 'nowrap',
-                          userSelect: 'none',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {text.text}
-                      </div>
-                    </div>
+                    />
                   );
                 })}
               </>

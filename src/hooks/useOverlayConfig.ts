@@ -6,8 +6,10 @@ import type { AppSettings } from '../constants/defaults';
 /**
  * Hook for computing overlay configuration from settings.
  * 
- * FAZ1: Returns new Overlay model, migrates legacy OverlaySettings if needed.
- * Migration is done in useMemo for performance.
+ * FAZ3: Fully migrated to element-based system.
+ * - Returns new Overlay model (mode: "none" | "custom", elements[])
+ * - Automatically migrates legacy OverlaySettings if detected
+ * - Migration is done in useMemo for performance
  * 
  * @param settings - Current app settings
  * @returns Computed overlay configuration (always Overlay type)

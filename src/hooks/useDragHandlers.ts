@@ -6,10 +6,10 @@ import type { AppSettings } from '../constants/defaults';
 /**
  * Hook for managing all drag handlers in ConfigPreview.
  * 
- * FAZ1: Element-based drag handlers.
+ * FAZ3: Fully migrated to element-based drag handlers.
  * Handles:
- * - Background drag
- * - Element drag (unified for all element types)
+ * - Background drag (media positioning)
+ * - Element drag (unified for all element types: metric, text, divider)
  * 
  * @param offsetScale - Scale factor for converting preview to LCD pixels
  * @param settingsRef - Ref to current settings (to avoid stale closures)
