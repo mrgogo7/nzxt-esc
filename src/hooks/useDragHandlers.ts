@@ -4,6 +4,7 @@ import { constrainToCircle } from '../utils/boundaries';
 import { detectAlignment, applySnapping, type AlignmentGuide, type SnappingState } from '../utils/snapping';
 import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
+import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -13,14 +14,18 @@ import type { AppSettings } from '../constants/defaults';
  * - Background drag (media positioning)
  * - Element drag (unified for all element types: metric, text, divider)
  * 
+ * Phase 5: Added undo/redo support via onMoveComplete callback.
+ * 
  * @param offsetScale - Scale factor for converting preview to LCD pixels
  * @param settingsRef - Ref to current settings (to avoid stale closures)
  * @param setSettings - Settings setter function
+ * @param onMoveComplete - Optional callback when move completes (for undo/redo)
  */
 export function useDragHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
-  setSettings: (settings: AppSettings) => void
+  setSettings: (settings: AppSettings) => void,
+  onMoveComplete?: (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => void
 ) {
   // Background drag state
   const [isDragging, setIsDragging] = useState(false);
@@ -47,6 +52,9 @@ export function useDragHandlers(
   
   // Phase 4.2: Previous position for velocity calculation
   const lastPosition = useRef<{ x: number; y: number } | null>(null);
+  
+  // Phase 5: Store initial position for undo/redo
+  const moveInitialPosition = useRef<{ x: number; y: number } | null>(null);
 
   // Background drag handlers
   const handleBackgroundMouseDown = useCallback((e: React.MouseEvent) => {
@@ -92,23 +100,37 @@ export function useDragHandlers(
     if (selectedElementId === elementId) {
       setDraggingElementId(elementId);
       elementDragStart.current = { x: e.clientX, y: e.clientY, elementId };
+      
+      // Phase 5: Store initial position for undo/redo
+      const currentSettings = settingsRef.current;
+      const currentOverlay = currentSettings.overlay;
+      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
+        const overlay = currentOverlay as Overlay;
+        const element = overlay.elements.find(el => el.id === elementId);
+        if (element) {
+          moveInitialPosition.current = { x: element.x, y: element.y };
+        }
+      }
     } else {
       // First click: just select, don't start dragging
       setSelectedElementId(elementId);
       selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
     }
-  }, [selectedElementId]);
+  }, [selectedElementId, settingsRef]);
 
   const handleElementMouseMove = useCallback((e: MouseEvent) => {
     if (!elementDragStart.current) return;
 
-    const dx = e.clientX - elementDragStart.current.x;
-    const dy = e.clientY - elementDragStart.current.y;
-    elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
+    // Get preview container for MoveOperation
+    const previewContainer = document.querySelector('.overlay-preview');
+    if (!previewContainer) return;
+    const previewRect = previewContainer.getBoundingClientRect();
 
-    // CRITICAL: Convert preview pixels to LCD pixels
-    const lcdDx = previewToLcd(dx, offsetScale);
-    const lcdDy = previewToLcd(dy, offsetScale);
+    // Calculate screen delta
+    const screenDelta = {
+      x: e.clientX - elementDragStart.current.x,
+      y: e.clientY - elementDragStart.current.y,
+    };
 
     // Use ref to get current settings value
     const currentSettings = settingsRef.current;
@@ -124,8 +146,16 @@ export function useDragHandlers(
     
     if (elementIndex !== -1) {
       const element = overlay.elements[elementIndex];
-      const newX = element.x + lcdDx;
-      const newY = element.y + lcdDy;
+      
+      // Use new MoveOperation (Bug #1 fix)
+      const moveConfig: MoveOperationConfig = {
+        offsetScale,
+        previewRect,
+      };
+      
+      const moveResult = moveElement(element, screenDelta, moveConfig);
+      const newX = moveResult.x;
+      const newY = moveResult.y;
       
       // Phase 4.2: Calculate velocity for escape detection
       if (lastPosition.current) {
@@ -183,12 +213,34 @@ export function useDragHandlers(
           elements: updatedElements,
         },
       });
+      
+      // Update drag start position for next frame
+      elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
     }
   }, [offsetScale, setSettings, settingsRef]);
 
   const handleElementMouseUp = useCallback(() => {
+    // Phase 5: Record move action for undo/redo
+    if (elementDragStart.current && moveInitialPosition.current && onMoveComplete) {
+      const currentSettings = settingsRef.current;
+      const currentOverlay = currentSettings.overlay;
+      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
+        const overlay = currentOverlay as Overlay;
+        const element = overlay.elements.find(el => el.id === elementDragStart.current!.elementId);
+        if (element && (element.x !== moveInitialPosition.current.x || element.y !== moveInitialPosition.current.y)) {
+          // Only record if position actually changed
+          onMoveComplete(
+            elementDragStart.current.elementId,
+            moveInitialPosition.current,
+            { x: element.x, y: element.y }
+          );
+        }
+      }
+    }
+    
     setDraggingElementId(null);
     elementDragStart.current = null;
+    moveInitialPosition.current = null;
     setActiveGuides([]); // Clear guides when drag ends
     lastPosition.current = null; // Reset position tracking
     // Reset snapping state
@@ -199,7 +251,7 @@ export function useDragHandlers(
       escapeVelocityY: 0,
     };
     // Keep selected after drag ends - user can click again to drag
-  }, []);
+  }, [onMoveComplete, settingsRef]);
 
   // Event listeners for drag handlers
   useEffect(() => {

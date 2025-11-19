@@ -4,8 +4,17 @@ import type { Lang, t as tFunction } from '../../../i18n';
 import { lcdToPreview } from '../../../utils/positioning';
 import type { AlignmentGuide } from '../../../utils/snapping';
 import { canResizeElement } from '../../../utils/resize';
-import type { ResizeHandle } from '../../../utils/resize';
-import { UndoDot } from 'lucide-react';
+import { RotateCw } from 'lucide-react';
+import { 
+  calculateAABB,
+} from '../../../transform/engine/BoundingBox';
+import { 
+  calculateHandlePositions,
+  getAllResizeHandlePositions,
+  type ResizeHandle,
+} from '../../../transform/engine/HandlePositioning';
+import '../../styles/TransformHandles.css';
+import '../../styles/BoundingBox.css';
 
 interface OverlayPreviewProps {
   overlayConfig: Overlay;
@@ -47,6 +56,7 @@ export default function OverlayPreview({
   selectedElementId,
   onElementMouseDown,
   activeGuides,
+  resizingElementId,
   onResizeMouseDown,
   rotatingElementId,
   onRotationMouseDown,
@@ -136,62 +146,34 @@ export default function OverlayPreview({
                   const elementY = lcdToPreview(element.y, offsetScale);
                   const isDraggingThis = draggingElementId === element.id;
                   const isSelected = selectedElementId === element.id;
+                  const isResizingThis = resizingElementId === element.id;
+                  const isRotatingThis = rotatingElementId === element.id;
                   const canResize = canResizeElement(element);
-                  const elementAngle = element.angle ?? 0;
                   
-                  // Calculate hit area based on element type
-                  let hitAreaWidth = 100;
-                  let hitAreaHeight = 100;
+                  // Calculate AABB (Axis-Aligned Bounding Box) for element
+                  // WHY: AABB is used for visual bounding box (Figma-style).
+                  // Even when elements are rotated, the bounding box remains axis-aligned.
+                  const aabb = calculateAABB(element);
                   
-                  if (element.type === 'metric') {
-                    const data = element.data as any;
-                    const scaledNumberSize = (data.numberSize || 180) * overlayPreviewScale;
-                    hitAreaWidth = scaledNumberSize * 1.5;
-                    hitAreaHeight = scaledNumberSize * 0.85;
-                  } else if (element.type === 'text') {
-                    const data = element.data as any;
-                    const scaledTextSize = (data.textSize || 45) * overlayPreviewScale;
-                    hitAreaWidth = Math.max(scaledTextSize * (data.text?.length || 0) * 0.6, scaledTextSize * 2);
-                    hitAreaHeight = scaledTextSize * 1.2;
-                  } else if (element.type === 'divider') {
-                    const data = element.data as any;
-                    hitAreaWidth = data.thickness || 2;
-                    hitAreaHeight = 200; // Full height for vertical divider
-                  }
-                  
-                  // Resize handle size
-                  const handleSize = 8;
-                  const handleOffset = handleSize / 2;
-                  
-                  // Calculate rotated bounding box corners (RBox)
-                  // Element center in preview coordinates
-                  const centerX = elementX;
-                  const centerY = elementY;
-                  
-                  // Half dimensions
-                  const halfWidth = hitAreaWidth / 2;
-                  const halfHeight = hitAreaHeight / 2;
-                  
-                  // Rotation matrix
-                  const radians = (elementAngle * Math.PI) / 180;
-                  const cos = Math.cos(radians);
-                  const sin = Math.sin(radians);
-                  
-                  // Rotate corner points around origin (0,0), then translate to center
-                  const rotatePoint = (x: number, y: number) => {
-                    const rotatedX = x * cos - y * sin;
-                    const rotatedY = x * sin + y * cos;
-                    return {
-                      x: centerX + rotatedX,
-                      y: centerY + rotatedY,
-                    };
+                  // Convert AABB to preview coordinates for rendering
+                  const aabbAtPosition = {
+                    left: elementX + lcdToPreview(aabb.left, offsetScale),
+                    right: elementX + lcdToPreview(aabb.right, offsetScale),
+                    top: elementY + lcdToPreview(aabb.top, offsetScale),
+                    bottom: elementY + lcdToPreview(aabb.bottom, offsetScale),
+                    width: lcdToPreview(aabb.width, offsetScale),
+                    height: lcdToPreview(aabb.height, offsetScale),
                   };
                   
-                  // Calculate rotated bounding box corners
-                  const rBoxTopLeft = rotatePoint(-halfWidth, -halfHeight);
-                  const rBoxTopRight = rotatePoint(halfWidth, -halfHeight);
-                  const rBoxBottomRight = rotatePoint(halfWidth, halfHeight);
-                  const rBoxBottomLeft = rotatePoint(-halfWidth, halfHeight);
+                  // Get handle positions from HandlePositioning system (only when selected)
+                  // WHY: Handle positions are expensive to calculate, so we only do it for selected elements.
+                  const handlePositions = isSelected ? calculateHandlePositions(element) : null;
+                  
+                  // Calculate hit area based on AABB (for selection)
+                  // WHY: AABB is used for hit detection (Figma-style). This ensures consistent
+                  // selection behavior regardless of element rotation.
+                  const hitAreaWidth = aabbAtPosition.width;
+                  const hitAreaHeight = aabbAtPosition.height;
                   
                   // Get element label (same as OverlaySettings)
                   const getElementLabel = (): string => {
@@ -227,66 +209,62 @@ export default function OverlayPreview({
 
                   return (
                     <div key={element.id}>
-                      {/* Element hit area */}
+                      {/* Element hit area - using AABB (Figma-style) */}
                       <div
                         data-element-id={element.id}
                         onMouseDown={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          const clickX = e.clientX - rect.left;
-                          const clickY = e.clientY - rect.top;
-                          const centerX = rect.width / 2;
-                          const centerY = rect.height / 2;
-                          const distanceX = Math.abs(clickX - centerX);
-                          const distanceY = Math.abs(clickY - centerY);
-                          if (distanceX < hitAreaWidth / 2 && distanceY < hitAreaHeight / 2) {
-                            onElementMouseDown(element.id, e);
-                          }
+                          onElementMouseDown(element.id, e);
                         }}
                         style={{
                           position: 'absolute',
-                          left: '50%',
-                          top: '50%',
+                          // Use AABB for hit area (axis-aligned, not rotated)
+                          left: `calc(50% + ${aabbAtPosition.left}px)`,
+                          top: `calc(50% + ${aabbAtPosition.top}px)`,
                           width: `${hitAreaWidth}px`,
                           height: `${hitAreaHeight}px`,
-                          transform: `translate(calc(-50% + ${elementX}px), calc(-50% + ${elementY}px))${elementAngle !== 0 ? ` rotate(${elementAngle}deg)` : ''}`,
                           cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
                           pointerEvents: 'auto',
                           zIndex: element.zIndex !== undefined ? element.zIndex + 100 : 100,
-                          outline: (isDraggingThis || isSelected) ? '2px dashed rgba(255, 255, 255, 0.5)' : 'none',
-                          outlineOffset: (isDraggingThis || isSelected) ? '4px' : '0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          // Bounding box outline is shown separately (see below)
                         }}
                       />
+                      
+                      {/* Phase 8.3: AABB Bounding Box (Modern Framer-style) - shown when selected */}
+                      {/* Phase 8.5: Added resizing state for opacity feedback */}
+                      {isSelected && (
+                        <div
+                          className={`bounding-box ${isDraggingThis ? 'dragging' : ''} ${isResizingThis ? 'resizing' : ''}`}
+                          style={{
+                            left: `calc(50% + ${aabbAtPosition.left}px)`,
+                            top: `calc(50% + ${aabbAtPosition.top}px)`,
+                            width: `${aabbAtPosition.width}px`,
+                            height: `${aabbAtPosition.height}px`,
+                            zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 150,
+                          }}
+                        />
+                      )}
                       
                       {/* Phase 4.2: Element label - shown when selected */}
                       {isSelected && (
                         <div
                           style={{
                             position: 'absolute',
-                            // Label positioned at rotated top-left corner
-                            // Use absolute coordinates from RBox calculation
-                            left: `calc(50% + ${rBoxTopLeft.x}px)`,
-                            top: `calc(50% + ${rBoxTopLeft.y}px)`,
+                            // Label positioned at AABB top-left corner
+                            left: `calc(50% + ${aabbAtPosition.left}px)`,
+                            top: `calc(50% + ${aabbAtPosition.top}px)`,
                             pointerEvents: 'none',
                             zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 300,
-                            // Parent wrapper: first translate to position, then rotate with bounding box
-                            // Transform order: translate (position) -> rotate (orientation)
-                            transform: `translate(-7px, calc(-100% - 5px))${elementAngle !== 0 ? ` rotate(${elementAngle}deg)` : ''}`,
+                            transform: 'translate(-7px, calc(-100% - 5px))',
                           }}
                         >
-                          {/* Child content counter-rotates to keep text upright */}
                           <div
                             style={{
                               fontSize: '10px',
-                              color: 'rgba(255, 255, 255, 0.5)', // Same color as bounding box outline
+                              color: 'rgba(255, 255, 255, 0.5)',
                               fontFamily: 'system-ui, -apple-system, sans-serif',
                               fontWeight: 500,
                               whiteSpace: 'nowrap',
                               userSelect: 'none',
-                              // Counter-rotate to keep text upright
-                              transform: elementAngle !== 0 ? `rotate(${-elementAngle}deg)` : 'none',
                             }}
                           >
                             {getElementLabel()}
@@ -294,73 +272,87 @@ export default function OverlayPreview({
                         </div>
                       )}
                       
-                      {/* Phase 4.2: Rotation handle - positioned at top-right corner of bounding box */}
-                      {isSelected && (
-                        <div
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
-                            // Calculate element center in preview coordinates
-                            onRotationMouseDown(element.id, centerX, centerY, e);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            // Position at rotated top-right corner + offset
-                            // Use absolute coordinates from RBox calculation
-                            left: `calc(50% + ${rBoxTopRight.x}px)`,
-                            top: `calc(50% + ${rBoxTopRight.y}px)`,
-                            transform: (() => {
-                              // Offset to place handle outside bounding box
-                              const rotationHandleOffset = 10; // 10px outside
-                              // For top-right, offset diagonally up-right
-                              const offsetX = rotationHandleOffset * (rBoxTopRight.x > centerX ? 1 : -1);
-                              const offsetY = rotationHandleOffset * (rBoxTopRight.y < centerY ? -1 : 1);
-                              // Parent wrapper rotates with bounding box
-                              return `translate(${offsetX}px, ${offsetY}px) translate(-50%, -50%)${elementAngle !== 0 ? ` rotate(${elementAngle}deg)` : ''}`;
-                            })(),
-                            cursor: rotatingElementId === element.id ? 'grabbing' : 'grab',
-                            pointerEvents: 'auto',
-                            zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 250,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {/* Child icon counter-rotates to stay upright */}
+                      {/* Phase 8.2: Rotation handle - positioned at top-right (Figma-style) */}
+                      {/* Phase 8.4 Micro-patch: Rotation handle pushed outside bounding box at top-right */}
+                      {isSelected && handlePositions && (() => {
+                        // Check if this handle is currently being rotated
+                        const isActive = rotatingElementId === element.id;
+                        
+                        // Phase 8.4 Micro-patch: Position rotation handle at top-right corner of bounding box
+                        // Calculate top-right corner position in preview coordinates
+                        const topRightX = aabbAtPosition.right;
+                        const topRightY = aabbAtPosition.top;
+                        
+                        // Calculate direction from element center to top-right corner
+                        const dx = topRightX - elementX;
+                        const dy = topRightY - elementY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        // Normalize direction vector
+                        const normX = distance > 0 ? dx / distance : 1;
+                        const normY = distance > 0 ? dy / distance : -1;
+                        
+                        // Add offset to push handle outside bounding box
+                        // Rotation handle size is 24px (12px radius), we need at least 12px + spacing
+                        const additionalOffset = 14; // Preview pixels - pushes handle outside bounding box
+                        const offsetX = normX * additionalOffset;
+                        const offsetY = normY * additionalOffset;
+                        
+                        // Final position: top-right corner + offset
+                        const finalX = topRightX + offsetX;
+                        const finalY = topRightY + offsetY;
+                        
+                        // Calculate rotation angle for handle (perpendicular to direction from center to top-right)
+                        // For top-right, angle should be approximately 45 degrees (adjusted for element rotation)
+                        const handleAngle = handlePositions.rotationHandle.angle;
+                        
+                        return (
                           <div
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                              // Element center in LCD coordinates
+                              onRotationMouseDown(element.id, element.x, element.y, e);
+                            }}
+                            className="rotation-handle-wrapper"
                             style={{
-                              transform: elementAngle !== 0 ? `rotate(${-elementAngle}deg)` : 'none',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
+                              position: 'absolute',
+                              // Phase 8.4 Micro-patch: Position at top-right corner with offset
+                              left: `calc(50% + ${finalX}px)`,
+                              top: `calc(50% + ${finalY}px)`,
+                              transform: `translate(-50%, -50%) rotate(${handleAngle}deg)`,
+                              cursor: rotatingElementId === element.id ? 'grabbing' : 'grab',
+                              pointerEvents: 'auto',
+                              zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 250,
                             }}
                           >
-                            <UndoDot size={16} strokeWidth={2.5} color="rgba(0, 200, 255, 0.9)" />
+                            {/* Phase 8.2: Figma-style rotation handle with CSS classes */}
+                            {/* Phase 8.5: Added rotating state for enhanced visibility */}
+                            <div className={`rotation-handle ${isActive ? 'active' : ''} ${isRotatingThis ? 'rotating' : ''}`}>
+                              {/* Icon wrapper with counter-rotation to keep icon upright */}
+                              <div
+                                className="rotation-handle__icon"
+                                style={{
+                                  transform: `rotate(${-handleAngle}deg)`,
+                                }}
+                              >
+                                <RotateCw size={14} strokeWidth={2} color="rgba(0, 200, 255, 1)" />
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        );
+                      })()}
                       
-                      {/* Phase 4.2: Resize handles */}
-                      {isSelected && canResize && (
+                      {/* Phase 8.1: Resize handles - all 8 handles (Figma-style) */}
+                      {isSelected && canResize && handlePositions && (
                         <>
-                          {/* Corner handles - exclude top-right (ne) as rotation handle replaces it */}
-                          {(['nw', 'sw', 'se'] as ResizeHandle[]).map((handle) => {
-                            // Get rotated corner position from RBox
-                            let cornerPos: { x: number; y: number };
+                          {/* All 8 resize handles: 4 corners + 4 edges */}
+                          {getAllResizeHandlePositions(element).map(([handle, handlePos]) => {
+                            // Convert LCD coordinates to preview coordinates
+                            const handleX = lcdToPreview(handlePos.x, offsetScale);
+                            const handleY = lcdToPreview(handlePos.y, offsetScale);
                             
-                            if (handle === 'nw') {
-                              cornerPos = rBoxTopLeft;
-                            } else if (handle === 'sw') {
-                              cornerPos = rBoxBottomLeft;
-                            } else if (handle === 'se') {
-                              cornerPos = rBoxBottomRight;
-                            } else {
-                              cornerPos = { x: 0, y: 0 }; // Should not happen
-                            }
-                            
-                            // Calculate offset direction (perpendicular to edge, pointing outward)
-                            // For corners, offset diagonally
-                            const offsetX = handleOffset * (cornerPos.x > centerX ? 1 : -1);
-                            const offsetY = handleOffset * (cornerPos.y > centerY ? 1 : -1);
+                            // Check if this handle is currently being resized
+                            const isActive = resizingElementId === element.id;
                             
                             return (
                               <div
@@ -369,29 +361,21 @@ export default function OverlayPreview({
                                   e.stopPropagation();
                                   onResizeMouseDown(element.id, handle, e);
                                 }}
+                                className="resize-handle-wrapper"
                                 style={{
                                   position: 'absolute',
-                                  // Position at rotated corner + offset
-                                  left: `calc(50% + ${cornerPos.x}px)`,
-                                  top: `calc(50% + ${cornerPos.y}px)`,
+                                  left: `calc(50% + ${handleX}px)`,
+                                  top: `calc(50% + ${handleY}px)`,
+                                  transform: `translate(-50%, -50%) rotate(${handlePos.angle}deg)`,
                                   pointerEvents: 'auto',
                                   zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 200,
-                                  // Parent wrapper rotates with bounding box
-                                  transform: `translate(${offsetX}px, ${offsetY}px) translate(-50%, -50%)${elementAngle !== 0 ? ` rotate(${elementAngle}deg)` : ''}`,
+                                  cursor: `${handle}-resize`,
                                 }}
                               >
-                                {/* Child handle box - visual appearance stays consistent */}
+                                {/* Phase 8.1: Figma-style handle with CSS classes */}
+                                {/* Phase 8.5: Added resizing state for opacity feedback */}
                                 <div
-                                  style={{
-                                    width: `${handleSize}px`,
-                                    height: `${handleSize}px`,
-                                    background: 'rgba(0, 200, 255, 0.9)',
-                                    border: '1px solid rgba(255, 255, 255, 0.8)',
-                                    borderRadius: '2px',
-                                    cursor: `${handle}-resize`,
-                                    // Handle box itself doesn't need counter-rotation (it's just a square)
-                                    // But we could add it if needed for visual consistency
-                                  }}
+                                  className={`resize-handle resize-handle--${handle} ${isActive ? 'active' : ''} ${isResizingThis ? 'resizing' : ''}`}
                                 />
                               </div>
                             );

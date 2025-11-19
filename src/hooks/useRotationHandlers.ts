@@ -5,17 +5,20 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { calculateRotationAngle, applyRotationSnapping, normalizeAngle } from '../utils/rotation';
+import { rotateElement, type RotateOperationConfig } from '../transform/operations/RotateOperation';
 import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
 
 /**
  * Hook for managing element rotation.
+ * 
+ * Phase 5: Added undo/redo support via onRotateComplete callback.
  */
 export function useRotationHandlers(
   _offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
-  setSettings: (settings: AppSettings) => void
+  setSettings: (settings: AppSettings) => void,
+  onRotateComplete?: (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => void
 ) {
   const [rotatingElementId, setRotatingElementId] = useState<string | null>(null);
   const rotationStart = useRef<{
@@ -25,7 +28,6 @@ export function useRotationHandlers(
     centerY: number;
     elementId: string;
     initialAngle: number;
-    angleOffset: number;
   } | null>(null);
 
   const handleRotationMouseDown = useCallback((
@@ -49,74 +51,41 @@ export function useRotationHandlers(
     
     if (!element) return;
     
-    // Get preview container to convert mouse position
-    const previewContainer = document.querySelector('.overlay-preview');
-    if (!previewContainer) return;
-    
-    const rect = previewContainer.getBoundingClientRect();
-    const previewCenterX = rect.left + rect.width / 2;
-    const previewCenterY = rect.top + rect.height / 2;
-    
-    // Convert initial mouse position to preview coordinates
-    const startMouseX = e.clientX - previewCenterX;
-    const startMouseY = e.clientY - previewCenterY;
-    
-    // Calculate initial angle from mouse position
-    const startAngle = calculateRotationAngle(centerX, centerY, startMouseX, startMouseY);
-    
     // Get current element angle
     const currentElementAngle = element.angle ?? 0;
     
-    // Calculate offset between mouse angle and element angle
-    const angleOffset = startAngle - currentElementAngle;
+    // centerX and centerY are in preview coordinates
+    // We need to convert them to LCD coordinates for RotateOperation
+    // But actually, RotateOperation expects element center in LCD coordinates
+    // So we need to convert preview center to LCD center
+    const previewContainer = document.querySelector('.overlay-preview');
+    if (!previewContainer) return;
+    
+    // Element center in LCD coordinates is element.x, element.y
+    // But centerX, centerY passed here are in preview coordinates
+    // We need to convert preview coordinates to LCD coordinates
+    // Actually, let's use element.x, element.y directly as element center
+    const elementCenter = { x: element.x, y: element.y };
     
     setRotatingElementId(elementId);
     rotationStart.current = {
       startX: e.clientX,
       startY: e.clientY,
-      centerX,
-      centerY,
+      centerX: elementCenter.x,
+      centerY: elementCenter.y,
       elementId,
       initialAngle: currentElementAngle,
-      angleOffset, // Store offset to maintain relative rotation
     };
   }, [settingsRef]);
 
   const handleRotationMouseMove = useCallback((e: MouseEvent) => {
     if (!rotationStart.current) return;
 
-    // Get element center in preview coordinates (already in preview space)
-    const centerX = rotationStart.current.centerX;
-    const centerY = rotationStart.current.centerY;
-    
-    // Get current mouse position in preview coordinates
-    // Find the overlay preview container to get its position
+    // Get preview container for RotateOperation
     const previewContainer = document.querySelector('.overlay-preview');
     if (!previewContainer) return;
-    
-    const rect = previewContainer.getBoundingClientRect();
-    // Preview circle is 200px, centered in container
-    // Preview coordinates: (0,0) is at preview center
-    const previewCenterX = rect.left + rect.width / 2;
-    const previewCenterY = rect.top + rect.height / 2;
-    
-    // Convert mouse position to preview coordinates (relative to preview center)
-    const mouseX = e.clientX - previewCenterX;
-    const mouseY = e.clientY - previewCenterY;
-    
-    // Calculate rotation angle from current mouse position
-    const currentAngle = calculateRotationAngle(centerX, centerY, mouseX, mouseY);
-    
-    // Calculate new angle: current mouse angle minus the offset
-    const angleOffset = rotationStart.current.angleOffset;
-    let newAngle = currentAngle - angleOffset;
-    
-    // Normalize to 0-360 range
-    newAngle = normalizeAngle(newAngle);
-    
-    // Apply soft snapping
-    const snappedAngle = applyRotationSnapping(newAngle);
-    
+    const previewRect = previewContainer.getBoundingClientRect();
+
     const currentSettings = settingsRef.current;
     const currentOverlay = currentSettings.overlay;
     
@@ -128,11 +97,31 @@ export function useRotationHandlers(
     const elementIndex = overlay.elements.findIndex(el => el.id === rotationStart.current!.elementId);
     
     if (elementIndex !== -1) {
-      const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = {
-        ...updatedElements[elementIndex],
-        angle: snappedAngle === 0 ? undefined : snappedAngle, // Omit angle if 0 for cleaner data
+      const element = overlay.elements[elementIndex];
+      
+      // Use new RotateOperation (Bug #7 fix)
+      const rotateConfig: RotateOperationConfig = {
+        offsetScale: _offsetScale,
+        previewRect,
+        startMousePos: {
+          x: rotationStart.current.startX,
+          y: rotationStart.current.startY,
+        },
+        initialAngle: rotationStart.current.initialAngle,
+        elementCenter: {
+          x: rotationStart.current.centerX,
+          y: rotationStart.current.centerY,
+        },
       };
+      
+      const result = rotateElement(
+        element,
+        { x: e.clientX, y: e.clientY },
+        rotateConfig
+      );
+      
+      const updatedElements = [...overlay.elements];
+      updatedElements[elementIndex] = result.element;
       
       setSettings({
         ...currentSettings,
@@ -142,12 +131,35 @@ export function useRotationHandlers(
         },
       });
     }
-  }, [setSettings, settingsRef]);
+  }, [_offsetScale, setSettings, settingsRef]);
 
   const handleRotationMouseUp = useCallback(() => {
+    // Phase 5: Record rotate action for undo/redo
+    if (rotationStart.current && onRotateComplete) {
+      const currentSettings = settingsRef.current;
+      const currentOverlay = currentSettings.overlay;
+      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
+        const overlay = currentOverlay as Overlay;
+        const element = overlay.elements.find(el => el.id === rotationStart.current!.elementId);
+        if (element) {
+          const currentAngle = element.angle ?? 0;
+          const initialAngle = rotationStart.current.initialAngle;
+          
+          // Only record if angle actually changed
+          if (currentAngle !== initialAngle) {
+            onRotateComplete(
+              rotationStart.current.elementId,
+              initialAngle === 0 ? undefined : initialAngle,
+              currentAngle === 0 ? undefined : currentAngle
+            );
+          }
+        }
+      }
+    }
+    
     setRotatingElementId(null);
     rotationStart.current = null;
-  }, []);
+  }, [onRotateComplete, settingsRef]);
 
   // Event listeners for rotation
   useEffect(() => {

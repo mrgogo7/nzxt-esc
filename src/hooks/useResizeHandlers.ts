@@ -6,23 +6,22 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { 
-  resizeMetricElement, 
-  resizeTextElement, 
-  canResizeElement, 
-  calculateResizeDelta,
-  type ResizeHandle 
-} from '../utils/resize';
+import { canResizeElement } from '../utils/resize';
+import { resizeElement, type ResizeOperationConfig } from '../transform/operations/ResizeOperation';
+import type { ResizeHandle } from '../transform/engine/HandlePositioning';
 import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
 
 /**
  * Hook for managing element resize.
+ * 
+ * Phase 5: Added undo/redo support via onResizeComplete callback.
  */
 export function useResizeHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
-  setSettings: (settings: AppSettings) => void
+  setSettings: (settings: AppSettings) => void,
+  onResizeComplete?: (elementId: string, oldSize: number, newSize: number) => void
 ) {
   const [resizingElementId, setResizingElementId] = useState<string | null>(null);
   const resizeStart = useRef<{ 
@@ -74,19 +73,11 @@ export function useResizeHandlers(
   const handleResizeMouseMove = useCallback((e: MouseEvent) => {
     if (!resizeStart.current) return;
 
-    // Calculate total movement from start position
-    const totalDx = e.clientX - resizeStart.current.startX;
-    const totalDy = e.clientY - resizeStart.current.startY;
-    
-    // Phase 4.2: Calculate normalized resize delta based on handle direction
-    // Use total movement from start for consistent behavior
-    const totalSizeDelta = calculateResizeDelta(
-      resizeStart.current.handle,
-      totalDx,
-      totalDy,
-      offsetScale
-    );
-    
+    // Get preview container for ResizeOperation
+    const previewContainer = document.querySelector('.overlay-preview');
+    if (!previewContainer) return;
+    const previewRect = previewContainer.getBoundingClientRect();
+
     const currentSettings = settingsRef.current;
     const currentOverlay = currentSettings.overlay;
     
@@ -100,35 +91,26 @@ export function useResizeHandlers(
     if (elementIndex !== -1) {
       const element = overlay.elements[elementIndex];
       
-      // Get current size
-      let currentSize = 0;
-      if (element.type === 'metric') {
-        currentSize = (element.data as any).numberSize || 180;
-      } else if (element.type === 'text') {
-        currentSize = (element.data as any).textSize || 45;
-      } else {
-        return;
-      }
+      // Use new ResizeOperation (Bug #2 fix)
+      const resizeConfig: ResizeOperationConfig = {
+        offsetScale,
+        previewRect,
+        startMousePos: {
+          x: resizeStart.current.startX,
+          y: resizeStart.current.startY,
+        },
+        initialSize: resizeStart.current.initialSize,
+      };
       
-      // Target size = initial size + total movement converted to size
-      // Apply directly without smoothing for immediate, proportional response
-      const targetSize = resizeStart.current.initialSize + totalSizeDelta;
-      
-      // Calculate final delta for resize function (direct application)
-      const finalDelta = targetSize - currentSize;
-      
-      let updatedElement;
-      if (element.type === 'metric') {
-        updatedElement = resizeMetricElement(element, finalDelta, false);
-      } else if (element.type === 'text') {
-        updatedElement = resizeTextElement(element, finalDelta, false);
-      } else {
-        return;
-      }
-      
+      const result = resizeElement(
+        element,
+        resizeStart.current.handle,
+        { x: e.clientX, y: e.clientY },
+        resizeConfig
+      );
       
       const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = updatedElement;
+      updatedElements[elementIndex] = result.element;
       
       setSettings({
         ...currentSettings,
@@ -141,9 +123,36 @@ export function useResizeHandlers(
   }, [offsetScale, setSettings, settingsRef]);
 
   const handleResizeMouseUp = useCallback(() => {
+    // Phase 5: Record resize action for undo/redo
+    if (resizeStart.current && onResizeComplete) {
+      const currentSettings = settingsRef.current;
+      const currentOverlay = currentSettings.overlay;
+      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
+        const overlay = currentOverlay as Overlay;
+        const element = overlay.elements.find(el => el.id === resizeStart.current!.elementId);
+        if (element) {
+          let currentSize = 0;
+          if (element.type === 'metric') {
+            currentSize = (element.data as any).numberSize || 180;
+          } else if (element.type === 'text') {
+            currentSize = (element.data as any).textSize || 45;
+          }
+          
+          // Only record if size actually changed
+          if (currentSize !== resizeStart.current.initialSize) {
+            onResizeComplete(
+              resizeStart.current.elementId,
+              resizeStart.current.initialSize,
+              currentSize
+            );
+          }
+        }
+      }
+    }
+    
     setResizingElementId(null);
     resizeStart.current = null;
-  }, []);
+  }, [onResizeComplete, settingsRef]);
 
   // Event listeners for resize
   useEffect(() => {

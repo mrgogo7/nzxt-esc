@@ -12,6 +12,11 @@ import { useDragHandlers } from '../../hooks/useDragHandlers';
 import { useResizeHandlers } from '../../hooks/useResizeHandlers';
 import { useRotationHandlers } from '../../hooks/useRotationHandlers';
 import { useOverlayConfig } from '../../hooks/useOverlayConfig';
+import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
+import { MoveCommand } from '../../transform/history/commands/MoveCommand';
+import { ResizeCommand } from '../../transform/history/commands/ResizeCommand';
+import { RotateCommand } from '../../transform/history/commands/RotateCommand';
+import type { Overlay } from '../../types/overlay';
 import { hasRealMonitoring } from '../../environment';
 import { lcdToPreview, getBaseAlign } from '../../utils/positioning';
 import { isVideoUrl } from '../../utils/media';
@@ -61,6 +66,105 @@ export default function ConfigPreview() {
   // Overlay config
   const overlayConfig = useOverlayConfig(settings);
 
+  // Phase 5: Undo/Redo system
+  // WHY: Command pattern-based undo/redo for all transform operations.
+  // Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y / Ctrl+Shift+Z (redo)
+  const undoRedo = useUndoRedo({ maxHistorySize: 50, enableKeyboardShortcuts: true });
+
+  /**
+   * Updates element in settings (for undo/redo commands).
+   * 
+   * This helper function is used by command objects to update element state.
+   * It ensures proper state management and triggers React re-renders.
+   */
+  const updateElement = (elementId: string, updater: (element: any) => any) => {
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay;
+    
+    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+      return;
+    }
+    
+    const overlay = currentOverlay as Overlay;
+    const elementIndex = overlay.elements.findIndex(el => el.id === elementId);
+    
+    if (elementIndex === -1) return;
+    
+    const element = overlay.elements[elementIndex];
+    const updatedElement = updater(element);
+    
+    const updatedElements = [...overlay.elements];
+    updatedElements[elementIndex] = updatedElement;
+    
+    setSettings({
+      ...currentSettings,
+      overlay: {
+        ...overlay,
+        elements: updatedElements,
+      },
+    });
+  };
+
+  // Phase 5: Callbacks for undo/redo
+  // WHY: These callbacks are called when transform operations complete (mouseup).
+  // They create command objects and record them in the action history.
+  const handleMoveComplete = (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay;
+    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    
+    const overlay = currentOverlay as Overlay;
+    const element = overlay.elements.find(el => el.id === elementId);
+    if (!element) return;
+    
+    const command = new MoveCommand(
+      element,
+      oldPos,
+      newPos,
+      (updatedElement) => updateElement(elementId, () => updatedElement)
+    );
+    
+    undoRedo.record(command);
+  };
+
+  const handleResizeComplete = (elementId: string, oldSize: number, newSize: number) => {
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay;
+    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    
+    const overlay = currentOverlay as Overlay;
+    const element = overlay.elements.find(el => el.id === elementId);
+    if (!element) return;
+    
+    const command = new ResizeCommand(
+      element,
+      oldSize,
+      newSize,
+      (updatedElement) => updateElement(elementId, () => updatedElement)
+    );
+    
+    undoRedo.record(command);
+  };
+
+  const handleRotateComplete = (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => {
+    const currentSettings = settingsRef.current;
+    const currentOverlay = currentSettings.overlay;
+    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    
+    const overlay = currentOverlay as Overlay;
+    const element = overlay.elements.find(el => el.id === elementId);
+    if (!element) return;
+    
+    const command = new RotateCommand(
+      element,
+      oldAngle,
+      newAngle,
+      (updatedElement) => updateElement(elementId, () => updatedElement)
+    );
+    
+    undoRedo.record(command);
+  };
+
   // Drag handlers
   const {
     isDragging,
@@ -69,13 +173,23 @@ export default function ConfigPreview() {
     selectedElementId,
     handleElementMouseDown,
     activeGuides,
-  } = useDragHandlers(offsetScale, settingsRef, setSettings);
+  } = useDragHandlers(offsetScale, settingsRef, setSettings, handleMoveComplete);
 
   // Phase 4.2: Resize handlers
-  const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(offsetScale, settingsRef, setSettings);
+  const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(
+    offsetScale, 
+    settingsRef, 
+    setSettings,
+    handleResizeComplete
+  );
   
   // Phase 4.2: Rotation handlers
-  const { rotatingElementId, handleRotationMouseDown } = useRotationHandlers(offsetScale, settingsRef, setSettings);
+  const { rotatingElementId, handleRotationMouseDown } = useRotationHandlers(
+    offsetScale, 
+    settingsRef, 
+    setSettings,
+    handleRotateComplete
+  );
 
   // Language sync
   useEffect(() => {
