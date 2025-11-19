@@ -221,6 +221,20 @@ const dict: Record<Lang, Record<string, string>> = {
     // Element management
     noElements: "No elements added yet. Use the buttons above to add readings or text.",
     elementCount: "Elements",
+    // Element management
+    addElement: "Add Element",
+    // Divider labels
+    addDivider: "Add Divider",
+    removeDivider: "Remove Divider",
+    divider: "Divider",
+    firstDivider: "1st Divider",
+    secondDivider: "2nd Divider",
+    thirdDivider: "3rd Divider",
+    fourthDivider: "4th Divider",
+    moveDividerUp: "Move Up",
+    moveDividerDown: "Move Down",
+    thickness: "Thickness",
+    dividerLength: "Length",
     // Reset tooltips
     resetToDefault: "Reset to default value",
   },
@@ -358,6 +372,20 @@ const dict: Record<Lang, Record<string, string>> = {
     // Element management
     noElements: "Henüz öğe eklenmedi. Yukarıdaki butonları kullanarak reading veya text ekleyin.",
     elementCount: "Öğeler",
+    // Element management
+    addElement: "Element Ekle",
+    // Divider labels
+    addDivider: "Divider Ekle",
+    removeDivider: "Divider Kaldır",
+    divider: "Divider",
+    firstDivider: "1. Divider",
+    secondDivider: "2. Divider",
+    thirdDivider: "3. Divider",
+    fourthDivider: "4. Divider",
+    moveDividerUp: "Yukarı Taşı",
+    moveDividerDown: "Aşağı Taşı",
+    thickness: "Kalınlık",
+    dividerLength: "Uzunluk",
     // Reset tooltips
     resetToDefault: "Varsayılan değere sıfırla",
   },

@@ -57,6 +57,8 @@ export function useResizeHandlers(
       initialSize = (element.data as any).numberSize || 180;
     } else if (element.type === 'text') {
       initialSize = (element.data as any).textSize || 45;
+    } else if (element.type === 'divider') {
+      initialSize = (element.data as any).width || 2; // Divider width (thickness) in pixels
     }
     
     setResizingElementId(elementId);
@@ -135,6 +137,8 @@ export function useResizeHandlers(
             currentSize = (element.data as any).numberSize || 180;
           } else if (element.type === 'text') {
             currentSize = (element.data as any).textSize || 45;
+          } else if (element.type === 'divider') {
+            currentSize = (element.data as any).width || 2; // Divider width (thickness) in pixels
           }
           
           // Only record if size actually changed

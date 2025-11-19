@@ -6,8 +6,9 @@
  * The goal is only to make the new element-based overlay structure work.
  */
 
-import type { OverlaySettings, Overlay, OverlayElement, MetricElementData, TextElementData, OverlayMetricKey } from '../types/overlay';
+import type { OverlaySettings, Overlay, OverlayElement, MetricElementData, TextElementData, OverlayMetricKey, DividerElementData } from '../types/overlay';
 import { DEFAULT_OVERLAY } from '../types/overlay';
+import { NZXT_DEFAULTS } from '../constants/nzxt';
 
 /**
  * Generate a unique ID for an overlay element.
@@ -193,6 +194,7 @@ export function isLegacyOverlaySettings(obj: any): obj is OverlaySettings {
 /**
  * Ensure overlay is in the new format.
  * If it's legacy format, migrate it. Otherwise return as-is.
+ * Also migrates any legacy divider elements (thickness + width% → width + height px).
  */
 export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | undefined): Overlay {
   if (!overlay) {
@@ -201,11 +203,72 @@ export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | 
 
   // Check if it's already the new format
   if ('elements' in overlay && Array.isArray(overlay.elements)) {
-    return overlay as Overlay;
+    // Migrate any legacy divider elements (thickness + width% → width + height px)
+    return migrateLegacyDividers(overlay as Overlay);
   }
 
   // It's legacy format - migrate it
-  return migrateOverlaySettingsToOverlay(overlay as OverlaySettings);
+  const migrated = migrateOverlaySettingsToOverlay(overlay as OverlaySettings);
+  // Also migrate any legacy dividers that might have been created
+  return migrateLegacyDividers(migrated);
+}
+
+/**
+ * Migrates legacy divider elements to new rectangle format.
+ * Legacy format: { thickness: px, width: % }
+ * New format: { width: px, height: px }
+ * 
+ * @param overlay - Overlay configuration (may contain legacy dividers)
+ * @returns Overlay with migrated divider elements
+ */
+function migrateLegacyDividers(overlay: Overlay): Overlay {
+  const hasLegacyDividers = overlay.elements.some(el => 
+    el.type === 'divider' && 
+    el.data && 
+    typeof el.data === 'object' &&
+    'thickness' in el.data
+  );
+
+  if (!hasLegacyDividers) {
+    return overlay; // No migration needed
+  }
+
+  // Migrate divider elements
+  const migratedElements = overlay.elements.map((element): OverlayElement => {
+    if (element.type === 'divider') {
+      const data = element.data as any;
+      
+      // Check if it's legacy format (has thickness property)
+      if (data && typeof data === 'object' && 'thickness' in data) {
+        // Legacy format: convert to new format
+        const legacyThickness = typeof data.thickness === 'number' ? data.thickness : 2;
+        const legacyWidthPercent = typeof data.width === 'number' ? data.width : 60;
+        const legacyColor = typeof data.color === 'string' ? data.color : 'rgba(255, 255, 255, 0.3)';
+        
+        // Convert width% to height px
+        const heightPixels = NZXT_DEFAULTS.LCD_HEIGHT * (legacyWidthPercent / 100);
+        
+        // New format: width = thickness, height = converted pixels
+        const newData: DividerElementData = {
+          width: legacyThickness,
+          height: heightPixels,
+          color: legacyColor,
+        };
+        
+        return {
+          ...element,
+          data: newData,
+        };
+      }
+    }
+    
+    return element; // No migration needed for this element
+  });
+
+  return {
+    ...overlay,
+    elements: migratedElements,
+  };
 }
 
 /**

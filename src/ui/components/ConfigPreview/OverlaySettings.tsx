@@ -1,9 +1,10 @@
 import type { MouseEvent, ChangeEvent } from 'react';
-import { ChevronUp, ChevronDown, Plus, X } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronUp, ChevronDown, Plus, X, ChevronRight } from 'lucide-react';
 import type { AppSettings } from '../../../constants/defaults';
-import { DEFAULT_OVERLAY, type Overlay, type OverlayMetricKey, type OverlayElement, type MetricElementData, type TextElementData } from '../../../types/overlay';
+import { DEFAULT_OVERLAY, type Overlay, type OverlayMetricKey, type OverlayElement, type MetricElementData, type TextElementData, type DividerElementData } from '../../../types/overlay';
 import type { Lang, t as tFunction } from '../../../i18n';
-import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateOverlayElementPosition, updateOverlayElementAngle } from '../../../utils/overlaySettingsHelpers';
+import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateDividerElementData, updateOverlayElementPosition, updateOverlayElementAngle } from '../../../utils/overlaySettingsHelpers';
 import OverlayField from './OverlayField';
 import ResetButton from './ResetButton';
 
@@ -33,12 +34,17 @@ export default function OverlaySettingsComponent({
   lang,
   t,
 }: OverlaySettingsProps) {
-  // Helper: Get metric and text element counts
+  // Helper: Get metric, text, and divider element counts
   const metricElements = overlayConfig.elements.filter(el => el.type === 'metric');
   const textElements = overlayConfig.elements.filter(el => el.type === 'text');
+  const dividerElements = overlayConfig.elements.filter(el => el.type === 'divider');
   const metricCount = metricElements.length;
   const textCount = textElements.length;
+  const dividerCount = dividerElements.length;
   const totalCount = overlayConfig.elements.length;
+
+  // State for Add Element menu expansion
+  const [isAddElementExpanded, setIsAddElementExpanded] = useState(false);
 
   // Helper: Generate unique element ID
   const generateElementId = () => `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -98,17 +104,63 @@ export default function OverlaySettingsComponent({
         {/* Custom Mode Content */}
         {overlayConfig.mode === 'custom' && (
           <>
-            {/* Add Element Buttons */}
+            {/* Add Element Grouped Menu */}
             <div style={{ 
-              marginBottom: '20px', 
-              display: 'flex', 
-              gap: '12px',
-              padding: '12px',
-              background: '#1a1f2e',
-              borderRadius: '8px',
-              border: '1px solid #2a3441',
+              marginBottom: '20px',
             }}>
+              {/* Add Element Header */}
               <button
+                onClick={() => setIsAddElementExpanded(!isAddElementExpanded)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: '#263146',
+                  border: '1px solid #3b5a9a',
+                  color: '#d9e6ff',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.background = '#2e3a55';
+                  e.currentTarget.style.borderColor = '#4a6ba8';
+                }}
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.background = '#263146';
+                  e.currentTarget.style.borderColor = '#3b5a9a';
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Plus size={16} />
+                  {t('addElement', lang) || 'Add Element'}
+                </span>
+                <ChevronRight 
+                  size={16} 
+                  style={{ 
+                    transform: isAddElementExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.15s ease',
+                  }} 
+                />
+              </button>
+
+              {/* Add Element Options (Expandable) */}
+              {isAddElementExpanded && (
+                <div style={{
+                  marginTop: '8px',
+                  padding: '8px',
+                  background: '#1a1f2e',
+                  borderRadius: '8px',
+                  border: '1px solid #2a3441',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                }}>
+                  <button
                 onClick={() => {
                   if (metricCount < 8 && totalCount < 8) {
                     const newElement: OverlayElement = {
@@ -141,10 +193,10 @@ export default function OverlaySettingsComponent({
                   fontWeight: 500,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   gap: '8px',
                   transition: 'all 0.15s ease',
-                  flex: 1,
+                  width: '100%',
                 }}
                 onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   if (metricCount < 8 && totalCount < 8) {
@@ -192,10 +244,10 @@ export default function OverlaySettingsComponent({
                   fontWeight: 500,
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   gap: '8px',
                   transition: 'all 0.15s ease',
-                  flex: 1,
+                  width: '100%',
                 }}
                 onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
                   if (textCount < 8 && totalCount < 8) {
@@ -213,6 +265,59 @@ export default function OverlaySettingsComponent({
                 <Plus size={16} />
                 {t('addText', lang)}
               </button>
+              <button
+                onClick={() => {
+                  if (dividerCount < 8 && totalCount < 8) {
+                    const newElement: OverlayElement = {
+                      id: generateElementId(),
+                      type: 'divider',
+                      x: 0,
+                      y: 0,
+                      zIndex: overlayConfig.elements.length,
+                      data: {
+                        width: 2, // Rectangle width in pixels (thickness)
+                        height: 384, // Rectangle height in pixels (length) - 60% of 640px LCD
+                        color: 'rgba(255, 255, 255, 0.3)',
+                      } as DividerElementData,
+                    };
+                    setSettings(addOverlayElement(settings, overlayConfig, newElement));
+                  }
+                }}
+                disabled={dividerCount >= 8 || totalCount >= 8}
+                style={{
+                  background: dividerCount >= 8 || totalCount >= 8 ? '#1a1f2e' : '#263146',
+                  border: '1px solid #3b5a9a',
+                  color: dividerCount >= 8 || totalCount >= 8 ? '#5a6b7d' : '#d9e6ff',
+                  padding: '10px 16px',
+                  borderRadius: '6px',
+                  cursor: dividerCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-start',
+                  gap: '8px',
+                  transition: 'all 0.15s ease',
+                  width: '100%',
+                }}
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                  if (dividerCount < 8 && totalCount < 8) {
+                    e.currentTarget.style.background = '#2e3a55';
+                    e.currentTarget.style.borderColor = '#4a6ba8';
+                  }
+                }}
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                  if (dividerCount < 8 && totalCount < 8) {
+                    e.currentTarget.style.background = '#263146';
+                    e.currentTarget.style.borderColor = '#3b5a9a';
+                  }
+                }}
+              >
+                <Plus size={16} />
+                {t('addDivider', lang)}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Reset to Defaults Button */}
@@ -682,6 +787,223 @@ export default function OverlaySettingsComponent({
                               onChange={(value) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: Math.max(6, value) }))}
                               onReset={() => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: 45 }))}
                               min={6}
+                              lang={lang}
+                              t={t}
+                            />
+
+                            {/* X Offset */}
+                            <OverlayField
+                              type="number"
+                              label={t('customXOffset', lang)}
+                              value={element.x}
+                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
+                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, 0, element.y))}
+                              lang={lang}
+                              t={t}
+                            />
+
+                            {/* Y Offset */}
+                            <OverlayField
+                              type="number"
+                              label={t('customYOffset', lang)}
+                              value={element.y}
+                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
+                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, 0))}
+                              lang={lang}
+                              t={t}
+                            />
+
+                            {/* Angle */}
+                            <OverlayField
+                              type="number"
+                              label={t('angle', lang) || 'Angle'}
+                              value={element.angle ?? 0}
+                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
+                              lang={lang}
+                              t={t}
+                              min={0}
+                              max={360}
+                            />
+                          </div>
+                        </div>
+                      );
+                    } else if (element.type === 'divider') {
+                      const data = element.data as DividerElementData;
+                      const dividerIndex = dividerElements.findIndex(el => el.id === element.id);
+                      
+                      const dividerLabels = [
+                        t('firstDivider', lang),
+                        t('secondDivider', lang),
+                        t('thirdDivider', lang),
+                        t('fourthDivider', lang),
+                      ];
+
+                      return (
+                        <div 
+                          key={element.id} 
+                          style={{ 
+                            padding: '16px',
+                            background: '#1a1f2e',
+                            borderRadius: '8px',
+                            border: '1px solid #2a3441',
+                          }}
+                        >
+                          {/* Element Header */}
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              marginBottom: '16px',
+                              paddingBottom: '12px',
+                              borderBottom: '1px solid #2a3441',
+                            }}
+                          >
+                            <span style={{ color: '#d9e6ff', fontSize: '14px', fontWeight: 600 }}>
+                              {dividerLabels[dividerIndex] || `${dividerIndex + 1}${dividerIndex === 0 ? 'st' : dividerIndex === 1 ? 'nd' : dividerIndex === 2 ? 'rd' : 'th'} ${t('divider', lang)}`}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              {/* Move Up Button */}
+                              <button
+                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (unifiedIndex > 0) {
+                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex - 1));
+                                  }
+                                }}
+                                disabled={unifiedIndex === 0}
+                                style={{
+                                  background: unifiedIndex === 0 ? '#1a1f2e' : '#263146',
+                                  border: '1px solid #3b5a9a',
+                                  color: unifiedIndex === 0 ? '#5a6b7d' : '#d9e6ff',
+                                  padding: '6px 10px',
+                                  borderRadius: '4px',
+                                  cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                }}
+                                data-tooltip-id="move-divider-up-tooltip"
+                                data-tooltip-content={t('moveDividerUp', lang)}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  if (unifiedIndex > 0) {
+                                    e.currentTarget.style.background = '#2e3a55';
+                                  }
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  if (unifiedIndex > 0) {
+                                    e.currentTarget.style.background = '#263146';
+                                  }
+                                }}
+                              >
+                                <ChevronUp size={14} />
+                              </button>
+                              {/* Move Down Button */}
+                              <button
+                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  if (unifiedIndex < sortedElements.length - 1) {
+                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex + 1));
+                                  }
+                                }}
+                                disabled={unifiedIndex === sortedElements.length - 1}
+                                style={{
+                                  background: unifiedIndex === sortedElements.length - 1 ? '#1a1f2e' : '#263146',
+                                  border: '1px solid #3b5a9a',
+                                  color: unifiedIndex === sortedElements.length - 1 ? '#5a6b7d' : '#d9e6ff',
+                                  padding: '6px 10px',
+                                  borderRadius: '4px',
+                                  cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                }}
+                                data-tooltip-id="move-divider-down-tooltip"
+                                data-tooltip-content={t('moveDividerDown', lang)}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  if (unifiedIndex < sortedElements.length - 1) {
+                                    e.currentTarget.style.background = '#2e3a55';
+                                  }
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  if (unifiedIndex < sortedElements.length - 1) {
+                                    e.currentTarget.style.background = '#263146';
+                                  }
+                                }}
+                              >
+                                <ChevronDown size={14} />
+                              </button>
+                              {/* Remove Button */}
+                              <button
+                                onClick={() => {
+                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
+                                }}
+                                style={{
+                                  background: '#3a1f1f',
+                                  border: '1px solid #5a2a2a',
+                                  color: '#ff6b6b',
+                                  padding: '6px 10px',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  transition: 'all 0.15s ease',
+                                  marginLeft: '6px',
+                                }}
+                                data-tooltip-id="remove-divider-tooltip"
+                                data-tooltip-content={t('removeDivider', lang)}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.background = '#4a2f2f';
+                                  e.currentTarget.style.borderColor = '#6a3a3a';
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.background = '#3a1f1f';
+                                  e.currentTarget.style.borderColor = '#5a2a2a';
+                                }}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Element Settings */}
+                          <div className="settings-grid-modern">
+                            {/* Divider Color */}
+                            <OverlayField
+                              type="color"
+                              label={t('color', lang)}
+                              value={data.color}
+                              onChange={(color) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color }))}
+                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color: 'rgba(255, 255, 255, 0.3)' }))}
+                              lang={lang}
+                              t={t}
+                            />
+
+                            {/* Divider Width (Thickness) */}
+                            <OverlayField
+                              type="number"
+                              label={t('thickness', lang) || 'Width'}
+                              value={data.width}
+                              onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { width: Math.max(1, Math.min(400, value)) }))}
+                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { width: 2 }))}
+                              min={1}
+                              max={400}
+                              lang={lang}
+                              t={t}
+                            />
+
+                            {/* Divider Height (Length) */}
+                            <OverlayField
+                              type="number"
+                              label={t('dividerLength', lang) || 'Length'}
+                              value={data.height}
+                              onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { height: Math.max(10, Math.min(640, value)) }))}
+                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { height: 384 }))}
+                              min={10}
+                              max={640}
                               lang={lang}
                               t={t}
                             />

@@ -172,8 +172,13 @@ export default function OverlayPreview({
                   // Calculate hit area based on AABB (for selection)
                   // WHY: AABB is used for hit detection (Figma-style). This ensures consistent
                   // selection behavior regardless of element rotation.
-                  const hitAreaWidth = aabbAtPosition.width;
-                  const hitAreaHeight = aabbAtPosition.height;
+                  // 
+                  // For divider elements, add selection padding in preview for better UX
+                  // (similar to Figma's handling of thin strokes)
+                  // This padding only affects preview selection, not actual element size or LCD rendering
+                  const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
+                  const hitAreaWidth = aabbAtPosition.width + (SELECTION_PADDING * 2);
+                  const hitAreaHeight = aabbAtPosition.height + (SELECTION_PADDING * 2);
                   
                   // Get element label (same as OverlaySettings)
                   const getElementLabel = (): string => {
@@ -210,39 +215,58 @@ export default function OverlayPreview({
                   return (
                     <div key={element.id}>
                       {/* Element hit area - using AABB (Figma-style) */}
-                      <div
-                        data-element-id={element.id}
-                        onMouseDown={(e) => {
-                          onElementMouseDown(element.id, e);
-                        }}
-                        style={{
-                          position: 'absolute',
-                          // Use AABB for hit area (axis-aligned, not rotated)
-                          left: `calc(50% + ${aabbAtPosition.left}px)`,
-                          top: `calc(50% + ${aabbAtPosition.top}px)`,
-                          width: `${hitAreaWidth}px`,
-                          height: `${hitAreaHeight}px`,
-                          cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
-                          pointerEvents: 'auto',
-                          zIndex: element.zIndex !== undefined ? element.zIndex + 100 : 100,
-                          // Bounding box outline is shown separately (see below)
-                        }}
-                      />
+                      {/* For divider, apply selection padding for better UX */}
+                      {(() => {
+                        const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
+                        const hitAreaLeft = aabbAtPosition.left - SELECTION_PADDING;
+                        const hitAreaTop = aabbAtPosition.top - SELECTION_PADDING;
+                        
+                        return (
+                          <div
+                            data-element-id={element.id}
+                            onMouseDown={(e) => {
+                              onElementMouseDown(element.id, e);
+                            }}
+                            style={{
+                              position: 'absolute',
+                              // Use AABB for hit area (axis-aligned, not rotated)
+                              // Apply padding for divider elements to make selection easier
+                              left: `calc(50% + ${hitAreaLeft}px)`,
+                              top: `calc(50% + ${hitAreaTop}px)`,
+                              width: `${hitAreaWidth}px`,
+                              height: `${hitAreaHeight}px`,
+                              cursor: isDraggingThis ? 'grabbing' : (isSelected ? 'move' : 'grab'),
+                              pointerEvents: 'auto',
+                              zIndex: element.zIndex !== undefined ? element.zIndex + 100 : 100,
+                              // Bounding box outline is shown separately (see below)
+                            }}
+                          />
+                        );
+                      })()}
                       
                       {/* AABB Bounding Box (Modern Framer-style) - shown when selected */}
                       {/* Resizing state for opacity feedback */}
-                      {isSelected && (
-                        <div
-                          className={`bounding-box ${isDraggingThis ? 'dragging' : ''} ${isResizingThis ? 'resizing' : ''}`}
-                          style={{
-                            left: `calc(50% + ${aabbAtPosition.left}px)`,
-                            top: `calc(50% + ${aabbAtPosition.top}px)`,
-                            width: `${aabbAtPosition.width}px`,
-                            height: `${aabbAtPosition.height}px`,
-                            zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 150,
-                          }}
-                        />
-                      )}
+                      {/* For divider, apply selection padding for better visibility */}
+                      {isSelected && (() => {
+                        const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
+                        const outlineLeft = aabbAtPosition.left - SELECTION_PADDING;
+                        const outlineTop = aabbAtPosition.top - SELECTION_PADDING;
+                        const outlineWidth = aabbAtPosition.width + (SELECTION_PADDING * 2);
+                        const outlineHeight = aabbAtPosition.height + (SELECTION_PADDING * 2);
+                        
+                        return (
+                          <div
+                            className={`bounding-box ${isDraggingThis ? 'dragging' : ''} ${isResizingThis ? 'resizing' : ''}`}
+                            style={{
+                              left: `calc(50% + ${outlineLeft}px)`,
+                              top: `calc(50% + ${outlineTop}px)`,
+                              width: `${outlineWidth}px`,
+                              height: `${outlineHeight}px`,
+                              zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 150,
+                            }}
+                          />
+                        );
+                      })()}
                       
                       {/* Element label - shown when selected */}
                       {isSelected && (

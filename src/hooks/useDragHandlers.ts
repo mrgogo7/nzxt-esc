@@ -303,6 +303,101 @@ export function useDragHandlers(
     }
   }, [selectedElementId, draggingElementId]);
 
+  // Keyboard arrow key movement for selected element
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle arrow keys when an element is selected and not dragging/resizing/rotating
+      if (!selectedElementId || draggingElementId) {
+        return;
+      }
+
+      // Check if user is typing in an input field
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      // Determine movement direction (LCD coordinates: 1 unit per arrow key press)
+      let dx = 0;
+      let dy = 0;
+
+      switch (e.key) {
+        case 'ArrowUp':
+          dy = -1; // Move up (negative Y in LCD coordinates)
+          break;
+        case 'ArrowDown':
+          dy = 1; // Move down (positive Y in LCD coordinates)
+          break;
+        case 'ArrowLeft':
+          dx = -1; // Move left (negative X in LCD coordinates)
+          break;
+        case 'ArrowRight':
+          dx = 1; // Move right (positive X in LCD coordinates)
+          break;
+        default:
+          return; // Not an arrow key, ignore
+      }
+
+      // Prevent default scrolling behavior
+      e.preventDefault();
+
+      // Get current settings and overlay
+      const currentSettings = settingsRef.current;
+      const currentOverlay = currentSettings.overlay;
+
+      // Ensure overlay is in new format
+      if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+        return;
+      }
+
+      const overlay = currentOverlay as Overlay;
+      const elementIndex = overlay.elements.findIndex(el => el.id === selectedElementId);
+
+      if (elementIndex === -1) {
+        return;
+      }
+
+      const element = overlay.elements[elementIndex];
+
+      // Store initial position for undo/redo
+      const oldPos = { x: element.x, y: element.y };
+
+      // Calculate new position (LCD coordinates: direct addition)
+      const newX = element.x + dx;
+      const newY = element.y + dy;
+
+      // Apply boundary constraint (constrainToCircle)
+      const constrained = constrainToCircle(element, newX, newY, offsetScale);
+
+      // Update element position
+      const updatedElements = [...overlay.elements];
+      updatedElements[elementIndex] = {
+        ...updatedElements[elementIndex],
+        x: constrained.x,
+        y: constrained.y,
+      };
+
+      setSettings({
+        ...currentSettings,
+        overlay: {
+          ...overlay,
+          elements: updatedElements,
+        },
+      });
+
+      // Record move action for undo/redo (only if position actually changed)
+      if (onMoveComplete && (constrained.x !== oldPos.x || constrained.y !== oldPos.y)) {
+        onMoveComplete(selectedElementId, oldPos, { x: constrained.x, y: constrained.y });
+      }
+    };
+
+    // Add keyboard event listener
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedElementId, draggingElementId, offsetScale, setSettings, settingsRef, onMoveComplete]);
+
   return {
     // Background drag
     isDragging,

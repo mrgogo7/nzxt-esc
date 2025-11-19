@@ -35,8 +35,10 @@ export function getElementBounds(
     width = Math.max(textSize * textLength * 0.6, textSize * 2);
     height = textSize * 1.2;
   } else if (element.type === 'divider' && isDividerElementData(element.data)) {
-    width = element.data.thickness || 2;
-    height = NZXT_DEFAULTS.LCD_HEIGHT; // Full height for vertical divider
+    // Divider is a rectangle element
+    // width and height are already in LCD pixels
+    width = element.data.width || 2;
+    height = element.data.height || 384; // Default length (60% of 640px LCD)
   }
 
   // Element position is centered, so bounds are relative to center

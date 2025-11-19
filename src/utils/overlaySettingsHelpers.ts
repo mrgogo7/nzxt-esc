@@ -1,5 +1,5 @@
 import type { AppSettings } from '../constants/defaults';
-import type { Overlay, OverlayElement, MetricElementData, TextElementData } from '../types/overlay';
+import type { Overlay, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../types/overlay';
 import {
   bringToFront,
   sendToBack,
@@ -200,6 +200,45 @@ export function updateTextElementData(
     ...updatedElements[elementIndex],
     data: {
       ...(updatedElements[elementIndex].data as TextElementData),
+      ...dataUpdates,
+    },
+  };
+  
+  return {
+    ...settings,
+    overlay: {
+      ...overlay,
+      elements: updatedElements,
+    },
+  };
+}
+
+/**
+ * Updates the data of a divider element.
+ * 
+ * @param settings - Current app settings
+ * @param overlay - Current overlay configuration
+ * @param elementId - ID of the divider element to update
+ * @param dataUpdates - Partial DividerElementData object
+ * @returns Updated app settings
+ */
+export function updateDividerElementData(
+  settings: AppSettings,
+  overlay: Overlay,
+  elementId: string,
+  dataUpdates: Partial<DividerElementData>
+): AppSettings {
+  const elementIndex = overlay.elements.findIndex(el => el.id === elementId);
+  
+  if (elementIndex === -1 || overlay.elements[elementIndex].type !== 'divider') {
+    return settings; // Element not found or not a divider element
+  }
+  
+  const updatedElements = [...overlay.elements];
+  updatedElements[elementIndex] = {
+    ...updatedElements[elementIndex],
+    data: {
+      ...(updatedElements[elementIndex].data as DividerElementData),
       ...dataUpdates,
     },
   };

@@ -5,7 +5,7 @@
  * Refined resize UX - stable, predictable, smooth.
  */
 
-import type { OverlayElement, MetricElementData, TextElementData } from '../types/overlay';
+import type { OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../types/overlay';
 
 /**
  * Resize constants for smooth, controlled resizing.
@@ -27,8 +27,8 @@ export const SIZE_CONSTRAINTS = {
     textSize: { min: 6, max: 200 },
   },
   divider: {
-    thickness: { min: 1, max: 20 },
-    width: { min: 10, max: 100 },
+    width: { min: 1, max: 400 }, // Thickness (width) in pixels - allows strong vertical bars
+    height: { min: 10, max: 640 }, // Length (height) in pixels - covers full LCD height
   },
 } as const;
 
@@ -236,9 +236,45 @@ export function resizeTextElement(
 }
 
 /**
+ * Resizes a divider element's width (thickness) with smoothing.
+ * Note: This function is kept for compatibility but divider now uses
+ * rectangle resize logic in ResizeOperation.ts which handles both width and height.
+ */
+export function resizeDividerElement(
+  element: OverlayElement,
+  delta: number,
+  useSmoothing: boolean = false
+): OverlayElement {
+  if (element.type !== 'divider') return element;
+  
+  const data = element.data as DividerElementData;
+  const currentWidth = data.width || 2;
+  const targetWidth = currentWidth + delta;
+  
+  // Apply smoothing if requested
+  const newWidth = useSmoothing
+    ? applyResizeSmoothing(currentWidth, targetWidth)
+    : targetWidth;
+  
+  const constrainedWidth = constrainSize(
+    newWidth,
+    SIZE_CONSTRAINTS.divider.width.min,
+    SIZE_CONSTRAINTS.divider.width.max
+  );
+  
+  return {
+    ...element,
+    data: {
+      ...data,
+      width: constrainedWidth,
+    },
+  };
+}
+
+/**
  * Checks if an element can be resized.
  */
 export function canResizeElement(element: OverlayElement): boolean {
-  return element.type === 'metric' || element.type === 'text';
+  return element.type === 'metric' || element.type === 'text' || element.type === 'divider';
 }
 

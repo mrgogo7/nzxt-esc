@@ -75,10 +75,11 @@ export function calculateElementDimensions(element: OverlayElement): ElementDime
     };
   } else if (element.type === 'divider') {
     const data = element.data as DividerElementData;
-    // Divider is vertical by default
+    // Divider is a rectangle element
+    // width and height are already in LCD pixels
     return {
-      width: data.thickness || 2,
-      height: NZXT_DEFAULTS.LCD_HEIGHT, // Full height for vertical divider
+      width: data.width || 2,
+      height: data.height || 384, // Default length (60% of 640px LCD)
     };
   }
   

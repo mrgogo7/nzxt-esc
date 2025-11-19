@@ -144,13 +144,16 @@ export interface TextElementData {
 
 /**
  * Divider element data.
- * Only vertical orientation is supported.
+ * Divider is modeled as a rectangle element (same as other overlay primitives).
+ * - width: Rectangle width in pixels (thickness of the divider line)
+ * - height: Rectangle height in pixels (length of the divider line)
+ * - color: Background color of the rectangle
+ * Rotation is handled via element.angle property (same as other elements).
  */
 export interface DividerElementData {
-  width: number; // Percentage of height
-  thickness: number; // Pixels
+  width: number; // Rectangle width in pixels (thickness)
+  height: number; // Rectangle height in pixels (length)
   color: string;
-  orientation: "vertical"; // Only vertical, horizontal reserved for future
 }
 
 /**
@@ -312,9 +315,11 @@ export function isDividerElementData(data: unknown): data is DividerElementData 
   return (
     typeof data === 'object' &&
     data !== null &&
-    'thickness' in data &&
-    ('width' in data || 'color' in data) &&
+    'width' in data &&
+    'height' in data &&
+    'color' in data &&
     !('metric' in data) &&
-    !('text' in data)
+    !('text' in data) &&
+    !('thickness' in data) // Old schema marker - exclude legacy dividers
   );
 }

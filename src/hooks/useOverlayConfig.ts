@@ -23,7 +23,8 @@ export function useOverlayConfig(settings: AppSettings): Overlay {
 
     // Check if it's already the new format
     if (isOverlay(settings.overlay)) {
-      return settings.overlay;
+      // ensureOverlayFormat handles legacy divider migration for both old and new formats
+      return ensureOverlayFormat(settings.overlay);
     }
 
     // Check if it's legacy format

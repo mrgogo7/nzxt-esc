@@ -153,21 +153,34 @@ function renderTextElement(
 
 /**
  * Render a divider element.
- * Minimalist - divider renderer exists for completeness.
+ * 
+ * Divider is a simple rectangle element.
+ * - width: Rectangle width in LCD pixels (scaled to preview)
+ * - height: Rectangle height in LCD pixels (scaled to preview)
+ * 
+ * Scale is applied to convert LCD pixels to preview pixels.
+ * Minimum 1px is enforced for visibility in preview.
  */
 function renderDividerElement(
   _element: OverlayElement,
   data: DividerElementData,
-  _scale: number
+  scale: number
 ) {
-  // Simple vertical divider
+  // Calculate dimensions in preview pixels
+  // Direct rectangle rendering - width and height are already in LCD pixels
+  const previewWidth = Math.max(1, data.width * scale);
+  const previewHeight = Math.max(1, data.height * scale);
+  
+  // Simple rectangle divider
   return (
     <div
       className={styles.dividerElement}
       style={{
-        width: `${data.thickness}px`,
-        height: `${data.width}%`,
+        width: `${previewWidth}px`,
+        height: `${previewHeight}px`,
         backgroundColor: data.color,
+        minWidth: '1px', // Ensure minimum visibility
+        minHeight: '1px',
       }}
     />
   );
