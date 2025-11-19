@@ -32,8 +32,8 @@ export function useRotationHandlers(
 
   const handleRotationMouseDown = useCallback((
     elementId: string,
-    centerX: number,
-    centerY: number,
+    _centerX: number,
+    _centerY: number,
     e: React.MouseEvent
   ) => {
     e.preventDefault();

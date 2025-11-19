@@ -272,3 +272,49 @@ export function getOverlayLabelAndValue(
   // Delegate to centralized metrics domain
   return getMetricDisplayInfo(key, rawValue);
 }
+
+/**
+ * Type guard for MetricElementData.
+ * Checks if data object is MetricElementData.
+ */
+export function isMetricElementData(data: unknown): data is MetricElementData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'metric' in data &&
+    'numberColor' in data &&
+    'numberSize' in data &&
+    'textColor' in data &&
+    'textSize' in data
+  );
+}
+
+/**
+ * Type guard for TextElementData.
+ * Checks if data object is TextElementData.
+ */
+export function isTextElementData(data: unknown): data is TextElementData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'text' in data &&
+    'textColor' in data &&
+    'textSize' in data &&
+    !('metric' in data) // Ensure it's not a metric element
+  );
+}
+
+/**
+ * Type guard for DividerElementData.
+ * Checks if data object is DividerElementData.
+ */
+export function isDividerElementData(data: unknown): data is DividerElementData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'thickness' in data &&
+    ('width' in data || 'color' in data) &&
+    !('metric' in data) &&
+    !('text' in data)
+  );
+}

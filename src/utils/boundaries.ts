@@ -6,6 +6,7 @@
 
 import { NZXT_DEFAULTS } from '../constants/nzxt';
 import type { OverlayElement } from '../types/overlay';
+import { isMetricElementData, isTextElementData, isDividerElementData } from '../types/overlay';
 
 /**
  * LCD circle radius in pixels (640px diameter = 320px radius).
@@ -24,20 +25,17 @@ export function getElementBounds(
   let width = 100;
   let height = 100;
 
-  if (element.type === 'metric') {
-    const data = element.data as any;
-    const numberSize = data.numberSize || 180;
+  if (element.type === 'metric' && isMetricElementData(element.data)) {
+    const numberSize = element.data.numberSize || 180;
     width = numberSize * 1.5;
     height = numberSize * 0.85;
-  } else if (element.type === 'text') {
-    const data = element.data as any;
-    const textSize = data.textSize || 45;
-    const textLength = (data.text || '').length || 1;
+  } else if (element.type === 'text' && isTextElementData(element.data)) {
+    const textSize = element.data.textSize || 45;
+    const textLength = (element.data.text || '').length || 1;
     width = Math.max(textSize * textLength * 0.6, textSize * 2);
     height = textSize * 1.2;
-  } else if (element.type === 'divider') {
-    const data = element.data as any;
-    width = data.thickness || 2;
+  } else if (element.type === 'divider' && isDividerElementData(element.data)) {
+    width = element.data.thickness || 2;
     height = NZXT_DEFAULTS.LCD_HEIGHT; // Full height for vertical divider
   }
 
