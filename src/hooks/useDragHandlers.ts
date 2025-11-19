@@ -48,7 +48,6 @@ export function useDragHandlers(
   // Drag refs
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const elementDragStart = useRef<{ x: number; y: number; elementId: string } | null>(null);
-  const selectedItemMousePos = useRef<{ x: number; y: number } | null>(null);
   
   // Phase 4.2: Previous position for velocity calculation
   const lastPosition = useRef<{ x: number; y: number } | null>(null);
@@ -114,7 +113,6 @@ export function useDragHandlers(
     } else {
       // First click: just select, don't start dragging
       setSelectedElementId(elementId);
-      selectedItemMousePos.current = { x: e.clientX, y: e.clientY };
     }
   }, [selectedElementId, settingsRef]);
 
@@ -295,7 +293,6 @@ export function useDragHandlers(
         
         // Deselect
         setSelectedElementId(null);
-        selectedItemMousePos.current = null;
       }
     };
 
