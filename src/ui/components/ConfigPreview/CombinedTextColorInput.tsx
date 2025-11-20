@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import ColorPicker from '../ColorPicker';
-import type { Lang, t as tFunction } from '../../../i18n';
 
 interface CombinedTextColorInputProps {
   text: string;
@@ -10,8 +9,6 @@ interface CombinedTextColorInputProps {
   placeholder?: string;
   maxLength?: number;
   id?: string;
-  lang?: Lang;
-  t?: typeof tFunction;
   sanitizeText?: (text: string) => string;
 }
 
@@ -28,8 +25,6 @@ export default function CombinedTextColorInput({
   placeholder,
   maxLength = 120,
   id,
-  lang,
-  t,
   sanitizeText,
 }: CombinedTextColorInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);

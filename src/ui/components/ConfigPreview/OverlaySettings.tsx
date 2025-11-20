@@ -854,8 +854,6 @@ export default function OverlaySettingsComponent({
                                 value={data.numberSize}
                                 onChange={(value) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberSize: value }))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                               />
                               <OverlayField
                                 type="number"
@@ -863,8 +861,6 @@ export default function OverlaySettingsComponent({
                                 value={element.angle ?? 0}
                                 onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                                 min={0}
                                 max={360}
                               />
@@ -876,8 +872,6 @@ export default function OverlaySettingsComponent({
                                 value={element.x}
                                 onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                               />
                               <OverlayField
                                 type="number"
@@ -885,8 +879,6 @@ export default function OverlaySettingsComponent({
                                 value={element.y}
                                 onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                               />
                               </div>
                             </div>
@@ -1135,8 +1127,6 @@ export default function OverlaySettingsComponent({
                                   placeholder={t('textInputPlaceholder', lang)}
                                   maxLength={120}
                                   sanitizeText={sanitizeText}
-                                  lang={lang}
-                                  t={t}
                                 />
                               </div>
 
@@ -1150,8 +1140,6 @@ export default function OverlaySettingsComponent({
                                   onChange={(value) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: Math.max(6, value) }))}
                                   step={1}
                                   min={6}
-                                  lang={lang}
-                                  t={t}
                                 />
                                 <OverlayField
                                   type="number"
@@ -1159,8 +1147,6 @@ export default function OverlaySettingsComponent({
                                   value={element.angle ?? 0}
                                   onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
                                   step={1}
-                                  lang={lang}
-                                  t={t}
                                   min={0}
                                   max={360}
                                 />
@@ -1172,8 +1158,6 @@ export default function OverlaySettingsComponent({
                                   value={element.x}
                                   onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
                                   step={1}
-                                  lang={lang}
-                                  t={t}
                                 />
                                 <OverlayField
                                   type="number"
@@ -1181,8 +1165,6 @@ export default function OverlaySettingsComponent({
                                   value={element.y}
                                   onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
                                   step={1}
-                                  lang={lang}
-                                  t={t}
                                 />
                               </div>
                             </div>
@@ -1413,8 +1395,6 @@ export default function OverlaySettingsComponent({
                                 label={t('color', lang)}
                                 value={data.color}
                                 onChange={(color) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color }))}
-                                lang={lang}
-                                t={t}
                               />
                               <OverlayField
                                 type="number"
@@ -1424,8 +1404,6 @@ export default function OverlaySettingsComponent({
                                 step={1}
                                 min={1}
                                 max={400}
-                                lang={lang}
-                                t={t}
                               />
 
                               {/* Row 2: Height | Angle */}
@@ -1437,8 +1415,6 @@ export default function OverlaySettingsComponent({
                                 step={1}
                                 min={10}
                                 max={640}
-                                lang={lang}
-                                t={t}
                               />
                               <OverlayField
                                 type="number"
@@ -1446,8 +1422,6 @@ export default function OverlaySettingsComponent({
                                 value={element.angle ?? 0}
                                 onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                                 min={0}
                                 max={360}
                               />
@@ -1459,8 +1433,6 @@ export default function OverlaySettingsComponent({
                                 value={element.x}
                                 onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                               />
                               <OverlayField
                                 type="number"
@@ -1468,8 +1440,6 @@ export default function OverlaySettingsComponent({
                                 value={element.y}
                                 onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
                                 step={1}
-                                lang={lang}
-                                t={t}
                               />
                             </div>
                           )}

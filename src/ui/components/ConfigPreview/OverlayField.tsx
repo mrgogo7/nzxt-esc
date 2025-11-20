@@ -1,8 +1,6 @@
 import { useRef, useEffect } from 'react';
 import ColorPicker from '../ColorPicker';
-import ResetButton from './ResetButton';
 import { Tooltip } from 'react-tooltip';
-import type { Lang, t as tFunction } from '../../../i18n';
 
 interface OverlayFieldProps {
   field?: string; // Optional, kept for backward compatibility (no longer used for type safety)
@@ -10,14 +8,11 @@ interface OverlayFieldProps {
   label: string;
   value: any;
   onChange: (value: any) => void;
-  onReset?: () => void; // Optional - reset buttons removed from individual fields
   options?: Array<{ value: string; label: string }>;
   step?: number;
   min?: number;
   max?: number;
   className?: string;
-  lang?: Lang;
-  t?: typeof tFunction;
   hideLabel?: boolean; // If true, don't render the label
   tooltipId?: string; // Optional tooltip ID for color picker
   tooltipContent?: string; // Optional tooltip content
@@ -40,14 +35,11 @@ export default function OverlayField({
   label,
   value,
   onChange,
-  onReset,
   options,
   step,
   min,
   max,
   className = 'input-narrow',
-  lang,
-  t,
   hideLabel = false,
   tooltipId,
   tooltipContent,
