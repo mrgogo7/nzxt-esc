@@ -1,12 +1,14 @@
 import type { MouseEvent, ChangeEvent } from 'react';
-import { useState } from 'react';
-import { ChevronUp, ChevronDown, Plus, X, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus } from 'lucide-react';
+import { Tooltip } from 'react-tooltip';
 import type { AppSettings } from '../../../constants/defaults';
-import { DEFAULT_OVERLAY, type Overlay, type OverlayMetricKey, type OverlayElement, type MetricElementData, type TextElementData, type DividerElementData } from '../../../types/overlay';
+import type { Overlay, OverlayMetricKey, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../../types/overlay';
 import type { Lang, t as tFunction } from '../../../i18n';
 import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateDividerElementData, updateOverlayElementPosition, updateOverlayElementAngle } from '../../../utils/overlaySettingsHelpers';
 import OverlayField from './OverlayField';
 import ResetButton from './ResetButton';
+import ResetConfirmationModal from './ResetConfirmationModal';
 
 interface OverlaySettingsProps {
   overlayConfig: Overlay;
@@ -43,8 +45,68 @@ export default function OverlaySettingsComponent({
   const dividerCount = dividerElements.length;
   const totalCount = overlayConfig.elements.length;
 
-  // State for Add Element menu expansion
-  const [isAddElementExpanded, setIsAddElementExpanded] = useState(false);
+  // State for Floating Add Menu
+  const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; right?: number; left?: number } | null>(null);
+  const floatingMenuRef = useRef<HTMLDivElement>(null);
+  const floatingButtonRef = useRef<HTMLButtonElement>(null);
+
+  // State for Reset Confirmation Modal
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
+  // Calculate menu position based on button position
+  useEffect(() => {
+    if (isFloatingMenuOpen && floatingButtonRef.current) {
+      const buttonRect = floatingButtonRef.current.getBoundingClientRect();
+      const panelRect = floatingButtonRef.current.closest('.panel')?.getBoundingClientRect();
+      if (panelRect) {
+        const relativeTop = buttonRect.bottom - panelRect.top + 4; // 4px gap
+        // Check if button is in empty state (centered)
+        const emptyStateContainer = floatingButtonRef.current.closest('div[style*="textAlign: center"]');
+        if (emptyStateContainer) {
+          // Center the menu below the button
+          const buttonCenterX = buttonRect.left - panelRect.left + (buttonRect.width / 2);
+          const menuWidth = 180;
+          const relativeLeft = buttonCenterX - (menuWidth / 2);
+          setMenuPosition({ top: relativeTop, left: relativeLeft });
+        } else {
+          // Align menu to the right of the button
+          const relativeRight = panelRect.right - buttonRect.right;
+          setMenuPosition({ top: relativeTop, right: relativeRight });
+        }
+      }
+    }
+  }, [isFloatingMenuOpen]);
+
+  // Handle outside click and ESC key to close menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        floatingMenuRef.current &&
+        floatingButtonRef.current &&
+        !floatingMenuRef.current.contains(event.target as Node) &&
+        !floatingButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsFloatingMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isFloatingMenuOpen) {
+        setIsFloatingMenuOpen(false);
+      }
+    };
+
+    if (isFloatingMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside as any);
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside as any);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isFloatingMenuOpen]);
 
   // Helper: Generate unique element ID
   const generateElementId = () => `element-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -60,17 +122,72 @@ export default function OverlaySettingsComponent({
     { value: 'gpuClock', label: t('metricGpuClock', lang) },
   ];
 
-  // Helper: Reset overlay to DEFAULT_OVERLAY
+  // Helper: Reset all element values to defaults (keep elements, reset their values)
   const handleResetToDefaults = () => {
+    // Open confirmation modal
+    setIsResetModalOpen(true);
+  };
+
+  // Helper: Actually perform the reset
+  const performReset = () => {
+    const resetElements = overlayConfig.elements.map((element) => {
+      if (element.type === 'metric') {
+        const data = element.data as MetricElementData;
+        return {
+          ...element,
+          x: 0,
+          y: 0,
+          angle: 0,
+          data: {
+            ...data,
+            metric: data.metric, // Keep current metric
+            numberColor: 'rgba(255, 255, 255, 1)',
+            numberSize: 180,
+            textColor: 'transparent',
+            textSize: 0,
+            showLabel: false,
+          } as MetricElementData,
+        };
+      } else if (element.type === 'text') {
+        return {
+          ...element,
+          x: 0,
+          y: 0,
+          angle: 0,
+          data: {
+            text: 'Text',
+            textColor: 'rgba(255, 255, 255, 1)',
+            textSize: 45,
+          } as TextElementData,
+        };
+      } else if (element.type === 'divider') {
+        return {
+          ...element,
+          x: 0,
+          y: 0,
+          angle: 0,
+          data: {
+            width: 2,
+            height: 384,
+            color: 'rgba(255, 255, 255, 0.3)',
+          } as DividerElementData,
+        };
+      }
+      return element;
+    });
+
     setSettings({
       ...settings,
-      overlay: { ...DEFAULT_OVERLAY },
+      overlay: {
+        ...overlayConfig,
+        elements: resetElements,
+      },
     });
   };
 
   return (
     <div className="settings-column overlay-options-area">
-      <div className="panel">
+      <div className="panel" style={{ position: 'relative' }}>
         {/* Header with Mode Switch */}
         <div className="panel-header">
           <h3>{overlayConfig.mode === 'custom' ? t('overlaySettingsTitle', lang) : t('overlayTitle', lang)}</h3>
@@ -99,264 +216,260 @@ export default function OverlaySettingsComponent({
 
         {/* Description */}
         <div style={{ marginBottom: '16px' }}>
-          <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
-            {overlayConfig.mode === 'none' 
-              ? t('overlayActivateFirst', lang) + t('overlayOptionsDescription', lang)
-              : t('overlayOptionsDescription', lang)}
-          </p>
+          {overlayConfig.mode === 'custom' && overlayConfig.elements.length > 0 ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+              <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5', flex: 1 }}>
+                {t('overlayOptionsDescription', lang)}{' '}
+                <span
+                  onClick={handleResetToDefaults}
+                  data-tooltip-id="reset-to-defaults-tooltip"
+                  data-tooltip-content={t('revertToDefaults', lang)}
+                  style={{
+                    color: '#8a2be2',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    transition: 'opacity 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLSpanElement>) => {
+                    e.currentTarget.style.opacity = '0.8';
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLSpanElement>) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                >
+                  {t('overlayOptionsResetLink', lang)}
+                </span>
+                <Tooltip id="reset-to-defaults-tooltip" />
+              </p>
+              <button
+                ref={floatingButtonRef}
+                onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+                aria-label={t('addElement', lang) || 'Add Element'}
+                title={t('addElement', lang) || 'Add Element'}
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  background: '#2c2c2c',
+                  border: '1px solid #3a3a3a',
+                  color: '#f2f2f2',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px',
+                  fontWeight: 500,
+                  transition: 'all 0.15s ease',
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.background = '#3a3a3a';
+                }}
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.background = '#2c2c2c';
+                }}
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+          ) : (
+            <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
+              {overlayConfig.mode === 'none' 
+                ? t('overlayActivateFirst', lang) + t('overlayOptionsDescription', lang)
+                : t('overlayOptionsDescription', lang)}
+            </p>
+          )}
         </div>
 
         {/* Custom Mode Content */}
         {overlayConfig.mode === 'custom' && (
           <>
-            {/* Add Element Grouped Menu */}
-            <div style={{ 
-              marginBottom: '20px',
-            }}>
-              {/* Add Element Header */}
-              <button
-                onClick={() => setIsAddElementExpanded(!isAddElementExpanded)}
+            {/* Ultra Minimal Floating Add Menu */}
+            {isFloatingMenuOpen && menuPosition && (
+              <div
+                ref={floatingMenuRef}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
+                  position: 'absolute',
+                  top: `${menuPosition.top}px`,
+                  ...(menuPosition.left !== undefined 
+                    ? { left: `${menuPosition.left}px` }
+                    : { right: `${menuPosition.right}px` }
+                  ),
+                  width: '180px',
                   background: '#2c2c2c',
                   border: '1px solid #3a3a3a',
-                  color: '#f2f2f2',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.background = '#3a3a3a';
-                  e.currentTarget.style.borderColor = '#8a2be2';
-                }}
-                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.background = '#2c2c2c';
-                  e.currentTarget.style.borderColor = '#3a3a3a';
-                }}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Plus size={16} />
-                  {t('addElement', lang) || 'Add Element'}
-                </span>
-                <ChevronRight 
-                  size={16} 
-                  style={{ 
-                    transform: isAddElementExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                    transition: 'transform 0.15s ease',
-                  }} 
-                />
-              </button>
-
-              {/* Add Element Options (Expandable) */}
-              {isAddElementExpanded && (
-                <div style={{
-                  marginTop: '8px',
-                  padding: '8px',
-                  background: '#252525',
-                  borderRadius: '6px',
-                  border: '1px solid #2e2e2e',
+                  borderRadius: '8px',
+                  padding: '4px 0',
+                  boxShadow: '0 6px 14px rgba(0,0,0,0.6)',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '6px',
-                }}>
-                  <button
-                onClick={() => {
-                  if (metricCount < 8 && totalCount < 8) {
-                    const newElement: OverlayElement = {
-                      id: generateElementId(),
-                      type: 'metric',
-                      x: 0,
-                      y: 0,
-                      zIndex: overlayConfig.elements.length,
-                      data: {
-                        metric: 'cpuTemp' as OverlayMetricKey,
-                        numberColor: 'rgba(255, 255, 255, 1)',
-                        numberSize: 180,
-                        textColor: 'transparent',
-                        textSize: 0,
-                        showLabel: false,
-                      } as MetricElementData,
-                    };
-                    setSettings(addOverlayElement(settings, overlayConfig, newElement));
-                  }
-                }}
-                disabled={metricCount >= 8 || totalCount >= 8}
-                style={{
-                  background: metricCount >= 8 || totalCount >= 8 ? '#252525' : '#2c2c2c',
-                  border: '1px solid #3a3a3a',
-                  color: metricCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
-                  padding: '10px 16px',
-                  borderRadius: '6px',
-                  cursor: metricCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  gap: '8px',
-                  transition: 'all 0.15s ease',
-                  width: '100%',
-                }}
-                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (metricCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#3a3a3a';
-                    e.currentTarget.style.borderColor = '#8a2be2';
-                  }
-                }}
-                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (metricCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#2c2c2c';
-                    e.currentTarget.style.borderColor = '#3a3a3a';
-                  }
+                  zIndex: 1000,
                 }}
               >
-                <Plus size={16} />
-                {t('addReading', lang)}
-              </button>
-              <button
-                onClick={() => {
-                  if (textCount < 8 && totalCount < 8) {
-                    const newElement: OverlayElement = {
-                      id: generateElementId(),
-                      type: 'text',
-                      x: 0,
-                      y: 0,
-                      zIndex: overlayConfig.elements.length,
-                      data: {
-                        text: 'Text',
-                        textColor: 'rgba(255, 255, 255, 1)',
-                        textSize: 45,
-                      } as TextElementData,
-                    };
-                    setSettings(addOverlayElement(settings, overlayConfig, newElement));
-                  }
-                }}
-                disabled={textCount >= 8 || totalCount >= 8}
-                style={{
-                  background: textCount >= 8 || totalCount >= 8 ? '#252525' : '#2c2c2c',
-                  border: '1px solid #3a3a3a',
-                  color: textCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
-                  padding: '10px 16px',
-                  borderRadius: '6px',
-                  cursor: textCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  gap: '8px',
-                  transition: 'all 0.15s ease',
-                  width: '100%',
-                }}
-                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (textCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#3a3a3a';
-                    e.currentTarget.style.borderColor = '#8a2be2';
-                  }
-                }}
-                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (textCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#2c2c2c';
-                    e.currentTarget.style.borderColor = '#3a3a3a';
-                  }
-                }}
-              >
-                <Plus size={16} />
-                {t('addText', lang)}
-              </button>
-              <button
-                onClick={() => {
-                  if (dividerCount < 8 && totalCount < 8) {
-                    const newElement: OverlayElement = {
-                      id: generateElementId(),
-                      type: 'divider',
-                      x: 0,
-                      y: 0,
-                      zIndex: overlayConfig.elements.length,
-                      data: {
-                        width: 2, // Rectangle width in pixels (thickness)
-                        height: 384, // Rectangle height in pixels (length) - 60% of 640px LCD
-                        color: 'rgba(255, 255, 255, 0.3)',
-                      } as DividerElementData,
-                    };
-                    setSettings(addOverlayElement(settings, overlayConfig, newElement));
-                  }
-                }}
-                disabled={dividerCount >= 8 || totalCount >= 8}
-                style={{
-                  background: dividerCount >= 8 || totalCount >= 8 ? '#252525' : '#2c2c2c',
-                  border: '1px solid #3a3a3a',
-                  color: dividerCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
-                  padding: '10px 16px',
-                  borderRadius: '6px',
-                  cursor: dividerCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  gap: '8px',
-                  transition: 'all 0.15s ease',
-                  width: '100%',
-                }}
-                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (dividerCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#3a3a3a';
-                    e.currentTarget.style.borderColor = '#8a2be2';
-                  }
-                }}
-                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                  if (dividerCount < 8 && totalCount < 8) {
-                    e.currentTarget.style.background = '#2c2c2c';
-                    e.currentTarget.style.borderColor = '#3a3a3a';
-                  }
-                }}
-              >
-                <Plus size={16} />
-                {t('addDivider', lang)}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Reset to Defaults Button */}
-            {overlayConfig.elements.length > 0 && (
-              <div style={{ marginBottom: '20px' }}>
+                {/* Add Reading */}
                 <button
-                  onClick={handleResetToDefaults}
-                  data-tooltip-id="revert-to-defaults-tooltip"
-                  data-tooltip-content={t('revertToDefaults', lang)}
+                  onClick={() => {
+                    if (metricCount < 8 && totalCount < 8) {
+                      const newElement: OverlayElement = {
+                        id: generateElementId(),
+                        type: 'metric',
+                        x: 0,
+                        y: 0,
+                        zIndex: overlayConfig.elements.length,
+                        data: {
+                          metric: 'cpuTemp' as OverlayMetricKey,
+                          numberColor: 'rgba(255, 255, 255, 1)',
+                          numberSize: 180,
+                          textColor: 'transparent',
+                          textSize: 0,
+                          showLabel: false,
+                        } as MetricElementData,
+                      };
+                      setSettings(addOverlayElement(settings, overlayConfig, newElement));
+                      setIsFloatingMenuOpen(false);
+                    }
+                  }}
+                  disabled={metricCount >= 8 || totalCount >= 8}
                   style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    background: '#2c2c2c',
-                    border: '1px solid #3a3a3a',
-                    color: '#f2f2f2',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
+                    height: '34px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: metricCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
+                    cursor: metricCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
                     fontSize: '13px',
-                    fontWeight: 500,
-                    transition: 'all 0.15s ease',
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '0 12px',
+                    transition: 'background 0.15s ease',
                   }}
                   onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.background = '#3a3a3a';
-                    e.currentTarget.style.borderColor = '#8a2be2';
+                    if (metricCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = '#3a3a3a';
+                    }
                   }}
                   onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                    e.currentTarget.style.background = '#2c2c2c';
-                    e.currentTarget.style.borderColor = '#3a3a3a';
+                    if (metricCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
                   }}
                 >
-                  {t('revertToDefaults', lang)}
+                  <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <BarChart3 size={16} />
+                  </div>
+                  <span>{t('addReading', lang)}</span>
+                </button>
+
+                {/* Add Text */}
+                <button
+                  onClick={() => {
+                    if (textCount < 8 && totalCount < 8) {
+                      const newElement: OverlayElement = {
+                        id: generateElementId(),
+                        type: 'text',
+                        x: 0,
+                        y: 0,
+                        zIndex: overlayConfig.elements.length,
+                        data: {
+                          text: 'Text',
+                          textColor: 'rgba(255, 255, 255, 1)',
+                          textSize: 45,
+                        } as TextElementData,
+                      };
+                      setSettings(addOverlayElement(settings, overlayConfig, newElement));
+                      setIsFloatingMenuOpen(false);
+                    }
+                  }}
+                  disabled={textCount >= 8 || totalCount >= 8}
+                  style={{
+                    height: '34px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: textCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
+                    cursor: textCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '0 12px',
+                    transition: 'background 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                    if (textCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = '#3a3a3a';
+                    }
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                    if (textCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Type size={16} />
+                  </div>
+                  <span>{t('addText', lang)}</span>
+                </button>
+
+                {/* Add Divider */}
+                <button
+                  onClick={() => {
+                    if (dividerCount < 8 && totalCount < 8) {
+                      const newElement: OverlayElement = {
+                        id: generateElementId(),
+                        type: 'divider',
+                        x: 0,
+                        y: 0,
+                        zIndex: overlayConfig.elements.length,
+                        data: {
+                          width: 2,
+                          height: 384,
+                          color: 'rgba(255, 255, 255, 0.3)',
+                        } as DividerElementData,
+                      };
+                      setSettings(addOverlayElement(settings, overlayConfig, newElement));
+                      setIsFloatingMenuOpen(false);
+                    }
+                  }}
+                  disabled={dividerCount >= 8 || totalCount >= 8}
+                  style={{
+                    height: '34px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: dividerCount >= 8 || totalCount >= 8 ? '#a0a0a0' : '#f2f2f2',
+                    cursor: dividerCount >= 8 || totalCount >= 8 ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '0 12px',
+                    transition: 'background 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                    if (dividerCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = '#3a3a3a';
+                    }
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                    if (dividerCount < 8 && totalCount < 8) {
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Minus size={16} />
+                  </div>
+                  <span>{t('addDivider', lang)}</span>
                 </button>
               </div>
             )}
+
 
             {/* Empty State */}
             {overlayConfig.elements.length === 0 && (
@@ -368,8 +481,42 @@ export default function OverlaySettingsComponent({
                 background: '#252525',
                 borderRadius: '6px',
                 border: '1px solid #2e2e2e',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '16px',
+                position: 'relative',
               }}>
-                {t('noElements', lang)}
+                <p style={{ margin: 0 }}>{t('noElements', lang)}</p>
+                <button
+                  ref={floatingButtonRef}
+                  onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+                  aria-label={t('addElement', lang) || 'Add Element'}
+                  title={t('addElement', lang) || 'Add Element'}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: '#2c2c2c',
+                    border: '1px solid #3a3a3a',
+                    color: '#f2f2f2',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = '#3a3a3a';
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = '#2c2c2c';
+                  }}
+                >
+                  <Plus size={18} />
+                </button>
               </div>
             )}
 
@@ -1070,6 +1217,14 @@ export default function OverlaySettingsComponent({
           </>
         )}
       </div>
+
+      {/* Reset Confirmation Modal */}
+      <ResetConfirmationModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={performReset}
+        lang={lang}
+      />
     </div>
   );
 }

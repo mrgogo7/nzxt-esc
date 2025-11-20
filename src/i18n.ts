@@ -74,7 +74,8 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay mode selector label - choose between Single, Dual, or Triple metric display
     overlayMode: "Mode",
     // Description text shown in overlay options section - explains real-time updates
-    overlayOptionsDescription: "Settings take effect immediately. Adjust overlay appearance and positioning in real-time.",
+    overlayOptionsDescription: "Settings take effect immediately. Use the plus button to add sensors, text, and other elements.",
+    overlayOptionsResetLink: "Click to reset all element values to their default settings.",
     // Message shown when overlay is disabled - prompts user to activate overlay first
     overlayActivateFirst: "Please activate the overlay first. ",
     // Switch status when overlay is off
@@ -82,7 +83,9 @@ const dict: Record<Lang, Record<string, string>> = {
     // Switch status when overlay is active
     overlayStatusActive: "Active",
     // Button to reset overlay settings to default values
-    revertToDefaults: "Revert to Defaults",
+    revertToDefaults: "Reset all element values to their default settings",
+    resetElementsConfirmTitle: "Reset Element Values",
+    resetElementsConfirm: "Are you sure you want to reset all element values to their default settings? This action cannot be undone.",
     // Warning message shown when NZXT CAM API is unavailable - displayed in preview when using mock data
     mockDataWarning: "⚠️ Running in browser mode. NZXT CAM API is not available. Displayed values are mock data and do not reflect actual system metrics.",
     // Copy button tooltip - copies color code to clipboard (used in ColorPicker component)
@@ -232,11 +235,14 @@ const dict: Record<Lang, Record<string, string>> = {
     fitFill: "Doldur",
     overlayGuide: "Rehber Çizgileri",
     overlayMode: "Mod",
-    overlayOptionsDescription: "Ayarlar anında geçerli olur. Overlay görünümünü ve konumunu gerçek zamanlı olarak ayarlayın.",
+    overlayOptionsDescription: "Ayarlar anında geçerli olur. Artı butonunu kullanarak sensör, metin ve diğer elementleri ekleyebilirsiniz.",
+    overlayOptionsResetLink: "Tüm element değerlerini varsayılan ayarlara sıfırlamak için tıklayın.",
     overlayActivateFirst: "Lütfen önce overlay'ı aktif ediniz. ",
     overlayStatusOff: "Kapalı",
     overlayStatusActive: "Aktif",
-    revertToDefaults: "Varsayılana Döndür",
+    revertToDefaults: "Tüm element değerlerini varsayılan ayarlara sıfırla",
+    resetElementsConfirmTitle: "Element Değerlerini Sıfırla",
+    resetElementsConfirm: "Tüm element değerlerini varsayılan ayarlara sıfırlamak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     mockDataWarning: "⚠️ Tarayıcı modunda çalışıyor. NZXT CAM API'sine erişilemiyor. Görüntülenen değerler mock veridir ve gerçek sistem metriklerini yansıtmaz.",
     copy: "Kopyala",
     paste: "Yapıştır",
