@@ -90,8 +90,12 @@ const dict: Record<Lang, Record<string, string>> = {
     mockDataWarning: "⚠️ Running in browser mode. NZXT CAM API is not available. Displayed values are mock data and do not reflect actual system metrics.",
     // Copy button tooltip - copies color code to clipboard (used in ColorPicker component)
     copy: "Copy",
+    // Cut button tooltip - cuts text to clipboard (used in context menu)
+    cut: "Cut",
     // Paste button tooltip - pastes color code from clipboard (used in ColorPicker component)
     paste: "Paste",
+    // Select All button tooltip - selects all text in input field (used in context menu)
+    selectAll: "Select All",
     // Message shown when resolving Pinterest URL - displayed during URL extraction
     resolvingUrl: "Please wait, URL is being resolved...",
     // Success message when URL is resolved successfully
@@ -115,6 +119,7 @@ const dict: Record<Lang, Record<string, string>> = {
     moveReadingDown: "Move Down",
     // Custom mode simplified labels
     reading: "Reading",
+    sensor: "Sensor",
     color: "Color",
     size: "Size",
     customXOffset: "X Offset",
@@ -245,7 +250,9 @@ const dict: Record<Lang, Record<string, string>> = {
     resetElementsConfirm: "Tüm element değerlerini varsayılan ayarlara sıfırlamak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
     mockDataWarning: "⚠️ Tarayıcı modunda çalışıyor. NZXT CAM API'sine erişilemiyor. Görüntülenen değerler mock veridir ve gerçek sistem metriklerini yansıtmaz.",
     copy: "Kopyala",
+    cut: "Kes",
     paste: "Yapıştır",
+    selectAll: "Tümünü Seç",
     // Message shown when resolving Pinterest URL - displayed during URL extraction
     resolvingUrl: "Lütfen bekleyin, URL çözümleniyor...",
     // Success message when URL is resolved successfully
@@ -269,6 +276,7 @@ const dict: Record<Lang, Record<string, string>> = {
     moveReadingDown: "Aşağı Taşı",
     // Custom mode simplified labels
     reading: "Reading",
+    sensor: "Sensör",
     color: "Renk",
     size: "Boyut",
     customXOffset: "X Ofset",

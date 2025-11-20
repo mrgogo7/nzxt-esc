@@ -154,10 +154,10 @@ export function resizeElement(
   const constraints = element.type === 'metric' 
     ? SIZE_CONSTRAINTS.metric 
     : SIZE_CONSTRAINTS.text;
-  const constrainedSize = Math.max(
+  const constrainedSize = Math.round(Math.max(
     constraints.min,
     Math.min(constraints.max, targetSize)
-  );
+  ));
   
   // Update element
   const updatedElement = updateElementSize(element, constrainedSize);
@@ -386,16 +386,16 @@ function resizeDividerRectangle(
   
   // Apply constraints
   const widthConstraints = SIZE_CONSTRAINTS.divider.width;
-  const constrainedWidth = Math.max(
+  const constrainedWidth = Math.round(Math.max(
     widthConstraints.min,
     Math.min(widthConstraints.max, currentWidth)
-  );
+  ));
   
   const heightConstraints = SIZE_CONSTRAINTS.divider.height;
-  const constrainedHeight = Math.max(
+  const constrainedHeight = Math.round(Math.max(
     heightConstraints.min,
     Math.min(heightConstraints.max, currentHeight)
-  );
+  ));
   
   // Update element
   const updatedElement: OverlayElement = {

@@ -125,15 +125,18 @@ export function rotateElement(
   // Apply soft snapping
   const snappedAngle = applyRotationSnapping(newAngle);
   
+  // Round to integer (angle should always be integer)
+  const roundedAngle = Math.round(snappedAngle);
+  
   // Update element
   const updatedElement: OverlayElement = {
     ...element,
-    angle: snappedAngle === 0 ? undefined : snappedAngle, // Omit angle if 0
+    angle: roundedAngle === 0 ? undefined : roundedAngle, // Omit angle if 0
   };
   
   return {
     element: updatedElement,
-    angle: snappedAngle,
+    angle: roundedAngle,
   };
 }
 

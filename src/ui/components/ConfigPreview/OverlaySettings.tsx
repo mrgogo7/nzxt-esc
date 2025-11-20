@@ -1,14 +1,15 @@
-import type { MouseEvent, ChangeEvent } from 'react';
+import type { MouseEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus, RefreshCw } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import type { AppSettings } from '../../../constants/defaults';
 import type { Overlay, OverlayMetricKey, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../../types/overlay';
 import type { Lang, t as tFunction } from '../../../i18n';
 import { addOverlayElement, removeOverlayElement, reorderOverlayElements, updateMetricElementData, updateTextElementData, updateDividerElementData, updateOverlayElementPosition, updateOverlayElementAngle } from '../../../utils/overlaySettingsHelpers';
 import OverlayField from './OverlayField';
-import ResetButton from './ResetButton';
 import ResetConfirmationModal from './ResetConfirmationModal';
+import ColorPicker from '../ColorPicker';
+import CombinedTextColorInput from './CombinedTextColorInput';
 
 interface OverlaySettingsProps {
   overlayConfig: Overlay;
@@ -53,6 +54,21 @@ export default function OverlaySettingsComponent({
 
   // State for Reset Confirmation Modal
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
+  // State for collapsible elements (default: all open)
+  const [collapsedElements, setCollapsedElements] = useState<Set<string>>(new Set());
+  
+  const toggleCollapse = (elementId: string) => {
+    setCollapsedElements(prev => {
+      const next = new Set(prev);
+      if (next.has(elementId)) {
+        next.delete(elementId);
+      } else {
+        next.add(elementId);
+      }
+      return next;
+    });
+  };
 
   // Calculate menu position based on button position
   useEffect(() => {
@@ -128,6 +144,54 @@ export default function OverlaySettingsComponent({
     setIsResetModalOpen(true);
   };
 
+  // Helper: Reset a single metric element to defaults
+  const resetMetricElement = (elementId: string) => {
+    // Update data first
+    const updatedSettings1 = updateMetricElementData(settings, overlayConfig, elementId, {
+      metric: 'cpuTemp' as OverlayMetricKey,
+      numberColor: 'rgba(255, 255, 255, 1)',
+      numberSize: 180,
+      textColor: 'transparent',
+      textSize: 0,
+      showLabel: false,
+    });
+    // Then update position and angle in one call
+    const updatedOverlay = updatedSettings1.overlay as Overlay;
+    const updatedSettings2 = updateOverlayElementPosition(updatedSettings1, updatedOverlay, elementId, 0, 0);
+    const finalSettings = updateOverlayElementAngle(updatedSettings2, updatedOverlay, elementId, 0);
+    setSettings(finalSettings);
+  };
+
+  // Helper: Reset a single text element to defaults
+  const resetTextElement = (elementId: string) => {
+    // Update data first
+    const updatedSettings1 = updateTextElementData(settings, overlayConfig, elementId, {
+      text: 'Text',
+      textColor: 'rgba(255, 255, 255, 1)',
+      textSize: 45,
+    });
+    // Then update position and angle in one call
+    const updatedOverlay = updatedSettings1.overlay as Overlay;
+    const updatedSettings2 = updateOverlayElementPosition(updatedSettings1, updatedOverlay, elementId, 0, 0);
+    const finalSettings = updateOverlayElementAngle(updatedSettings2, updatedOverlay, elementId, 0);
+    setSettings(finalSettings);
+  };
+
+  // Helper: Reset a single divider element to defaults
+  const resetDividerElement = (elementId: string) => {
+    // Update data first
+    const updatedSettings1 = updateDividerElementData(settings, overlayConfig, elementId, {
+      width: 2,
+      height: 384,
+      color: 'rgba(255, 255, 255, 0.3)',
+    });
+    // Then update position and angle in one call
+    const updatedOverlay = updatedSettings1.overlay as Overlay;
+    const updatedSettings2 = updateOverlayElementPosition(updatedSettings1, updatedOverlay, elementId, 0, 0);
+    const finalSettings = updateOverlayElementAngle(updatedSettings2, updatedOverlay, elementId, 0);
+    setSettings(finalSettings);
+  };
+
   // Helper: Actually perform the reset
   const performReset = () => {
     const resetElements = overlayConfig.elements.map((element) => {
@@ -197,6 +261,7 @@ export default function OverlaySettingsComponent({
               <input
                 type="checkbox"
                 checked={overlayConfig.mode === 'custom'}
+                aria-label={overlayConfig.mode === 'custom' ? t('overlayStatusActive', lang) : t('overlayStatusOff', lang)}
                 onChange={(e) => {
                   const newMode = e.target.checked ? 'custom' : 'none';
                   setSettings({
@@ -478,9 +543,10 @@ export default function OverlaySettingsComponent({
                 textAlign: 'center',
                 color: '#a0a0a0',
                 fontSize: '13px',
-                background: '#252525',
+                background: '#242424',
                 borderRadius: '6px',
-                border: '1px solid #2e2e2e',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -522,7 +588,7 @@ export default function OverlaySettingsComponent({
 
             {/* Elements List */}
             {overlayConfig.elements.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {overlayConfig.elements
                   .map((element, index) => ({ element, index }))
                   .sort((a, b) => (a.element.zIndex ?? a.index) - (b.element.zIndex ?? b.index))
@@ -545,32 +611,58 @@ export default function OverlaySettingsComponent({
                         t('eighthReading', lang),
                       ];
 
+                      const isCollapsed = collapsedElements.has(element.id);
+                      
                       return (
                         <div 
                           key={element.id} 
                           style={{ 
-                            padding: '16px',
-                            background: '#252525',
+                            padding: '8px',
+                            background: '#242424',
                             borderRadius: '6px',
-                            border: '1px solid #2e2e2e',
+                            border: '1px solid rgba(255, 255, 255, 0.04)',
+                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                           }}
                         >
-                          {/* Element Header */}
+                          {/* Compact Element Header */}
                           <div
                             style={{
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              marginBottom: '16px',
-                              paddingBottom: '12px',
-                              borderBottom: '1px solid #2e2e2e',
+                              height: '36px',
+                              marginBottom: isCollapsed ? '0' : '8px',
+                              paddingBottom: isCollapsed ? '0' : '8px',
+                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
+                              background: '#262626',
+                              borderRadius: '4px',
+                              padding: '0 4px',
                             }}
                           >
-                            <span style={{ color: '#f2f2f2', fontSize: '14px', fontWeight: 600 }}>
-                              {readingLabels[metricIndex] || `${metricIndex + 1}${metricIndex === 0 ? 'st' : metricIndex === 1 ? 'nd' : metricIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
-                            </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              {/* Move Up Button */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <button
+                                onClick={() => toggleCollapse(element.id)}
+                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#a0a0a0',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '2px',
+                                  transition: 'transform 0.15s ease',
+                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                                }}
+                              >
+                                <ChevronDown size={14} />
+                              </button>
+                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
+                                {readingLabels[metricIndex] || `${metricIndex + 1}${metricIndex === 0 ? 'st' : metricIndex === 1 ? 'nd' : metricIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {/* Move Up Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -580,16 +672,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
+                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-up-tooltip"
                                 data-tooltip-content={t('moveReadingUp', lang)}
@@ -606,9 +702,9 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronUp size={14} />
+                                <ChevronUp size={12} />
                               </button>
-                              {/* Move Down Button */}
+                              {/* Move Down Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -618,16 +714,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
+                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-down-tooltip"
                                 data-tooltip-content={t('moveReadingDown', lang)}
@@ -644,112 +744,153 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronDown size={14} />
+                                <ChevronDown size={12} />
                               </button>
-                              {/* Remove Button */}
+                              {/* Reset Element Button */}
                               <button
-                                onClick={() => {
-                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
-                                }}
+                                onClick={() => resetMetricElement(element.id)}
+                                aria-label={t('resetToDefault', lang) || 'Reset Element'}
                                 style={{
-                                  background: '#3a1f1f',
-                                  border: '1px solid #5a2a2a',
-                                  color: '#ff6b6b',
-                                  padding: '6px 10px',
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#a0a0a0',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
-                                  marginLeft: '6px',
+                                  padding: '0',
+                                }}
+                                data-tooltip-id="reset-element-tooltip"
+                                data-tooltip-content={t('resetToDefault', lang) || 'Reset Element'}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#8a2be2';
+                                  e.currentTarget.style.background = '#2c2c2c';
+                                  e.currentTarget.style.color = '#f2f2f2';
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.color = '#a0a0a0';
+                                }}
+                              >
+                                <RefreshCw size={12} />
+                              </button>
+                              {/* Remove Button - Outline Style with Red Icon */}
+                              <button
+                                onClick={() => {
+                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
+                                }}
+                                aria-label={t('removeReading', lang) || t('removeText', lang) || t('removeDivider', lang) || 'Remove'}
+                                style={{
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#ff6b6b',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="remove-reading-tooltip"
                                 data-tooltip-content={t('removeReading', lang)}
                                 onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#4a2f2f';
-                                  e.currentTarget.style.borderColor = '#6a3a3a';
+                                  e.currentTarget.style.borderColor = '#ff6b6b';
+                                  e.currentTarget.style.background = '#3a1f1f';
                                 }}
                                 onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                  e.currentTarget.style.borderColor = '#5a2a2a';
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
                                 }}
                               >
-                                <X size={14} />
+                                <X size={12} />
                               </button>
                             </div>
                           </div>
 
-                          {/* Element Settings */}
-                          <div className="settings-grid-modern">
-                            {/* Metric Selection */}
-                            <OverlayField
-                              type="select"
-                              label={t('reading', lang)}
-                              value={data.metric}
-                              onChange={(value) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { metric: value as OverlayMetricKey }))}
-                              onReset={() => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { metric: 'cpuTemp' as OverlayMetricKey }))}
-                              options={getMetricOptions()}
-                              lang={lang}
-                              t={t}
-                            />
+                          {/* Compact 2-Column Element Settings */}
+                          {!isCollapsed && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {/* Sensor with Color on the right */}
+                              <div className="setting-row">
+                                <label style={{ fontSize: '12px' }}>{t('sensor', lang) || t('reading', lang)}</label>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
+                                  <select
+                                    className="url-input"
+                                    value={data.metric}
+                                    onChange={(e) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { metric: e.target.value as OverlayMetricKey }))}
+                                    aria-label={t('sensor', lang) || t('reading', lang)}
+                                    style={{ width: '150px' }}
+                                  >
+                                    {getMetricOptions().map(opt => (
+                                      <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <div data-tooltip-id={`color-tooltip-${element.id}`} data-tooltip-content={t('color', lang)}>
+                                    <ColorPicker
+                                      value={data.numberColor || '#ffffff'}
+                                      onChange={(color) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberColor: color }))}
+                                    />
+                                  </div>
+                                  <Tooltip id={`color-tooltip-${element.id}`} />
+                                </div>
+                              </div>
 
-                            {/* Number Color */}
-                            <OverlayField
-                              type="color"
-                              label={t('color', lang)}
-                              value={data.numberColor}
-                              onChange={(color) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberColor: color }))}
-                              onReset={() => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberColor: 'rgba(255, 255, 255, 1)' }))}
-                              lang={lang}
-                              t={t}
-                            />
+                              {/* 2-Column Grid for other fields */}
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                {/* Row 1: Size | Angle */}
+                              <OverlayField
+                                type="number"
+                                label={t('size', lang)}
+                                value={data.numberSize}
+                                onChange={(value) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberSize: value }))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('angle', lang)}
+                                value={element.angle ?? 0}
+                                onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                                min={0}
+                                max={360}
+                              />
 
-                            {/* Number Size */}
-                            <OverlayField
-                              type="number"
-                              label={t('size', lang)}
-                              value={data.numberSize}
-                              onChange={(value) => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberSize: value }))}
-                              onReset={() => setSettings(updateMetricElementData(settings, overlayConfig, element.id, { numberSize: 180 }))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* X Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customXOffset', lang)}
-                              value={element.x}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, 0, element.y))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Y Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customYOffset', lang)}
-                              value={element.y}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, 0))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Angle */}
-                            <OverlayField
-                              type="number"
-                              label={t('angle', lang)}
-                              value={element.angle ?? 0}
-                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
-                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
-                              lang={lang}
-                              t={t}
-                              min={0}
-                              max={360}
-                            />
-                          </div>
+                              {/* Row 2: X Off | Y Off */}
+                              <OverlayField
+                                type="number"
+                                label={t('customXOffset', lang)}
+                                value={element.x}
+                                onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('customYOffset', lang)}
+                                value={element.y}
+                                onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                              />
+                              </div>
+                            </div>
+                          )}
                         </div>
                       );
                     } else if (element.type === 'text') {
@@ -772,32 +913,58 @@ export default function OverlaySettingsComponent({
                         return sanitized;
                       };
 
+                      const isCollapsed = collapsedElements.has(element.id);
+                      
                       return (
                         <div 
                           key={element.id} 
                           style={{ 
-                            padding: '16px',
-                            background: '#252525',
+                            padding: '8px',
+                            background: '#242424',
                             borderRadius: '6px',
-                            border: '1px solid #2e2e2e',
+                            border: '1px solid rgba(255, 255, 255, 0.04)',
+                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                           }}
                         >
-                          {/* Element Header */}
+                          {/* Compact Element Header */}
                           <div
                             style={{
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              marginBottom: '16px',
-                              paddingBottom: '12px',
-                              borderBottom: '1px solid #2e2e2e',
+                              height: '36px',
+                              marginBottom: isCollapsed ? '0' : '8px',
+                              paddingBottom: isCollapsed ? '0' : '8px',
+                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
+                              background: '#262626',
+                              borderRadius: '4px',
+                              padding: '0 4px',
                             }}
                           >
-                            <span style={{ color: '#f2f2f2', fontSize: '14px', fontWeight: 600 }}>
-                              {textLabels[textIndex] || `${textIndex + 1}${textIndex === 0 ? 'st' : textIndex === 1 ? 'nd' : textIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
-                            </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              {/* Move Up Button */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <button
+                                onClick={() => toggleCollapse(element.id)}
+                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#a0a0a0',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '2px',
+                                  transition: 'transform 0.15s ease',
+                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                                }}
+                              >
+                                <ChevronDown size={14} />
+                              </button>
+                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
+                                {textLabels[textIndex] || `${textIndex + 1}${textIndex === 0 ? 'st' : textIndex === 1 ? 'nd' : textIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {/* Move Up Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -807,16 +974,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
+                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-text-up-tooltip"
                                 data-tooltip-content={t('moveTextUp', lang)}
@@ -833,9 +1004,9 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronUp size={14} />
+                                <ChevronUp size={12} />
                               </button>
-                              {/* Move Down Button */}
+                              {/* Move Down Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -845,16 +1016,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
+                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-text-down-tooltip"
                                 data-tooltip-content={t('moveTextDown', lang)}
@@ -871,121 +1046,147 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronDown size={14} />
+                                <ChevronDown size={12} />
                               </button>
-                              {/* Remove Button */}
+                              {/* Reset Element Button */}
                               <button
-                                onClick={() => {
-                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
-                                }}
+                                onClick={() => resetTextElement(element.id)}
+                                aria-label={t('resetToDefault', lang) || 'Reset Element'}
                                 style={{
-                                  background: '#3a1f1f',
-                                  border: '1px solid #5a2a2a',
-                                  color: '#ff6b6b',
-                                  padding: '6px 10px',
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#a0a0a0',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
-                                  marginLeft: '6px',
+                                  padding: '0',
+                                }}
+                                data-tooltip-id="reset-text-element-tooltip"
+                                data-tooltip-content={t('resetToDefault', lang) || 'Reset Element'}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#8a2be2';
+                                  e.currentTarget.style.background = '#2c2c2c';
+                                  e.currentTarget.style.color = '#f2f2f2';
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.color = '#a0a0a0';
+                                }}
+                              >
+                                <RefreshCw size={12} />
+                              </button>
+                              {/* Remove Button - Outline Style with Red Icon */}
+                              <button
+                                onClick={() => {
+                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
+                                }}
+                                aria-label={t('removeReading', lang) || t('removeText', lang) || t('removeDivider', lang) || 'Remove'}
+                                style={{
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#ff6b6b',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="remove-text-tooltip"
                                 data-tooltip-content={t('removeText', lang)}
                                 onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#4a2f2f';
-                                  e.currentTarget.style.borderColor = '#6a3a3a';
+                                  e.currentTarget.style.borderColor = '#ff6b6b';
+                                  e.currentTarget.style.background = '#3a1f1f';
                                 }}
                                 onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                  e.currentTarget.style.borderColor = '#5a2a2a';
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
                                 }}
                               >
-                                <X size={14} />
+                                <X size={12} />
                               </button>
                             </div>
                           </div>
 
-                          {/* Element Settings */}
-                          <div className="settings-grid-modern">
-                            {/* Text Input */}
-                            <div className="setting-row">
-                              <label>{t('text', lang)}</label>
-                              <input
-                                type="text"
-                                value={data.text}
-                                maxLength={120}
-                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                                  const sanitized = sanitizeText(e.target.value);
-                                  setSettings(updateTextElementData(settings, overlayConfig, element.id, { text: sanitized }));
-                                }}
-                                className="url-input"
-                                placeholder={t('textInputPlaceholder', lang)}
-                              />
-                              <ResetButton
-                                onClick={() => setSettings(updateTextElementData(settings, overlayConfig, element.id, { text: '' }))}
-                                tooltipContent={t('resetToDefault', lang)}
-                              />
+                          {/* Compact 2-Column Element Settings */}
+                          {!isCollapsed && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {/* Combined Text + Color Input */}
+                              <div className="setting-row">
+                                <label htmlFor={`text-input-${element.id}`} style={{ fontSize: '12px' }}>{t('text', lang)}</label>
+                                <CombinedTextColorInput
+                                  id={`text-input-${element.id}`}
+                                  text={data.text}
+                                  onTextChange={(text) => {
+                                    const sanitized = sanitizeText(text);
+                                    setSettings(updateTextElementData(settings, overlayConfig, element.id, { text: sanitized }));
+                                  }}
+                                  color={data.textColor || '#ffffff'}
+                                  onColorChange={(color) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textColor: color }))}
+                                  placeholder={t('textInputPlaceholder', lang)}
+                                  maxLength={120}
+                                  sanitizeText={sanitizeText}
+                                  lang={lang}
+                                  t={t}
+                                />
+                              </div>
+
+                              {/* 2-Column Grid for other fields */}
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                {/* Row 1: Size | Angle */}
+                                <OverlayField
+                                  type="number"
+                                  label={t('size', lang)}
+                                  value={data.textSize}
+                                  onChange={(value) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: Math.max(6, value) }))}
+                                  step={1}
+                                  min={6}
+                                  lang={lang}
+                                  t={t}
+                                />
+                                <OverlayField
+                                  type="number"
+                                  label={t('angle', lang)}
+                                  value={element.angle ?? 0}
+                                  onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                                  step={1}
+                                  lang={lang}
+                                  t={t}
+                                  min={0}
+                                  max={360}
+                                />
+
+                                {/* Row 2: X Off | Y Off */}
+                                <OverlayField
+                                  type="number"
+                                  label={t('customXOffset', lang)}
+                                  value={element.x}
+                                  onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
+                                  step={1}
+                                  lang={lang}
+                                  t={t}
+                                />
+                                <OverlayField
+                                  type="number"
+                                  label={t('customYOffset', lang)}
+                                  value={element.y}
+                                  onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
+                                  step={1}
+                                  lang={lang}
+                                  t={t}
+                                />
+                              </div>
                             </div>
-
-                            {/* Text Color */}
-                            <OverlayField
-                              type="color"
-                              label={t('color', lang)}
-                              value={data.textColor}
-                              onChange={(color) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textColor: color }))}
-                              onReset={() => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textColor: 'rgba(255, 255, 255, 1)' }))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Text Size */}
-                            <OverlayField
-                              type="number"
-                              label={t('size', lang)}
-                              value={data.textSize}
-                              onChange={(value) => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: Math.max(6, value) }))}
-                              onReset={() => setSettings(updateTextElementData(settings, overlayConfig, element.id, { textSize: 45 }))}
-                              min={6}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* X Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customXOffset', lang)}
-                              value={element.x}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, 0, element.y))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Y Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customYOffset', lang)}
-                              value={element.y}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, 0))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Angle */}
-                            <OverlayField
-                              type="number"
-                              label={t('angle', lang)}
-                              value={element.angle ?? 0}
-                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
-                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
-                              lang={lang}
-                              t={t}
-                              min={0}
-                              max={360}
-                            />
-                          </div>
+                          )}
                         </div>
                       );
                     } else if (element.type === 'divider') {
@@ -999,32 +1200,58 @@ export default function OverlaySettingsComponent({
                         t('fourthDivider', lang),
                       ];
 
+                      const isCollapsed = collapsedElements.has(element.id);
+                      
                       return (
                         <div 
                           key={element.id} 
                           style={{ 
-                            padding: '16px',
-                            background: '#252525',
+                            padding: '8px',
+                            background: '#242424',
                             borderRadius: '6px',
-                            border: '1px solid #2e2e2e',
+                            border: '1px solid rgba(255, 255, 255, 0.04)',
+                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.2)',
                           }}
                         >
-                          {/* Element Header */}
+                          {/* Compact Element Header */}
                           <div
                             style={{
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              marginBottom: '16px',
-                              paddingBottom: '12px',
-                              borderBottom: '1px solid #2e2e2e',
+                              height: '36px',
+                              marginBottom: isCollapsed ? '0' : '8px',
+                              paddingBottom: isCollapsed ? '0' : '8px',
+                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
+                              background: '#262626',
+                              borderRadius: '4px',
+                              padding: '0 4px',
                             }}
                           >
-                            <span style={{ color: '#f2f2f2', fontSize: '14px', fontWeight: 600 }}>
-                              {dividerLabels[dividerIndex] || `${dividerIndex + 1}${dividerIndex === 0 ? 'st' : dividerIndex === 1 ? 'nd' : dividerIndex === 2 ? 'rd' : 'th'} ${t('divider', lang)}`}
-                            </span>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              {/* Move Up Button */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <button
+                                onClick={() => toggleCollapse(element.id)}
+                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  color: '#a0a0a0',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '2px',
+                                  transition: 'transform 0.15s ease',
+                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+                                }}
+                              >
+                                <ChevronDown size={14} />
+                              </button>
+                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
+                                {dividerLabels[dividerIndex] || `${dividerIndex + 1}${dividerIndex === 0 ? 'st' : dividerIndex === 1 ? 'nd' : dividerIndex === 2 ? 'rd' : 'th'} ${t('divider', lang)}`}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              {/* Move Up Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -1034,16 +1261,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
+                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-divider-up-tooltip"
                                 data-tooltip-content={t('moveDividerUp', lang)}
@@ -1060,9 +1291,9 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronUp size={14} />
+                                <ChevronUp size={12} />
                               </button>
-                              {/* Move Down Button */}
+                              {/* Move Down Button - Icon Only */}
                               <button
                                 onClick={(e: MouseEvent<HTMLButtonElement>) => {
                                   e.preventDefault();
@@ -1072,16 +1303,20 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
+                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
                                 style={{
+                                  width: '28px',
+                                  height: '28px',
                                   background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
                                   border: '1px solid #3a3a3a',
                                   color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  padding: '6px 10px',
                                   borderRadius: '4px',
                                   cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="move-divider-down-tooltip"
                                 data-tooltip-content={t('moveDividerDown', lang)}
@@ -1098,115 +1333,146 @@ export default function OverlaySettingsComponent({
                                   }
                                 }}
                               >
-                                <ChevronDown size={14} />
+                                <ChevronDown size={12} />
                               </button>
-                              {/* Remove Button */}
+                              {/* Reset Element Button */}
                               <button
-                                onClick={() => {
-                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
-                                }}
+                                onClick={() => resetDividerElement(element.id)}
+                                aria-label={t('resetToDefault', lang) || 'Reset Element'}
                                 style={{
-                                  background: '#3a1f1f',
-                                  border: '1px solid #5a2a2a',
-                                  color: '#ff6b6b',
-                                  padding: '6px 10px',
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#a0a0a0',
                                   borderRadius: '4px',
                                   cursor: 'pointer',
                                   display: 'flex',
                                   alignItems: 'center',
+                                  justifyContent: 'center',
                                   transition: 'all 0.15s ease',
-                                  marginLeft: '6px',
+                                  padding: '0',
+                                }}
+                                data-tooltip-id="reset-divider-element-tooltip"
+                                data-tooltip-content={t('resetToDefault', lang) || 'Reset Element'}
+                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#8a2be2';
+                                  e.currentTarget.style.background = '#2c2c2c';
+                                  e.currentTarget.style.color = '#f2f2f2';
+                                }}
+                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
+                                  e.currentTarget.style.color = '#a0a0a0';
+                                }}
+                              >
+                                <RefreshCw size={12} />
+                              </button>
+                              {/* Remove Button - Outline Style with Red Icon */}
+                              <button
+                                onClick={() => {
+                                  setSettings(removeOverlayElement(settings, overlayConfig, element.id));
+                                }}
+                                aria-label={t('removeReading', lang) || t('removeText', lang) || t('removeDivider', lang) || 'Remove'}
+                                style={{
+                                  width: '28px',
+                                  height: '28px',
+                                  background: 'transparent',
+                                  border: '1px solid #3a3a3a',
+                                  color: '#ff6b6b',
+                                  borderRadius: '4px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  transition: 'all 0.15s ease',
+                                  padding: '0',
                                 }}
                                 data-tooltip-id="remove-divider-tooltip"
                                 data-tooltip-content={t('removeDivider', lang)}
                                 onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#4a2f2f';
-                                  e.currentTarget.style.borderColor = '#6a3a3a';
+                                  e.currentTarget.style.borderColor = '#ff6b6b';
+                                  e.currentTarget.style.background = '#3a1f1f';
                                 }}
                                 onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                  e.currentTarget.style.borderColor = '#5a2a2a';
+                                  e.currentTarget.style.borderColor = '#3a3a3a';
+                                  e.currentTarget.style.background = 'transparent';
                                 }}
                               >
-                                <X size={14} />
+                                <X size={12} />
                               </button>
                             </div>
                           </div>
 
-                          {/* Element Settings */}
-                          <div className="settings-grid-modern">
-                            {/* Divider Color */}
-                            <OverlayField
-                              type="color"
-                              label={t('color', lang)}
-                              value={data.color}
-                              onChange={(color) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color }))}
-                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color: 'rgba(255, 255, 255, 0.3)' }))}
-                              lang={lang}
-                              t={t}
-                            />
+                          {/* Compact 2-Column Element Settings */}
+                          {!isCollapsed && (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                              {/* Row 1: Color | Width */}
+                              <OverlayField
+                                type="color"
+                                label={t('color', lang)}
+                                value={data.color}
+                                onChange={(color) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { color }))}
+                                lang={lang}
+                                t={t}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('thickness', lang) || 'Width'}
+                                value={data.width}
+                                onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { width: Math.max(1, Math.min(400, value)) }))}
+                                step={1}
+                                min={1}
+                                max={400}
+                                lang={lang}
+                                t={t}
+                              />
 
-                            {/* Divider Width (Thickness) */}
-                            <OverlayField
-                              type="number"
-                              label={t('thickness', lang) || 'Width'}
-                              value={data.width}
-                              onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { width: Math.max(1, Math.min(400, value)) }))}
-                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { width: 2 }))}
-                              min={1}
-                              max={400}
-                              lang={lang}
-                              t={t}
-                            />
+                              {/* Row 2: Height | Angle */}
+                              <OverlayField
+                                type="number"
+                                label={t('dividerLength', lang) || 'Length'}
+                                value={data.height}
+                                onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { height: Math.max(10, Math.min(640, value)) }))}
+                                step={1}
+                                min={10}
+                                max={640}
+                                lang={lang}
+                                t={t}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('angle', lang)}
+                                value={element.angle ?? 0}
+                                onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                                min={0}
+                                max={360}
+                              />
 
-                            {/* Divider Height (Length) */}
-                            <OverlayField
-                              type="number"
-                              label={t('dividerLength', lang) || 'Length'}
-                              value={data.height}
-                              onChange={(value) => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { height: Math.max(10, Math.min(640, value)) }))}
-                              onReset={() => setSettings(updateDividerElementData(settings, overlayConfig, element.id, { height: 384 }))}
-                              min={10}
-                              max={640}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* X Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customXOffset', lang)}
-                              value={element.x}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, 0, element.y))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Y Offset */}
-                            <OverlayField
-                              type="number"
-                              label={t('customYOffset', lang)}
-                              value={element.y}
-                              onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
-                              onReset={() => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, 0))}
-                              lang={lang}
-                              t={t}
-                            />
-
-                            {/* Angle */}
-                            <OverlayField
-                              type="number"
-                              label={t('angle', lang)}
-                              value={element.angle ?? 0}
-                              onChange={(value) => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, value))}
-                              onReset={() => setSettings(updateOverlayElementAngle(settings, overlayConfig, element.id, 0))}
-                              lang={lang}
-                              t={t}
-                              min={0}
-                              max={360}
-                            />
-                          </div>
+                              {/* Row 3: X Off | Y Off */}
+                              <OverlayField
+                                type="number"
+                                label={t('customXOffset', lang)}
+                                value={element.x}
+                                onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, value, element.y))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('customYOffset', lang)}
+                                value={element.y}
+                                onChange={(value) => setSettings(updateOverlayElementPosition(settings, overlayConfig, element.id, element.x, value))}
+                                step={1}
+                                lang={lang}
+                                t={t}
+                              />
+                            </div>
+                          )}
                         </div>
                       );
                     }

@@ -156,12 +156,21 @@ export function updateMetricElementData(
     return settings; // Element not found or not a metric element
   }
   
+  // Normalize numeric values to integers (except for fields that should remain float)
+  const normalizedUpdates: Partial<MetricElementData> = { ...dataUpdates };
+  if ('numberSize' in normalizedUpdates && typeof normalizedUpdates.numberSize === 'number') {
+    normalizedUpdates.numberSize = Math.round(normalizedUpdates.numberSize);
+  }
+  if ('textSize' in normalizedUpdates && typeof normalizedUpdates.textSize === 'number') {
+    normalizedUpdates.textSize = Math.round(normalizedUpdates.textSize);
+  }
+  
   const updatedElements = [...overlay.elements];
   updatedElements[elementIndex] = {
     ...updatedElements[elementIndex],
     data: {
       ...(updatedElements[elementIndex].data as MetricElementData),
-      ...dataUpdates,
+      ...normalizedUpdates,
     },
   };
   
@@ -195,12 +204,18 @@ export function updateTextElementData(
     return settings; // Element not found or not a text element
   }
   
+  // Normalize numeric values to integers
+  const normalizedUpdates: Partial<TextElementData> = { ...dataUpdates };
+  if ('textSize' in normalizedUpdates && typeof normalizedUpdates.textSize === 'number') {
+    normalizedUpdates.textSize = Math.round(normalizedUpdates.textSize);
+  }
+  
   const updatedElements = [...overlay.elements];
   updatedElements[elementIndex] = {
     ...updatedElements[elementIndex],
     data: {
       ...(updatedElements[elementIndex].data as TextElementData),
-      ...dataUpdates,
+      ...normalizedUpdates,
     },
   };
   
@@ -234,12 +249,21 @@ export function updateDividerElementData(
     return settings; // Element not found or not a divider element
   }
   
+  // Normalize numeric values to integers
+  const normalizedUpdates: Partial<DividerElementData> = { ...dataUpdates };
+  if ('width' in normalizedUpdates && typeof normalizedUpdates.width === 'number') {
+    normalizedUpdates.width = Math.round(normalizedUpdates.width);
+  }
+  if ('height' in normalizedUpdates && typeof normalizedUpdates.height === 'number') {
+    normalizedUpdates.height = Math.round(normalizedUpdates.height);
+  }
+  
   const updatedElements = [...overlay.elements];
   updatedElements[elementIndex] = {
     ...updatedElements[elementIndex],
     data: {
       ...(updatedElements[elementIndex].data as DividerElementData),
-      ...dataUpdates,
+      ...normalizedUpdates,
     },
   };
   
@@ -353,7 +377,11 @@ export function updateOverlayElementPosition(
   x: number,
   y: number
 ): AppSettings {
-  return updateOverlayElement(settings, overlay, elementId, { x, y });
+  // Ensure integer values for position
+  return updateOverlayElement(settings, overlay, elementId, { 
+    x: Math.round(x), 
+    y: Math.round(y) 
+  });
 }
 
 /**
@@ -365,14 +393,15 @@ export function updateOverlayElementAngle(
   elementId: string,
   angle: number
 ): AppSettings {
-  // Normalize angle to 0-360 range
+  // Normalize angle to 0-360 range and round to integer
   let normalizedAngle = angle % 360;
   if (normalizedAngle < 0) {
     normalizedAngle += 360;
   }
+  const roundedAngle = Math.round(normalizedAngle);
   // Omit angle if 0 for cleaner data
   return updateOverlayElement(settings, overlay, elementId, { 
-    angle: normalizedAngle === 0 ? undefined : normalizedAngle 
+    angle: roundedAngle === 0 ? undefined : roundedAngle 
   });
 }
 

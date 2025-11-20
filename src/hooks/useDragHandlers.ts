@@ -74,10 +74,11 @@ export function useDragHandlers(
 
     // Use ref to get current settings value
     const currentSettings = settingsRef.current;
+    // Ensure integer values for x and y
     setSettings({
       ...currentSettings,
-      x: currentSettings.x + lcdDx,
-      y: currentSettings.y + lcdDy,
+      x: Math.round(currentSettings.x + lcdDx),
+      y: Math.round(currentSettings.y + lcdDy),
     });
   }, [offsetScale, setSettings, settingsRef]);
 

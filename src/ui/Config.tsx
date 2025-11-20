@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { LANG_KEY, Lang, t, getInitialLang, setLang } from '../i18n';
 import ConfigPreview from './components/ConfigPreview';
 import './styles/ConfigPreview.css';
@@ -22,11 +22,33 @@ export default function Config() {
   const [isResolving, setIsResolving] = useState(false);
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // Sync urlInput with mediaUrl changes
   useEffect(() => {
     setUrlInput(mediaUrl);
   }, [mediaUrl]);
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        contextMenuRef.current &&
+        !contextMenuRef.current.contains(event.target as Node) &&
+        urlInputRef.current &&
+        !urlInputRef.current.contains(event.target as Node)
+      ) {
+        setContextMenu(null);
+      }
+    };
+
+    if (contextMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [contextMenu]);
 
   // language sync listener
   useEffect(() => {
@@ -135,6 +157,141 @@ export default function Config() {
     // Reset settings to defaults (including overlay)
     // Note: url is stored separately via useMediaUrl, not in settings
     setSettings(DEFAULT_SETTINGS);
+  };
+
+  const handleContextMenu = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const menuWidth = 140;
+    const menuHeight = 120;
+    let x = e.clientX;
+    let y = e.clientY;
+    
+    // Adjust position if menu would overflow viewport
+    if (x + menuWidth > window.innerWidth) {
+      x = window.innerWidth - menuWidth - 10;
+    }
+    if (y + menuHeight > window.innerHeight) {
+      y = window.innerHeight - menuHeight - 10;
+    }
+    
+    setContextMenu({ x, y });
+  };
+
+  const handleCopy = () => {
+    if (urlInputRef.current) {
+      try {
+        const textToCopy = urlInputRef.current.value;
+        if (!textToCopy) {
+          setContextMenu(null);
+          return;
+        }
+
+        // Select the text first
+        urlInputRef.current.select();
+        urlInputRef.current.setSelectionRange(0, textToCopy.length);
+        
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            setContextMenu(null);
+          }).catch((err) => {
+            console.error('Clipboard API failed, trying fallback:', err);
+            // Fallback to execCommand
+            try {
+              const success = document.execCommand('copy');
+              if (success) {
+                setContextMenu(null);
+              } else {
+                console.error('execCommand copy failed');
+                setContextMenu(null);
+              }
+            } catch (execErr) {
+              console.error('execCommand copy error:', execErr);
+              setContextMenu(null);
+            }
+          });
+        } else {
+          // Fallback to execCommand for older browsers
+          try {
+            const success = document.execCommand('copy');
+            if (success) {
+              setContextMenu(null);
+            } else {
+              console.error('execCommand copy failed');
+              setContextMenu(null);
+            }
+          } catch (execErr) {
+            console.error('execCommand copy error:', execErr);
+            setContextMenu(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        setContextMenu(null);
+      }
+    }
+  };
+
+  const handlePaste = () => {
+    if (urlInputRef.current) {
+      try {
+        // Focus the input first
+        urlInputRef.current.focus();
+        
+        // Try modern clipboard API first
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          navigator.clipboard.readText().then((text) => {
+            setUrlInput(text);
+            // Move cursor to end
+            setTimeout(() => {
+              urlInputRef.current?.setSelectionRange(text.length, text.length);
+            }, 0);
+            setContextMenu(null);
+          }).catch((err) => {
+            console.error('Clipboard API read failed, trying fallback:', err);
+            // Fallback: try execCommand paste
+            try {
+              const success = document.execCommand('paste');
+              if (!success) {
+                // If execCommand fails, just keep focus for manual paste
+                console.log('execCommand paste not available, input focused for manual paste');
+              }
+              setContextMenu(null);
+            } catch (execErr) {
+              console.error('execCommand paste error:', execErr);
+              // Input is already focused, user can paste manually
+              setContextMenu(null);
+            }
+          });
+        } else {
+          // Fallback: try execCommand paste
+          try {
+            const success = document.execCommand('paste');
+            if (!success) {
+              // If execCommand fails, just keep focus for manual paste
+              console.log('execCommand paste not available, input focused for manual paste');
+            }
+            setContextMenu(null);
+          } catch (execErr) {
+            console.error('execCommand paste error:', execErr);
+            // Input is already focused, user can paste manually
+            setContextMenu(null);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to paste:', err);
+        // Input is already focused, user can paste manually
+        urlInputRef.current?.focus();
+        setContextMenu(null);
+      }
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (urlInputRef.current) {
+      urlInputRef.current.select();
+      setContextMenu(null);
+    }
   };
 
 
@@ -253,6 +410,7 @@ export default function Config() {
           </label>
           <div className="url-input-wrapper">
             <input
+              ref={urlInputRef}
               id="mediaUrl"
               type="text"
               className="url-input"
@@ -260,6 +418,7 @@ export default function Config() {
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               onFocus={(e) => e.target.select()}
+              onContextMenu={handleContextMenu}
             />
             <motion.button 
               onClick={(e) => {
@@ -282,6 +441,91 @@ export default function Config() {
               <X size={16} />
             </motion.button>
             <Tooltip id="clear-btn-tooltip" />
+            {/* Context Menu */}
+            {contextMenu && (
+              <div
+                ref={contextMenuRef}
+                style={{
+                  position: 'fixed',
+                  top: `${contextMenu.y}px`,
+                  left: `${contextMenu.x}px`,
+                  background: '#2c2c2c',
+                  border: '1px solid #3a3a3a',
+                  borderRadius: '6px',
+                  padding: '4px 0',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
+                  zIndex: 1000,
+                  minWidth: '140px',
+                }}
+              >
+                <button
+                  onClick={handleCopy}
+                  style={{
+                    width: '100%',
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f2f2f2',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    transition: 'background 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#3a3a3a';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {t('copy', lang) || 'Copy'}
+                </button>
+                <button
+                  onClick={handlePaste}
+                  style={{
+                    width: '100%',
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f2f2f2',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    transition: 'background 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#3a3a3a';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {t('paste', lang) || 'Paste'}
+                </button>
+                <button
+                  onClick={handleSelectAll}
+                  style={{
+                    width: '100%',
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#f2f2f2',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    transition: 'background 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#3a3a3a';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {t('selectAll', lang) || 'Select All'}
+                </button>
+              </div>
+            )}
           </div>
           <motion.button 
             onClick={handleSave} 

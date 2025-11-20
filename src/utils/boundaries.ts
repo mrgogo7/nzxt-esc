@@ -82,7 +82,8 @@ export function constrainToCircle(
 ): { x: number; y: number } {
   // No boundary constraint - allow free movement anywhere
   // Circle mask will handle visual clipping
-  return { x: newX, y: newY };
+  // Ensure integer values for position
+  return { x: Math.round(newX), y: Math.round(newY) };
 }
 
 /**

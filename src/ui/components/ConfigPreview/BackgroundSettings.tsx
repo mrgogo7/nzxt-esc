@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   AlignStartHorizontal,
@@ -74,31 +75,79 @@ export default function BackgroundSettings({
         <div className="settings-grid-modern">
           {/* SCALE / X / Y */}
           {[
-            { field: 'scale', label: t('scale', lang), step: 0.1 },
-            { field: 'x', label: t('xOffset', lang) },
-            { field: 'y', label: t('yOffset', lang) },
-          ].map(({ field, label, step }) => (
-            <div className="setting-row" key={field}>
-              <label>{label}</label>
-
-              <input
-                type="number"
-                step={step || 1}
-                value={(settings as any)[field]}
-                onChange={(e) =>
+            { field: 'scale', label: t('scale', lang), step: 0.1, isInteger: false },
+            { field: 'x', label: t('xOffset', lang), step: 1, isInteger: true },
+            { field: 'y', label: t('yOffset', lang), step: 1, isInteger: true },
+          ].map(({ field, label, step, isInteger }) => {
+            const inputRef = useRef<HTMLInputElement>(null);
+            
+            // Handle mouse wheel and arrow keys for integer fields
+            useEffect(() => {
+              if (!isInteger || !inputRef.current) return;
+              
+              const input = inputRef.current;
+              
+              const handleWheel = (e: WheelEvent) => {
+                if (document.activeElement !== input) return;
+                e.preventDefault();
+                const currentValue = (settings as any)[field] || 0;
+                const delta = e.deltaY < 0 ? 1 : -1;
+                const newValue = Math.round(currentValue + delta);
+                setSettings({
+                  ...settings,
+                  [field]: newValue,
+                });
+              };
+              
+              const handleKeyDown = (e: KeyboardEvent) => {
+                if (document.activeElement !== input) return;
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  const currentValue = (settings as any)[field] || 0;
+                  const delta = e.key === 'ArrowUp' ? 1 : -1;
+                  const newValue = Math.round(currentValue + delta);
                   setSettings({
                     ...settings,
-                    [field]: parseFloat(e.target.value || '0'),
-                  })
+                    [field]: newValue,
+                  });
                 }
-              />
+              };
+              
+              input.addEventListener('wheel', handleWheel, { passive: false });
+              input.addEventListener('keydown', handleKeyDown);
+              
+              return () => {
+                input.removeEventListener('wheel', handleWheel);
+                input.removeEventListener('keydown', handleKeyDown);
+              };
+            }, [field, isInteger, settings, setSettings]);
+            
+            return (
+              <div className="setting-row" key={field}>
+                <label>{label}</label>
 
-              <ResetButton
-                onClick={() => resetField(field as keyof AppSettings)}
-                tooltipContent={t('reset', lang)}
-              />
-            </div>
-          ))}
+                <input
+                  ref={inputRef}
+                  type="number"
+                  step={step}
+                  value={(settings as any)[field]}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      [field]: isInteger 
+                        ? Math.round(parseFloat(e.target.value || '0'))
+                        : parseFloat(e.target.value || '0'),
+                    })
+                  }
+                />
+
+                <ResetButton
+                  onClick={() => resetField(field as keyof AppSettings)}
+                  tooltipContent={t('reset', lang)}
+                />
+              </div>
+            );
+          })}
 
           {/* ALIGN */}
           <div className="setting-row">
