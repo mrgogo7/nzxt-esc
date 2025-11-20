@@ -7,7 +7,7 @@
  * Uses sequential migration pipeline: 0 → 1 → 2 → ... → CURRENT_SCHEMA_VERSION
  */
 
-import { PRESET_SCHEMA_VERSION, type PresetFile } from './schema';
+import type { PresetFile } from './schema';
 import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from './constants';
 import type { Overlay } from '../types/overlay';
 import { DEFAULT_OVERLAY } from '../types/overlay';

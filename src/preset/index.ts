@@ -8,7 +8,7 @@
  * migration, validation, and normalization.
  */
 
-import { PRESET_SCHEMA_VERSION, type PresetFile } from './schema';
+import type { PresetFile } from './schema';
 import { CURRENT_SCHEMA_VERSION } from './constants';
 import { importPresetPipeline, type ImportResult } from './importPipeline';
 import type { AppSettings } from '../constants/defaults';

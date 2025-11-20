@@ -40,8 +40,9 @@ export class PresetError extends Error {
     this.name = 'PresetError';
     
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, PresetError);
+    const ErrorConstructor = Error as any;
+    if (typeof ErrorConstructor.captureStackTrace === 'function') {
+      ErrorConstructor.captureStackTrace(this, PresetError);
     }
   }
 }

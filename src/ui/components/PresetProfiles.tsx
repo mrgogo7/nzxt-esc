@@ -79,7 +79,8 @@ export default function PresetProfiles({
     setIsOpen(false);
 
     try {
-      await exportPreset(settings, mediaUrl);
+      const presetName = `Preset ${new Date().toISOString().slice(0, 10)}`;
+      await exportPreset(settings, mediaUrl, presetName);
       // Export success (file download triggered automatically)
     } catch (error) {
       console.error('[PresetProfiles] Export failed:', error);
@@ -104,7 +105,12 @@ export default function PresetProfiles({
     onImportStart?.();
 
     try {
-      const result = await importPreset(file);
+      const result = await importPreset(file, lang);
+      
+      if (!result.success || !result.settings || !result.mediaUrl) {
+        const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || t('presetImportError', lang);
+        throw new Error(errorMessage);
+      }
       
       // Apply imported settings
       setSettings(result.settings);

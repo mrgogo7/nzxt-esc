@@ -7,6 +7,7 @@
 
 import type { PresetFile } from './schema';
 import { VALUE_RANGES, VALID_ENUMS } from './constants';
+import type { OverlayElement } from '../types/overlay';
 
 /**
  * Represents a single normalization change.
@@ -192,7 +193,7 @@ function normalizeOverlay(
   // Ensure elements is an array
   if (!Array.isArray(overlay.elements)) {
     const oldElements = overlay.elements;
-    const newElements: typeof overlay.elements = [];
+    const newElements: OverlayElement[] = [];
     overlay.elements = newElements;
     changes.push({
       field: 'overlay.elements',

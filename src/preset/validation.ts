@@ -37,10 +37,8 @@ export interface ValidationResult {
   warnings: ValidationIssue[];
 }
 
-/**
- * Field validator function type.
- */
-type FieldValidator<T = unknown> = (value: T, field: string) => ValidationIssue | null;
+// Field validator function type (for future use)
+// type FieldValidator<T = unknown> = (value: T, field: string) => ValidationIssue | null;
 
 /**
  * Validates a preset file.
@@ -282,7 +280,7 @@ function validateBackgroundSettings(
 function validateOverlay(
   file: PresetFile,
   errors: ValidationIssue[],
-  warnings: ValidationIssue[]
+  _warnings: ValidationIssue[]
 ): void {
   if (!file.overlay) {
     return; // Already validated as required

@@ -8,8 +8,7 @@
  */
 
 import { migratePreset, getSchemaVersion } from '../migration';
-import { CURRENT_SCHEMA_VERSION, MIN_SUPPORTED_VERSION } from '../constants';
-import type { PresetFile } from '../schema';
+import { CURRENT_SCHEMA_VERSION } from '../constants';
 
 /**
  * Test case: Migrate version 0 to version 1
