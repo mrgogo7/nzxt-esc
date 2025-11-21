@@ -1,4 +1,3 @@
-import { useRef, useEffect } from 'react';
 import ColorPicker from '../ColorPicker';
 import { Tooltip } from 'react-tooltip';
 import NumericStepper from '../NumericStepper';

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, KeyboardEvent, FocusEvent } from 'react';
+import { useRef, useEffect, useState, KeyboardEvent } from 'react';
 import '../styles/NumericStepper.css';
 
 interface NumericStepperProps {
