@@ -215,6 +215,25 @@ Presets store the full layout as JSON.
 
 ---
 
+## 🌍 SUPPORTED LANGUAGES
+
+NZXT-ESC supports multiple languages for a localized user experience. Switch between languages using the language selector in the editor header.
+
+| Language | Code | File |
+|----------|------|------|
+| 🇬🇧 English | `en` | [i18n.ts](./src/i18n.ts) |
+| 🇹🇷 Turkish | `tr` | [i18n.ts](./src/i18n.ts) |
+| 🇪🇸 Spanish | `es` | [i18n.ts](./src/i18n.ts) |
+| 🇩🇪 German | `de` | [i18n.ts](./src/i18n.ts) |
+| 🇧🇷 Portuguese (BR) | `pt-BR` | [i18n.ts](./src/i18n.ts) |
+| 🇫🇷 French | `fr` | [i18n.ts](./src/i18n.ts) |
+| 🇮🇹 Italian | `it` | [i18n.ts](./src/i18n.ts) |
+| 🇯🇵 Japanese | `ja` | [i18n.ts](./src/i18n.ts) |
+
+All translations are maintained in a single TypeScript file for easy management and updates.
+
+---
+
 ## 🧪 TECHNICAL DETAILS
 
 - React 18
@@ -223,7 +242,7 @@ Presets store the full layout as JSON.
 - LocalStorage sync + event broadcasting
 - Circular LCD-aware render engine
 - AABB + rotation transform math
-- English and Turkish UI support
+- Multi-language UI support (English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese)
 
 ---
 
