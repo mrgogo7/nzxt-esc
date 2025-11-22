@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="[https://capsule-render.vercel.app/api?text=Hey Everyone!🕹️&animation=fadeIn&type=waving&color=gradient&height=100"](https://capsule-render.vercel.app/api?type=waving&height=110&color=gradient&text=NZXT%20Elite%20Screen%20Customizer%20(NZXT-ESC)%20v5.11.21&animation=twinkling&fontSize=30&reversal=false&section=header&textBg=false&fontColor=000000&fontAlign=50&fontAlignY=29)/>
+</p>
+
 # NZXT Elite Screen Customizer (NZXT-ESC) v5.11.21
 
 A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
