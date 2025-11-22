@@ -13,8 +13,8 @@ Create custom animated backgrounds, metric overlays, text layers, divider lines,
 Free for personal use only — commercial use is strictly prohibited.
 
 <p align="center">
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/Demo-Preview1.gif"/>
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/Demo-Preview2.gif"/>
+  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png"/>
+  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png"/>
 </p>
 
 <p align="center">
