@@ -5,24 +5,38 @@ import './styles/ConfigPreview.css';
 import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
+import { useOverlayConfig } from '../hooks/useOverlayConfig';
+import { useAtomicPresetSync } from '../hooks/useAtomicPresetSync';
 import ColorPicker from './components/ColorPicker';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Check } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import { motion } from 'framer-motion';
 import 'react-tooltip/dist/react-tooltip.css';
 import './styles/tooltip.css';
 import { normalizePinterestUrl, fetchPinterestMedia } from '../utils/pinterest';
 import PresetManager from './components/PresetManager/PresetManager';
+import PresetManagerButton from './components/PresetManager/PresetManagerButton';
+import ResetConfirmModal from './components/modals/ResetConfirmModal';
+import { 
+  ensureInitialActivePreset, 
+  getActivePresetId, 
+  getPresetById, 
+  updatePreset,
+  DEFAULT_PRESET_FILE 
+} from '../preset/storage';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
   const { mediaUrl, setMediaUrl } = useMediaUrl();
   const { settings, setSettings } = useConfig();
+  const overlayConfig = useOverlayConfig(settings);
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
   const [isResolving, setIsResolving] = useState(false);
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const [autosaveState, setAutosaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const urlInputRef = useRef<HTMLInputElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
@@ -60,6 +74,67 @@ export default function Config() {
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
+
+  // First-run: ensure default preset is active
+  useEffect(() => {
+    ensureInitialActivePreset();
+  }, []);
+
+  // Atomic preset sync: automatically save config state to active preset
+  const activePresetId = getActivePresetId();
+  useAtomicPresetSync({
+    settings,
+    mediaUrl,
+    overlay: overlayConfig,
+    activePresetId,
+  });
+
+  // Autosave feedback: show spinner → check → fade out
+  const autosaveTimerRef = useRef<number | null>(null);
+  const autosaveCheckTimerRef = useRef<number | null>(null);
+  
+  useEffect(() => {
+    // Clean up any existing timers
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    if (autosaveCheckTimerRef.current) clearTimeout(autosaveCheckTimerRef.current);
+    
+    if (autosaveState === 'saving') {
+      // Show check after 500ms
+      autosaveTimerRef.current = setTimeout(() => {
+        setAutosaveState('saved');
+        // Fade out after 1.2 seconds
+        autosaveCheckTimerRef.current = setTimeout(() => {
+          setAutosaveState('idle');
+        }, 1200);
+      }, 500);
+    }
+
+    return () => {
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+      if (autosaveCheckTimerRef.current) clearTimeout(autosaveCheckTimerRef.current);
+    };
+  }, [autosaveState]);
+
+  // Show saving state when settings change (visual feedback only)
+  const prevSettingsRef = useRef(settings);
+  const isInitialMount = useRef(true);
+  
+  useEffect(() => {
+    // Skip first render
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevSettingsRef.current = settings;
+      return;
+    }
+    
+    // Check if settings actually changed
+    const hasChanged = JSON.stringify(prevSettingsRef.current) !== JSON.stringify(settings);
+    if (hasChanged) {
+      setAutosaveState('saving');
+    }
+    
+    prevSettingsRef.current = settings;
+  }, [settings]);
 
   const handleLangChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLang = e.target.value as Lang;
@@ -148,15 +223,32 @@ export default function Config() {
   };
 
   const handleReset = () => {
-    if (!window.confirm(t('resetConfirm', lang))) return;
+    // Open reset confirmation modal
+    setIsResetModalOpen(true);
+  };
 
-    // Reset to defaults
-    setMediaUrl(DEFAULT_MEDIA_URL);
-    setUrlInput(DEFAULT_MEDIA_URL);
+  const handleResetConfirm = () => {
+    // Get active preset ID
+    const activePresetId = getActivePresetId();
+
+    if (activePresetId) {
+      // Reset active preset to baseline
+      const baselinePreset = {
+        ...DEFAULT_PRESET_FILE,
+      };
+      updatePreset(activePresetId, { preset: baselinePreset });
+    }
+
+    // Apply baseline to current state
+    setMediaUrl('');
+    setUrlInput('');
     
-    // Reset settings to defaults (including overlay)
-    // Note: url is stored separately via useMediaUrl, not in settings
-    setSettings(DEFAULT_SETTINGS);
+    // Reset settings to baseline (empty overlay, black background)
+    setSettings({
+      ...DEFAULT_SETTINGS,
+      backgroundColor: '#000000',
+      overlay: { mode: 'none', elements: [] },
+    });
   };
 
   const handleContextMenu = (e: React.MouseEvent<HTMLInputElement>) => {
@@ -318,7 +410,7 @@ export default function Config() {
                 <option value="tr">Türkçe</option>
                 <option value="es">Español</option>
                 <option value="de">Deutsch</option>
-                <option value="pt-BR">Português (Brasil)</option>
+                <option value="pt-BR">Português</option>
                 <option value="fr">Français</option>
                 <option value="it">Italiano</option>
                 <option value="ja">日本語</option>
@@ -329,7 +421,7 @@ export default function Config() {
             <div style={{ fontSize: '12px', color: '#9aa3ad', fontWeight: 400, lineHeight: '1.2' }}>
               by Gokhan AKGUL (mRGogo)
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <motion.button 
                 className="reset-btn" 
                 onClick={handleReset}
@@ -339,28 +431,27 @@ export default function Config() {
               >
                 {t("reset", lang)}
               </motion.button>
-              <motion.button 
-                className="preset-profiles-button" 
-                onClick={() => setIsPresetManagerOpen(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                title={t('presetProfiles', lang)}
-              >
-                {t('presetProfiles', lang)}
-              </motion.button>
+              <PresetManagerButton
+                lang={lang}
+                onOpenManager={() => setIsPresetManagerOpen(true)}
+                settings={settings}
+                setSettings={setSettings}
+                mediaUrl={mediaUrl}
+                setMediaUrl={setMediaUrl}
+              />
             </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-            <a
-              href="https://github.com/mrgogo7"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: '#bfc6d4', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#bfc6d4'}
-              title={t('tooltipGitHub', lang)}
-            >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <a
+                href="https://github.com/mrgogo7"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: '#bfc6d4', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#bfc6d4'}
+                title={t('tooltipGitHub', lang)}
+              >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ display: 'block' }}>
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23 1.957-.544 4.06-.544 6.13.205 2.12-1.552 3.168-1.23 3.168-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
               </svg>
@@ -404,6 +495,41 @@ export default function Config() {
                 <path d="M17.625 1.499c-2.32 0-4.354 1.203-5.625 3.03-1.271-1.827-3.305-3.03-5.625-3.03C3.129 1.499 0 4.253 0 8.249c0 4.275 3.068 7.847 5.828 10.227a33.14 33.14 0 0 0 5.616 3.876l.028.017.008.003-.001.003c.163.085.342.128.521.128.179 0 .358-.043.521-.128l-.001-.003.008-.003.028-.017a33.14 33.14 0 0 0 5.616-3.876C20.932 16.096 24 12.524 24 8.249c0-3.996-3.129-6.75-6.375-6.75zm-.919 15.275a30.766 30.766 0 0 1-4.703 3.316l-.004-.002-.004.002a30.955 30.955 0 0 1-4.703-3.316c-2.677-2.307-5.047-5.049-5.047-8.525 0-2.754 2.121-4.5 4.125-4.5 2.06 0 3.914 1.567 4.544 3.684.143.495.596.795 1.086.795.49 0 .943-.3 1.086-.795.63-2.117 2.484-3.684 4.544-3.684 2.004 0 4.125 1.746 4.125 4.5 0 3.476-2.37 6.218-5.048 8.525z"/>
               </svg>
             </a>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {/* Active Preset Display */}
+              {(() => {
+                const activePresetId = getActivePresetId();
+                const activePreset = activePresetId ? getPresetById(activePresetId) : null;
+                const presetName = activePreset?.name || 'Default';
+                return (
+                  <span style={{ 
+                    fontSize: '12px', 
+                    color: '#9CA3AF', 
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    Active preset: {presetName}
+                    {/* Autosave Feedback */}
+                    {autosaveState === 'saving' && (
+                      <Loader2 size={12} className="spinner" style={{ opacity: 0.7 }} />
+                    )}
+                    {autosaveState === 'saved' && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Check size={12} style={{ color: '#10b981', opacity: 0.9 }} />
+                      </motion.div>
+                    )}
+                  </span>
+                );
+              })()}
+            </div>
           </div>
         </div>
       </header>
@@ -592,6 +718,20 @@ export default function Config() {
         setSettings={setSettings}
         mediaUrl={mediaUrl}
         setMediaUrl={setMediaUrl}
+      />
+
+      {/* Reset Confirm Modal */}
+      <ResetConfirmModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={handleResetConfirm}
+        presetName={(() => {
+          const activePresetId = getActivePresetId();
+          if (!activePresetId) return 'Default';
+          const preset = getPresetById(activePresetId);
+          return preset?.name || 'Default';
+        })()}
+        lang={lang}
       />
     </div>
   );

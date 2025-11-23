@@ -83,7 +83,12 @@ export default function PresetManager({
   };
 
   const handleApply = (preset: StoredPreset) => {
-    // Tüm ayarları tek bir çağrıda birleştir (background + overlay + misc)
+    // Disable autosave during preset apply to prevent loops
+    if (typeof window !== 'undefined') {
+      window.__disableAutosave = true;
+    }
+
+    // Apply preset to config state
     setSettings({
       ...preset.preset.background.settings,
       overlay: preset.preset.overlay,
@@ -92,6 +97,13 @@ export default function PresetManager({
     setMediaUrl(preset.preset.background.url);
     setActivePresetId(preset.id);
     setActivePresetIdState(preset.id);
+
+    // Re-enable autosave after 300ms
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.__disableAutosave = false;
+      }
+    }, 300);
   };
 
   const handleExport = () => {
@@ -359,6 +371,7 @@ export default function PresetManager({
         accept=".nzxt-esc-preset"
         onChange={handleImportFile}
         style={{ display: 'none' }}
+        aria-label={t('presetImport', lang)}
       />
 
     </>
