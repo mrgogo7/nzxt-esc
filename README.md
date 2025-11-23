@@ -136,6 +136,7 @@ Inside the editor you can:
 - Adjust position, rotation, scale, opacity, and color
 - Choose MP4 / GIF / PNG / JPG background media
 - Manage presets (Import, Export, Duplicate, Delete, Rename, Apply)
+- Quickly switch between favorite presets via the Quick Favorites dropdown
 - Preview all changes in real time on your Kraken Elite LCD
 
 No external URL or config.html is required anymore.
@@ -212,6 +213,10 @@ Available actions:
 - Apply
 
 Presets store the full layout as JSON.
+
+**Quick Favorites Dropdown**
+
+Hovering over the Preset Manager button reveals a compact dropdown listing up to 10 favorite presets (marked with ★). Each entry displays the preset name, favorite status, and an "active" indicator for the currently applied preset. Selecting an item immediately applies that preset using the same atomic merge and autosave logic as the full manager. The dropdown features smooth fade-in/fade-out animations and includes a direct link to open the full Preset Manager interface. This provides an extremely fast workflow for users who frequently switch between a small set of preferred presets.
 
 ---
 
@@ -299,6 +304,7 @@ v5.11.21 (Current)
 - Arrow-key movement
 - Legacy modes removed
 - Full preset manager (Import/Export/Duplicate/Delete/Rename/Apply)
+- Quick Favorites dropdown for instant preset switching
 - UX and stability improvements
 
 See GitHub Releases for older versions.
