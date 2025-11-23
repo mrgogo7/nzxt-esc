@@ -4,7 +4,7 @@
  * Modal for confirming reset operation before resetting preset to baseline.
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
 import type { Lang } from '../../../i18n';

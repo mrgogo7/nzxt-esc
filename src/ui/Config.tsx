@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { LANG_KEY, Lang, t, getInitialLang, setLang } from '../i18n';
 import ConfigPreview from './components/ConfigPreview';
 import './styles/ConfigPreview.css';
-import { DEFAULT_MEDIA_URL, DEFAULT_SETTINGS } from '../constants/defaults';
+import { DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
 import { useOverlayConfig } from '../hooks/useOverlayConfig';
@@ -434,9 +434,7 @@ export default function Config() {
               <PresetManagerButton
                 lang={lang}
                 onOpenManager={() => setIsPresetManagerOpen(true)}
-                settings={settings}
                 setSettings={setSettings}
-                mediaUrl={mediaUrl}
                 setMediaUrl={setMediaUrl}
               />
             </div>

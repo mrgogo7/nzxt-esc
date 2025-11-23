@@ -18,7 +18,7 @@ import { useEffect, useRef } from 'react';
 import type { AppSettings } from '../constants/defaults';
 import type { Overlay } from '../types/overlay';
 import { createPresetFromState } from '../preset';
-import { getActivePresetId, getPresetById, updatePreset } from '../preset/storage';
+import { getPresetById, updatePreset } from '../preset/storage';
 
 /**
  * Global flag to disable autosave during preset apply.

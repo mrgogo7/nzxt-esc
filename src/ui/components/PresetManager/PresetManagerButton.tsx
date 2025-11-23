@@ -8,12 +8,11 @@
  * - Glow animation on preset apply
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Check } from 'lucide-react';
 import type { Lang } from '../../../i18n';
 import { t } from '../../../i18n';
-import type { AppSettings } from '../../../constants/defaults';
 import { 
   getPresets, 
   getActivePresetId, 
@@ -25,18 +24,14 @@ import { isFavorite } from '../../../preset/storage';
 export interface PresetManagerButtonProps {
   lang: Lang;
   onOpenManager: () => void;
-  settings: AppSettings;
   setSettings: (settings: Partial<AppSettings>) => void;
-  mediaUrl: string;
   setMediaUrl: (url: string) => void;
 }
 
 export default function PresetManagerButton({
   lang,
   onOpenManager,
-  settings,
   setSettings,
-  mediaUrl,
   setMediaUrl,
 }: PresetManagerButtonProps) {
   const [isHovering, setIsHovering] = useState(false);
