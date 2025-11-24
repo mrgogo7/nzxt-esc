@@ -17,6 +17,7 @@ import { normalizePinterestUrl, fetchPinterestMedia } from '../utils/pinterest';
 import PresetManager from './components/PresetManager/PresetManager';
 import PresetManagerButton from './components/PresetManager/PresetManagerButton';
 import ResetConfirmModal from './components/modals/ResetConfirmModal';
+import YouTubeWarningModal from './components/modals/YouTubeWarningModal';
 import { 
   ensureInitialActivePreset, 
   getActivePresetId, 
@@ -130,6 +131,7 @@ export default function Config() {
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isYouTubeWarningOpen, setIsYouTubeWarningOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [autosaveState, setAutosaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const urlInputRef = useRef<HTMLInputElement>(null);
@@ -246,6 +248,23 @@ export default function Config() {
     return /\.(mp4|webm|jpg|jpeg|png|gif|webp)($|\?)/i.test(trimmed);
   };
 
+  /**
+   * Checks if URL is a YouTube URL (youtube.com, youtu.be, m.youtube.com, /shorts/, /embed/, etc.)
+   */
+  const isYouTubeUrl = (url: string): boolean => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim().toLowerCase();
+    // Check for youtube.com, youtu.be, m.youtube.com domains
+    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
+      return true;
+    }
+    // Check for YouTube-specific paths (watch, shorts, embed)
+    if (trimmed.includes('/watch') || trimmed.includes('/shorts/') || trimmed.includes('/embed/')) {
+      return true;
+    }
+    return false;
+  };
+
   const handleSave = async () => {
     const trimmedUrl = urlInput.trim();
     
@@ -258,6 +277,12 @@ export default function Config() {
     // If it's a direct media URL (ends with .mp4, .jpg, .gif, etc.), save directly
     if (isDirectMediaUrl(trimmedUrl)) {
       setMediaUrl(trimmedUrl);
+      return;
+    }
+
+    // YouTube URL validation: show warning modal and prevent saving
+    if (isYouTubeUrl(trimmedUrl)) {
+      setIsYouTubeWarningOpen(true);
       return;
     }
 
@@ -830,6 +855,13 @@ export default function Config() {
           const preset = getPresetById(activePresetId);
           return preset?.name || 'Default';
         })()}
+        lang={lang}
+      />
+
+      {/* YouTube Warning Modal */}
+      <YouTubeWarningModal
+        isOpen={isYouTubeWarningOpen}
+        onClose={() => setIsYouTubeWarningOpen(false)}
         lang={lang}
       />
     </div>

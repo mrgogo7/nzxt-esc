@@ -113,8 +113,7 @@ export default function PresetManagerButton({
       setMediaUrl(preset.preset.background.url);
     }, 100);
 
-    // Close dropdown
-    setIsDropdownOpen(false);
+    // Don't close dropdown - let user select multiple presets or close by clicking outside
 
     // Trigger glow animation
     setIsGlowing(true);
