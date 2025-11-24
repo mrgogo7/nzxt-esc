@@ -17,7 +17,8 @@ import { normalizePinterestUrl, fetchPinterestMedia } from '../utils/pinterest';
 import PresetManager from './components/PresetManager/PresetManager';
 import PresetManagerButton from './components/PresetManager/PresetManagerButton';
 import ResetConfirmModal from './components/modals/ResetConfirmModal';
-import YouTubeWarningModal from './components/modals/YouTubeWarningModal';
+// YouTubeWarningModal removed - YouTube is now supported
+import { getMediaType } from '../utils/media';
 import { 
   ensureInitialActivePreset, 
   getActivePresetId, 
@@ -131,7 +132,7 @@ export default function Config() {
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
-  const [isYouTubeWarningOpen, setIsYouTubeWarningOpen] = useState(false);
+  // isYouTubeWarningOpen removed - YouTube is now supported
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [autosaveState, setAutosaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const urlInputRef = useRef<HTMLInputElement>(null);
@@ -248,22 +249,7 @@ export default function Config() {
     return /\.(mp4|webm|jpg|jpeg|png|gif|webp)($|\?)/i.test(trimmed);
   };
 
-  /**
-   * Checks if URL is a YouTube URL (youtube.com, youtu.be, m.youtube.com, /shorts/, /embed/, etc.)
-   */
-  const isYouTubeUrl = (url: string): boolean => {
-    if (!url || typeof url !== 'string') return false;
-    const trimmed = url.trim().toLowerCase();
-    // Check for youtube.com, youtu.be, m.youtube.com domains
-    if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be')) {
-      return true;
-    }
-    // Check for YouTube-specific paths (watch, shorts, embed)
-    if (trimmed.includes('/watch') || trimmed.includes('/shorts/') || trimmed.includes('/embed/')) {
-      return true;
-    }
-    return false;
-  };
+  // Note: isYouTubeUrl function removed - now using isYouTubeUrl from utils/youtube.ts via getMediaType
 
   const handleSave = async () => {
     const trimmedUrl = urlInput.trim();
@@ -280,11 +266,9 @@ export default function Config() {
       return;
     }
 
-    // YouTube URL validation: show warning modal and prevent saving
-    if (isYouTubeUrl(trimmedUrl)) {
-      setIsYouTubeWarningOpen(true);
-      return;
-    }
+    // YouTube URLs are now accepted - save directly
+    // YouTube detection and rendering is handled by getMediaType() and YouTubeRenderer
+    // No special handling needed here - YouTube URLs are saved as-is like other URLs
 
     // Check if it's a Pinterest URL
     const normalizedPinterestUrl = normalizePinterestUrl(trimmedUrl);
@@ -712,6 +696,20 @@ export default function Config() {
               <X size={16} />
             </motion.button>
             <Tooltip id="clear-btn-tooltip" />
+            {/* YouTube Info Message - shown when YouTube URL is entered */}
+            {urlInput.trim() && getMediaType(urlInput.trim()) === 'youtube' && (
+              <div
+                style={{
+                  marginTop: '8px',
+                  fontSize: '12px',
+                  color: '#a0a0a0',
+                  lineHeight: '1.4',
+                  padding: '0 4px',
+                }}
+              >
+                {t('youtubeInfoMessage', lang)}
+              </div>
+            )}
             {/* Context Menu */}
             {contextMenu && (
               <div
@@ -858,12 +856,7 @@ export default function Config() {
         lang={lang}
       />
 
-      {/* YouTube Warning Modal */}
-      <YouTubeWarningModal
-        isOpen={isYouTubeWarningOpen}
-        onClose={() => setIsYouTubeWarningOpen(false)}
-        lang={lang}
-      />
+      {/* YouTube Warning Modal removed - YouTube is now supported */}
     </div>
   );
 }

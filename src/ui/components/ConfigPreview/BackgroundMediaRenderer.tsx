@@ -1,4 +1,10 @@
 import type { AppSettings } from '../../../constants/defaults';
+import { getMediaType } from '../../../utils/media';
+import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../../utils/youtube';
+import { getBaseAlign } from '../../../utils/positioning';
+import { getLCDDimensions } from '../../../environment';
+import { NZXT_DEFAULTS } from '../../../constants/nzxt';
+import YouTubeRenderer from '../BackgroundMedia/YouTubeRenderer';
 
 interface BackgroundMediaRendererProps {
   mediaUrl: string | null;
@@ -15,6 +21,8 @@ interface BackgroundMediaRendererProps {
  * 
  * Renders video or image media with the same styling and positioning logic
  * as BackgroundPreview, but with configurable opacity and additional styles.
+ * 
+ * Now supports YouTube videos via iframe embed.
  */
 export default function BackgroundMediaRenderer({
   mediaUrl,
@@ -24,6 +32,47 @@ export default function BackgroundMediaRenderer({
   opacity = 1,
   style = {},
 }: BackgroundMediaRendererProps) {
+  // Detect media type
+  const mediaType = mediaUrl ? getMediaType(mediaUrl) : 'unknown';
+
+  // YouTube path: Use YouTubeRenderer component
+  if (mediaType === 'youtube' && mediaUrl) {
+    const videoId = extractYouTubeVideoId(mediaUrl);
+    if (videoId) {
+      const embedUrl = buildYouTubeEmbedUrl(videoId);
+      
+      // Get base alignment (0-1 range for YouTubeRenderer)
+      const baseAlign = getBaseAlign(settings.align);
+      const align = {
+        x: baseAlign.x / 100, // Convert 0-100% to 0-1 range
+        y: baseAlign.y / 100,
+      };
+
+      // Container dimensions: Use 100% of parent container
+      // Parent container (preview circle or LCD) provides the bounds
+      // We use a large default that will be clipped by parent's overflow
+      // This matches how image/video elements work (100% width/height)
+      // The actual container size is determined by the parent component
+      // (BackgroundPreview uses 200px preview, KrakenOverlay uses 640px LCD)
+      const containerWidth = 1000; // Large enough to cover any container
+      const containerHeight = 1000; // Large enough to cover any container
+
+      return (
+        <YouTubeRenderer
+          embedUrl={embedUrl}
+          width={containerWidth}
+          height={containerHeight}
+          scale={settings.scale}
+          offsetX={settings.x}
+          offsetY={settings.y}
+          fit={settings.fit}
+          align={align}
+        />
+      );
+    }
+  }
+
+  // Original video/image paths: Unchanged
   const baseStyle: React.CSSProperties = {
     width: '100%',
     height: '100%',

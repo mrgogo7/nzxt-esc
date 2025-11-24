@@ -110,10 +110,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolveError: "Failed to resolve URL. Please check the URL or try again later.",
     // Timeout message when URL resolution takes too long
     urlResolveTimeout: "URL resolution timed out. Please try again.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "YouTube Links Not Supported",
     youtubeNotSupportedMessage: "YouTube links are not supported yet.\n\nPlease use a direct .mp4 / .jpg / .gif URL.\n\n(Experimental Pinterest URLs are accepted.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ YouTube videos are embedded. At the end of playback, YouTube may show recommendations or ads. This behavior cannot be disabled.",
     // Custom mode specific translations
     addReading: "Add Reading",
     removeReading: "Remove Reading",
@@ -318,10 +320,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolveError: "URL çözümlenemedi. Lütfen URL'yi kontrol edin veya daha sonra tekrar deneyin.",
     // Timeout message when URL resolution takes too long
     urlResolveTimeout: "URL çözümleme zaman aşımına uğradı. Lütfen tekrar deneyin.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "YouTube Bağlantıları Desteklenmiyor",
     youtubeNotSupportedMessage: "YouTube bağlantıları henüz desteklenmemektedir.\n\nLütfen doğrudan .mp4 / .jpg / .gif URL'si kullanın.\n\n(Deneysel Pinterest URL'leri kabul edilmektedir.)",
     youtubeNotSupportedOk: "Tamam",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ YouTube videoları embed olarak oynatılır. Video sonunda YouTube'un önerdiği içerikler veya reklamlar görünebilir. Bu davranış engellenemez.",
     // Custom mode specific translations
     addReading: "Reading Ekle",
     removeReading: "Reading Kaldır",
@@ -520,10 +524,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URL resuelta correctamente",
     urlResolveError: "Error al resolver la URL. Por favor verifica la URL o intenta más tarde.",
     urlResolveTimeout: "Se agotó el tiempo de espera al resolver la URL. Por favor intenta de nuevo.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "Enlaces de YouTube No Soportados",
     youtubeNotSupportedMessage: "Los enlaces de YouTube aún no están soportados.\n\nPor favor usa una URL directa .mp4 / .jpg / .gif.\n\n(Los URL de Pinterest experimentales son aceptados.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ Los videos de YouTube se incrustan. Al final de la reproducción, YouTube puede mostrar recomendaciones o anuncios. Este comportamiento no se puede desactivar.",
     addReading: "Agregar Lectura",
     removeReading: "Eliminar Lectura",
     firstReading: "1ª Lectura",
@@ -705,10 +711,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URL erfolgreich aufgelöst",
     urlResolveError: "URL konnte nicht aufgelöst werden. Bitte überprüfe die URL oder versuche es später erneut.",
     urlResolveTimeout: "Zeitüberschreitung beim Auflösen der URL. Bitte versuche es erneut.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "YouTube-Links werden nicht unterstützt",
     youtubeNotSupportedMessage: "YouTube-Links werden noch nicht unterstützt.\n\nBitte verwende eine direkte .mp4 / .jpg / .gif URL.\n\n(Experimentelle Pinterest-URLs werden akzeptiert.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ YouTube-Videos werden eingebettet. Am Ende der Wiedergabe kann YouTube Empfehlungen oder Werbung anzeigen. Dieses Verhalten kann nicht deaktiviert werden.",
     addReading: "Messwert hinzufügen",
     removeReading: "Messwert entfernen",
     firstReading: "1. Messwert",
@@ -890,10 +898,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URL resolvida com sucesso",
     urlResolveError: "Falha ao resolver a URL. Por favor verifique a URL ou tente novamente mais tarde.",
     urlResolveTimeout: "O tempo limite ao resolver a URL expirou. Por favor tente novamente.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "Links do YouTube Não Suportados",
     youtubeNotSupportedMessage: "Links do YouTube ainda não são suportados.\n\nPor favor, use uma URL direta .mp4 / .jpg / .gif.\n\n(URLs experimentais do Pinterest são aceitas.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ Os vídeos do YouTube são incorporados. No final da reprodução, o YouTube pode mostrar recomendações ou anúncios. Este comportamento não pode ser desativado.",
     addReading: "Adicionar Leitura",
     removeReading: "Remover Leitura",
     firstReading: "1ª Leitura",
@@ -1075,10 +1085,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URL résolue avec succès",
     urlResolveError: "Échec de la résolution de l'URL. Veuillez vérifier l'URL ou réessayer plus tard.",
     urlResolveTimeout: "Délai d'attente dépassé lors de la résolution de l'URL. Veuillez réessayer.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "Liens YouTube Non Supportés",
     youtubeNotSupportedMessage: "Les liens YouTube ne sont pas encore supportés.\n\nVeuillez utiliser une URL directe .mp4 / .jpg / .gif.\n\n(Les URL Pinterest expérimentales sont acceptées.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ Les vidéos YouTube sont intégrées. À la fin de la lecture, YouTube peut afficher des recommandations ou des publicités. Ce comportement ne peut pas être désactivé.",
     addReading: "Ajouter une Lecture",
     removeReading: "Supprimer la Lecture",
     firstReading: "1ère Lecture",
@@ -1260,10 +1272,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URL risolto con successo",
     urlResolveError: "Impossibile risolvere l'URL. Si prega di controllare l'URL o riprovare più tardi.",
     urlResolveTimeout: "Timeout nella risoluzione dell'URL. Si prega di riprovare.",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "Link YouTube Non Supportati",
     youtubeNotSupportedMessage: "I link YouTube non sono ancora supportati.\n\nSi prega di utilizzare un URL diretto .mp4 / .jpg / .gif.\n\n(Gli URL Pinterest sperimentali sono accettati.)",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ I video di YouTube sono incorporati. Alla fine della riproduzione, YouTube può mostrare raccomandazioni o annunci. Questo comportamento non può essere disattivato.",
     addReading: "Aggiungi Lettura",
     removeReading: "Rimuovi Lettura",
     firstReading: "1ª Lettura",
@@ -1445,10 +1459,12 @@ const dict: Record<Lang, Record<string, string>> = {
     urlResolved: "URLが正常に解決されました",
     urlResolveError: "URLの解決に失敗しました。URLを確認するか、後でもう一度お試しください。",
     urlResolveTimeout: "URL解決がタイムアウトしました。もう一度お試しください。",
-    // YouTube URL warning
+    // YouTube URL warning (kept for backward compatibility, not used anymore)
     youtubeNotSupportedTitle: "YouTubeリンクはサポートされていません",
     youtubeNotSupportedMessage: "YouTubeリンクはまだサポートされていません。\n\n直接の.mp4 / .jpg / .gif URLを使用してください。\n\n（実験的なPinterest URLは受け入れられます。）",
     youtubeNotSupportedOk: "OK",
+    // YouTube info message - shown below URL input when YouTube URL is entered
+    youtubeInfoMessage: "ℹ️ YouTube動画は埋め込まれます。再生終了時に、YouTubeが推奨動画や広告を表示する場合があります。この動作は無効にできません。",
     addReading: "測定値を追加",
     removeReading: "測定値を削除",
     firstReading: "1番目の測定値",

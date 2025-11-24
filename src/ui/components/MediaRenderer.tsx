@@ -1,6 +1,9 @@
 import { useRef, useEffect } from 'react';
-import { isVideoUrl } from '../../utils/media';
-import { getObjectPosition } from '../../utils/positioning';
+import { isVideoUrl, getMediaType } from '../../utils/media';
+import { getObjectPosition, getBaseAlign } from '../../utils/positioning';
+import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../utils/youtube';
+import { getLCDDimensions } from '../../environment';
+import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
 
@@ -123,6 +126,42 @@ export default function MediaRenderer({
 
   if (!url) return null;
 
+  // Detect media type
+  const mediaType = getMediaType(url);
+
+  // YouTube path: Use YouTubeRenderer component
+  if (mediaType === 'youtube') {
+    const videoId = extractYouTubeVideoId(url);
+    if (videoId) {
+      const embedUrl = buildYouTubeEmbedUrl(videoId);
+      
+      // Get base alignment (0-1 range for YouTubeRenderer)
+      const baseAlign = getBaseAlign(settings.align);
+      const align = {
+        x: baseAlign.x / 100, // Convert 0-100% to 0-1 range
+        y: baseAlign.y / 100,
+      };
+
+      // Get LCD dimensions for YouTubeRenderer
+      // MediaRenderer is used in LCD mode (KrakenOverlay), so we use actual LCD dimensions
+      const { width, height } = getLCDDimensions();
+
+      return (
+        <YouTubeRenderer
+          embedUrl={embedUrl}
+          width={width}
+          height={height}
+          scale={settings.scale}
+          offsetX={settings.x}
+          offsetY={settings.y}
+          fit={settings.fit}
+          align={align}
+        />
+      );
+    }
+  }
+
+  // Original video/image paths: Unchanged
   if (isVideo) {
     return (
       <video
