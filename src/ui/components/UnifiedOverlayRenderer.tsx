@@ -33,14 +33,22 @@ function UnifiedOverlayRenderer({
   metrics,
   scale = 1,
 }: UnifiedOverlayRendererProps) {
-  if (overlay.mode === 'none' || !overlay.elements || overlay.elements.length === 0) {
+  // DEFENSIVE: Ensure overlay.elements is always an array
+  const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
+  
+  // DEBUG: Only log in debug mode
+  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+    console.log('[UnifiedOverlayRenderer] Mode:', overlay.mode, 'Elements count:', safeElements.length);
+  }
+  
+  if (overlay.mode === 'none' || safeElements.length === 0) {
     return null;
   }
 
   // Sort elements by zIndex (default to array index if not set)
-  const sortedElements = [...overlay.elements].sort((a, b) => {
-    const aZ = a.zIndex !== undefined ? a.zIndex : overlay.elements.indexOf(a);
-    const bZ = b.zIndex !== undefined ? b.zIndex : overlay.elements.indexOf(b);
+  const sortedElements = [...safeElements].sort((a, b) => {
+    const aZ = a.zIndex !== undefined ? a.zIndex : safeElements.indexOf(a);
+    const bZ = b.zIndex !== undefined ? b.zIndex : safeElements.indexOf(b);
     return aZ - bZ;
   });
 

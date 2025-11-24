@@ -7,6 +7,7 @@
 
 import type { OverlayElement } from '../types/overlay';
 import { assignIdsToElements } from './utils';
+import { MAX_OVERLAY_ELEMENTS } from '../utils/overlaySettingsHelpers';
 
 /**
  * Template element type (OverlayElement without ID).
@@ -306,6 +307,7 @@ export const OVERLAY_TEMPLATES: Record<string, TemplateElement[]> = {
 
 /**
  * Get template elements with assigned IDs.
+ * Enforces MAX_OVERLAY_ELEMENTS limit.
  * 
  * @param templateId - Template ID (e.g., 'single-infographic')
  * @returns Array of OverlayElement with IDs, or empty array if template not found
@@ -318,6 +320,18 @@ export function getTemplateElements(templateId: string): OverlayElement[] {
     return [];
   }
   
-  return assignIdsToElements(template);
+  const elements = assignIdsToElements(template);
+  
+  // DEFENSIVE: Ensure elements is always an array
+  const safeElements = Array.isArray(elements) ? elements : [];
+  
+  // HARD LIMIT: Truncate to MAX_OVERLAY_ELEMENTS
+  if (safeElements.length > MAX_OVERLAY_ELEMENTS) {
+    console.warn(`[OverlayPreset] Template ${templateId} contains ${safeElements.length} elements, truncating to ${MAX_OVERLAY_ELEMENTS}`);
+    return safeElements.slice(0, MAX_OVERLAY_ELEMENTS);
+  }
+  
+  console.log('[getTemplateElements] Template:', templateId, 'elements:', safeElements.length);
+  return safeElements;
 }
 

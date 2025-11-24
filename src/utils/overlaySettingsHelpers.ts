@@ -12,6 +12,8 @@ import {
   alignCenterX,
   alignCenterY,
 } from './alignment';
+import { getElementCountForPreset, canAppendElements } from '@/state/overlayRuntime';
+import { generateElementId } from '../overlayPreset/utils';
 
 // ============================================================================
 // LEGACY HELPERS (Deprecated - kept for backward compatibility)
@@ -277,7 +279,11 @@ export function updateDividerElementData(
 }
 
 /**
+ * @deprecated ARCHITECT MODE: This function writes to settings.overlay.elements which is IGNORED.
+ * Use createOverlayElementForAdd() + appendElementsForPreset() instead.
+ * 
  * Adds a new overlay element to the overlay.
+ * Enforces GLOBAL HARD LIMIT before adding.
  * 
  * @param settings - Current app settings
  * @param overlay - Current overlay configuration
@@ -289,13 +295,61 @@ export function addOverlayElement(
   overlay: Overlay,
   element: OverlayElement
 ): AppSettings {
+  // DEFENSIVE: Ensure overlay.elements is always an array
+  const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
+  
+  // GLOBAL HARD LIMIT: Check total (preset manual + runtime imported)
+  // Note: We can't check runtime here, so we rely on canAddElements() check before calling this
+  // But we still enforce the limit on preset elements
+  const newElements = safeElements.length >= MAX_OVERLAY_ELEMENTS 
+    ? safeElements // Don't add if already at limit
+    : [...safeElements, element];
+  
+  console.warn('[addOverlayElement] DEPRECATED: This function writes to settings.overlay.elements which is IGNORED in ARCHITECT MODE. Use createOverlayElementForAdd() + appendElementsForPreset() instead.');
+  console.log('[addOverlayElement] Adding element, count:', safeElements.length, '->', newElements.length);
+  
   return {
     ...settings,
     overlay: {
       ...overlay,
-      elements: [...overlay.elements, element],
+      elements: newElements,
     },
   };
+}
+
+/**
+ * Creates a new overlay element with proper defaults and ID generation.
+ * ARCHITECT MODE: This function only creates the element, it does NOT write to settings or runtime.
+ * Use appendElementsForPreset(activePresetId, [element]) to actually add it to runtime.
+ * 
+ * @param settings - Current app settings (for context, not modified)
+ * @param overlayConfig - Current overlay configuration (for zIndex calculation)
+ * @param partial - Partial element configuration (type and data are required)
+ * @returns New overlay element with generated ID and normalized zIndex
+ */
+export function createOverlayElementForAdd(
+  _settings: AppSettings,
+  overlayConfig: Overlay,
+  partial: Partial<OverlayElement> & { type: OverlayElement['type']; data: OverlayElement['data'] }
+): OverlayElement {
+  // Get current runtime count for zIndex calculation (from overlayConfig which comes from runtime)
+  const currentCount = Array.isArray(overlayConfig.elements) ? overlayConfig.elements.length : 0;
+  
+  // Generate unique ID
+  const id = generateElementId();
+  
+  // Create element with defaults
+  const element: OverlayElement = {
+    id,
+    type: partial.type,
+    x: partial.x ?? 0,
+    y: partial.y ?? 0,
+    zIndex: partial.zIndex ?? currentCount,
+    angle: partial.angle,
+    data: partial.data,
+  };
+  
+  return element;
 }
 
 /**
@@ -591,11 +645,87 @@ export function alignElementsCenterY(
 
 /**
  * Maximum number of overlay elements allowed.
+ * This is a GLOBAL HARD LIMIT that applies to ALL sources:
+ * - Manual elements (preset-based)
+ * - Runtime elements (imported templates)
+ * - Total combined elements
  */
 export const MAX_OVERLAY_ELEMENTS = 20;
 
 /**
+ * Get total element count from runtime overlay only.
+ * ARCHITECT MODE: Only runtime overlay elements are counted (preset elements are ignored).
+ * 
+ * @param activePresetId - Active preset ID (null for default/fallback)
+ * @returns Total element count from runtime overlay
+ */
+export function getTotalElementCount(activePresetId: string | null): number {
+  return getElementCountForPreset(activePresetId);
+}
+
+/**
+ * Checks if adding a single element would exceed the maximum limit.
+ * ARCHITECT MODE: Only runtime overlay elements are counted.
+ * 
+ * @param activePresetId - Active preset ID (null for default/fallback)
+ * @param additionalCount - Number of elements to add (default: 1)
+ * @returns true if adding would not exceed limit, false otherwise
+ */
+export function canAddElement(activePresetId: string | null, additionalCount: number = 1): boolean {
+  return canAppendElements(activePresetId, additionalCount);
+}
+
+/**
  * Checks if adding new elements would exceed the maximum limit.
+ * ARCHITECT MODE: Only runtime overlay elements are counted.
+ * 
+ * @deprecated Use canAddElement() instead for single element checks.
+ * This function is kept for backward compatibility but now uses runtime-only count.
+ * 
+ * @param _settings - Current app settings (ignored, kept for backward compatibility)
+ * @param runtimeElementCount - Current runtime element count
+ * @param countToAdd - Number of elements to add
+ * @returns true if adding would not exceed limit, false otherwise
+ */
+export function canAddElements(
+  _settings: AppSettings,
+  runtimeElementCount: number,
+  countToAdd: number
+): boolean {
+  // ARCHITECT MODE: Only use runtime count (ignore settings.overlay.elements)
+  // activePresetId is not available here, so we use runtimeElementCount as fallback
+  // This is a compatibility function - prefer canAddElement(activePresetId, countToAdd) in new code
+  const safeCountToAdd = typeof countToAdd === 'number' && !isNaN(countToAdd) ? countToAdd : 0;
+  const safeRuntimeCount = typeof runtimeElementCount === 'number' && !isNaN(runtimeElementCount) ? runtimeElementCount : 0;
+  
+  const result = (safeRuntimeCount + safeCountToAdd) <= MAX_OVERLAY_ELEMENTS;
+  return result;
+}
+
+/**
+ * Merges base and new elements while enforcing the global limit.
+ * Returns only the elements that fit within MAX_OVERLAY_ELEMENTS.
+ * 
+ * @param baseElements - Existing elements (preset manual)
+ * @param newElements - New elements to merge (runtime imported)
+ * @returns Merged array truncated to MAX_OVERLAY_ELEMENTS
+ */
+export function mergeWithLimit(
+  baseElements: OverlayElement[],
+  newElements: OverlayElement[]
+): OverlayElement[] {
+  const merged = [...baseElements, ...newElements];
+  if (merged.length > MAX_OVERLAY_ELEMENTS) {
+    return merged.slice(0, MAX_OVERLAY_ELEMENTS);
+  }
+  return merged;
+}
+
+/**
+ * Checks if adding new elements would exceed the maximum limit.
+ * 
+ * @deprecated Use canAddElements() instead for accurate total count checking.
+ * This function is kept for backward compatibility.
  * 
  * @param currentElementCount - Current number of elements in overlay
  * @param newElementCount - Number of elements to add
@@ -605,5 +735,28 @@ export function wouldExceedElementLimit(
   currentElementCount: number,
   newElementCount: number
 ): boolean {
-  return (currentElementCount + newElementCount) > MAX_OVERLAY_ELEMENTS;
+  // DEFENSIVE: Ensure inputs are valid numbers
+  const safeCurrent = typeof currentElementCount === 'number' && !isNaN(currentElementCount) ? currentElementCount : 0;
+  const safeNew = typeof newElementCount === 'number' && !isNaN(newElementCount) ? newElementCount : 0;
+  
+  const result = (safeCurrent + safeNew) > MAX_OVERLAY_ELEMENTS;
+  console.log('[wouldExceedElementLimit] Current:', safeCurrent, 'New:', safeNew, 'Result:', result);
+  return result;
+}
+
+/**
+ * Clears all overlay elements from settings.
+ * This is the central helper for resetting overlay state.
+ * 
+ * @param settings - Current app settings
+ * @returns New settings with empty overlay elements array
+ */
+export function clearAllOverlayElements(settings: AppSettings): AppSettings {
+  return {
+    ...settings,
+    overlay: {
+      mode: settings.overlay?.mode || 'none',
+      elements: [],
+    },
+  };
 }

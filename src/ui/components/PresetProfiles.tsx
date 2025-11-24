@@ -80,7 +80,10 @@ export default function PresetProfiles({
 
     try {
       const presetName = `Preset ${new Date().toISOString().slice(0, 10)}`;
-      await exportPreset(settings, mediaUrl, presetName);
+      // FAZ 9: Get activePresetId from storage for export
+      const { getActivePresetId } = await import('../../preset/storage');
+      const activePresetId = getActivePresetId();
+      await exportPreset(settings, mediaUrl, presetName, undefined, activePresetId);
       // Export success (file download triggered automatically)
     } catch (error) {
       console.error('[PresetProfiles] Export failed:', error);

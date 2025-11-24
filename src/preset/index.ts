@@ -34,18 +34,26 @@ function getAppVersion(): string {
 /**
  * Creates a preset file from current application state.
  * 
- * @param settings - Current app settings
+ * FAZ 9: overlay.elements should NEVER come from settings - they come from runtime/storage.
+ * 
+ * @param settings - Current app settings (overlay.elements should be undefined/empty)
  * @param mediaUrl - Current media URL
  * @param presetName - Preset name
+ * @param overlayElements - Overlay elements from runtime/storage (default: empty array)
  * @returns Preset file object ready for export
  */
 export function createPresetFromState(
   settings: AppSettings,
   mediaUrl: string,
-  presetName: string
+  presetName: string,
+  overlayElements?: Array<any> // OverlayElement[] but avoiding circular import
 ): PresetFile {
   const now = new Date().toISOString();
   const appVersion = getAppVersion();
+
+  // CRITICAL: overlay.elements should come from runtime/storage, NOT from settings
+  // settings.overlay.elements should always be empty/undefined
+  const elements = Array.isArray(overlayElements) ? overlayElements : [];
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
@@ -67,7 +75,10 @@ export function createPresetFromState(
         backgroundColor: settings.backgroundColor || '#000000',
       },
     },
-    overlay: settings.overlay || { mode: 'none', elements: [] },
+    overlay: {
+      mode: settings.overlay?.mode || 'none',
+      elements: elements, // FAZ 9: Always use provided elements, never from settings
+    },
     misc: settings.showGuide !== undefined ? { showGuide: settings.showGuide } : undefined,
   };
 }
@@ -75,20 +86,43 @@ export function createPresetFromState(
 /**
  * Exports current configuration to .nzxt-esc-preset file.
  * 
+ * FAZ 9: Reads overlay.elements from storage first, falls back to runtime.
+ * 
  * @param settings - Current app settings
  * @param mediaUrl - Current media URL
  * @param presetName - Preset name
  * @param filename - Optional filename (without extension, defaults to presetName)
+ * @param activePresetId - Optional active preset ID to read overlay elements from storage/runtime
  * @returns Promise that resolves when export is complete
  */
 export async function exportPreset(
   settings: AppSettings,
   mediaUrl: string,
   presetName: string,
-  filename?: string
+  filename?: string,
+  activePresetId?: string | null
 ): Promise<void> {
   try {
-    const preset = createPresetFromState(settings, mediaUrl, presetName);
+    // FAZ 9: Read overlay elements from storage first, fallback to runtime
+    let overlayElements: Array<any> = [];
+    
+    if (activePresetId) {
+      // Try to read from storage first
+      const { getPresetById } = await import('./storage');
+      const storedPreset = getPresetById(activePresetId);
+      
+      if (storedPreset?.preset?.overlay?.elements) {
+        overlayElements = storedPreset.preset.overlay.elements;
+        console.log(`[exportPreset] Read ${overlayElements.length} elements from storage for preset ${activePresetId}`);
+      } else {
+        // Fallback to runtime
+        const { getElementsForPreset } = await import('../state/overlayRuntime');
+        overlayElements = getElementsForPreset(activePresetId);
+        console.log(`[exportPreset] Read ${overlayElements.length} elements from runtime for preset ${activePresetId}`);
+      }
+    }
+    
+    const preset = createPresetFromState(settings, mediaUrl, presetName, overlayElements);
     const json = JSON.stringify(preset, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

@@ -6,8 +6,8 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { rotateElement, type RotateOperationConfig } from '../transform/operations/RotateOperation';
-import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
+import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
 
 /**
  * Hook for managing element rotation.
@@ -18,7 +18,8 @@ export function useRotationHandlers(
   _offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
-  onRotateComplete?: (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => void
+  onRotateComplete?: (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => void,
+  activePresetId?: string | null
 ) {
   const [rotatingElementId, setRotatingElementId] = useState<string | null>(null);
   const rotationStart = useRef<{
@@ -39,15 +40,13 @@ export function useRotationHandlers(
     e.preventDefault();
     e.stopPropagation();
 
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const element = overlay.elements.find(el => el.id === elementId);
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementId);
     
     if (!element) return;
     
@@ -76,7 +75,7 @@ export function useRotationHandlers(
       elementId,
       initialAngle: currentElementAngle,
     };
-  }, [settingsRef]);
+  }, [activePresetId]);
 
   const handleRotationMouseMove = useCallback((e: MouseEvent) => {
     if (!rotationStart.current) return;
@@ -86,18 +85,15 @@ export function useRotationHandlers(
     if (!previewContainer) return;
     const previewRect = previewContainer.getBoundingClientRect();
 
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const elementIndex = overlay.elements.findIndex(el => el.id === rotationStart.current!.elementId);
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === rotationStart.current!.elementId);
     
-    if (elementIndex !== -1) {
-      const element = overlay.elements[elementIndex];
+    if (element) {
       
       // Use new RotateOperation (Bug #7 fix)
       const rotateConfig: RotateOperationConfig = {
@@ -120,46 +116,35 @@ export function useRotationHandlers(
         rotateConfig
       );
       
-      const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = result.element;
-      
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...overlay,
-          elements: updatedElements,
-        },
-      });
+      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
+      // Runtime change notification will trigger UI re-render via subscription
+      updateElementInRuntime(activePresetId, element.id, () => result.element);
     }
-  }, [_offsetScale, setSettings, settingsRef]);
+  }, [_offsetScale, setSettings, settingsRef, activePresetId]);
 
   const handleRotationMouseUp = useCallback(() => {
     // Record rotate action for undo/redo
-    if (rotationStart.current && onRotateComplete) {
-      const currentSettings = settingsRef.current;
-      const currentOverlay = currentSettings.overlay;
-      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
-        const overlay = currentOverlay as Overlay;
-        const element = overlay.elements.find(el => el.id === rotationStart.current!.elementId);
-        if (element) {
-          const currentAngle = element.angle ?? 0;
-          const initialAngle = rotationStart.current.initialAngle;
-          
-          // Only record if angle actually changed
-          if (currentAngle !== initialAngle) {
-            onRotateComplete(
-              rotationStart.current.elementId,
-              initialAngle === 0 ? undefined : initialAngle,
-              currentAngle === 0 ? undefined : currentAngle
-            );
-          }
+    if (rotationStart.current && onRotateComplete && activePresetId) {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      const element = runtimeElements.find(el => el.id === rotationStart.current!.elementId);
+      if (element) {
+        const currentAngle = element.angle ?? 0;
+        const initialAngle = rotationStart.current.initialAngle;
+        
+        // Only record if angle actually changed
+        if (currentAngle !== initialAngle) {
+          onRotateComplete(
+            rotationStart.current.elementId,
+            initialAngle === 0 ? undefined : initialAngle,
+            currentAngle === 0 ? undefined : currentAngle
+          );
         }
       }
     }
     
     setRotatingElementId(null);
     rotationStart.current = null;
-  }, [onRotateComplete, settingsRef]);
+  }, [onRotateComplete, activePresetId]);
 
   // Event listeners for rotation
   useEffect(() => {

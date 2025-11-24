@@ -134,10 +134,20 @@ export function validateOverlayPresetFile(
   }
   
   // Elements validation
+  // DEFENSIVE: Ensure elements is always an array
   if (!Array.isArray(file.elements)) {
     errors.push({
       field: 'elements',
       message: 'Elements must be an array',
+    });
+    return { valid: false, errors };
+  }
+  
+  // DEFENSIVE: Ensure elements array is not null/undefined (should be caught above, but double-check)
+  if (file.elements === null || file.elements === undefined) {
+    errors.push({
+      field: 'elements',
+      message: 'Elements cannot be null or undefined',
     });
     return { valid: false, errors };
   }

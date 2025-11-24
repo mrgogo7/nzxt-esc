@@ -126,12 +126,29 @@ export function getPresets(): StoredPreset[] {
  */
 export function savePresets(presets: StoredPreset[]): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+    const jsonString = JSON.stringify(presets);
+    
+    // DEBUG: Log full JSON for verification (only in debug mode)
+    const isDebugMode = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
+    if (isDebugMode) {
+      console.log('[PresetStorage] Saving presets - JSON length:', jsonString.length);
+      // Log overlay elements for each preset
+      presets.forEach(preset => {
+        const overlayElements = preset.preset?.overlay?.elements;
+        const elementCount = Array.isArray(overlayElements) ? overlayElements.length : 0;
+        console.log(`[PresetStorage] Preset ${preset.id} (${preset.name}) - overlay.elements count: ${elementCount}`);
+        if (elementCount > 0 && isDebugMode) {
+          console.log(`[PresetStorage] Preset ${preset.id} overlay.elements:`, overlayElements);
+        }
+      });
+    }
+    
+    localStorage.setItem(STORAGE_KEY, jsonString);
     // Dispatch storage event for cross-tab sync
     window.dispatchEvent(
       new StorageEvent('storage', {
         key: STORAGE_KEY,
-        newValue: JSON.stringify(presets),
+        newValue: jsonString,
       })
     );
   } catch (error) {
@@ -259,17 +276,31 @@ export function getActivePresetId(): string | null {
  */
 export function setActivePresetId(id: string | null): void {
   try {
+    const oldValue = localStorage.getItem(ACTIVE_PRESET_KEY);
+    
     if (id) {
       localStorage.setItem(ACTIVE_PRESET_KEY, id);
     } else {
       localStorage.removeItem(ACTIVE_PRESET_KEY);
     }
     
-    // Dispatch storage event for cross-tab sync
+    console.log(`[PresetStorage] setActivePresetId: ${oldValue || 'null'} -> ${id || 'null'}`);
+    
+    // CRITICAL: Dispatch storage event for cross-tab sync
+    // Also dispatch custom event for same-tab listeners
+    // StorageEvent constructor may not work in all browsers for same-tab events
+    const storageEvent = new StorageEvent('storage', {
+      key: ACTIVE_PRESET_KEY,
+      newValue: id,
+      oldValue: oldValue,
+      storageArea: localStorage,
+    });
+    window.dispatchEvent(storageEvent);
+    
+    // Also dispatch custom event for same-tab listeners (more reliable)
     window.dispatchEvent(
-      new StorageEvent('storage', {
-        key: ACTIVE_PRESET_KEY,
-        newValue: id,
+      new CustomEvent('activePresetIdChanged', {
+        detail: { newValue: id, oldValue: oldValue },
       })
     );
   } catch (error) {
@@ -302,8 +333,16 @@ export function duplicatePreset(id: string, newName?: string): StoredPreset | nu
 }
 
 /**
+ * FAZ 9.2 HOTFIX: Migration function removed.
+ * overlay.elements MUST be preserved in preset files for persistence.
+ * Elements are stored in preset files and loaded into runtime on preset switch/F5.
+ */
+
+/**
  * Ensures initial active preset is set to default preset on first run.
  * Should be called once on app initialization.
+ * 
+ * FAZ 9.2 HOTFIX: Migration removed - overlay.elements are now preserved.
  */
 export function ensureInitialActivePreset(): void {
   const activeId = getActivePresetId();

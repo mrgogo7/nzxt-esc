@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { LANG_KEY, Lang, t, getInitialLang, setLang } from '../i18n';
 import ConfigPreview from './components/ConfigPreview';
 import './styles/ConfigPreview.css';
-import { DEFAULT_SETTINGS } from '../constants/defaults';
+import { DEFAULT_SETTINGS, type AppSettings } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
 import { useOverlayConfig } from '../hooks/useOverlayConfig';
@@ -24,12 +24,182 @@ import {
   updatePreset,
   DEFAULT_PRESET_FILE 
 } from '../preset/storage';
+import { loadPreset } from '@/state/overlayRuntime';
+import type { StoredPreset } from '../preset/storage';
+
+/**
+ * Helper function to apply a preset to runtime and settings.
+ * Consolidates preset loading logic for initial load and preset switching.
+ * 
+ * FAZ 9: Exact sequence with micro delays to ensure runtime is seeded before autosave re-enables.
+ * 
+ * @param preset - The preset to apply
+ * @param setSettings - Settings setter function
+ * @param setMediaUrl - Media URL setter function
+ * @param options - Options for autosave delay (default: 700ms)
+ */
+function applyPresetToRuntimeAndSettings(
+  preset: StoredPreset,
+  setSettings: (settings: AppSettings) => void,
+  setMediaUrl: (url: string) => void,
+  options: { autosaveDelayMs?: number } = {}
+): void {
+  const autosaveDelayMs = options.autosaveDelayMs ?? 700;
+  const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
+  
+  // Step 1: CRITICAL - Disable autosave FIRST
+  if (typeof window !== 'undefined') {
+    window.__disableAutosave = true;
+    if (isDebug) {
+      console.log(`[applyPresetToRuntimeAndSettings] Step 1: __disableAutosave = true for preset ${preset.id}`);
+    }
+  }
+  
+  // Step 2: Load overlay elements from preset into runtime
+  const presetElements = preset.preset.overlay?.elements ?? [];
+  loadPreset(preset.id, presetElements);
+  
+  if (isDebug) {
+    console.log(`[applyPresetToRuntimeAndSettings] Step 2: Loaded ${presetElements.length} elements for preset ${preset.id}`);
+  }
+  
+  // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)
+  setTimeout(() => {
+    // Step 4: Load settings from preset (background settings, overlay mode, etc.)
+    // CRITICAL: settings.overlay should ONLY contain mode, NEVER elements
+    const overlayModeFromPreset = preset.preset.overlay?.mode;
+    const preservedOverlayMode = overlayModeFromPreset || 'none';
+    
+    setSettings({
+      ...preset.preset.background.settings,
+      overlay: {
+        mode: preservedOverlayMode,
+        elements: [], // CRITICAL: Always empty - elements are in runtime state only
+      },
+      showGuide: preset.preset.misc?.showGuide,
+    });
+    
+    if (isDebug) {
+      console.log(`[applyPresetToRuntimeAndSettings] Step 4: Applied settings for preset ${preset.id}`);
+    }
+    
+    // Step 5: Load media URL from preset
+    setMediaUrl(preset.preset.background.url || '');
+    
+    if (isDebug) {
+      console.log(`[applyPresetToRuntimeAndSettings] Step 5: Applied media URL for preset ${preset.id}`);
+    }
+    
+    // Step 6: WAIT autosaveDelayMs (700ms) before re-enabling autosave
+    setTimeout(() => {
+      if (typeof window !== 'undefined') {
+        window.__disableAutosave = false;
+        if (isDebug) {
+          console.log(`[applyPresetToRuntimeAndSettings] Step 6: __disableAutosave = false after ${autosaveDelayMs}ms for preset ${preset.id}`);
+        }
+      }
+    }, autosaveDelayMs);
+  }, 10); // 10ms micro delay
+}
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
   const { mediaUrl, setMediaUrl } = useMediaUrl();
   const { settings, setSettings } = useConfig();
-  const overlayConfig = useOverlayConfig(settings);
+  
+  // CRITICAL: activePresetId single source of truth
+  // Managed only in Config.tsx, passed as props to child components
+  const [activePresetId, setActivePresetId] = useState<string | null>(() => {
+    return getActivePresetId();
+  });
+  
+  // Listen to activePresetId changes from localStorage (preset switches)
+  // This ensures cross-tab sync and same-tab reactivity
+  useEffect(() => {
+    // Update on mount
+    const currentId = getActivePresetId();
+    setActivePresetId(currentId);
+    
+    // FAZ 7.1: Load ALL preset data on mount (F5 refresh)
+    // CRITICAL: Disable autosave during initial load to prevent loops
+    if (typeof window !== 'undefined') {
+      window.__disableAutosave = true;
+    }
+    
+    if (currentId) {
+      const preset = getPresetById(currentId);
+      if (preset) {
+        // FAZ 8.1: Use helper function to apply preset (consolidates initial load and preset switch logic)
+        const presetElements = preset.preset.overlay?.elements;
+        if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+          console.log('[Config] F5 refresh - loading preset:', currentId, 'elements:', presetElements?.length || 0, 'media:', preset.preset.background.url);
+        }
+        
+        applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
+      } else {
+        // No preset found, re-enable autosave immediately
+        if (typeof window !== 'undefined') {
+          window.__disableAutosave = false;
+        }
+      }
+    } else {
+      // No active preset, re-enable autosave immediately
+      if (typeof window !== 'undefined') {
+        window.__disableAutosave = false;
+      }
+    }
+    
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'nzxtActivePresetId') {
+        setActivePresetId(e.newValue);
+        // FAZ 8.1: Load ALL preset data when preset changes via storage event
+        if (e.newValue) {
+          const preset = getPresetById(e.newValue);
+          if (preset) {
+            const presetElements = preset.preset.overlay?.elements;
+            if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+              console.log('[Config] Storage event - preset switch:', e.newValue, 'elements:', presetElements?.length || 0);
+            }
+            
+            // Use helper function (700ms delay for preset switch)
+            applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
+          }
+        }
+      }
+    };
+    
+    // CRITICAL: Also listen to custom event for same-tab changes
+    const handleCustomChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ newValue: string | null; oldValue: string | null }>;
+      const newId = customEvent.detail?.newValue;
+      setActivePresetId(newId);
+      // FAZ 8.1: Load ALL preset data when preset changes via custom event
+      if (newId) {
+        const preset = getPresetById(newId);
+        if (preset) {
+          const presetElements = preset.preset.overlay?.elements;
+          if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+            console.log('[Config] Custom event - preset switch:', newId, 'elements:', presetElements?.length || 0);
+          }
+          
+          // Use helper function (700ms delay for preset switch)
+          applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
+        }
+      }
+    };
+    
+    // Listen to storage events (cross-tab sync)
+    window.addEventListener('storage', handleStorageChange);
+    // Listen to custom events (same-tab changes)
+    window.addEventListener('activePresetIdChanged', handleCustomChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('activePresetIdChanged', handleCustomChange);
+    };
+  }, []);
+  
+  const overlayConfig = useOverlayConfig(settings, activePresetId);
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
   const [isResolving, setIsResolving] = useState(false);
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
@@ -81,11 +251,11 @@ export default function Config() {
   }, []);
 
   // Atomic preset sync: automatically save config state to active preset
-  const activePresetId = getActivePresetId();
+  // CRITICAL: Pass only overlayMode, not full overlay config (prevents infinite loops)
   useAtomicPresetSync({
     settings,
     mediaUrl,
-    overlay: overlayConfig,
+    overlayMode: overlayConfig.mode,
     activePresetId,
   });
 
@@ -394,7 +564,7 @@ export default function Config() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <h1 className="config-title" style={{ margin: 0, fontSize: '20px', fontWeight: 700, lineHeight: '1.2' }}>
-              NZXT Elite Screen Customizer v5.11.21
+              NZXT Elite Screen Customizer v5.11.24
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <label className="lang-label" htmlFor="lang-select">
@@ -436,6 +606,8 @@ export default function Config() {
                 onOpenManager={() => setIsPresetManagerOpen(true)}
                 setSettings={setSettings}
                 setMediaUrl={setMediaUrl}
+                settings={settings}
+                activePresetId={activePresetId}
               />
             </div>
           </div>
@@ -705,7 +877,10 @@ export default function Config() {
       </section>
 
       {/* Preview + Settings */}
-      <ConfigPreview />
+      <ConfigPreview 
+        activePresetId={activePresetId}
+        overlayConfig={overlayConfig}
+      />
 
       {/* Preset Manager */}
       <PresetManager
@@ -716,6 +891,7 @@ export default function Config() {
         setSettings={setSettings}
         mediaUrl={mediaUrl}
         setMediaUrl={setMediaUrl}
+        activePresetId={activePresetId}
       />
 
       {/* Reset Confirm Modal */}

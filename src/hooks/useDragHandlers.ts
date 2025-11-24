@@ -2,9 +2,9 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { previewToLcd } from '../utils/positioning';
 import { constrainToCircle } from '../utils/boundaries';
 import { detectAlignment, applySnapping, type AlignmentGuide, type SnappingState } from '../utils/snapping';
-import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
+import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -24,7 +24,8 @@ export function useDragHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
-  onMoveComplete?: (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => void
+  onMoveComplete?: (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => void,
+  activePresetId?: string | null
 ) {
   // Background drag state
   const [isDragging, setIsDragging] = useState(false);
@@ -101,11 +102,10 @@ export function useDragHandlers(
       elementDragStart.current = { x: e.clientX, y: e.clientY, elementId };
       
       // Store initial position for undo/redo
-      const currentSettings = settingsRef.current;
-      const currentOverlay = currentSettings.overlay;
-      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
-        const overlay = currentOverlay as Overlay;
-        const element = overlay.elements.find(el => el.id === elementId);
+      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+      if (activePresetId) {
+        const runtimeElements = getElementsForPreset(activePresetId);
+        const element = runtimeElements.find(el => el.id === elementId);
         if (element) {
           moveInitialPosition.current = { x: element.x, y: element.y };
         }
@@ -114,7 +114,7 @@ export function useDragHandlers(
       // First click: just select, don't start dragging
       setSelectedElementId(elementId);
     }
-  }, [selectedElementId, settingsRef]);
+  }, [selectedElementId, activePresetId]);
 
   const handleElementMouseMove = useCallback((e: MouseEvent) => {
     if (!elementDragStart.current) return;
@@ -130,20 +130,15 @@ export function useDragHandlers(
       y: e.clientY - elementDragStart.current.y,
     };
 
-    // Use ref to get current settings value
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    // Ensure overlay is in new format (should always be after migration)
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const elementIndex = overlay.elements.findIndex(el => el.id === elementDragStart.current!.elementId);
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementDragStart.current!.elementId);
     
-    if (elementIndex !== -1) {
-      const element = overlay.elements[elementIndex];
+    if (element) {
       
       // Use new MoveOperation (Bug #1 fix)
       const moveConfig: MoveOperationConfig = {
@@ -163,7 +158,7 @@ export function useDragHandlers(
       lastPosition.current = { x: newX, y: newY };
       
       // Snapping - detect alignment guides (only show when within threshold)
-      const otherElements = overlay.elements.filter(el => el.id !== element.id);
+      const otherElements = runtimeElements.filter(el => el.id !== element.id);
       const guides = detectAlignment(
         { ...element, x: newX, y: newY },
         otherElements,
@@ -197,20 +192,13 @@ export function useDragHandlers(
       // Boundary control - constrain element to stay within circle
       const constrained = constrainToCircle(element, snapped.x, snapped.y, offsetScale);
       
-      const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = {
-        ...updatedElements[elementIndex],
+      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
+      // Runtime change notification will trigger UI re-render via subscription
+      updateElementInRuntime(activePresetId, element.id, (el) => ({
+        ...el,
         x: constrained.x,
         y: constrained.y,
-      };
-      
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...overlay,
-          elements: updatedElements,
-        },
-      });
+      }));
       
       // Update drag start position for next frame
       elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
@@ -219,20 +207,17 @@ export function useDragHandlers(
 
   const handleElementMouseUp = useCallback(() => {
     // Record move action for undo/redo
-    if (elementDragStart.current && moveInitialPosition.current && onMoveComplete) {
-      const currentSettings = settingsRef.current;
-      const currentOverlay = currentSettings.overlay;
-      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
-        const overlay = currentOverlay as Overlay;
-        const element = overlay.elements.find(el => el.id === elementDragStart.current!.elementId);
-        if (element && (element.x !== moveInitialPosition.current.x || element.y !== moveInitialPosition.current.y)) {
-          // Only record if position actually changed
-          onMoveComplete(
-            elementDragStart.current.elementId,
-            moveInitialPosition.current,
-            { x: element.x, y: element.y }
-          );
-        }
+    if (elementDragStart.current && moveInitialPosition.current && onMoveComplete && activePresetId) {
+      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+      const runtimeElements = getElementsForPreset(activePresetId);
+      const element = runtimeElements.find(el => el.id === elementDragStart.current!.elementId);
+      if (element && (element.x !== moveInitialPosition.current.x || element.y !== moveInitialPosition.current.y)) {
+        // Only record if position actually changed
+        onMoveComplete(
+          elementDragStart.current.elementId,
+          moveInitialPosition.current,
+          { x: element.x, y: element.y }
+        );
       }
     }
     
@@ -249,7 +234,7 @@ export function useDragHandlers(
       escapeVelocityY: 0,
     };
     // Keep selected after drag ends - user can click again to drag
-  }, [onMoveComplete, settingsRef]);
+  }, [onMoveComplete, activePresetId]);
 
   // Event listeners for drag handlers
   useEffect(() => {
@@ -342,23 +327,17 @@ export function useDragHandlers(
       // Prevent default scrolling behavior
       e.preventDefault();
 
-      // Get current settings and overlay
-      const currentSettings = settingsRef.current;
-      const currentOverlay = currentSettings.overlay;
-
-      // Ensure overlay is in new format
-      if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+      if (!activePresetId) {
         return;
       }
 
-      const overlay = currentOverlay as Overlay;
-      const elementIndex = overlay.elements.findIndex(el => el.id === selectedElementId);
+      const runtimeElements = getElementsForPreset(activePresetId);
+      const element = runtimeElements.find(el => el.id === selectedElementId);
 
-      if (elementIndex === -1) {
+      if (!element) {
         return;
       }
-
-      const element = overlay.elements[elementIndex];
 
       // Store initial position for undo/redo
       const oldPos = { x: element.x, y: element.y };
@@ -370,21 +349,13 @@ export function useDragHandlers(
       // Apply boundary constraint (constrainToCircle)
       const constrained = constrainToCircle(element, newX, newY, offsetScale);
 
-      // Update element position
-      const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = {
-        ...updatedElements[elementIndex],
+      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
+      // Runtime change notification will trigger UI re-render via subscription
+      updateElementInRuntime(activePresetId, element.id, (el) => ({
+        ...el,
         x: constrained.x,
         y: constrained.y,
-      };
-
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...overlay,
-          elements: updatedElements,
-        },
-      });
+      }));
 
       // Record move action for undo/redo (only if position actually changed)
       if (onMoveComplete && (constrained.x !== oldPos.x || constrained.y !== oldPos.y)) {
@@ -397,7 +368,7 @@ export function useDragHandlers(
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedElementId, draggingElementId, offsetScale, setSettings, settingsRef, onMoveComplete]);
+  }, [selectedElementId, draggingElementId, offsetScale, onMoveComplete, activePresetId]);
 
   return {
     // Background drag

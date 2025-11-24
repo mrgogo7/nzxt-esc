@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&color=gradient&text=NZXT%20Elite%20Screen%20Customizer%20(NZXT-ESC)%20v5.11.21&animation=twinkling&fontSize=30&reversal=false&section=header&textBg=false&fontColor=000000&fontAlign=50&fontAlignY=29"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&color=gradient&text=NZXT%20Elite%20Screen%20Customizer%20(NZXT-ESC)%20v5.11.24&animation=twinkling&fontSize=30&reversal=false&section=header&textBg=false&fontColor=000000&fontAlign=50&fontAlignY=29"/>
 </p>
 
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.21
+# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.24
 
 ![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
 
@@ -132,10 +132,12 @@ All editing is performed INSIDE NZXT CAM via the "Configure" button.
 
 Inside the editor you can:
 
-- Add / remove metric, text, and divider elements
+- Add / remove metric, text, and divider elements (up to 20 elements per overlay)
 - Adjust position, rotation, scale, opacity, and color
 - Choose MP4 / GIF / PNG / JPG background media
 - Manage presets (Import, Export, Duplicate, Delete, Rename, Apply)
+- Use overlay preset templates (Single, Dual, Triple, Quadruple InfoGraphic layouts)
+- Import overlay presets with Replace or Append options
 - Quickly switch between favorite presets via the Quick Favorites dropdown
 - Preview all changes in real time on your Kraken Elite LCD
 
@@ -181,6 +183,10 @@ Each element supports:
 - Color & opacity
 - Selection highlight
 
+**Overlay Preset System**
+
+Quickly apply pre-configured layouts using the template picker modal. Choose from Single, Dual, Triple, or Quadruple InfoGraphic templates, each with optimized positioning and styling. Templates can be imported with Replace (overwrites existing elements) or Append (adds to existing elements) modes. When appending, zIndex values are automatically normalized to prevent rendering conflicts. The system supports up to 20 overlay elements per configuration.
+
 ### 3. REAL-TIME LCD SYNCHRONIZATION
 
 - Updates ~100ms throttle for stability
@@ -213,6 +219,10 @@ Available actions:
 - Apply
 
 Presets store the full layout as JSON.
+
+**Overlay Preset Import/Export**
+
+Export your overlay element configurations as `.nzxt-esc-overlay-preset` files for backup or sharing. Import overlay presets with validation and error handling. When importing, choose Replace mode to overwrite existing elements or Append mode to add new elements while preserving current ones. The import system includes automatic ID generation for template elements and zIndex normalization for appended content.
 
 **Quick Favorites Dropdown**
 
@@ -247,6 +257,8 @@ All translations are maintained in a single TypeScript file for easy management 
 - LocalStorage sync + event broadcasting
 - Circular LCD-aware render engine
 - AABB + rotation transform math
+- Overlay preset system with template-based element generation
+- Automatic ID assignment and zIndex normalization
 - Multi-language UI support (English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese)
 
 ---
@@ -296,7 +308,32 @@ Contributing:
 
 ## 🕛 VERSION HISTORY
 
-v5.11.21 (Current)
+v5.11.24 (Current)
+
+- Overlay & Preset Manager Quality Upgrade Pack (FAZ-10)
+- New Overlay Export Modal: Export now asks for a filename using a clean modal (supports ENTER key)
+- New Preset Button: Instantly creates a brand-new empty preset with default values
+- Improved Preset Manager UI: Reordered preset action buttons: Delete → Favorite → Duplicate → Rename → Apply
+- Improved Overlay Management:
+  - "Clear All Overlay Elements" now uses a confirmation modal
+  - Delete key removes selected element (with confirmation modal)
+  - Tooltip support added for all delete buttons
+- Global Modal Usability Upgrades: All modals now support confirming via ENTER key
+- ID Collision Fix for Overlay Preset Append: Fully resolved duplicate React key issue by regenerating element IDs on append
+- General Stability Improvements: Runtime architecture preserved, autosave rules respected, and all FAZ-9 constraints remain intact
+
+v5.11.23
+
+- Overlay preset system with template picker modal
+- Single, Dual, Triple, and Quadruple InfoGraphic templates
+- Overlay preset import/export with Replace and Append modes
+- Element limit increased to 20 per overlay
+- Automatic zIndex normalization for appended templates
+- Dynamic template list generation from template definitions
+- Enhanced error notifications for import/export operations
+- Viewport-aware menu positioning improvements
+
+v5.11.21
 
 - Element-based layout engine
 - Rotation & scale transform system

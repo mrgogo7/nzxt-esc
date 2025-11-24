@@ -224,7 +224,13 @@ const dict: Record<Lang, Record<string, string>> = {
     export: "Export",
     // Overlay Preset Export/Import
     overlayExportButton: "Export Overlay Preset",
+    overlayExportTitle: "Export Overlay Preset",
+    overlayExportNameLabel: "Preset Name",
+    overlayExportNamePlaceholder: "Enter preset name",
+    clearAllOverlayElements: "Clear All Overlay Elements",
+    deleteElement: "Delete element",
     overlayImportButton: "Import Overlay Preset",
+    clearAllOverlayPresetElements: "Clear All Overlay Preset Elements",
     overlayImportModalTitle: "Import Overlay Preset",
     overlayImportModalDescription: "Choose how to import overlay elements:",
     overlayImportReplace: "Replace",
@@ -240,6 +246,7 @@ const dict: Record<Lang, Record<string, string>> = {
     overlayPresetDual: "Dual InfoGraphic",
     overlayPresetTriple: "Triple InfoGraphic",
     overlayPresetQuad: "Quadruple InfoGraphic",
+    createPreset: "Create Preset",
   },
   tr: {
     language: "Dil",
@@ -421,7 +428,13 @@ const dict: Record<Lang, Record<string, string>> = {
     export: "Dışa Aktar",
     // Overlay Preset Export/Import
     overlayExportButton: "Overlay Preset Dışa Aktar",
+    overlayExportTitle: "Overlay Preset Dışa Aktar",
+    overlayExportNameLabel: "Preset Adı",
+    overlayExportNamePlaceholder: "Preset adı girin",
+    clearAllOverlayElements: "Tüm Overlay Öğelerini Temizle",
+    deleteElement: "Öğeyi sil",
     overlayImportButton: "Overlay Preset İçe Aktar",
+    clearAllOverlayPresetElements: "Tüm Overlay Preset Öğelerini Temizle",
     overlayImportModalTitle: "Overlay Preset İçe Aktar",
     overlayImportModalDescription: "Overlay elementlerini nasıl içe aktarmak istersiniz:",
     overlayImportReplace: "Değiştir",
@@ -437,6 +450,7 @@ const dict: Record<Lang, Record<string, string>> = {
     overlayPresetDual: "Çift InfoGraphic",
     overlayPresetTriple: "Üçlü InfoGraphic",
     overlayPresetQuad: "Dörtlü InfoGraphic",
+    createPreset: "Preset Oluştur",
   },
   es: {
     language: "Idioma",
@@ -601,6 +615,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "Exportar Preset de Overlay",
     overlayImportButton: "Importar Preset de Overlay",
+    clearAllOverlayPresetElements: "Limpiar Todos los Elementos de Preset de Overlay",
     overlayImportModalTitle: "Importar Preset de Overlay",
     overlayImportModalDescription: "Elige cómo importar los elementos de overlay:",
     overlayImportReplace: "Reemplazar",
@@ -780,6 +795,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "Overlay-Preset exportieren",
     overlayImportButton: "Overlay-Preset importieren",
+    clearAllOverlayPresetElements: "Alle Overlay-Preset-Elemente löschen",
     overlayImportModalTitle: "Overlay-Preset importieren",
     overlayImportModalDescription: "Wähle, wie Overlay-Elemente importiert werden sollen:",
     overlayImportReplace: "Ersetzen",
@@ -959,6 +975,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "Exportar Preset de Overlay",
     overlayImportButton: "Importar Preset de Overlay",
+    clearAllOverlayPresetElements: "Limpar Todos os Elementos de Preset de Overlay",
     overlayImportModalTitle: "Importar Preset de Overlay",
     overlayImportModalDescription: "Escolha como importar elementos de overlay:",
     overlayImportReplace: "Substituir",
@@ -1138,6 +1155,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "Exporter le Preset d'Overlay",
     overlayImportButton: "Importer le Preset d'Overlay",
+    clearAllOverlayPresetElements: "Effacer Tous les Éléments de Preset d'Overlay",
     overlayImportModalTitle: "Importer le Preset d'Overlay",
     overlayImportModalDescription: "Choisissez comment importer les éléments d'overlay :",
     overlayImportReplace: "Remplacer",
@@ -1317,6 +1335,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "Esporta Preset Overlay",
     overlayImportButton: "Importa Preset Overlay",
+    clearAllOverlayPresetElements: "Cancella Tutti gli Elementi del Preset Overlay",
     overlayImportModalTitle: "Importa Preset Overlay",
     overlayImportModalDescription: "Scegli come importare gli elementi overlay:",
     overlayImportReplace: "Sostituisci",
@@ -1496,6 +1515,7 @@ const dict: Record<Lang, Record<string, string>> = {
     // Overlay Preset Export/Import
     overlayExportButton: "オーバーレイプリセットをエクスポート",
     overlayImportButton: "オーバーレイプリセットをインポート",
+    clearAllOverlayPresetElements: "すべてのオーバーレイプリセット要素をクリア",
     overlayImportModalTitle: "オーバーレイプリセットをインポート",
     overlayImportModalDescription: "オーバーレイ要素のインポート方法を選択してください：",
     overlayImportReplace: "置き換え",

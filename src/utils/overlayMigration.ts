@@ -198,19 +198,34 @@ export function isLegacyOverlaySettings(obj: any): obj is OverlaySettings {
  */
 export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | undefined): Overlay {
   if (!overlay) {
+    console.log('[ensureOverlayFormat] No overlay, returning DEFAULT_OVERLAY');
     return DEFAULT_OVERLAY;
   }
 
   // Check if it's already the new format
   if ('elements' in overlay && Array.isArray(overlay.elements)) {
     // Migrate any legacy divider elements (thickness + width% → width + height px)
-    return migrateLegacyDividers(overlay as Overlay);
+    const result = migrateLegacyDividers(overlay as Overlay);
+    // DEFENSIVE: Ensure result.elements is always an array
+    const safeResult = {
+      ...result,
+      elements: Array.isArray(result.elements) ? result.elements : [],
+    };
+    console.log('[ensureOverlayFormat] New format, migrated dividers, elements:', safeResult.elements.length);
+    return safeResult;
   }
 
   // It's legacy format - migrate it
   const migrated = migrateOverlaySettingsToOverlay(overlay as OverlaySettings);
   // Also migrate any legacy dividers that might have been created
-  return migrateLegacyDividers(migrated);
+  const result = migrateLegacyDividers(migrated);
+  // DEFENSIVE: Ensure result.elements is always an array
+  const safeResult = {
+    ...result,
+    elements: Array.isArray(result.elements) ? result.elements : [],
+  };
+  console.log('[ensureOverlayFormat] Legacy format migrated, elements:', safeResult.elements.length);
+  return safeResult;
 }
 
 /**
@@ -222,19 +237,26 @@ export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | 
  * @returns Overlay with migrated divider elements
  */
 function migrateLegacyDividers(overlay: Overlay): Overlay {
-  const hasLegacyDividers = overlay.elements.some(el => 
-    el.type === 'divider' && 
-    el.data && 
+  // DEFENSIVE: Ensure overlay.elements is always an array
+  const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
+  
+  const hasLegacyDividers = safeElements.some(el => 
+    el?.type === 'divider' && 
+    el?.data && 
     typeof el.data === 'object' &&
     'thickness' in el.data
   );
 
   if (!hasLegacyDividers) {
-    return overlay; // No migration needed
+    // DEFENSIVE: Return overlay with safe elements array
+    return {
+      ...overlay,
+      elements: safeElements,
+    };
   }
 
   // Migrate divider elements
-  const migratedElements = overlay.elements.map((element): OverlayElement => {
+  const migratedElements = safeElements.map((element): OverlayElement => {
     if (element.type === 'divider') {
       const data = element.data as any;
       

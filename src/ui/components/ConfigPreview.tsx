@@ -11,12 +11,12 @@ import { useSettingsSync } from '../../hooks/useSettingsSync';
 import { useDragHandlers } from '../../hooks/useDragHandlers';
 import { useResizeHandlers } from '../../hooks/useResizeHandlers';
 import { useRotationHandlers } from '../../hooks/useRotationHandlers';
-import { useOverlayConfig } from '../../hooks/useOverlayConfig';
+import type { Overlay } from '../../types/overlay';
 import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
 import { MoveCommand } from '../../transform/history/commands/MoveCommand';
 import { ResizeCommand } from '../../transform/history/commands/ResizeCommand';
 import { RotateCommand } from '../../transform/history/commands/RotateCommand';
-import type { Overlay } from '../../types/overlay';
+import { updateElementInRuntime, getElementsForPreset } from '@/state/overlayRuntime';
 import { hasRealMonitoring } from '../../environment';
 import { lcdToPreview, getBaseAlign } from '../../utils/positioning';
 import { isVideoUrl } from '../../utils/media';
@@ -35,7 +35,12 @@ import OverlaySettingsComponent from './ConfigPreview/OverlaySettings';
  * - Background Section: Main title + 2 columns (Preview | Settings)
  * - Overlay Section: Main title + 2 columns (Preview | Options)
  */
-export default function ConfigPreview() {
+export interface ConfigPreviewProps {
+  activePresetId: string | null;
+  overlayConfig: Overlay;
+}
+
+export default function ConfigPreview({ activePresetId, overlayConfig: overlayConfigProp }: ConfigPreviewProps) {
   const [lang, setLang] = useState<Lang>(getInitialLang());
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
@@ -63,8 +68,14 @@ export default function ConfigPreview() {
   // Settings sync with throttling
   const { settingsRef } = useSettingsSync(settings, setSettings, mediaUrl);
 
-  // Overlay config
-  const overlayConfig = useOverlayConfig(settings);
+  // CRITICAL: activePresetId and overlayConfig now come from props (Config.tsx)
+  // This ensures single source of truth and prevents state synchronization issues
+  // activePresetId is managed in Config.tsx and passed down as prop
+  // overlayConfig is computed in Config.tsx using useOverlayConfig and passed down as prop
+  // DEBUG: Only log in debug mode
+  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+    console.log(`[ConfigPreview] Render - activePresetId: ${activePresetId || 'NULL'}, overlayConfig.mode: ${overlayConfigProp.mode}, elements: ${overlayConfigProp.elements?.length || 0}`);
+  }
 
   // Undo/Redo system
   // WHY: Command pattern-based undo/redo for all transform operations.
@@ -72,50 +83,48 @@ export default function ConfigPreview() {
   const undoRedo = useUndoRedo({ maxHistorySize: 50, enableKeyboardShortcuts: true });
 
   /**
-   * Updates element in settings (for undo/redo commands).
+   * Updates element in runtime overlay Map (for undo/redo commands).
+   * ARCHITECT MODE: Updates element in runtime, NOT in settings.overlay.elements.
    * 
    * This helper function is used by command objects to update element state.
-   * It ensures proper state management and triggers React re-renders.
+   * It ensures proper state management and triggers React re-renders via setSettings({ ...settings }).
    */
   const updateElement = (elementId: string, updater: (element: any) => any) => {
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // CRITICAL: activePresetId must be valid
+    if (!activePresetId) {
+      console.error('[ConfigPreview] CRITICAL: Cannot update element - activePresetId is null');
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const elementIndex = overlay.elements.findIndex(el => el.id === elementId);
+    // ARCHITECT MODE: Update element in runtime overlay Map, NOT in settings
+    const success = updateElementInRuntime(activePresetId, elementId, updater);
     
-    if (elementIndex === -1) return;
+    if (!success) {
+      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
+      return;
+    }
     
-    const element = overlay.elements[elementIndex];
-    const updatedElement = updater(element);
-    
-    const updatedElements = [...overlay.elements];
-    updatedElements[elementIndex] = updatedElement;
-    
-    setSettings({
-      ...currentSettings,
-      overlay: {
-        ...overlay,
-        elements: updatedElements,
-      },
-    });
+    // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
+    // CRITICAL: Do NOT modify settings.overlay.elements - useOverlayConfig reads from runtime
+    setSettings({ ...settingsRef.current });
   };
 
   // Callbacks for undo/redo
   // WHY: These callbacks are called when transform operations complete (mouseup).
   // They create command objects and record them in the action history.
   const handleMoveComplete = (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
+      console.error('[ConfigPreview] CRITICAL: Cannot handle move - activePresetId is null');
+      return;
+    }
     
-    const overlay = currentOverlay as Overlay;
-    const element = overlay.elements.find(el => el.id === elementId);
-    if (!element) return;
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementId);
+    if (!element) {
+      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
+      return;
+    }
     
     const command = new MoveCommand(
       element,
@@ -128,13 +137,18 @@ export default function ConfigPreview() {
   };
 
   const handleResizeComplete = (elementId: string, oldSize: number, newSize: number) => {
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
+      console.error('[ConfigPreview] CRITICAL: Cannot handle resize - activePresetId is null');
+      return;
+    }
     
-    const overlay = currentOverlay as Overlay;
-    const element = overlay.elements.find(el => el.id === elementId);
-    if (!element) return;
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementId);
+    if (!element) {
+      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
+      return;
+    }
     
     const command = new ResizeCommand(
       element,
@@ -147,13 +161,18 @@ export default function ConfigPreview() {
   };
 
   const handleRotateComplete = (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => {
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) return;
+    // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
+      console.error('[ConfigPreview] CRITICAL: Cannot handle rotate - activePresetId is null');
+      return;
+    }
     
-    const overlay = currentOverlay as Overlay;
-    const element = overlay.elements.find(el => el.id === elementId);
-    if (!element) return;
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementId);
+    if (!element) {
+      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
+      return;
+    }
     
     const command = new RotateCommand(
       element,
@@ -174,14 +193,15 @@ export default function ConfigPreview() {
     setSelectedElementId,
     handleElementMouseDown,
     activeGuides,
-  } = useDragHandlers(offsetScale, settingsRef, setSettings, handleMoveComplete);
+  } = useDragHandlers(offsetScale, settingsRef, setSettings, handleMoveComplete, activePresetId);
 
   // Resize handlers
   const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(
     offsetScale, 
     settingsRef, 
     setSettings,
-    handleResizeComplete
+    handleResizeComplete,
+    activePresetId
   );
   
   // Rotation handlers
@@ -189,7 +209,8 @@ export default function ConfigPreview() {
     offsetScale, 
     settingsRef, 
     setSettings,
-    handleRotateComplete
+    handleRotateComplete,
+    activePresetId
   );
 
   // Language sync
@@ -202,6 +223,34 @@ export default function ConfigPreview() {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  // FAZ-10: Delete key handler for selected overlay element
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle Delete key (not Backspace)
+      if (e.key === 'Delete' && selectedElementId && activePresetId) {
+        // Prevent default browser behavior
+        e.preventDefault();
+        
+        // Get element type from runtime
+        const runtimeElements = getElementsForPreset(activePresetId);
+        const element = runtimeElements.find(el => el.id === selectedElementId);
+        
+        if (element) {
+          // Trigger remove modal via custom event
+          // OverlaySettings will listen to this event
+          window.dispatchEvent(
+            new CustomEvent('deleteOverlayElement', {
+              detail: { elementId: selectedElementId, elementType: element.type },
+            })
+          );
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedElementId, activePresetId]);
 
   // Video detection
   const isVideo = isVideoUrl(mediaUrl);
@@ -297,7 +346,7 @@ export default function ConfigPreview() {
         <div className="section-content">
           {/* Overlay Preview */}
           <OverlayPreview
-            overlayConfig={overlayConfig}
+            overlayConfig={overlayConfigProp}
             metrics={metrics}
             overlayPreviewScale={overlayPreviewScale}
             offsetScale={offsetScale}
@@ -319,13 +368,14 @@ export default function ConfigPreview() {
 
           {/* Overlay Options */}
           <OverlaySettingsComponent
-            overlayConfig={overlayConfig}
+            overlayConfig={overlayConfigProp}
             settings={settings}
             setSettings={setSettings}
             lang={lang}
             t={t}
             selectedElementId={selectedElementId}
             setSelectedElementId={setSelectedElementId}
+            activePresetId={activePresetId}
           />
         </div>
       </div>

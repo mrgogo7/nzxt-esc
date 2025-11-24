@@ -16,17 +16,19 @@ import { t } from '../../../i18n';
 import type { AppSettings } from '../../../constants/defaults';
 import { 
   getPresets, 
-  getActivePresetId, 
-  setActivePresetId,
+  setActivePresetId as setActivePresetIdStorage,
   type StoredPreset 
 } from '../../../preset/storage';
 import { isFavorite } from '../../../preset/storage';
+import { loadPreset } from '@/state/overlayRuntime';
 
 export interface PresetManagerButtonProps {
   lang: Lang;
   onOpenManager: () => void;
   setSettings: (settings: Partial<AppSettings>) => void;
   setMediaUrl: (url: string) => void;
+  settings?: AppSettings; // Optional: current settings to preserve overlay mode
+  activePresetId: string | null;
 }
 
 export default function PresetManagerButton({
@@ -34,6 +36,8 @@ export default function PresetManagerButton({
   onOpenManager,
   setSettings,
   setMediaUrl,
+  settings,
+  activePresetId,
 }: PresetManagerButtonProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isGlowing, setIsGlowing] = useState(false);
@@ -42,7 +46,6 @@ export default function PresetManagerButton({
 
   // Get favorite presets
   const favoritePresets = getPresets().filter(p => isFavorite(p));
-  const activePresetId = getActivePresetId();
 
   // Handle hover with delay
   const handleMouseEnter = () => {
@@ -91,22 +94,58 @@ export default function PresetManagerButton({
     }
   }, [isHovering]);
 
-  const handlePresetApply = (preset: StoredPreset) => {
-    // Disable autosave during preset apply
+  const handlePresetApply = async (preset: StoredPreset) => {
+    // CRITICAL: Disable autosave during preset apply to prevent loops
     if (typeof window !== 'undefined') {
       window.__disableAutosave = true;
     }
 
-    // Apply preset to config state
-    setSettings({
-      ...preset.preset.background.settings,
-      overlay: preset.preset.overlay,
-      showGuide: preset.preset.misc?.showGuide,
-    });
-    setMediaUrl(preset.preset.background.url);
+    // CRITICAL: settings prop null check
+    if (!settings) {
+      console.error('[PresetManagerButton] CRITICAL: settings prop is null, cannot apply preset');
+      alert('Settings not available. Please try again.');
+      return;
+    }
+
+    // CRITICAL: Preset switch order (deterministic):
+    // 1. Set active preset ID (storage + event dispatch)
+    // 2. Load overlay elements from preset into runtime Map
+    // 3. Load global config from preset (overlay.mode only, elements always empty)
+    // 4. Load media URL from preset
+    // 5. Re-enable autosave after delay
+
+    // Overlay mode: preset dosyasından gelmeli, yoksa mevcut mode korunmalı
+    const overlayModeFromPreset = preset.preset.overlay?.mode;
+    const preservedOverlayMode = overlayModeFromPreset || settings.overlay?.mode || 'none';
+
+    // Step 1: Set active preset ID (storage + event dispatch)
+    setActivePresetIdStorage(preset.id);
+
+    // Step 2: Load overlay elements from preset into runtime Map
+    // CRITICAL: This must happen BEFORE setSettings to ensure useOverlayConfig reads correct elements
+    const presetElements = preset.preset.overlay?.elements;
+    const loadedCount = loadPreset(preset.id, presetElements);
     
-    // Set active preset ID
-    setActivePresetId(preset.id);
+    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+      console.log('[PresetManagerButton] Preset switch:', preset.id, 'elements loaded:', loadedCount, 'media:', preset.preset.background.url);
+    }
+
+    // Step 3 & 4: Wait 100ms then load settings and media URL
+    // This ensures loadPreset completes and runtime is updated before settings change
+    setTimeout(() => {
+      // Step 3: Load global config from preset
+      setSettings({
+        ...preset.preset.background.settings,
+        overlay: {
+          mode: preservedOverlayMode,
+          elements: [], // ALWAYS empty - elements are in runtime state, not in preset files
+        },
+        showGuide: preset.preset.misc?.showGuide,
+      });
+
+      // Step 4: Load media URL from preset
+      setMediaUrl(preset.preset.background.url);
+    }, 100);
 
     // Close dropdown
     setIsHovering(false);
@@ -117,12 +156,12 @@ export default function PresetManagerButton({
       setIsGlowing(false);
     }, 500);
 
-    // Re-enable autosave after 300ms
+    // Step 5: Re-enable autosave after 500ms (allows loadPreset + setSettings to complete)
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.__disableAutosave = false;
       }
-    }, 300);
+    }, 500);
   };
 
   const handleButtonClick = () => {

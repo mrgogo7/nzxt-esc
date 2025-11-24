@@ -29,6 +29,10 @@ export default function RemoveConfirmationModal({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
+    } else if (e.key === 'Enter') {
+      // FAZ-10: ENTER triggers primary action (confirm)
+      e.preventDefault();
+      handleConfirm();
     }
   };
 

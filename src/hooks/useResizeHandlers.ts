@@ -8,8 +8,8 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { canResizeElement } from '../utils/resize';
 import { resizeElement, type ResizeOperationConfig } from '../transform/operations/ResizeOperation';
 import type { ResizeHandle } from '../transform/engine/HandlePositioning';
-import type { Overlay } from '../types/overlay';
 import type { AppSettings } from '../constants/defaults';
+import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
 
 /**
  * Hook for managing element resize.
@@ -20,7 +20,8 @@ export function useResizeHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
-  onResizeComplete?: (elementId: string, oldSize: number, newSize: number) => void
+  onResizeComplete?: (elementId: string, oldSize: number, newSize: number) => void,
+  activePresetId?: string | null
 ) {
   const [resizingElementId, setResizingElementId] = useState<string | null>(null);
   const resizeStart = useRef<{ 
@@ -39,15 +40,13 @@ export function useResizeHandlers(
     e.preventDefault();
     e.stopPropagation();
 
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const element = overlay.elements.find(el => el.id === elementId);
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === elementId);
     
     if (!element || !canResizeElement(element)) return;
     
@@ -69,7 +68,7 @@ export function useResizeHandlers(
       handle,
       initialSize,
     };
-  }, [settingsRef]);
+  }, [activePresetId]);
 
   const handleResizeMouseMove = useCallback((e: MouseEvent) => {
     if (!resizeStart.current) return;
@@ -79,18 +78,15 @@ export function useResizeHandlers(
     if (!previewContainer) return;
     const previewRect = previewContainer.getBoundingClientRect();
 
-    const currentSettings = settingsRef.current;
-    const currentOverlay = currentSettings.overlay;
-    
-    if (!currentOverlay || typeof currentOverlay !== 'object' || !('elements' in currentOverlay)) {
+    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
+    if (!activePresetId) {
       return;
     }
     
-    const overlay = currentOverlay as Overlay;
-    const elementIndex = overlay.elements.findIndex(el => el.id === resizeStart.current!.elementId);
+    const runtimeElements = getElementsForPreset(activePresetId);
+    const element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
     
-    if (elementIndex !== -1) {
-      const element = overlay.elements[elementIndex];
+    if (element) {
       
       // Use new ResizeOperation (Bug #2 fix)
       const resizeConfig: ResizeOperationConfig = {
@@ -110,52 +106,41 @@ export function useResizeHandlers(
         resizeConfig
       );
       
-      const updatedElements = [...overlay.elements];
-      updatedElements[elementIndex] = result.element;
-      
-      setSettings({
-        ...currentSettings,
-        overlay: {
-          ...overlay,
-          elements: updatedElements,
-        },
-      });
+      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
+      // Runtime change notification will trigger UI re-render via subscription
+      updateElementInRuntime(activePresetId, element.id, () => result.element);
     }
-  }, [offsetScale, setSettings, settingsRef]);
+  }, [offsetScale, setSettings, settingsRef, activePresetId]);
 
   const handleResizeMouseUp = useCallback(() => {
     // Record resize action for undo/redo
-    if (resizeStart.current && onResizeComplete) {
-      const currentSettings = settingsRef.current;
-      const currentOverlay = currentSettings.overlay;
-      if (currentOverlay && typeof currentOverlay === 'object' && 'elements' in currentOverlay) {
-        const overlay = currentOverlay as Overlay;
-        const element = overlay.elements.find(el => el.id === resizeStart.current!.elementId);
-        if (element) {
-          let currentSize = 0;
-          if (element.type === 'metric') {
-            currentSize = (element.data as any).numberSize || 180;
-          } else if (element.type === 'text') {
-            currentSize = (element.data as any).textSize || 45;
-          } else if (element.type === 'divider') {
-            currentSize = (element.data as any).width || 2; // Divider width (thickness) in pixels
-          }
-          
-          // Only record if size actually changed
-          if (currentSize !== resizeStart.current.initialSize) {
-            onResizeComplete(
-              resizeStart.current.elementId,
-              resizeStart.current.initialSize,
-              currentSize
-            );
-          }
+    if (resizeStart.current && onResizeComplete && activePresetId) {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      const element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
+      if (element) {
+        let currentSize = 0;
+        if (element.type === 'metric') {
+          currentSize = (element.data as any).numberSize || 180;
+        } else if (element.type === 'text') {
+          currentSize = (element.data as any).textSize || 45;
+        } else if (element.type === 'divider') {
+          currentSize = (element.data as any).width || 2; // Divider width (thickness) in pixels
+        }
+        
+        // Only record if size actually changed
+        if (currentSize !== resizeStart.current.initialSize) {
+          onResizeComplete(
+            resizeStart.current.elementId,
+            resizeStart.current.initialSize,
+            currentSize
+          );
         }
       }
     }
     
     setResizingElementId(null);
     resizeStart.current = null;
-  }, [onResizeComplete, settingsRef]);
+  }, [onResizeComplete, activePresetId]);
 
   // Event listeners for resize
   useEffect(() => {

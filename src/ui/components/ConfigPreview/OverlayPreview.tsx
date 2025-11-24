@@ -148,7 +148,7 @@ export default function OverlayPreview({
             </div>
             
             {/* Unified element drag handlers for all element types */}
-            {overlayConfig.mode === 'custom' && overlayConfig.elements && overlayConfig.elements.length > 0 && (
+            {overlayConfig.mode === 'custom' && Array.isArray(overlayConfig.elements) && overlayConfig.elements.length > 0 && (
               <>
                 {overlayConfig.elements.map((element) => {
                   const elementX = lcdToPreview(element.x, offsetScale);

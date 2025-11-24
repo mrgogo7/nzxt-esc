@@ -9,8 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload } from 'lucide-react';
 import type { OverlayElement } from '../../../types/overlay';
 import type { Lang } from '../../../i18n';
+import type { AppSettings } from '../../../constants/defaults';
 import { t } from '../../../i18n';
-import { MAX_OVERLAY_ELEMENTS, wouldExceedElementLimit } from '../../../utils/overlaySettingsHelpers';
+import { MAX_OVERLAY_ELEMENTS, canAddElements, getTotalElementCount } from '../../../utils/overlaySettingsHelpers';
 import '../PresetManager/PresetManager.css';
 
 export interface ImportOverlayModalProps {
@@ -19,6 +20,8 @@ export interface ImportOverlayModalProps {
   onImport: (elements: OverlayElement[], mode: 'replace' | 'append') => void;
   importedElements: OverlayElement[];
   currentElementCount: number;
+  activePresetId: string | null;
+  settings: AppSettings;
   lang: Lang;
 }
 
@@ -28,13 +31,19 @@ export default function ImportOverlayModal({
   onImport,
   importedElements,
   currentElementCount,
+  activePresetId,
+  settings,
   lang,
 }: ImportOverlayModalProps) {
-  // Handle ESC key
+  // Handle ESC and ENTER keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
+      } else if (e.key === 'Enter' && isOpen) {
+        // FAZ-10: ENTER triggers primary action (Replace)
+        e.preventDefault();
+        handleReplace();
       }
     };
 
@@ -47,22 +56,38 @@ export default function ImportOverlayModal({
   }, [isOpen, onClose]);
 
   // Handle Replace button click
+  // GLOBAL HARD LIMIT: Replace mode truncates to available slots
   const handleReplace = () => {
-    if (importedElements.length > 0) {
-      onImport(importedElements, 'replace');
-      onClose();
+    if (importedElements.length === 0) return;
+    
+    // Truncate to MAX_OVERLAY_ELEMENTS if needed
+    const truncatedElements = importedElements.slice(0, MAX_OVERLAY_ELEMENTS);
+    if (truncatedElements.length < importedElements.length) {
+      const message = t('overlayMaxElementsWarning', lang)
+        .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
+        .replace('{count}', String(importedElements.length - truncatedElements.length));
+      alert(message);
     }
+    
+    onImport(truncatedElements, 'replace');
+    onClose();
   };
 
   // Handle Append button click
+  // GLOBAL HARD LIMIT: Append mode checks total (preset manual + runtime imported)
   const handleAppend = () => {
     if (importedElements.length === 0) return;
     
-    // Check element limit for append mode
-    if (wouldExceedElementLimit(currentElementCount, importedElements.length)) {
+    // Check global limit: preset manual + runtime imported + new elements
+    // Use activePresetId to get current total
+    const currentTotal = getTotalElementCount(activePresetId);
+    
+    // Use deprecated canAddElements for backward compatibility (it uses runtime count internally)
+    if (!canAddElements(settings, currentElementCount, importedElements.length)) {
+      const availableSlots = MAX_OVERLAY_ELEMENTS - currentTotal;
       const message = t('overlayMaxElementsWarning', lang)
         .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
-        .replace('{count}', String(importedElements.length));
+        .replace('{count}', String(importedElements.length - availableSlots));
       alert(message);
       return; // Don't close modal, just show warning
     }

@@ -14,6 +14,7 @@ import {
   isOverlayPresetFile,
   validateOverlayPresetFile 
 } from './schema';
+import { MAX_OVERLAY_ELEMENTS } from '../utils/overlaySettingsHelpers';
 
 /**
  * Import result structure.
@@ -54,6 +55,9 @@ export async function exportOverlayPreset(
   filename?: string
 ): Promise<void> {
   try {
+    // Debug logging
+    console.log('[exportOverlayPreset] Starting export - presetName:', presetName, 'elements count:', elements.length);
+    
     const now = new Date().toISOString();
     const appVersion = getAppVersion();
     
@@ -75,22 +79,41 @@ export async function exportOverlayPreset(
     const url = URL.createObjectURL(blob);
     
     // Create download filename (sanitize presetName for filename)
-    const sanitizedName = presetName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+    // Remove invalid characters: / \ : * ? " < > |
+    const sanitizedName = (presetName || 'overlay-preset')
+      .replace(/[^a-z0-9\s-]/gi, '-')
+      .replace(/\s+/g, '-')
+      .toLowerCase()
+      .substring(0, 100); // Limit length
     const finalFilename = filename || sanitizedName || `overlay-preset-${Date.now()}`;
     
     // Create temporary anchor and trigger download
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${finalFilename}.nzxt-esc-overlay-preset`;
+    // FAZ-10: Use provided filename or generate from presetName
+    a.download = `${finalFilename || sanitizedName || `overlay-preset-${Date.now()}`}.nzxt-esc-overlay-preset`;
+    a.style.display = 'none'; // Hide the link
     document.body.appendChild(a);
+    
+    // Trigger download
     a.click();
+    
+    // Remove link from DOM immediately after click
     document.body.removeChild(a);
     
-    // Clean up
-    URL.revokeObjectURL(url);
+    // CRITICAL: Delay URL revoke to ensure download completes
+    // This fixes the issue where blob URL is revoked before browser can download
+    // Works in both HTTP (dev) and HTTPS (prod) environments
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000); // 1 second delay is safe for most browsers
+    
+    console.log('[exportOverlayPreset] Export completed - filename:', `${finalFilename}.nzxt-esc-overlay-preset`);
   } catch (error) {
     console.error('[OverlayPreset] Export error:', error);
-    throw new Error('Failed to export overlay preset file');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[OverlayPreset] Export error details:', errorMessage);
+    throw new Error(`Failed to export overlay preset file: ${errorMessage}`);
   }
 }
 
@@ -151,10 +174,25 @@ export async function importOverlayPreset(
       };
     }
     
-    // Step 5: Return elements
+    // Step 5: Extract elements (defensive array check)
+    // DEFENSIVE: Ensure elements is always an array
+    const parsedElements = Array.isArray(parsed.elements) ? parsed.elements : [];
+    const elements = [...parsedElements]; // Copy array to avoid mutations
+    
+    // File-level limit: Truncate if file contains too many elements
+    // (Runtime-level limit check happens in OverlaySettings.tsx)
+    let finalElements = elements;
+    if (finalElements.length > MAX_OVERLAY_ELEMENTS) {
+      console.warn(`[OverlayPreset] Import file contains ${finalElements.length} elements, truncating to ${MAX_OVERLAY_ELEMENTS} at file level`);
+      finalElements = finalElements.slice(0, MAX_OVERLAY_ELEMENTS);
+    }
+    
+    console.log('[importOverlayPreset] Imported elements:', finalElements.length);
+    
+    // Step 6: Return elements
     return {
       success: true,
-      elements: [...parsed.elements], // Copy array to avoid mutations
+      elements: finalElements,
       validation,
     };
     

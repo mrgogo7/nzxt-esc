@@ -1,16 +1,18 @@
 /**
  * Atomic Preset Merge Engine
  * 
- * Handles hybrid merge strategy for preset updates:
+ * Handles merge strategy for preset updates:
  * - background: full overwrite
  * - misc: full overwrite
- * - overlay: hybrid (mode full overwrite, elements ID-based partial merge)
+ * - overlay: mode + elements (elements ARE stored in presets for persistence)
+ * 
+ * FAZ 9.2 HOTFIX: Overlay elements ARE stored in preset files for persistence.
+ * Elements are loaded from preset files into runtime on preset switch/F5.
  * 
  * This ensures atomic updates without losing data integrity.
  */
 
 import type { PresetFile } from '../schema';
-import type { OverlayElement } from '../../types/overlay';
 
 /**
  * Merges preset fields using hybrid strategy.
@@ -45,62 +47,29 @@ export function mergePresetFields(
     merged.misc = newPart.misc;
   }
 
-  // Overlay: hybrid merge
+  // Overlay: FAZ 7 FIX v2 - Save mode AND elements from runtime
+  // CRITICAL: Overlay elements come from runtime overlay Map and MUST be saved to preset for persistence
   if (newPart.overlay) {
+    // FAZ 7 FIX v2: Use elements from newPart.overlay.elements (which comes from runtime via useAtomicPresetSync)
+    const newElements = Array.isArray(newPart.overlay.elements) ? newPart.overlay.elements : [];
+    
     merged.overlay = {
-      ...oldPreset.overlay,
+      mode: newPart.overlay.mode ?? oldPreset.overlay?.mode ?? 'none',
+      elements: newElements, // FAZ 7 FIX v2: Save runtime elements to preset (NEVER override with [])
     };
-
-    // Mode: full overwrite
-    if (newPart.overlay.mode !== undefined) {
-      merged.overlay.mode = newPart.overlay.mode;
-    }
-
-    // Elements: ID-based partial merge
-    if (newPart.overlay.elements !== undefined) {
-      const oldElements = oldPreset.overlay.elements || [];
-      const newElements = newPart.overlay.elements;
-
-      // Create a map of new elements by ID for quick lookup
-      const newElementsMap = new Map<string, OverlayElement>();
-      newElements.forEach(el => {
-        if (el.id) {
-          newElementsMap.set(el.id, el);
-        }
-      });
-
-      // Merge: update existing elements by ID, preserve others
-      const mergedElements: OverlayElement[] = [];
-      const processedIds = new Set<string>();
-
-      // First: update existing elements by ID
-      oldElements.forEach(oldEl => {
-        if (oldEl.id) {
-          const newEl = newElementsMap.get(oldEl.id);
-          if (newEl) {
-            mergedElements.push(newEl);
-            processedIds.add(oldEl.id);
-          } else {
-            mergedElements.push(oldEl);
-          }
-        } else {
-          // Element without ID - preserve as-is
-          mergedElements.push(oldEl);
-        }
-      });
-
-      // Second: add new elements that don't exist in old array (by ID)
-      newElements.forEach(newEl => {
-        if (newEl.id && !processedIds.has(newEl.id)) {
-          mergedElements.push(newEl);
-          processedIds.add(newEl.id);
-        } else if (!newEl.id) {
-          // New element without ID - add it (shouldn't happen in normal flow)
-          mergedElements.push(newEl);
-        }
-      });
-
-      merged.overlay.elements = mergedElements;
+    
+    // DEBUG: Log overlay merge
+    console.log('[atomicMerge] Overlay merge - mode:', merged.overlay.mode, 'elements count:', newElements.length, 'elements:', newElements);
+  } else {
+    // DEFENSIVE: Preserve existing overlay elements from oldPreset (FAZ 7 FIX v2)
+    if (!merged.overlay) {
+      merged.overlay = {
+        mode: oldPreset.overlay?.mode ?? 'none',
+        elements: Array.isArray(oldPreset.overlay?.elements) ? oldPreset.overlay.elements : [],
+      };
+    } else {
+      // Preserve existing elements if not being updated (FAZ 7 FIX v2)
+      merged.overlay.elements = Array.isArray(merged.overlay.elements) ? merged.overlay.elements : (Array.isArray(oldPreset.overlay?.elements) ? oldPreset.overlay.elements : []);
     }
   }
 

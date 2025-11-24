@@ -7,15 +7,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Upload, Settings } from 'lucide-react';
+import { X, Download, Upload, Settings, Plus } from 'lucide-react';
 import { 
   getPresets, 
+  getPresetById,
   addPreset, 
   updatePreset, 
   deletePreset, 
   duplicatePreset,
-  getActivePresetId,
-  setActivePresetId,
+  setActivePresetId as setActivePresetIdStorage,
   presetNameExists,
   generateUniquePresetName,
   type StoredPreset
@@ -27,6 +27,7 @@ import { t } from '../../../i18n';
 import PresetList from './PresetList';
 import ExportNameModal from './ExportNameModal';
 import ImportConflictModal from './ImportConflictModal';
+import { loadPreset } from '@/state/overlayRuntime';
 import './PresetManager.css';
 
 export interface PresetManagerProps {
@@ -37,6 +38,7 @@ export interface PresetManagerProps {
   setSettings: (settings: Partial<AppSettings>) => void;
   mediaUrl: string;
   setMediaUrl: (url: string) => void;
+  activePresetId: string | null;
 }
 
 export default function PresetManager({
@@ -47,30 +49,27 @@ export default function PresetManager({
   setSettings,
   mediaUrl,
   setMediaUrl,
+  activePresetId,
 }: PresetManagerProps) {
   const [presets, setPresets] = useState<StoredPreset[]>([]);
-  const [activePresetId, setActivePresetIdState] = useState<string | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
   const [conflictPresetName, setConflictPresetName] = useState('');
   const [conflictPreset, setConflictPreset] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load presets and active preset
+  // Load presets
   useEffect(() => {
     if (isOpen) {
       loadPresets();
-      setActivePresetIdState(getActivePresetId());
     }
   }, [isOpen]);
 
-  // Listen to storage changes (cross-tab sync)
+  // Listen to storage changes for presets list (cross-tab sync)
   useEffect(() => {
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'nzxtPresets') {
         loadPresets();
-      } else if (e.key === 'nzxtActivePresetId') {
-        setActivePresetIdState(e.newValue);
       }
     };
 
@@ -83,27 +82,58 @@ export default function PresetManager({
   };
 
   const handleApply = (preset: StoredPreset) => {
-    // Disable autosave during preset apply to prevent loops
+    // CRITICAL: Disable autosave during preset apply to prevent loops
     if (typeof window !== 'undefined') {
       window.__disableAutosave = true;
     }
 
-    // Apply preset to config state
-    setSettings({
-      ...preset.preset.background.settings,
-      overlay: preset.preset.overlay,
-      showGuide: preset.preset.misc?.showGuide,
-    });
-    setMediaUrl(preset.preset.background.url);
-    setActivePresetId(preset.id);
-    setActivePresetIdState(preset.id);
+    // CRITICAL: Preset switch order (deterministic):
+    // 1. Set active preset ID (storage + event dispatch)
+    // 2. Load overlay elements from preset into runtime Map
+    // 3. Load global config from preset (overlay.mode only, elements always empty)
+    // 4. Load media URL from preset
+    // 5. Re-enable autosave after delay
 
-    // Re-enable autosave after 300ms
+    // Overlay mode: preset dosyasından gelmeli, yoksa mevcut mode korunmalı
+    const overlayModeFromPreset = preset.preset.overlay?.mode;
+    const preservedOverlayMode = overlayModeFromPreset || settings.overlay?.mode || 'none';
+
+    // Step 1: Set active preset ID (storage + event dispatch)
+    setActivePresetIdStorage(preset.id);
+
+    // Step 2: Load overlay elements from preset into runtime Map
+    // CRITICAL: This must happen BEFORE setSettings to ensure useOverlayConfig reads correct elements
+    const presetElements = preset.preset.overlay?.elements;
+    const loadedCount = loadPreset(preset.id, presetElements);
+    
+    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+      console.log('[PresetManager] Preset switch:', preset.id, 'elements loaded:', loadedCount, 'media:', preset.preset.background.url);
+    }
+
+    // Step 3 & 4: Wait 100ms then load settings and media URL
+    // This ensures loadPreset completes and runtime is updated before settings change
+    setTimeout(() => {
+      // Step 3: Load global config from preset
+      // FAZ 9: setSettings includes empty overlay.elements (elements are in runtime only)
+      setSettings({
+        ...preset.preset.background.settings,
+        overlay: {
+          mode: preservedOverlayMode,
+          elements: [], // CRITICAL: Always empty - elements are in runtime state only
+        },
+        showGuide: preset.preset.misc?.showGuide,
+      });
+
+      // Step 4: Load media URL from preset
+      setMediaUrl(preset.preset.background.url);
+    }, 100);
+
+    // Step 5: Re-enable autosave after 500ms (allows loadPreset + setSettings to complete)
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.__disableAutosave = false;
       }
-    }, 300);
+    }, 500);
   };
 
   const handleExport = () => {
@@ -112,11 +142,23 @@ export default function PresetManager({
 
   const handleExportConfirm = async (presetName: string) => {
     try {
-      await exportPreset(settings, mediaUrl, presetName);
+      // FAZ 9: Pass activePresetId to read overlay elements from storage/runtime
+      await exportPreset(settings, mediaUrl, presetName, undefined, activePresetId);
       
       // Add to preset list
       const { createPresetFromState } = await import('../../../preset/index');
-      const presetFile = createPresetFromState(settings, mediaUrl, presetName);
+      // FAZ 9: Read elements from storage/runtime for createPresetFromState
+      let overlayElements: any[] = [];
+      if (activePresetId) {
+        const storedPreset = getPresetById(activePresetId);
+        if (storedPreset?.preset?.overlay?.elements) {
+          overlayElements = storedPreset.preset.overlay.elements;
+        } else {
+          const { getElementsForPreset } = await import('../../../state/overlayRuntime');
+          overlayElements = getElementsForPreset(activePresetId);
+        }
+      }
+      const presetFile = createPresetFromState(settings, mediaUrl, presetName, overlayElements);
       
       const newPreset: StoredPreset = {
         id: `preset-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -133,6 +175,31 @@ export default function PresetManager({
       console.error('[PresetManager] Export failed:', error);
       alert(t('presetExportError', lang));
     }
+  };
+
+  const handleNewPreset = async () => {
+    // FAZ-10: Create completely empty preset
+    const { DEFAULT_PRESET_FILE } = await import('../../../preset/storage');
+    const now = new Date().toISOString();
+    
+    const newPreset: StoredPreset = {
+      id: `preset-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: generateUniquePresetName('New Preset'),
+      preset: {
+        ...DEFAULT_PRESET_FILE,
+        presetName: 'New Preset',
+      },
+      isDefault: false,
+      isFavorite: false,
+      createdAt: now,
+      updatedAt: now,
+    };
+    
+    addPreset(newPreset);
+    loadPresets();
+    
+    // Apply the new preset immediately
+    handleApply(newPreset);
   };
 
   const handleImport = () => {
@@ -333,6 +400,14 @@ export default function PresetManager({
               </div>
 
               <div className="preset-manager-actions">
+                {/* FAZ-10: New Preset button */}
+                <button
+                  className="preset-manager-action-btn"
+                  onClick={handleNewPreset}
+                >
+                  <Plus size={16} />
+                  <span>{t('createPreset', lang) || 'Create Preset'}</span>
+                </button>
                 <button
                   className="preset-manager-action-btn"
                   onClick={handleExport}

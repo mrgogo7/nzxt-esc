@@ -31,6 +31,10 @@ export default function ImportConflictModal({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
+    } else if (e.key === 'Enter') {
+      // FAZ-10: ENTER triggers primary action (Duplicate)
+      e.preventDefault();
+      onDuplicate();
     }
   };
 

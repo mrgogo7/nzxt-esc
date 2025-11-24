@@ -190,6 +190,19 @@ export default function PresetList({
           </div>
           
           <div className="preset-item-actions">
+            {/* FAZ-10: Button order: Delete — Favorite — Duplicate — Rename — Apply */}
+            {!preset.isDefault && preset.id !== DEFAULT_PRESET_ID && (
+              <button
+                className="preset-action-btn preset-action-delete"
+                onClick={(e) => handleActionClick(e, () => onDelete(preset))}
+                data-tooltip-id={`${presetId}-delete`}
+                data-tooltip-content={t('presetDelete', lang)}
+                aria-label={t('presetDelete', lang)}
+                title={t('presetDelete', lang)}
+              >
+                <Trash2 size={14} />
+              </button>
+            )}
             {/* Favorite Star */}
             <button
               className="preset-action-btn preset-action-favorite"
@@ -215,18 +228,6 @@ export default function PresetList({
             >
               <Star size={14} fill={favorited ? 'currentColor' : 'none'} />
             </button>
-            {!preset.isDefault && preset.id !== DEFAULT_PRESET_ID && (
-              <button
-                className="preset-action-btn preset-action-delete"
-                onClick={(e) => handleActionClick(e, () => onDelete(preset))}
-                data-tooltip-id={`${presetId}-delete`}
-                data-tooltip-content={t('presetDelete', lang)}
-                aria-label={t('presetDelete', lang)}
-                title={t('presetDelete', lang)}
-              >
-                <Trash2 size={14} />
-              </button>
-            )}
             <button
               className="preset-action-btn preset-action-duplicate"
               onClick={(e) => handleActionClick(e, () => onDuplicate(preset))}
@@ -259,8 +260,8 @@ export default function PresetList({
             </button>
             
             {/* Tooltips */}
-            <Tooltip id={`${presetId}-favorite`} />
             {!preset.isDefault && preset.id !== DEFAULT_PRESET_ID && <Tooltip id={`${presetId}-delete`} />}
+            <Tooltip id={`${presetId}-favorite`} />
             <Tooltip id={`${presetId}-duplicate`} />
             <Tooltip id={`${presetId}-rename`} />
             <Tooltip id={`${presetId}-apply`} />

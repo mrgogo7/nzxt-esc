@@ -2,6 +2,7 @@ import { useConfig } from '../../hooks/useConfig';
 import { useMediaUrl } from '../../hooks/useMediaUrl';
 import { useMonitoring } from '../../hooks/useMonitoring';
 import { useOverlayConfig } from '../../hooks/useOverlayConfig';
+import { getActivePresetId } from '../../preset/storage';
 import { getLCDDimensions } from '../../environment';
 import MediaRenderer from './MediaRenderer';
 import UnifiedOverlayRenderer from './UnifiedOverlayRenderer';
@@ -22,7 +23,8 @@ export default function KrakenOverlay() {
   const { settings } = useConfig();
   const { mediaUrl } = useMediaUrl();
   const metrics = useMonitoring();
-  const overlayConfig = useOverlayConfig(settings);
+  const activePresetId = getActivePresetId();
+  const overlayConfig = useOverlayConfig(settings, activePresetId);
 
   // Get LCD resolution using centralized environment detection
   const { width: lcdResolution } = getLCDDimensions();

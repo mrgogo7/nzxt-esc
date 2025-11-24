@@ -4,21 +4,31 @@
  * Automatically saves UI config state to active preset using atomic merge strategy.
  * 
  * Architecture:
- * - Listens to settings, mediaUrl, and overlay changes
+ * - Listens to settings, mediaUrl, and runtime overlay elements changes
  * - Converts to PresetFile format using createPresetFromState
  * - Applies atomic merge to active preset
- * - Uses 100ms throttle to prevent excessive writes
+ * - Uses 500ms debounce to prevent excessive writes
  * - Disabled during preset apply to prevent loops
  * 
  * CRITICAL: This hook does NOT modify useSettingsSync or useMediaUrl.
  * It's a separate layer that writes to presets.
+ * 
+ * CRITICAL: Autosave is driven by runtime elements changes, NOT by overlay config.
+ * This prevents infinite loops between preset save and overlay config updates.
  */
 
 import { useEffect, useRef } from 'react';
 import type { AppSettings } from '../constants/defaults';
-import type { Overlay } from '../types/overlay';
 import { createPresetFromState } from '../preset';
 import { getPresetById, updatePreset } from '../preset/storage';
+import { useRuntimeOverlayElements } from './useRuntimeOverlayElements';
+
+/**
+ * Debug mode flag for atomic preset sync logging.
+ */
+const isDebugMode = (): boolean => {
+  return typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
+};
 
 /**
  * Global flag to disable autosave during preset apply.
@@ -35,8 +45,8 @@ export interface UseAtomicPresetSyncOptions {
   settings: AppSettings;
   /** Current media URL */
   mediaUrl: string;
-  /** Current overlay configuration */
-  overlay: Overlay;
+  /** Current overlay mode (only mode, not elements) */
+  overlayMode: 'none' | 'custom';
   /** Active preset ID (null if no preset is active) */
   activePresetId: string | null;
   /** Preset name to use when creating preset from state */
@@ -49,33 +59,66 @@ export interface UseAtomicPresetSyncOptions {
  * Automatically saves config state to active preset when changes occur.
  * Uses atomic merge to preserve existing preset data.
  * 
+ * CRITICAL: Autosave is driven by runtime elements changes, NOT by overlay config.
+ * This prevents infinite loops between preset save and overlay config updates.
+ * 
  * @param options - Hook options
  */
 export function useAtomicPresetSync({
   settings,
   mediaUrl,
-  overlay,
+  overlayMode,
   activePresetId,
   presetName,
 }: UseAtomicPresetSyncOptions): void {
+  // CRITICAL: Get runtime elements via hook (reactive subscription)
+  const runtimeElements = useRuntimeOverlayElements(activePresetId);
+  
   const lastSyncRef = useRef<number>(0);
   const isInitialMountRef = useRef(true);
+  const lastSavedElementsKeyRef = useRef<string | null>(null);
+  const lastSavedSettingsKeyRef = useRef<string | null>(null);
+  const lastSavedMediaUrlRef = useRef<string | null>(null);
+  const lastSavedPresetIdRef = useRef<string | null>(null);
   const prevStateRef = useRef<{
     settings: AppSettings;
     mediaUrl: string;
-    overlay: Overlay;
+    overlayMode: 'none' | 'custom';
   } | null>(null);
+  const autosaveTimeoutRef = useRef<number | null>(null);
 
+  // CRITICAL: Track runtime elements as JSON key for comparison
+  const runtimeElementsKey = JSON.stringify(runtimeElements);
+  
+  // CRITICAL: Extract settings without overlay.elements for comparison
+  // This prevents expensive JSON.stringify of entire settings object
+  const getSettingsKey = (s: AppSettings): string => {
+    const { overlay, ...rest } = s;
+    return JSON.stringify({
+      ...rest,
+      overlay: { mode: overlay?.mode || 'none' }
+    });
+  };
+  const settingsKey = getSettingsKey(settings);
+
+  // Effect for settings/mediaUrl/overlayMode changes (non-runtime)
   useEffect(() => {
     // Skip on initial mount
     if (isInitialMountRef.current) {
       isInitialMountRef.current = false;
-      prevStateRef.current = { settings, mediaUrl, overlay };
+      prevStateRef.current = { settings, mediaUrl, overlayMode };
+      lastSavedPresetIdRef.current = activePresetId;
+      lastSavedElementsKeyRef.current = runtimeElementsKey;
+      lastSavedSettingsKeyRef.current = settingsKey;
+      lastSavedMediaUrlRef.current = mediaUrl;
       return;
     }
 
     // Check if autosave is disabled (during preset apply)
     if (window.__disableAutosave) {
+      if (isDebugMode()) {
+        console.log('[useAtomicPresetSync] Autosave skipped (settings path) - __disableAutosave is true');
+      }
       return;
     }
 
@@ -84,24 +127,108 @@ export function useAtomicPresetSync({
       return;
     }
 
-    // Check if state actually changed
-    const prevState = prevStateRef.current;
-    if (prevState) {
-      const settingsChanged = JSON.stringify(prevState.settings) !== JSON.stringify(settings);
-      const mediaUrlChanged = prevState.mediaUrl !== mediaUrl;
-      const overlayChanged = JSON.stringify(prevState.overlay) !== JSON.stringify(overlay);
-      
-      if (!settingsChanged && !mediaUrlChanged && !overlayChanged) {
-        return; // No changes
-      }
+    // Check if preset changed - reset saved keys
+    if (lastSavedPresetIdRef.current !== activePresetId) {
+      lastSavedPresetIdRef.current = activePresetId;
+      lastSavedElementsKeyRef.current = runtimeElementsKey;
+      lastSavedSettingsKeyRef.current = settingsKey;
+      lastSavedMediaUrlRef.current = mediaUrl;
+      return; // Don't autosave on preset switch
     }
 
-    // Throttle: only save if 100ms has passed since last save
-    const now = Date.now();
-    if (now - lastSyncRef.current < 100) {
+    // Check if state actually changed
+    const settingsChanged = settingsKey !== lastSavedSettingsKeyRef.current;
+    const mediaUrlChanged = mediaUrl !== lastSavedMediaUrlRef.current;
+    const overlayModeChanged = prevStateRef.current?.overlayMode !== overlayMode;
+    
+    if (!settingsChanged && !mediaUrlChanged && !overlayModeChanged) {
+      // No changes, update prevState and return
+      prevStateRef.current = { settings, mediaUrl, overlayMode };
       return;
     }
-    lastSyncRef.current = now;
+
+    // Schedule autosave (debounced) - will save settings/media/overlay
+    scheduleAutosave('settings');
+
+    // Update previous state
+    prevStateRef.current = { settings, mediaUrl, overlayMode };
+  }, [settings, mediaUrl, overlayMode, activePresetId, presetName, runtimeElementsKey, settingsKey]);
+
+  // Effect for runtime elements changes (separate from settings changes)
+  useEffect(() => {
+    // Skip on initial mount
+    if (isInitialMountRef.current) {
+      return;
+    }
+
+    // Check if autosave is disabled (during preset apply)
+    if (window.__disableAutosave) {
+      if (isDebugMode()) {
+        console.log('[useAtomicPresetSync] Autosave skipped (settings path) - __disableAutosave is true');
+      }
+      return;
+    }
+
+    // Check if active preset exists
+    if (!activePresetId) {
+      return;
+    }
+
+    // Check if preset changed - reset saved key
+    if (lastSavedPresetIdRef.current !== activePresetId) {
+      lastSavedPresetIdRef.current = activePresetId;
+      lastSavedElementsKeyRef.current = runtimeElementsKey;
+      return; // Don't autosave on preset switch
+    }
+
+    // Check if elements actually changed
+    if (runtimeElementsKey === lastSavedElementsKeyRef.current) {
+      return; // No change
+    }
+
+    // Schedule autosave (debounced) - will save settings/media/overlay
+    scheduleAutosave('overlay');
+  }, [runtimeElementsKey, activePresetId]);
+
+  /**
+   * Schedule autosave with debounce (500ms).
+   * Prevents excessive writes and ensures we only save when changes stabilize.
+   * 
+   * @param reason - What triggered the autosave ('settings' or 'overlay')
+   */
+  function scheduleAutosave(reason: 'settings' | 'overlay') {
+    // Clear existing timeout
+    if (autosaveTimeoutRef.current !== null) {
+      clearTimeout(autosaveTimeoutRef.current);
+    }
+
+    // Schedule new autosave
+    autosaveTimeoutRef.current = window.setTimeout(() => {
+      performAutosave(reason);
+      autosaveTimeoutRef.current = null;
+    }, 500);
+  }
+
+  /**
+   * Perform the actual autosave operation.
+   * Reads current state and writes to preset storage.
+   * Saves ALL fields: settings, mediaUrl, overlay (mode + elements).
+   * 
+   * @param reason - What triggered the autosave ('settings' or 'overlay')
+   */
+  function performAutosave(reason: 'settings' | 'overlay') {
+    // FAZ 9: Strict check for autosave disabled (during preset apply/initial load)
+    if (window.__disableAutosave === true) {
+      if (isDebugMode()) {
+        console.log(`[useAtomicPresetSync] Autosave SKIPPED (${reason} path) - __disableAutosave is true`);
+      }
+      return;
+    }
+
+    // Check if active preset exists
+    if (!activePresetId) {
+      return;
+    }
 
     // Get active preset to get its name
     const activePreset = getPresetById(activePresetId);
@@ -109,29 +236,76 @@ export function useAtomicPresetSync({
       return; // Preset not found
     }
 
+    // CRITICAL: Check if anything actually changed
+    // For settings/media changes, check if settings/media changed
+    // For overlay changes, check if elements changed
+    const currentElementsKey = JSON.stringify(runtimeElements);
+    const currentSettingsKey = settingsKey;
+    const currentMediaUrl = mediaUrl;
+    
+    if (reason === 'settings') {
+      // Settings/media autosave - check if settings/media actually changed
+      if (currentSettingsKey === lastSavedSettingsKeyRef.current && 
+          currentMediaUrl === lastSavedMediaUrlRef.current) {
+        // Nothing changed, skip save
+        return;
+      }
+    } else {
+      // Overlay autosave - check if elements actually changed
+      if (currentElementsKey === lastSavedElementsKeyRef.current) {
+        // Elements haven't changed, skip save
+        return;
+      }
+    }
+
+    // Throttle: only save if 500ms has passed since last save
+    const now = Date.now();
+    if (now - lastSyncRef.current < 500) {
+      return;
+    }
+    lastSyncRef.current = now;
+
     // Create PresetFile from current state
     // Use existing preset name or provided name
     const nameToUse = presetName || activePreset.name;
 
-    // Create partial PresetFile with current state
-    // Overlay comes from hook parameter (already computed from settings via useOverlayConfig)
+    // DEBUG: Log autosave
+    if (isDebugMode()) {
+      console.log(`[useAtomicPresetSync] Autosave ${reason} - preset:`, activePresetId, 
+        'settings changed:', currentSettingsKey !== lastSavedSettingsKeyRef.current,
+        'media changed:', currentMediaUrl !== lastSavedMediaUrlRef.current,
+        'elements changed:', currentElementsKey !== lastSavedElementsKeyRef.current,
+        'elements count:', runtimeElements.length);
+    }
+    
+    // FAZ 9: Pass runtime elements directly, don't include in settings
     const newPresetFile = createPresetFromState(
-      {
-        ...settings,
-        overlay: overlay, // Use overlay from hook parameter (computed overlay)
-      },
+      settings, // Use original settings (without overlay.elements)
       mediaUrl,
-      nameToUse
+      nameToUse,
+      runtimeElements // Pass runtime elements separately
     );
 
     // Update preset using atomic merge
     // Only update preset field, preserve other fields (name, isDefault, etc.)
+    // CRITICAL: This does NOT modify runtime - it only writes to preset storage
     updatePreset(activePresetId, {
       preset: newPresetFile,
     });
 
-    // Update previous state
-    prevStateRef.current = { settings, mediaUrl, overlay };
-  }, [settings, mediaUrl, overlay, activePresetId, presetName]);
+    // Update last saved keys
+    lastSavedElementsKeyRef.current = currentElementsKey;
+    lastSavedSettingsKeyRef.current = currentSettingsKey;
+    lastSavedMediaUrlRef.current = currentMediaUrl;
+  }
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autosaveTimeoutRef.current !== null) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, []);
 }
 
