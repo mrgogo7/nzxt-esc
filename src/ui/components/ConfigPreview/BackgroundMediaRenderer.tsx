@@ -1,7 +1,6 @@
 import type { AppSettings } from '../../../constants/defaults';
 import { getMediaType } from '../../../utils/media';
-import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../../utils/youtube';
-import YouTubeRenderer from '../BackgroundMedia/YouTubeRenderer';
+import PlaceholderRenderer from '../BackgroundMedia/PlaceholderRenderer';
 
 interface BackgroundMediaRendererProps {
   mediaUrl: string | null;
@@ -32,32 +31,27 @@ export default function BackgroundMediaRenderer({
   // Detect media type
   const mediaType = mediaUrl ? getMediaType(mediaUrl) : 'unknown';
 
-  // YouTube path: Use YouTubeRenderer component
+  // YouTube path: Use PlaceholderRenderer component (Preview mode only)
+  // LCD mode uses MediaRenderer which renders YouTubeRenderer directly
   if (mediaType === 'youtube' && mediaUrl) {
-    const videoId = extractYouTubeVideoId(mediaUrl);
-    if (videoId) {
-      const embedUrl = buildYouTubeEmbedUrl(videoId);
-      
-      // Container dimensions: Use 100% of parent container
-      // Parent container (preview circle or LCD) provides the bounds
-      // We use a large default that will be clipped by parent's overflow
-      // This matches how image/video elements work (100% width/height)
-      // The actual container size is determined by the parent component
-      // (BackgroundPreview uses 200px preview, KrakenOverlay uses 640px LCD)
-      const containerWidth = 1000; // Large enough to cover any container
-      const containerHeight = 1000; // Large enough to cover any container
+    // Container dimensions: Use 100% of parent container
+    // Parent container (preview circle) provides the bounds
+    // We use a large default that will be clipped by parent's overflow
+    // This matches how image/video elements work (100% width/height)
+    // The actual container size is determined by the parent component
+    // (BackgroundPreview uses 200px preview)
+    const containerWidth = 1000; // Large enough to cover any container
+    const containerHeight = 1000; // Large enough to cover any container
 
-      return (
-        <YouTubeRenderer
-          embedUrl={embedUrl}
-          width={containerWidth}
-          height={containerHeight}
-          scale={settings.scale}
-          offsetX={settings.x}
-          offsetY={settings.y}
-        />
-      );
-    }
+    return (
+      <PlaceholderRenderer
+        width={containerWidth}
+        height={containerHeight}
+        scale={settings.scale}
+        offsetX={settings.x}
+        offsetY={settings.y}
+      />
+    );
   }
 
   // Original video/image paths: Unchanged
