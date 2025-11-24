@@ -1,7 +1,6 @@
 import type { AppSettings } from '../../../constants/defaults';
 import { getMediaType } from '../../../utils/media';
 import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../../utils/youtube';
-import { getBaseAlign } from '../../../utils/positioning';
 import YouTubeRenderer from '../BackgroundMedia/YouTubeRenderer';
 
 interface BackgroundMediaRendererProps {
@@ -39,13 +38,6 @@ export default function BackgroundMediaRenderer({
     if (videoId) {
       const embedUrl = buildYouTubeEmbedUrl(videoId);
       
-      // Get base alignment (0-1 range for YouTubeRenderer)
-      const baseAlign = getBaseAlign(settings.align);
-      const align = {
-        x: baseAlign.x / 100, // Convert 0-100% to 0-1 range
-        y: baseAlign.y / 100,
-      };
-
       // Container dimensions: Use 100% of parent container
       // Parent container (preview circle or LCD) provides the bounds
       // We use a large default that will be clipped by parent's overflow
@@ -63,8 +55,6 @@ export default function BackgroundMediaRenderer({
           scale={settings.scale}
           offsetX={settings.x}
           offsetY={settings.y}
-          fit={settings.fit}
-          align={align}
         />
       );
     }

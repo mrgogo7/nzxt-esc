@@ -25,8 +25,6 @@ interface YouTubeRendererProps {
   scale: number;
   offsetX: number;
   offsetY: number;
-  fit: 'cover' | 'contain' | 'fill';
-  align: { x: number; y: number }; // 0-1 range (0 = left/top, 1 = right/bottom, 0.5 = center)
 }
 
 export default function YouTubeRenderer({
@@ -36,8 +34,6 @@ export default function YouTubeRenderer({
   scale,
   offsetX,
   offsetY,
-  fit,
-  align,
 }: YouTubeRendererProps) {
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
