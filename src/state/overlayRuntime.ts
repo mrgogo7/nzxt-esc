@@ -43,6 +43,22 @@ const isDebugMode = (): boolean => {
 const runtimeOverlays: Map<string, OverlayElement[]> = new Map();
 
 /**
+ * FAZ-11.5: Silently update runtime Map without triggering notifications.
+ * Used when receiving updates from BroadcastChannel to prevent broadcast loops.
+ * 
+ * @param presetId - Preset ID
+ * @param elements - Elements to set
+ */
+export function setElementsForPresetSilent(presetId: string | null, elements: OverlayElement[]): void {
+  if (!presetId) {
+    return;
+  }
+  
+  const safeElements = Array.isArray(elements) ? elements : [];
+  runtimeOverlays.set(presetId, [...safeElements]); // Store copy to prevent mutations
+}
+
+/**
  * Event-based subscription system for runtime overlay changes.
  * Allows components to react to runtime overlay updates without polling.
  */
@@ -67,12 +83,16 @@ export function subscribeRuntimeChange(callback: RuntimeChangeCallback): () => v
  * Notify all subscribers that runtime overlay has changed for a specific preset.
  * Called internally after any append/replace/update/clear operation.
  * 
+ * FAZ-11.5: Also broadcasts changes via BroadcastChannel for cross-tab sync.
+ * 
  * @param presetId - Preset ID that was modified (null if operation failed)
  */
 function notifyRuntimeChange(presetId: string | null): void {
   if (isDebugMode()) {
     console.log('[overlayRuntime] Notifying runtime change for preset:', presetId);
   }
+  
+  // Notify local subscribers (same-tab)
   runtimeChangeCallbacks.forEach(callback => {
     try {
       callback(presetId);
@@ -81,6 +101,33 @@ function notifyRuntimeChange(presetId: string | null): void {
       console.error('[overlayRuntime] Error in runtime change callback:', error);
     }
   });
+  
+  // FAZ-11.5: Broadcast to other tabs via BroadcastChannel
+  if (presetId) {
+    try {
+      const currentElements = getElementsForPresetInternal(presetId);
+      // Deep clone to prevent mutations during broadcast
+      const clonedElements = currentElements.map(el => ({
+        ...el,
+        data: { ...el.data }, // Shallow clone data object
+      }));
+      
+      // Dynamic import to avoid circular dependencies
+      import('./runtimeBroadcast').then(({ sendRuntimeUpdate }) => {
+        sendRuntimeUpdate(presetId, clonedElements);
+      }).catch((error) => {
+        // BroadcastChannel might not be available, fail silently
+        if (isDebugMode()) {
+          console.warn('[overlayRuntime] Failed to broadcast runtime update:', error);
+        }
+      });
+    } catch (error) {
+      // Fail silently if broadcast fails
+      if (isDebugMode()) {
+        console.warn('[overlayRuntime] Error broadcasting runtime change:', error);
+      }
+    }
+  }
 }
 
 /**

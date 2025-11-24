@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&color=gradient&text=NZXT%20Elite%20Screen%20Customizer%20(NZXT-ESC)%20v5.11.24&animation=twinkling&fontSize=30&reversal=false&section=header&textBg=false&fontColor=000000&fontAlign=50&fontAlignY=29"/>
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=110&color=gradient&text=NZXT%20Elite%20Screen%20Customizer%20(NZXT-ESC)%20v5.11.241&animation=twinkling&fontSize=30&reversal=false&section=header&textBg=false&fontColor=000000&fontAlign=50&fontAlignY=29"/>
 </p>
 
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.24
+# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.241
 
 ![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
 
@@ -308,7 +308,63 @@ Contributing:
 
 ## 🕛 VERSION HISTORY
 
-v5.11.24 (Current)
+## 5.11.241 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
+
+**Release Date:** 2025-11-24
+
+### 🔧 Major System Improvements
+
+- **Kraken LCD Real-Time Sync Overhaul**  
+
+  Real-time LCD synchronization wasn't newly introduced, but the entire internal system has been rebuilt.  
+
+  The previous implementation relied on preset reload cycles and caused delays, missed updates, and snap-back behaviors.  
+
+  The new BroadcastChannel-based cross-tab sync architecture provides a stable, low-latency, frame-synced update flow.
+
+### 🛠 Improvements
+
+- **Overlay rendering reliability improvements**  
+
+  When the runtime overlay state is empty, the system now safely falls back to stored preset overlay data.
+
+- **Background/media stability upgrade**  
+
+  Removed transform snap-back on input changes.
+
+- **KrakenOverlay viewer optimization**  
+
+  No longer reloads presets; now listens directly to runtime changes for instant updates.
+
+### 🐞 Bug Fixes
+
+- Fixed delayed LCD updates (previously updated only after drag end).
+
+- Fixed missing overlays in Kraken view after refresh.
+
+- Fixed duplicate React key warnings when appending overlay presets.
+
+- Fixed media/background settings reverting during adjustments.
+
+### ⚙ Architecture Changes
+
+- Introduced a dedicated `runtimeBroadcast.ts` module for inter-tab communication.
+
+- Added `setElementsForPresetSilent()` for safe runtime updates without broadcast loops.
+
+- Updated `useOverlayConfig()` to properly handle krakenMode + storage fallback.
+
+- Unified all overlay update sources into a single runtime-driven pipeline.
+
+### 📁 Developer Notes
+
+- BroadcastChannel falls back gracefully if unsupported.
+
+- Runtime updates are deeply cloned before sync to prevent mutation issues.
+
+- This release replaces the old sync architecture with a modern, stable, real-time pipeline.
+
+v5.11.24
 
 - Overlay & Preset Manager Quality Upgrade Pack (FAZ-10)
 - New Overlay Export Modal: Export now asks for a filename using a clean modal (supports ENTER key)
