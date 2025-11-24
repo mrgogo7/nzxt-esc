@@ -366,7 +366,7 @@ Contributing:
 
 v5.11.24
 
-- Overlay & Preset Manager Quality Upgrade Pack (FAZ-10)
+- Overlay & Preset Manager Quality Upgrade Pack
 - New Overlay Export Modal: Export now asks for a filename using a clean modal (supports ENTER key)
 - New Preset Button: Instantly creates a brand-new empty preset with default values
 - Improved Preset Manager UI: Reordered preset action buttons: Delete → Favorite → Duplicate → Rename → Apply
