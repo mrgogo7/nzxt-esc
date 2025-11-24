@@ -75,13 +75,10 @@
 }
 
 /* ==== URL section ==== */
-.url-section { 
-  margin: 10px 0 18px; 
-  background: #202020;
-  border: 1px solid #2e2e2e;
-  border-radius: 14px;
-  padding: 14px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+.url-section {
+  margin: 26px 0 26px;
+  display: inherit;
+  unicode-bidi: inherit;
 }
 .url-label {
   display:block;
