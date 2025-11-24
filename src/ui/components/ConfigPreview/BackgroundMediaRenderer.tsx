@@ -2,8 +2,6 @@ import type { AppSettings } from '../../../constants/defaults';
 import { getMediaType } from '../../../utils/media';
 import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../../utils/youtube';
 import { getBaseAlign } from '../../../utils/positioning';
-import { getLCDDimensions } from '../../../environment';
-import { NZXT_DEFAULTS } from '../../../constants/nzxt';
 import YouTubeRenderer from '../BackgroundMedia/YouTubeRenderer';
 
 interface BackgroundMediaRendererProps {
