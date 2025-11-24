@@ -164,24 +164,34 @@ export default function PresetManagerButton({
       >
         <span>{t('presetManager', lang)}</span>
         {favoritePresets.length > 0 && (
-          <ChevronDown
-            size={14}
+          <div
             onClick={handleChevronClick}
             style={{
               cursor: 'pointer',
               flexShrink: 0,
-              opacity: 0.7,
-              transition: 'opacity 0.15s ease, transform 0.15s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '4px',
+              margin: '-4px',
+              borderRadius: '4px',
+              transition: 'background 0.15s ease',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.transform = 'scale(1.1)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '0.7';
-              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = 'transparent';
             }}
-          />
+          >
+            <ChevronDown
+              size={14}
+              style={{
+                opacity: 0.7,
+                transition: 'opacity 0.15s ease, transform 0.15s ease',
+              }}
+            />
+          </div>
         )}
       </motion.button>
 
