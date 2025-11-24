@@ -50,75 +50,49 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 #### METHOD 1 — DIRECT LAUNCH (RECOMMENDED)
 
 1. Copy this into your browser's address bar:
-
    ```text
    nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-esc/
    ```
-
 2. Press Enter.
-
 3. Your browser will display a question: "Open nzxt-cam link with NZXT CAM?" → Approve / Allow
-
 4. NZXT CAM will launch automatically.
-
 5. You will see a confirmation window: Load Web Integration? Are you sure you would like to load the following web integration?
-
    ```text
    https://mrgogo7.github.io/nzxt-esc/
    ```
-
 6. Press "Load".
-
 7. After loading, open the "Custom Web Integration" card.
 
 #### METHOD 2 — MANUAL INSTALLATION (INSIDE NZXT CAM)
 
 1. Open NZXT CAM.
-
 2. Go to: Lighting → Kraken Elite V2 → LCD Display
-
 3. Change the display mode to: Web Integration
-
 4. Find the card named: Custom Web Integration
-
 5. Click "Settings".
-
 6. Enter the URL:
-
    ```text
    https://mrgogo7.github.io/nzxt-esc/
    ```
-
 7. Press "Apply".
-
 8. Then press: Add as Card
-
 9. A new Web Integration card called "My Web Integration" will appear.
-
 10. Select "My Web Integration".
-
 11. Press "Configure" to open the NZXT-ESC editor.
 
 #### RECOMMENDED: RENAME THE INTEGRATION CARD
 
 NZXT CAM assigns the default name "My Web Integration". To rename:
-
 1. Select "My Web Integration".
-
 2. Press "Edit".
-
 3. Change the fields to: Title:
-
    ```text
    Elite Screen Customizer
    ```
-
    Description:
-
    ```text
    NZXT Elite Screen Customizer (NZXT-ESC)
    ```
-
 This helps distinguish the integration from others.
 
 ---
