@@ -22,6 +22,27 @@ Free for personal use only — commercial use is strictly prohibited.
 </p>
 
 ---
+## 📋 CONTENTS
+
+- [🚀 QUICK START](#-quick-start)
+  - [METHOD 1 — DIRECT LAUNCH (RECOMMENDED)](#method-1--direct-launch-recommended)
+  - [METHOD 2 — MANUAL INSTALLATION (INSIDE NZXT CAM)](#method-2--manual-installation-inside-nzxt-cam)
+  - [RECOMMENDED: RENAME THE INTEGRATION CARD](#recommended-rename-the-integration-card)
+- [🎛 USING THE EDITOR (CONFIGURE BUTTON)](#-using-the-editor-configure-button)
+- [💡 WHAT MAKES NZXT-ESC SPECIAL?](#-what-makes-nzxt-esc-special)
+  - [1. DESIGN-ORIENTED EDITING EXPERIENCE](#1-design-oriented-editing-experience)
+  - [2. FULL ELEMENT-BASED OVERLAY ENGINE](#2-full-element-based-overlay-engine)
+  - [3. REAL-TIME LCD SYNCHRONIZATION](#3-real-time-lcd-synchronization)
+  - [4. ADVANCED MEDIA ENGINE](#4-advanced-media-engine)
+  - [5. PRESET SYSTEM (EARLY ACCESS)](#5-preset-system-early-access)
+- [🌍 SUPPORTED LANGUAGES](#-supported-languages)
+- [🧪 TECHNICAL DETAILS](#-technical-details)
+- [🔧 DEVELOPER INFORMATION](#-developer-information)
+- [🕛 VERSION HISTORY](#-version-history)
+- [🔗 LINKS](#-links)
+- [📜 LICENSE](#-license)
+
+---
 ### 🚀 QUICK START
 
 NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are two ways to install it:
@@ -36,19 +57,11 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 2. Press Enter.
 
-3. Your browser will display a question:
-
-   "Open nzxt-cam link with NZXT CAM?"
-
-   → Approve / Allow
+3. Your browser will display a question: "Open nzxt-cam link with NZXT CAM?" → Approve / Allow
 
 4. NZXT CAM will launch automatically.
 
-5. You will see a confirmation window:
-
-   Load Web Integration?
-
-   Are you sure you would like to load the following web integration?
+5. You will see a confirmation window: Load Web Integration? Are you sure you would like to load the following web integration?
 
    ```text
    https://mrgogo7.github.io/nzxt-esc/
@@ -62,17 +75,11 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 1. Open NZXT CAM.
 
-2. Go to:
+2. Go to: Lighting → Kraken Elite V2 → LCD Display
 
-   Lighting → Kraken Elite V2 → LCD Display
+3. Change the display mode to: Web Integration
 
-3. Change the display mode to:
-
-   Web Integration
-
-4. Find the card named:
-
-   Custom Web Integration
+4. Find the card named: Custom Web Integration
 
 5. Click "Settings".
 
@@ -84,9 +91,7 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 7. Press "Apply".
 
-8. Then press:
-
-   Add as Card
+8. Then press: Add as Card
 
 9. A new Web Integration card called "My Web Integration" will appear.
 
@@ -96,17 +101,13 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 #### RECOMMENDED: RENAME THE INTEGRATION CARD
 
-NZXT CAM assigns the default name "My Web Integration".
-
-To rename:
+NZXT CAM assigns the default name "My Web Integration". To rename:
 
 1. Select "My Web Integration".
 
 2. Press "Edit".
 
-3. Change the fields to:
-
-   Title:
+3. Change the fields to: Title:
 
    ```text
    Elite Screen Customizer
