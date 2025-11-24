@@ -41,59 +41,19 @@ export default function YouTubeRenderer({
 }: YouTubeRendererProps) {
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
-  const containerAspectRatio = width / height;
 
-  // Calculate wrapper dimensions based on fit mode
-  // Since iframe doesn't support objectFit, we simulate it via wrapper size
-  let wrapperWidth: number;
-  let wrapperHeight: number;
-  let iframeScale = 1;
+  // Wrapper: Always full container size (ignore fit setting)
+  const wrapperWidth = width;
+  const wrapperHeight = height;
 
-  if (fit === 'cover') {
-    // Cover: Fill container, may crop (similar to object-fit: cover)
-    // Wrapper should be sized to cover the entire container
-    if (containerAspectRatio > youtubeAspectRatio) {
-      // Container is wider than video, fit to height and scale width
-      wrapperHeight = height;
-      wrapperWidth = height * youtubeAspectRatio;
-      iframeScale = width / wrapperWidth; // Scale to cover width
-    } else {
-      // Container is taller than video, fit to width and scale height
-      wrapperWidth = width;
-      wrapperHeight = width / youtubeAspectRatio;
-      iframeScale = height / wrapperHeight; // Scale to cover height
-    }
-  } else if (fit === 'contain') {
-    // Contain: Fit within container, may have letterboxing (similar to object-fit: contain)
-    // Wrapper maintains aspect ratio, fits within container
-    if (containerAspectRatio > youtubeAspectRatio) {
-      // Container is wider, fit to height
-      wrapperHeight = height;
-      wrapperWidth = height * youtubeAspectRatio;
-    } else {
-      // Container is taller, fit to width
-      wrapperWidth = width;
-      wrapperHeight = width / youtubeAspectRatio;
-    }
-  } else {
-    // Fill: Stretch to fill (similar to object-fit: fill)
-    wrapperWidth = width;
-    wrapperHeight = height;
-  }
-
-  // Calculate alignment offset
-  // align.x and align.y are 0-1 range (0 = left/top, 1 = right/bottom, 0.5 = center)
-  // This simulates object-position behavior
-  const alignOffsetX = (align.x - 0.5) * (width - wrapperWidth);
-  const alignOffsetY = (align.y - 0.5) * (height - wrapperHeight);
-
-  // Combine alignment offset with user offset (settings.x, settings.y)
-  const totalOffsetX = alignOffsetX + offsetX;
-  const totalOffsetY = alignOffsetY + offsetY;
+  // Ignore align setting - always center
+  // Only use user offset (settings.x, settings.y)
+  const totalOffsetX = offsetX;
+  const totalOffsetY = offsetY;
 
   // Wrapper style: handles positioning, scaling, and clipping
   // Position: absolute to allow precise positioning
-  // Transform: combines alignment offset, user offset, and scale
+  // Transform: combines user offset and scale (no alignment offset)
   const wrapperStyle: CSSProperties = {
     position: 'absolute',
     top: 0,
@@ -105,14 +65,18 @@ export default function YouTubeRenderer({
     transformOrigin: 'center center',
   };
 
-  // iframe style: fills wrapper, no pointer events
-  // For 'cover' mode, iframe is scaled up to fill wrapper
+  // iframe style: always centered, height matches wrapper, width auto (preserve aspect ratio)
+  // Height: 100% of wrapper
+  // Width: auto (calculated from aspect ratio)
   const iframeStyle: CSSProperties = {
-    width: '100%',
+    width: `${wrapperHeight * youtubeAspectRatio}px`, // Auto width based on height and aspect ratio
     height: '100%',
     border: 'none',
     pointerEvents: 'none', // Prevent user interaction (background media)
-    transform: fit === 'cover' && iframeScale > 1 ? `scale(${iframeScale})` : 'none',
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)', // Always centered
     transformOrigin: 'center center',
   };
 
