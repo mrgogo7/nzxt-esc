@@ -6,6 +6,7 @@ import { lcdToPreview } from '../../../utils/positioning';
 import type { AlignmentGuide } from '../../../utils/snapping';
 import { canResizeElement } from '../../../utils/resize';
 import { RotateCw } from 'lucide-react';
+import BackgroundMediaRenderer from './BackgroundMediaRenderer';
 import { 
   calculateAABB,
 } from '../../../transform/engine/BoundingBox';
@@ -36,6 +37,13 @@ interface OverlayPreviewProps {
   lang: Lang;
   t: typeof tFunction;
   settings: AppSettings;
+  mediaUrl: string | null;
+  isVideo: boolean;
+  objectPosition: string;
+  showBackgroundInOverlayPreview: boolean;
+  setShowBackgroundInOverlayPreview: (value: boolean) => void;
+  overlayBackgroundOpacity: number;
+  setOverlayBackgroundOpacity: (value: number) => void;
 }
 
 /**
@@ -66,12 +74,76 @@ export default function OverlayPreview({
   lang,
   t,
   settings,
+  mediaUrl,
+  isVideo,
+  objectPosition,
+  showBackgroundInOverlayPreview,
+  setShowBackgroundInOverlayPreview,
+  overlayBackgroundOpacity,
+  setOverlayBackgroundOpacity,
 }: OverlayPreviewProps) {
   return (
     <div className="preview-column">
       {overlayConfig.mode !== 'none' ? (
         <>
-          <div className="preview-title">{t('overlayPreviewTitle', lang)}</div>
+          {/* Header row: title on left, switch on right */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            width: '100%',
+            marginBottom: '8px',
+            position: 'relative'
+          }}>
+            <div className="preview-title" style={{ margin: 0, position: 'relative', left: 'auto' }}>
+              {t('overlayPreviewTitle', lang)}
+            </div>
+            <div className="overlay-toggle-compact">
+              <span>Show Background</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={showBackgroundInOverlayPreview}
+                  onChange={(e) => setShowBackgroundInOverlayPreview(e.target.checked)}
+                />
+                <span className="slider" />
+              </label>
+            </div>
+          </div>
+          
+          {/* Background Opacity slider - below title, independent from switch */}
+          {showBackgroundInOverlayPreview && (
+            <div style={{ 
+              width: '100%', 
+              marginBottom: '8px',
+              paddingLeft: '0px'
+            }}>
+              <div className="setting-row" style={{ margin: 0 }}>
+                <label style={{ fontSize: '12px', color: '#a0a0a0', whiteSpace: 'nowrap' }}>Background Opacity</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={overlayBackgroundOpacity}
+                  onChange={(e) => setOverlayBackgroundOpacity(parseFloat(e.target.value))}
+                  style={{
+                    flex: 1,
+                    height: '4px',
+                    background: '#2c2c2c',
+                    borderRadius: '2px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                />
+                <span style={{ fontSize: '12px', color: '#a0a0a0', minWidth: '40px', textAlign: 'right' }}>
+                  {(overlayBackgroundOpacity * 100).toFixed(0)}%
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Preview circle */}
           <div className="nzxt-glow-wrapper">
             <div
               className={`preview-circle overlay-preview ${draggingElementId ? 'dragging' : ''}`}
@@ -82,6 +154,26 @@ export default function OverlayPreview({
                 backgroundColor: settings.backgroundColor || '#000000',
               }}
             >
+            {/* Background media - rendered behind overlay when enabled */}
+            {showBackgroundInOverlayPreview && (
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  pointerEvents: 'none',
+                  zIndex: 0,
+                }}
+              >
+                <BackgroundMediaRenderer
+                  mediaUrl={mediaUrl}
+                  settings={settings}
+                  isVideo={isVideo}
+                  objectPosition={objectPosition}
+                  opacity={overlayBackgroundOpacity}
+                />
+              </div>
+            )}
+            
             {/* Alignment guides */}
             {activeGuides.length > 0 && (
               <div
@@ -138,6 +230,7 @@ export default function OverlayPreview({
                 inset: 0,
                 transform: `translate(${overlayAdjX}px, ${overlayAdjY}px)`,
                 pointerEvents: 'none',
+                zIndex: 1,
               }}
             >
               <UnifiedOverlayRenderer

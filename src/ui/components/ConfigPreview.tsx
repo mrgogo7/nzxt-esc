@@ -45,6 +45,10 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
   
+  // Local state for overlay preview background controls (not persisted)
+  const [showBackgroundInOverlayPreview, setShowBackgroundInOverlayPreview] = useState(false);
+  const [overlayBackgroundOpacity, setOverlayBackgroundOpacity] = useState(1.0);
+  
   // Use centralized environment detection to determine if real monitoring is available
   const hasRealMonitoringAPI = hasRealMonitoring();
   
@@ -364,6 +368,13 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
             lang={lang}
             t={t}
             settings={settings}
+            mediaUrl={mediaUrl}
+            isVideo={isVideo}
+            objectPosition={objectPosition}
+            showBackgroundInOverlayPreview={showBackgroundInOverlayPreview}
+            setShowBackgroundInOverlayPreview={setShowBackgroundInOverlayPreview}
+            overlayBackgroundOpacity={overlayBackgroundOpacity}
+            setOverlayBackgroundOpacity={setOverlayBackgroundOpacity}
           />
 
           {/* Overlay Options */}

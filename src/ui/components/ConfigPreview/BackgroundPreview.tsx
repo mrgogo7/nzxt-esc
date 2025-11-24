@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
+import BackgroundMediaRenderer from './BackgroundMediaRenderer';
 
 interface BackgroundPreviewProps {
   mediaUrl: string | null;
@@ -70,38 +71,12 @@ export default function BackgroundPreview({
           }}
         >
 
-        {isVideo ? (
-          <video
-            src={mediaUrl || undefined}
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: settings.fit,
-              objectPosition,
-              transform: `scale(${settings.scale})`,
-              transformOrigin: 'center center',
-            }}
-          />
-        ) : (
-          mediaUrl && (
-            <img
-              src={mediaUrl}
-              alt="preview"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: settings.fit,
-                objectPosition,
-                transform: `scale(${settings.scale})`,
-                transformOrigin: 'center center',
-              }}
-            />
-          )
-        )}
+        <BackgroundMediaRenderer
+          mediaUrl={mediaUrl}
+          settings={settings}
+          isVideo={isVideo}
+          objectPosition={objectPosition}
+        />
 
         {/* Overlay guide - only for alignment reference */}
         {settings.showGuide && (
