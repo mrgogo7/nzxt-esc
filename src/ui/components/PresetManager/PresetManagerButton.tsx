@@ -3,14 +3,14 @@
  * 
  * Features:
  * - Button text: "Preset Manager"
- * - Hover: Shows quick favorites dropdown
+ * - Chevron icon (when favorites exist): Shows quick favorites dropdown on click
  * - Click: Opens full Preset Manager
  * - Glow animation on preset apply
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Check } from 'lucide-react';
+import { Star, Check, ChevronDown } from 'lucide-react';
 import type { Lang } from '../../../i18n';
 import { t } from '../../../i18n';
 import type { AppSettings } from '../../../constants/defaults';
@@ -39,60 +39,26 @@ export default function PresetManagerButton({
   settings,
   activePresetId,
 }: PresetManagerButtonProps) {
-  const [isHovering, setIsHovering] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGlowing, setIsGlowing] = useState(false);
-  const hoverTimeoutRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Get favorite presets
   const favoritePresets = getPresets().filter(p => isFavorite(p));
 
-  // Handle hover with delay
-  const handleMouseEnter = () => {
-    // Clear any pending close timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-      hoverTimeoutRef.current = null;
-    }
-    // Open dropdown if there are favorite presets
-    if (favoritePresets.length > 0) {
-      setIsHovering(true);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    // Set delayed close timeout
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
-    }
-    hoverTimeoutRef.current = window.setTimeout(() => {
-      setIsHovering(false);
-      hoverTimeoutRef.current = null;
-    }, 300);
-  };
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current);
-      }
-    };
-  }, []);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsHovering(false);
+        setIsDropdownOpen(false);
       }
     };
 
-    if (isHovering) {
+    if (isDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [isHovering]);
+  }, [isDropdownOpen]);
 
   const handlePresetApply = async (preset: StoredPreset) => {
     // CRITICAL: Disable autosave during preset apply to prevent loops
@@ -148,7 +114,7 @@ export default function PresetManagerButton({
     }, 100);
 
     // Close dropdown
-    setIsHovering(false);
+    setIsDropdownOpen(false);
 
     // Trigger glow animation
     setIsGlowing(true);
@@ -165,16 +131,19 @@ export default function PresetManagerButton({
   };
 
   const handleButtonClick = () => {
-    setIsHovering(false);
+    setIsDropdownOpen(false);
     onOpenManager();
+  };
+
+  const handleChevronClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent button click
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   return (
     <div
       ref={containerRef}
       style={{ position: 'relative', display: 'inline-block' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <motion.button
         className="preset-profiles-button"
@@ -188,13 +157,36 @@ export default function PresetManagerButton({
             ? '0 0 20px rgba(138, 43, 226, 0.6), 0 0 40px rgba(138, 43, 226, 0.4)' 
             : 'none',
           transition: 'box-shadow 0.5s ease',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
         }}
       >
-        {t('presetManager', lang)}
+        <span>{t('presetManager', lang)}</span>
+        {favoritePresets.length > 0 && (
+          <ChevronDown
+            size={14}
+            onClick={handleChevronClick}
+            style={{
+              cursor: 'pointer',
+              flexShrink: 0,
+              opacity: 0.7,
+              transition: 'opacity 0.15s ease, transform 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '0.7';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          />
+        )}
       </motion.button>
 
       <AnimatePresence>
-        {isHovering && favoritePresets.length > 0 && (
+        {isDropdownOpen && favoritePresets.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -213,14 +205,6 @@ export default function PresetManagerButton({
               zIndex: 1000,
               overflow: 'hidden',
             }}
-            onMouseEnter={() => {
-              // Cancel close timeout when entering dropdown
-              if (hoverTimeoutRef.current) {
-                clearTimeout(hoverTimeoutRef.current);
-                hoverTimeoutRef.current = null;
-              }
-            }}
-            onMouseLeave={handleMouseLeave}
           >
             {/* Favorite presets list */}
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
