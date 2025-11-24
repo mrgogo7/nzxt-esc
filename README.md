@@ -16,21 +16,17 @@ Free for personal use only — commercial use is strictly prohibited.
   <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png" width="400"/>
   <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png" width="400"/>
 </p>
-
 <p align="center">
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif" width="400"/>
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif" width="400"/>
 </p>
 
 ---
+### 🚀 QUICK START
 
-## 🚀 QUICK START
+NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are two ways to install it:
 
-NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature.
-
-There are two ways to install it:
-
-### METHOD 1 — DIRECT LAUNCH (RECOMMENDED)
+#### METHOD 1 — DIRECT LAUNCH (RECOMMENDED)
 
 1. Copy this into your browser's address bar:
 
@@ -62,7 +58,7 @@ There are two ways to install it:
 
 7. After loading, open the "Custom Web Integration" card.
 
-### METHOD 2 — MANUAL INSTALLATION (INSIDE NZXT CAM)
+#### METHOD 2 — MANUAL INSTALLATION (INSIDE NZXT CAM)
 
 1. Open NZXT CAM.
 
@@ -98,7 +94,7 @@ There are two ways to install it:
 
 11. Press "Configure" to open the NZXT-ESC editor.
 
-### RECOMMENDED: RENAME THE INTEGRATION CARD
+#### RECOMMENDED: RENAME THE INTEGRATION CARD
 
 NZXT CAM assigns the default name "My Web Integration".
 
@@ -125,8 +121,7 @@ To rename:
 This helps distinguish the integration from others.
 
 ---
-
-## 🎛 USING THE EDITOR (CONFIGURE BUTTON)
+### 🎛 USING THE EDITOR (CONFIGURE BUTTON)
 
 All editing is performed INSIDE NZXT CAM via the "Configure" button.
 
@@ -144,8 +139,7 @@ Inside the editor you can:
 No external URL or config.html is required anymore.
 
 ---
-
-## 💡 WHAT MAKES NZXT-ESC SPECIAL?
+### 💡 WHAT MAKES NZXT-ESC SPECIAL?
 
 NZXT-ESC is not a theme pack — it is a full visual layout editor built specifically for the Kraken Elite LCD.
 
@@ -156,7 +150,7 @@ It focuses on:
 - Real-time LCD feedback
 - A clean and intuitive editing experience
 
-### 1. DESIGN-ORIENTED EDITING EXPERIENCE
+#### 1. DESIGN-ORIENTED EDITING EXPERIENCE
 
 - Free drag-and-drop placement
 - Rotation and scaling per element
@@ -165,7 +159,7 @@ It focuses on:
 - Minimal and distraction-free interface
 - Accurate circular preview matching real hardware
 
-### 2. FULL ELEMENT-BASED OVERLAY ENGINE
+#### 2. FULL ELEMENT-BASED OVERLAY ENGINE
 
 Legacy Single/Dual/Triple modes were removed entirely.
 
@@ -187,13 +181,13 @@ Each element supports:
 
 Quickly apply pre-configured layouts using the template picker modal. Choose from Single, Dual, Triple, or Quadruple InfoGraphic templates, each with optimized positioning and styling. Templates can be imported with Replace (overwrites existing elements) or Append (adds to existing elements) modes. When appending, zIndex values are automatically normalized to prevent rendering conflicts. The system supports up to 20 overlay elements per configuration.
 
-### 3. REAL-TIME LCD SYNCHRONIZATION
+#### 3. REAL-TIME LCD SYNCHRONIZATION
 
 - Updates ~100ms throttle for stability
 - No manual refresh needed
 - LCD screen updates instantly as you edit
 
-### 4. ADVANCED MEDIA ENGINE
+#### 4. ADVANCED MEDIA ENGINE
 
 Supports:
 
@@ -207,7 +201,7 @@ Includes:
 - Scaling
 - Offset controls
 
-### 5. PRESET SYSTEM (EARLY ACCESS)
+#### 5. PRESET SYSTEM (EARLY ACCESS)
 
 Available actions:
 
@@ -229,8 +223,7 @@ Export your overlay element configurations as `.nzxt-esc-overlay-preset` files f
 Hovering over the Preset Manager button reveals a compact dropdown listing up to 10 favorite presets (marked with ★). Each entry displays the preset name, favorite status, and an "active" indicator for the currently applied preset. Selecting an item immediately applies that preset using the same atomic merge and autosave logic as the full manager. The dropdown features smooth fade-in/fade-out animations and includes a direct link to open the full Preset Manager interface. This provides an extremely fast workflow for users who frequently switch between a small set of preferred presets.
 
 ---
-
-## 🌍 SUPPORTED LANGUAGES
+### 🌍 SUPPORTED LANGUAGES
 
 NZXT-ESC supports multiple languages for a localized user experience. Switch between languages using the language selector in the editor header.
 
@@ -248,8 +241,7 @@ NZXT-ESC supports multiple languages for a localized user experience. Switch bet
 All translations are maintained in a single TypeScript file for easy management and updates.
 
 ---
-
-## 🧪 TECHNICAL DETAILS
+### 🧪 TECHNICAL DETAILS
 
 - React 18
 - TypeScript
@@ -262,8 +254,7 @@ All translations are maintained in a single TypeScript file for easy management 
 - Multi-language UI support (English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese)
 
 ---
-
-## 🔧 DEVELOPER INFORMATION
+### 🔧 DEVELOPER INFORMATION
 
 Clone and Install:
 
@@ -297,7 +288,7 @@ Preview build:
 npm run preview
 ```
 
-Contributing:
+**Contributing:**
 
 - Open an Issue before starting major changes
 - Keep PRs small and focused
@@ -305,38 +296,29 @@ Contributing:
 - Follow project structure
 
 ---
+### 🕛 VERSION HISTORY
 
-## 🕛 VERSION HISTORY
-
-## 5.11.241 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
+#### 5.11.241 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
 
 **Release Date:** 2025-11-24
 
-### 🔧 Major System Improvements
+##### 🔧 Major System Improvements
 
 - **Kraken LCD Real-Time Sync Overhaul**  
+  Real-time LCD synchronization wasn't newly introduced, but the entire internal system has been rebuilt. The previous implementation relied on preset reload cycles and caused delays, missed updates, and snap-back behaviors. The new BroadcastChannel-based cross-tab sync architecture provides a stable, low-latency, frame-synced update flow.
 
-  Real-time LCD synchronization wasn't newly introduced, but the entire internal system has been rebuilt.  
-
-  The previous implementation relied on preset reload cycles and caused delays, missed updates, and snap-back behaviors.  
-
-  The new BroadcastChannel-based cross-tab sync architecture provides a stable, low-latency, frame-synced update flow.
-
-### 🛠 Improvements
+##### 🛠 Improvements
 
 - **Overlay rendering reliability improvements**  
-
   When the runtime overlay state is empty, the system now safely falls back to stored preset overlay data.
 
 - **Background/media stability upgrade**  
-
   Removed transform snap-back on input changes.
 
 - **KrakenOverlay viewer optimization**  
-
   No longer reloads presets; now listens directly to runtime changes for instant updates.
 
-### 🐞 Bug Fixes
+##### 🐞 Bug Fixes
 
 - Fixed delayed LCD updates (previously updated only after drag end).
 
@@ -346,7 +328,7 @@ Contributing:
 
 - Fixed media/background settings reverting during adjustments.
 
-### ⚙ Architecture Changes
+##### ⚙ Architecture Changes
 
 - Introduced a dedicated `runtimeBroadcast.ts` module for inter-tab communication.
 
@@ -356,7 +338,7 @@ Contributing:
 
 - Unified all overlay update sources into a single runtime-driven pipeline.
 
-### 📁 Developer Notes
+##### 📁 Developer Notes
 
 - BroadcastChannel falls back gracefully if unsupported.
 
@@ -364,7 +346,7 @@ Contributing:
 
 - This release replaces the old sync architecture with a modern, stable, real-time pipeline.
 
-v5.11.24
+#### v5.11.24
 
 - Overlay & Preset Manager Quality Upgrade Pack
 - New Overlay Export Modal: Export now asks for a filename using a clean modal (supports ENTER key)
@@ -378,7 +360,7 @@ v5.11.24
 - ID Collision Fix for Overlay Preset Append: Fully resolved duplicate React key issue by regenerating element IDs on append
 - General Stability Improvements: Runtime architecture preserved, autosave rules respected, and all FAZ-9 constraints remain intact
 
-v5.11.23
+#### v5.11.23
 
 - Overlay preset system with template picker modal
 - Single, Dual, Triple, and Quadruple InfoGraphic templates
@@ -389,7 +371,7 @@ v5.11.23
 - Enhanced error notifications for import/export operations
 - Viewport-aware menu positioning improvements
 
-v5.11.21
+#### v5.11.21
 
 - Element-based layout engine
 - Rotation & scale transform system
@@ -403,38 +385,23 @@ v5.11.21
 See GitHub Releases for older versions.
 
 ---
+### 🔗 LINKS
 
-## 🔗 LINKS
+Repository: https://github.com/mrgogo7/nzxt-esc/
 
-Repository:
-
-https://github.com/mrgogo7/nzxt-esc/
-
-Support:
-
-- [GitHub Sponsors](https://github.com/sponsors/mrgogo7)
-- [Patreon](https://www.patreon.com/mRGogo7)
-- [Buy Me a Coffee](https://www.buymeacoffee.com/mrgogo)
+Support: [GitHub Sponsors](https://github.com/sponsors/mrgogo7) • [Patreon](https://www.patreon.com/mRGogo7) • [Buy Me a Coffee](https://www.buymeacoffee.com/mrgogo)
 
 Issues:
 
 https://github.com/mrgogo7/nzxt-esc/issues
 
 ---
-
-## 📜 LICENSE
+### 📜 LICENSE
 
 Personal Use License
 
-Allowed:
+**Allowed:** Personal use • Personal modifications • Redistribution with credit
 
-- Personal use
-- Personal modifications
-- Redistribution with credit
-
-Not Allowed:
-
-- Commercial use
-- Selling, bundling, renting, or monetizing in any form
+**Not Allowed:** Commercial use • Selling, bundling, renting, or monetizing in any form
 
 NZXT-ESC is a hobby and community-driven project intended only for personal use.
