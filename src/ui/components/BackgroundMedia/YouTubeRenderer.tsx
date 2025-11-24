@@ -4,59 +4,80 @@ import type { CSSProperties } from 'react';
  * YouTube Renderer Component
  * 
  * Renders YouTube videos as background media using iframe embed.
- * Uses the same transform normalization system as mp4/image media.
+ * Uses wrapper div approach to simulate objectFit/objectPosition behavior
+ * since iframe elements don't support CSS object-fit properties.
  * 
  * Transform Engine Compatibility:
- * - Uses 100% container size (same as mp4/image)
- * - Scale: Applied via transform (same as mp4/image)
- * - Position: Uses objectPosition (same as mp4/image)
- * - Maintains 16:9 aspect ratio within normalized coordinate system
+ * - Scale: Applied via wrapper transform
+ * - Offset: Applied via wrapper translate
+ * - Align: Applied via wrapper positioning
+ * - Fit: Simulated via wrapper size calculations
+ * 
+ * Architecture: Single wrapper div (Option A)
+ * - Wrapper handles all transforms (scale, translate, align)
+ * - iframe fills wrapper at 100% width/height
+ * - objectFit simulation via wrapper size calculations
  */
 interface YouTubeRendererProps {
   embedUrl: string;
-  objectPosition: string; // CSS object-position string (same as mp4/image)
+  width: number;
+  height: number;
   scale: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 export default function YouTubeRenderer({
   embedUrl,
-  objectPosition,
+  width,
+  height,
   scale,
+  offsetX,
+  offsetY,
 }: YouTubeRendererProps) {
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
 
-  // Base style: matches mp4/image media exactly
-  // Uses 100% width/height to fill container (same as mp4/image)
-  // Scale applied via transform (same as mp4/image)
-  const baseStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    transform: `scale(${scale})`,
-    transformOrigin: 'center center',
-    position: 'relative',
+  // Wrapper: Always full container size (ignore fit setting)
+  const wrapperWidth = width;
+  const wrapperHeight = height;
+
+  // Ignore align setting - always center
+  // Only use user offset (settings.x, settings.y)
+  const totalOffsetX = offsetX;
+  const totalOffsetY = offsetY;
+
+  // Wrapper style: handles positioning, scaling, and clipping
+  // Position: absolute to allow precise positioning
+  // Transform: combines user offset and scale (no alignment offset)
+  const wrapperStyle: CSSProperties = {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: `${wrapperWidth}px`,
+    height: `${wrapperHeight}px`,
     overflow: 'hidden',
+    transform: `translate(${totalOffsetX}px, ${totalOffsetY}px) scale(${scale})`,
+    transformOrigin: 'center center',
   };
 
-  // iframe style: maintains 16:9 aspect ratio
-  // Height: 100% of container (matches mp4/image approach)
-  // Width: calculated to maintain 16:9 (height * 16/9)
-  // Position: uses objectPosition calculation (same as mp4/image)
-  // Since iframe doesn't support object-position, we use the calc() string directly in left/top
+  // iframe style: always centered, height matches wrapper, width auto (preserve aspect ratio)
+  // Height: 100% of wrapper
+  // Width: auto (calculated from aspect ratio)
   const iframeStyle: CSSProperties = {
-    width: `calc(100% * ${youtubeAspectRatio})`, // Maintain 16:9: width = height * 16/9
+    width: `${wrapperHeight * youtubeAspectRatio}px`, // Auto width based on height and aspect ratio
     height: '100%',
     border: 'none',
     pointerEvents: 'none', // Prevent user interaction (background media)
     position: 'absolute',
-    left: objectPosition.split(' ')[0] || '50%', // Extract X position from objectPosition
-    top: objectPosition.split(' ')[1] || '50%', // Extract Y position from objectPosition
-    transform: 'translate(-50%, -50%)', // Center on the position point (same as object-position behavior)
+    left: '50%',
+    top: '50%',
+    transform: 'translate(-50%, -50%)', // Always centered
     transformOrigin: 'center center',
   };
 
   return (
-    <div className="yt-wrapper" style={baseStyle}>
+    <div className="yt-wrapper" style={wrapperStyle}>
       <iframe
         src={embedUrl}
         className="yt-frame"

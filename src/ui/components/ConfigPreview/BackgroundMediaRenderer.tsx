@@ -33,12 +33,23 @@ export default function BackgroundMediaRenderer({
 
   // YouTube path: Use PlaceholderRenderer component (Preview mode only)
   // LCD mode uses MediaRenderer which renders YouTubeRenderer directly
-  // Uses same transform system as mp4/image (objectPosition + scale)
   if (mediaType === 'youtube' && mediaUrl) {
+    // Container dimensions: Use 100% of parent container
+    // Parent container (preview circle) provides the bounds
+    // We use a large default that will be clipped by parent's overflow
+    // This matches how image/video elements work (100% width/height)
+    // The actual container size is determined by the parent component
+    // (BackgroundPreview uses 200px preview)
+    const containerWidth = 1000; // Large enough to cover any container
+    const containerHeight = 1000; // Large enough to cover any container
+
     return (
       <PlaceholderRenderer
-        objectPosition={objectPosition}
+        width={containerWidth}
+        height={containerHeight}
         scale={settings.scale}
+        offsetX={settings.x}
+        offsetY={settings.y}
       />
     );
   }

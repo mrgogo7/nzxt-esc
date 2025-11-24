@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import { isVideoUrl, getMediaType } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../utils/youtube';
+import { getLCDDimensions } from '../../environment';
 import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
@@ -129,17 +130,23 @@ export default function MediaRenderer({
   const mediaType = getMediaType(url);
 
   // YouTube path: Use YouTubeRenderer component
-  // Uses same transform system as mp4/image (objectPosition + scale)
   if (mediaType === 'youtube') {
     const videoId = extractYouTubeVideoId(url);
     if (videoId) {
       const embedUrl = buildYouTubeEmbedUrl(videoId);
+      
+      // Get LCD dimensions for YouTubeRenderer
+      // MediaRenderer is used in LCD mode (KrakenOverlay), so we use actual LCD dimensions
+      const { width, height } = getLCDDimensions();
 
       return (
         <YouTubeRenderer
           embedUrl={embedUrl}
-          objectPosition={objectPosition}
+          width={width}
+          height={height}
           scale={settings.scale}
+          offsetX={settings.x}
+          offsetY={settings.y}
         />
       );
     }
