@@ -112,13 +112,16 @@ export default function OverlayPreview({
           </div>
           
           {/* Background Opacity slider - below title, independent from switch */}
-          {showBackgroundInOverlayPreview && (
-            <div style={{ 
-              width: '100%', 
-              marginBottom: '8px',
-              paddingLeft: '0px'
-            }}>
-              <div className="setting-row" style={{ margin: 0 }}>
+          {/* Fixed height container to prevent layout jump */}
+          <div className="overlay-opacity-row" style={{ 
+            width: '100%', 
+            marginBottom: '-12px',
+            minHeight: '36px',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {showBackgroundInOverlayPreview && (
+              <div className="setting-row" style={{ margin: 0, width: '100%' }}>
                 <label style={{ fontSize: '12px', color: '#a0a0a0', whiteSpace: 'nowrap' }}>Background Opacity</label>
                 <input
                   type="range"
@@ -140,8 +143,8 @@ export default function OverlayPreview({
                   {(overlayBackgroundOpacity * 100).toFixed(0)}%
                 </span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
           
           {/* Preview circle */}
           <div className="nzxt-glow-wrapper">
