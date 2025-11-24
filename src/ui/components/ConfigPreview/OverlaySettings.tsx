@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus, Layout } from 'lucide-react';
+import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus, Layout, Trash2 } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import type { AppSettings } from '../../../constants/defaults';
 import type { Overlay, OverlayMetricKey, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../../types/overlay';
@@ -83,9 +83,6 @@ export default function OverlaySettingsComponent({
   const [menuPosition, setMenuPosition] = useState<{ top: number; right?: number; left?: number } | null>(null);
   const floatingMenuRef = useRef<HTMLDivElement>(null);
   const floatingButtonRef = useRef<HTMLButtonElement>(null);
-
-  // State for Reset Confirmation Modal
-  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   // State for Remove Confirmation Modal
   const [removeModalState, setRemoveModalState] = useState<{ isOpen: boolean; elementId: string | null; elementType: 'metric' | 'text' | 'divider' | null }>({
@@ -241,40 +238,6 @@ export default function OverlaySettingsComponent({
     { value: 'gpuLoad', label: t('metricGpuLoad', lang) },
     { value: 'gpuClock', label: t('metricGpuClock', lang) },
   ];
-
-  // Helper: Reset overlay (ARCHITECT MODE: clear runtime overlay only)
-  const handleResetToDefaults = () => {
-    // Open confirmation modal
-    setIsResetModalOpen(true);
-  };
-
-  // Helper: Actually perform the reset
-  // ARCHITECT MODE: Reset = clearElementsForPreset(activePresetId)
-  // - Clears runtime overlay elements for active preset
-  // - Does NOT touch preset files, settings, or background
-  // - Does NOT change overlay mode
-  const performReset = () => {
-    // CRITICAL: activePresetId must be valid for per-preset runtime state
-    if (!activePresetId) {
-      console.error('[OverlaySettings] CRITICAL: Cannot reset overlay - activePresetId is null');
-      alert(t('overlayImportError', lang).replace('{error}', 'No active preset selected. Please select a preset first.'));
-      return;
-    }
-
-    // Clear runtime overlay elements for active preset
-    clearElementsForPreset(activePresetId);
-    
-    // Debug logging (only in debug mode)
-    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Reset overlay - cleared runtime elements for preset: ${activePresetId}`);
-      }
-    }
-
-    // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
-    // CRITICAL: Only trigger re-render, do NOT modify overlay.mode or any other settings
-    setSettings({ ...settings });
-  };
 
   // Handler: Open overlay export modal
   const handleExportOverlay = () => {
@@ -615,62 +578,80 @@ export default function OverlaySettingsComponent({
           {overlayConfig.mode === 'custom' && overlayConfig.elements.length > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
               <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5', flex: 1 }}>
-                {t('overlayOptionsDescription', lang)}{' '}
-                <span
-                  onClick={handleResetToDefaults}
-                  data-tooltip-id="reset-to-defaults-tooltip"
-                  data-tooltip-content={t('revertToDefaults', lang)}
-                  style={{
-                    color: '#8a2be2',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    transition: 'opacity 0.15s ease',
-                  }}
-                  onMouseEnter={(e: MouseEvent<HTMLSpanElement>) => {
-                    e.currentTarget.style.opacity = '0.8';
-                  }}
-                  onMouseLeave={(e: MouseEvent<HTMLSpanElement>) => {
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                >
-                  {t('overlayOptionsResetLink', lang)}
-                </span>
-                <Tooltip id="reset-to-defaults-tooltip" />
+                {t('overlayOptionsDescription', lang)}
                 {/* FAZ-10: Tooltips for delete buttons */}
                 {safeElements.map(el => (
                   <Tooltip key={`delete-tooltip-${el.id}`} id={`delete-element-${el.id}`} />
                 ))}
               </p>
-              <button
-                ref={floatingButtonRef}
-                onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-                aria-label={t('addElement', lang) || 'Add Element'}
-                title={t('addElement', lang) || 'Add Element'}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: '#2c2c2c',
-                  border: '1px solid #3a3a3a',
-                  color: '#f2f2f2',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  fontWeight: 500,
-                  transition: 'all 0.15s ease',
-                  flexShrink: 0,
-                }}
-                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.background = '#3a3a3a';
-                }}
-                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                  e.currentTarget.style.background = '#2c2c2c';
-                }}
-              >
-                <Plus size={18} />
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
+                <button
+                  ref={floatingButtonRef}
+                  onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+                  aria-label={t('addElement', lang) || 'Add Element'}
+                  title={t('addElement', lang) || 'Add Element'}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: '#2c2c2c',
+                    border: '1px solid #8a2be2',
+                    color: '#8a2be2',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '18px',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = 'rgba(138, 43, 226, 0.15)';
+                    e.currentTarget.style.borderColor = '#9d4edd';
+                    e.currentTarget.style.color = '#9d4edd';
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = '#2c2c2c';
+                    e.currentTarget.style.borderColor = '#8a2be2';
+                    e.currentTarget.style.color = '#8a2be2';
+                  }}
+                >
+                  <Plus size={18} />
+                </button>
+                <button
+                  onClick={() => setIsClearAllModalOpen(true)}
+                  aria-label={t('clearAllOverlayElements', lang) || 'Clear All Overlay Elements'}
+                  title={t('clearAllOverlayElements', lang) || 'Clear All Overlay Elements'}
+                  data-tooltip-id="clear-all-elements-tooltip"
+                  data-tooltip-content={t('clearAllOverlayElements', lang)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    background: '#2c2c2c',
+                    border: '1px solid #3a3a3a',
+                    color: '#ff6b6b',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = '#3a1f1f';
+                    e.currentTarget.style.borderColor = '#ff6b6b';
+                  }}
+                  onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                    e.currentTarget.style.background = '#2c2c2c';
+                    e.currentTarget.style.borderColor = '#3a3a3a';
+                  }}
+                >
+                  <Trash2 size={14} />
+                </button>
+                <Tooltip id="clear-all-elements-tooltip" />
+              </div>
             </div>
           ) : (
             <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
@@ -2193,20 +2174,15 @@ export default function OverlaySettingsComponent({
         )}
       </div>
 
-      {/* Reset Confirmation Modal */}
-      <ResetConfirmationModal
-        isOpen={isResetModalOpen}
-        onClose={() => setIsResetModalOpen(false)}
-        onConfirm={performReset}
-        lang={lang}
-      />
-
       {/* Clear All Confirmation Modal */}
       <ResetConfirmationModal
         isOpen={isClearAllModalOpen}
         onClose={() => setIsClearAllModalOpen(false)}
         onConfirm={handleClearAllConfirm}
         lang={lang}
+        titleKey="clearAllOverlayElementsConfirmTitle"
+        descriptionKey="clearAllOverlayElementsConfirm"
+        confirmButtonKey="clearAllOverlayElements"
       />
 
       {/* Overlay Export Name Modal */}

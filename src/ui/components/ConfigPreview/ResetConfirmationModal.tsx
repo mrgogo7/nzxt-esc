@@ -16,6 +16,9 @@ export interface ResetConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
   lang: Lang;
+  titleKey?: string;
+  descriptionKey?: string;
+  confirmButtonKey?: string;
 }
 
 export default function ResetConfirmationModal({
@@ -23,6 +26,9 @@ export default function ResetConfirmationModal({
   onClose,
   onConfirm,
   lang,
+  titleKey = 'resetElementsConfirmTitle',
+  descriptionKey = 'resetElementsConfirm',
+  confirmButtonKey = 'reset',
 }: ResetConfirmationModalProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -65,7 +71,7 @@ export default function ResetConfirmationModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t('resetElementsConfirmTitle', lang)}</h3>
+                <h3>{t(titleKey, lang)}</h3>
               </div>
               <button
                 className="preset-modal-close"
@@ -78,7 +84,7 @@ export default function ResetConfirmationModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t('resetElementsConfirm', lang)}
+                {t(descriptionKey, lang)}
               </p>
             </div>
 
@@ -95,7 +101,7 @@ export default function ResetConfirmationModal({
                 className="preset-modal-button preset-modal-button-warning"
                 onClick={handleConfirm}
               >
-                {t('reset', lang)}
+                {t(confirmButtonKey, lang)}
               </button>
             </div>
           </motion.div>
