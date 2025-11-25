@@ -173,6 +173,7 @@ export default function OverlayPreview({
                   isVideo={isVideo}
                   objectPosition={objectPosition}
                   opacity={overlayBackgroundOpacity}
+                  offsetScale={offsetScale}
                 />
               </div>
             )}

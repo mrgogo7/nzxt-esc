@@ -9,6 +9,7 @@ interface BackgroundMediaRendererProps {
   objectPosition: string;
   opacity?: number;
   style?: React.CSSProperties;
+  offsetScale?: number; // For YouTube Preview coordinate conversion
 }
 
 /**
@@ -27,6 +28,7 @@ export default function BackgroundMediaRenderer({
   objectPosition,
   opacity = 1,
   style = {},
+  offsetScale = 0.3125, // Default: 200/640 (Preview size / LCD size)
 }: BackgroundMediaRendererProps) {
   // Detect media type
   const mediaType = mediaUrl ? getMediaType(mediaUrl) : 'unknown';
@@ -34,14 +36,10 @@ export default function BackgroundMediaRenderer({
   // YouTube path: Use PlaceholderRenderer component (Preview mode only)
   // LCD mode uses MediaRenderer which renders YouTubeRenderer directly
   if (mediaType === 'youtube' && mediaUrl) {
-    // Container dimensions: Use 100% of parent container
-    // Parent container (preview circle) provides the bounds
-    // We use a large default that will be clipped by parent's overflow
-    // This matches how image/video elements work (100% width/height)
-    // The actual container size is determined by the parent component
-    // (BackgroundPreview uses 200px preview)
-    const containerWidth = 1000; // Large enough to cover any container
-    const containerHeight = 1000; // Large enough to cover any container
+    // Container dimensions: Preview circle is 200x200 (from ConfigPreview.css)
+    // This matches the actual preview container size
+    const containerWidth = 200;
+    const containerHeight = 200;
 
     return (
       <PlaceholderRenderer
@@ -50,6 +48,9 @@ export default function BackgroundMediaRenderer({
         scale={settings.scale}
         offsetX={settings.x}
         offsetY={settings.y}
+        align={settings.align}
+        fit={settings.fit}
+        offsetScale={offsetScale}
       />
     );
   }

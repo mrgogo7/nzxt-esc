@@ -14,6 +14,7 @@ interface BackgroundPreviewProps {
   onMouseDown: (e: React.MouseEvent) => void;
   onScaleChange: (delta: number) => void;
   previewTitle: string;
+  offsetScale: number; // For YouTube Preview coordinate conversion
 }
 
 /**
@@ -31,6 +32,7 @@ export default function BackgroundPreview({
   onMouseDown,
   onScaleChange,
   previewTitle,
+  offsetScale,
 }: BackgroundPreviewProps) {
   const [showScaleLabel, setShowScaleLabel] = useState(false);
   const [showOffsetLabel, setShowOffsetLabel] = useState(false);
@@ -76,6 +78,7 @@ export default function BackgroundPreview({
           settings={settings}
           isVideo={isVideo}
           objectPosition={objectPosition}
+          offsetScale={offsetScale}
         />
 
         {/* Overlay guide - only for alignment reference */}

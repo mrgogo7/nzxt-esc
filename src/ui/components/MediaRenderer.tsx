@@ -147,6 +147,8 @@ export default function MediaRenderer({
           scale={settings.scale}
           offsetX={settings.x}
           offsetY={settings.y}
+          align={settings.align}
+          fit={settings.fit}
         />
       );
     }

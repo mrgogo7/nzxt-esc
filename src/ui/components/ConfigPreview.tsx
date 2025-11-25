@@ -331,6 +331,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
             onMouseDown={handleBackgroundMouseDown}
             onScaleChange={adjustScale}
             previewTitle={t('previewTitle', lang)}
+            offsetScale={offsetScale}
           />
 
           {/* Background Settings */}
