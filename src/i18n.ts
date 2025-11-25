@@ -114,8 +114,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "YouTube Links Not Supported",
     youtubeNotSupportedMessage: "YouTube links are not supported yet.\n\nPlease use a direct .mp4 / .jpg / .gif URL.\n\n(Experimental Pinterest URLs are accepted.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ YouTube videos are embedded. At the end of playback, YouTube may show recommendations or ads. This behavior cannot be disabled.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ YouTube embed videos may show ads or recommendations due to YouTube policies.\n\n📺 Preview cannot play YouTube videos. Instead, a red placeholder box is shown for positioning. The LCD displays the actual video.",
     // Custom mode specific translations
     addReading: "Add Reading",
     removeReading: "Remove Reading",
@@ -324,8 +324,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "YouTube Bağlantıları Desteklenmiyor",
     youtubeNotSupportedMessage: "YouTube bağlantıları henüz desteklenmemektedir.\n\nLütfen doğrudan .mp4 / .jpg / .gif URL'si kullanın.\n\n(Deneysel Pinterest URL'leri kabul edilmektedir.)",
     youtubeNotSupportedOk: "Tamam",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ YouTube videoları embed olarak oynatılır. Video sonunda YouTube'un önerdiği içerikler veya reklamlar görünebilir. Bu davranış engellenemez.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ YouTube embed videoları YouTube politikaları nedeniyle reklam veya öneri gösterebilir.\n\n📺 Preview YouTube videolarını oynatamaz. Bunun yerine konumlandırma için kırmızı bir placeholder kutusu gösterilir. LCD gerçek videoyu gösterir.",
     // Custom mode specific translations
     addReading: "Reading Ekle",
     removeReading: "Reading Kaldır",
@@ -528,8 +528,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "Enlaces de YouTube No Soportados",
     youtubeNotSupportedMessage: "Los enlaces de YouTube aún no están soportados.\n\nPor favor usa una URL directa .mp4 / .jpg / .gif.\n\n(Los URL de Pinterest experimentales son aceptados.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ Los videos de YouTube se incrustan. Al final de la reproducción, YouTube puede mostrar recomendaciones o anuncios. Este comportamiento no se puede desactivar.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ Los videos incrustados de YouTube pueden mostrar anuncios o recomendaciones debido a las políticas de YouTube.\n\n📺 La vista previa no puede reproducir videos de YouTube. En su lugar, se muestra un cuadro de marcador de posición rojo para el posicionamiento. La LCD muestra el video real.",
     addReading: "Agregar Lectura",
     removeReading: "Eliminar Lectura",
     firstReading: "1ª Lectura",
@@ -715,8 +715,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "YouTube-Links werden nicht unterstützt",
     youtubeNotSupportedMessage: "YouTube-Links werden noch nicht unterstützt.\n\nBitte verwende eine direkte .mp4 / .jpg / .gif URL.\n\n(Experimentelle Pinterest-URLs werden akzeptiert.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ YouTube-Videos werden eingebettet. Am Ende der Wiedergabe kann YouTube Empfehlungen oder Werbung anzeigen. Dieses Verhalten kann nicht deaktiviert werden.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ Eingebettete YouTube-Videos können aufgrund der YouTube-Richtlinien Anzeigen oder Empfehlungen anzeigen.\n\n📺 Die Vorschau kann YouTube-Videos nicht abspielen. Stattdessen wird ein roter Platzhalter für die Positionierung angezeigt. Das LCD zeigt das tatsächliche Video an.",
     addReading: "Messwert hinzufügen",
     removeReading: "Messwert entfernen",
     firstReading: "1. Messwert",
@@ -902,8 +902,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "Links do YouTube Não Suportados",
     youtubeNotSupportedMessage: "Links do YouTube ainda não são suportados.\n\nPor favor, use uma URL direta .mp4 / .jpg / .gif.\n\n(URLs experimentais do Pinterest são aceitas.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ Os vídeos do YouTube são incorporados. No final da reprodução, o YouTube pode mostrar recomendações ou anúncios. Este comportamento não pode ser desativado.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ Os vídeos incorporados do YouTube podem mostrar anúncios ou recomendações devido às políticas do YouTube.\n\n📺 A visualização não pode reproduzir vídeos do YouTube. Em vez disso, uma caixa de marcador de posição vermelha é mostrada para posicionamento. O LCD exibe o vídeo real.",
     addReading: "Adicionar Leitura",
     removeReading: "Remover Leitura",
     firstReading: "1ª Leitura",
@@ -1089,8 +1089,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "Liens YouTube Non Supportés",
     youtubeNotSupportedMessage: "Les liens YouTube ne sont pas encore supportés.\n\nVeuillez utiliser une URL directe .mp4 / .jpg / .gif.\n\n(Les URL Pinterest expérimentales sont acceptées.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ Les vidéos YouTube sont intégrées. À la fin de la lecture, YouTube peut afficher des recommandations ou des publicités. Ce comportement ne peut pas être désactivé.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ Les vidéos YouTube intégrées peuvent afficher des publicités ou des recommandations en raison des politiques de YouTube.\n\n📺 L'aperçu ne peut pas lire les vidéos YouTube. Au lieu de cela, une boîte de marqueur de position rouge est affichée pour le positionnement. L'écran LCD affiche la vidéo réelle.",
     addReading: "Ajouter une Lecture",
     removeReading: "Supprimer la Lecture",
     firstReading: "1ère Lecture",
@@ -1276,8 +1276,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "Link YouTube Non Supportati",
     youtubeNotSupportedMessage: "I link YouTube non sono ancora supportati.\n\nSi prega di utilizzare un URL diretto .mp4 / .jpg / .gif.\n\n(Gli URL Pinterest sperimentali sono accettati.)",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ I video di YouTube sono incorporati. Alla fine della riproduzione, YouTube può mostrare raccomandazioni o annunci. Questo comportamento non può essere disattivato.",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ I video incorporati di YouTube possono mostrare annunci o raccomandazioni a causa delle politiche di YouTube.\n\n📺 L'anteprima non può riprodurre video di YouTube. Invece, viene mostrata una casella segnaposto rossa per il posizionamento. L'LCD mostra il video reale.",
     addReading: "Aggiungi Lettura",
     removeReading: "Rimuovi Lettura",
     firstReading: "1ª Lettura",
@@ -1463,8 +1463,8 @@ const dict: Record<Lang, Record<string, string>> = {
     youtubeNotSupportedTitle: "YouTubeリンクはサポートされていません",
     youtubeNotSupportedMessage: "YouTubeリンクはまだサポートされていません。\n\n直接の.mp4 / .jpg / .gif URLを使用してください。\n\n（実験的なPinterest URLは受け入れられます。）",
     youtubeNotSupportedOk: "OK",
-    // YouTube info message - shown below URL input when YouTube URL is entered
-    youtubeInfoMessage: "ℹ️ YouTube動画は埋め込まれます。再生終了時に、YouTubeが推奨動画や広告を表示する場合があります。この動作は無効にできません。",
+    // YouTube info message - shown in Background Settings when YouTube URL is entered
+    youtubeInfoMessage: "⚠️ 埋め込まれたYouTube動画は、YouTubeのポリシーにより広告や推奨動画を表示する場合があります。\n\n📺 プレビューはYouTube動画を再生できません。代わりに、位置決め用の赤いプレースホルダーボックスが表示されます。LCDには実際の動画が表示されます。",
     addReading: "測定値を追加",
     removeReading: "測定値を削除",
     firstReading: "1番目の測定値",
