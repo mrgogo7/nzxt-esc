@@ -18,6 +18,7 @@ import PresetManager from './components/PresetManager/PresetManager';
 import PresetManagerButton from './components/PresetManager/PresetManagerButton';
 import ResetConfirmModal from './components/modals/ResetConfirmModal';
 // YouTubeWarningModal removed - YouTube is now supported
+import { getMediaType } from '../utils/media';
 import { 
   ensureInitialActivePreset, 
   getActivePresetId, 
@@ -262,12 +263,16 @@ export default function Config() {
     // If it's a direct media URL (ends with .mp4, .jpg, .gif, etc.), save directly
     if (isDirectMediaUrl(trimmedUrl)) {
       setMediaUrl(trimmedUrl);
-      // Reset background transforms after URL change (scale/x/y only, preserve align/fit)
-      setSettings({
-        scale: DEFAULT_SETTINGS.scale,
-        x: DEFAULT_SETTINGS.x,
-        y: DEFAULT_SETTINGS.y,
-      });
+      // Reset background transforms after URL change
+      const mediaType = getMediaType(trimmedUrl);
+      setSettings(prev => ({
+        ...prev,
+        scale: 1,
+        x: 0,
+        y: 0,
+        align: 'center',
+        fit: mediaType === 'youtube' ? 'contain' : 'cover',
+      }));
       return;
     }
 
@@ -295,12 +300,16 @@ export default function Config() {
 
         if (resolvedUrl) {
           setMediaUrl(resolvedUrl);
-          // Reset background transforms after Pinterest resolve (scale/x/y only, preserve align/fit)
-          setSettings({
-            scale: DEFAULT_SETTINGS.scale,
-            x: DEFAULT_SETTINGS.x,
-            y: DEFAULT_SETTINGS.y,
-          });
+          // Reset background transforms after Pinterest resolve
+          const mediaType = getMediaType(resolvedUrl);
+          setSettings(prev => ({
+            ...prev,
+            scale: 1,
+            x: 0,
+            y: 0,
+            align: 'center',
+            fit: mediaType === 'youtube' ? 'contain' : 'cover',
+          }));
           setResolveMessage(t('urlResolved', lang));
           setTimeout(() => {
             setIsResolving(false);
@@ -321,12 +330,16 @@ export default function Config() {
     } else {
       // Not a Pinterest URL and not a direct media URL, save as-is (YouTube, etc.)
       setMediaUrl(trimmedUrl);
-      // Reset background transforms after URL change (scale/x/y only, preserve align/fit)
-      setSettings({
-        scale: DEFAULT_SETTINGS.scale,
-        x: DEFAULT_SETTINGS.x,
-        y: DEFAULT_SETTINGS.y,
-      });
+      // Reset background transforms after URL change
+      const mediaType = getMediaType(trimmedUrl);
+      setSettings(prev => ({
+        ...prev,
+        scale: 1,
+        x: 0,
+        y: 0,
+        align: 'center',
+        fit: mediaType === 'youtube' ? 'contain' : 'cover',
+      }));
     }
   };
 
