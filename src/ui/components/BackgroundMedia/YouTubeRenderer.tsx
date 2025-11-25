@@ -44,16 +44,8 @@ export default function YouTubeRenderer({
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
 
-  // Calculate base alignment (MP4 pipeline ile aynı)
-  const baseAlign = getBaseAlign(align);
-  const baseAlignX = (baseAlign.x / 100) * width;  // % → px
-  const baseAlignY = (baseAlign.y / 100) * height; // % → px
-
-  // Calculate total offset (base align + user offset) - LCD coordinates direkt
-  const totalOffsetX = baseAlignX + offsetX;
-  const totalOffsetY = baseAlignY + offsetY;
-
   // Calculate wrapper size based on fit mode (MP4 objectFit mantığı)
+  // Bu hesaplama önce yapılmalı çünkü wrapper boyutuna ihtiyacımız var
   let wrapperWidth: number;
   let wrapperHeight: number;
   let iframeWidth: number;
@@ -94,6 +86,19 @@ export default function YouTubeRenderer({
     iframeWidth = wrapperWidth;
     iframeHeight = wrapperHeight;
   }
+
+  // Calculate base alignment (MP4 pipeline ile aynı - getBaseAlign kullanarak)
+  const baseAlign = getBaseAlign(align);
+  // Base align container içindeki referans noktasını belirler (% olarak)
+  const baseAlignX = (baseAlign.x / 100) * width;  // % → px (container koordinatlarında)
+  const baseAlignY = (baseAlign.y / 100) * height; // % → px (container koordinatlarında)
+
+  // Wrapper'ın merkezini container'ın base align noktasına hizala
+  // Formül: wrapper merkezi = container referans noktası - wrapper boyutu/2 + user offset
+  // Bu formül MP4 pipeline'daki objectPosition davranışını simüle eder
+  // LCD koordinatlarında direkt kullanıyoruz (lcdToPreview dönüşümü yok)
+  const totalOffsetX = baseAlignX - (wrapperWidth / 2) + offsetX;
+  const totalOffsetY = baseAlignY - (wrapperHeight / 2) + offsetY;
 
   // Wrapper style: handles positioning, scaling, and clipping
   // Position: absolute to allow precise positioning
