@@ -142,27 +142,6 @@ export default function Config() {
     setUrlInput(mediaUrl);
   }, [mediaUrl]);
 
-  // Reset background transforms when mediaUrl changes
-  // CRITICAL: Only reset scale, x, y. Do NOT reset align, fit.
-  // Pinterest resolved URL changes also trigger reset.
-  const prevMediaUrlRef = useRef<string | null>(mediaUrl);
-  useEffect(() => {
-    // Skip on initial mount (prevMediaUrlRef.current === mediaUrl on first render)
-    // Only reset when URL actually changes (not empty to empty, but any non-empty change)
-    if (prevMediaUrlRef.current !== mediaUrl && mediaUrl) {
-      // New URL detected, reset transform values
-      // setSettings expects Partial<AppSettings>, not a callback
-      setSettings({
-        scale: DEFAULT_SETTINGS.scale,
-        x: DEFAULT_SETTINGS.x,
-        y: DEFAULT_SETTINGS.y,
-        // align and fit are NOT reset - preserve user preference
-      });
-    }
-    // Update ref for next comparison
-    prevMediaUrlRef.current = mediaUrl;
-  }, [mediaUrl, setSettings]);
-
   // Close context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -274,7 +253,7 @@ export default function Config() {
   const handleSave = async () => {
     const trimmedUrl = urlInput.trim();
     
-    // If empty, clear and return
+    // If empty, clear and return (no reset needed for empty URL)
     if (!trimmedUrl) {
       setMediaUrl('');
       return;
@@ -283,6 +262,12 @@ export default function Config() {
     // If it's a direct media URL (ends with .mp4, .jpg, .gif, etc.), save directly
     if (isDirectMediaUrl(trimmedUrl)) {
       setMediaUrl(trimmedUrl);
+      // Reset background transforms after URL change (scale/x/y only, preserve align/fit)
+      setSettings({
+        scale: DEFAULT_SETTINGS.scale,
+        x: DEFAULT_SETTINGS.x,
+        y: DEFAULT_SETTINGS.y,
+      });
       return;
     }
 
@@ -310,6 +295,12 @@ export default function Config() {
 
         if (resolvedUrl) {
           setMediaUrl(resolvedUrl);
+          // Reset background transforms after Pinterest resolve (scale/x/y only, preserve align/fit)
+          setSettings({
+            scale: DEFAULT_SETTINGS.scale,
+            x: DEFAULT_SETTINGS.x,
+            y: DEFAULT_SETTINGS.y,
+          });
           setResolveMessage(t('urlResolved', lang));
           setTimeout(() => {
             setIsResolving(false);
@@ -328,8 +319,14 @@ export default function Config() {
         setTimeout(() => setResolveMessage(null), 5000);
       }
     } else {
-      // Not a Pinterest URL and not a direct media URL, save as-is (let user handle)
+      // Not a Pinterest URL and not a direct media URL, save as-is (YouTube, etc.)
       setMediaUrl(trimmedUrl);
+      // Reset background transforms after URL change (scale/x/y only, preserve align/fit)
+      setSettings({
+        scale: DEFAULT_SETTINGS.scale,
+        x: DEFAULT_SETTINGS.x,
+        y: DEFAULT_SETTINGS.y,
+      });
     }
   };
 
