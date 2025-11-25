@@ -18,7 +18,6 @@ import PresetManager from './components/PresetManager/PresetManager';
 import PresetManagerButton from './components/PresetManager/PresetManagerButton';
 import ResetConfirmModal from './components/modals/ResetConfirmModal';
 // YouTubeWarningModal removed - YouTube is now supported
-import { getMediaType } from '../utils/media';
 import { 
   ensureInitialActivePreset, 
   getActivePresetId, 
@@ -152,13 +151,13 @@ export default function Config() {
     // Only reset when URL actually changes (not empty to empty, but any non-empty change)
     if (prevMediaUrlRef.current !== mediaUrl && mediaUrl) {
       // New URL detected, reset transform values
-      setSettings((prev) => ({
-        ...prev,
+      // setSettings expects Partial<AppSettings>, not a callback
+      setSettings({
         scale: DEFAULT_SETTINGS.scale,
         x: DEFAULT_SETTINGS.x,
         y: DEFAULT_SETTINGS.y,
         // align and fit are NOT reset - preserve user preference
-      }));
+      });
     }
     // Update ref for next comparison
     prevMediaUrlRef.current = mediaUrl;
