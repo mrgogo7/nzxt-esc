@@ -48,16 +48,8 @@ export default function PlaceholderRenderer({
   const previewOffsetX = lcdToPreview(offsetX, offsetScale);
   const previewOffsetY = lcdToPreview(offsetY, offsetScale);
 
-  // Calculate base alignment (MP4 pipeline ile aynı)
-  const baseAlign = getBaseAlign(align);
-  const baseAlignX = (baseAlign.x / 100) * width;  // % → px
-  const baseAlignY = (baseAlign.y / 100) * height; // % → px
-
-  // Calculate total offset (base align + user offset)
-  const totalOffsetX = baseAlignX + previewOffsetX;
-  const totalOffsetY = baseAlignY + previewOffsetY;
-
   // Calculate wrapper size based on fit mode (MP4 objectFit mantığı)
+  // Bu hesaplama önce yapılmalı çünkü wrapper boyutuna ihtiyacımız var
   let wrapperWidth: number;
   let wrapperHeight: number;
   let contentWidth: number;
@@ -98,6 +90,18 @@ export default function PlaceholderRenderer({
     contentWidth = wrapperWidth;
     contentHeight = wrapperHeight;
   }
+
+  // Calculate base alignment (MP4 pipeline ile aynı - getBaseAlign kullanarak)
+  const baseAlign = getBaseAlign(align);
+  // Base align container içindeki referans noktasını belirler (% olarak)
+  const baseAlignX = (baseAlign.x / 100) * width;  // % → px (container koordinatlarında)
+  const baseAlignY = (baseAlign.y / 100) * height; // % → px (container koordinatlarında)
+
+  // Wrapper'ın merkezini container'ın base align noktasına hizala
+  // Formül: wrapper merkezi = container referans noktası - wrapper boyutu/2 + user offset
+  // Bu formül MP4 pipeline'daki objectPosition davranışını simüle eder
+  const totalOffsetX = baseAlignX - (wrapperWidth / 2) + previewOffsetX;
+  const totalOffsetY = baseAlignY - (wrapperHeight / 2) + previewOffsetY;
 
   // Wrapper style: handles positioning, scaling, and clipping
   // Position: absolute to allow precise positioning
