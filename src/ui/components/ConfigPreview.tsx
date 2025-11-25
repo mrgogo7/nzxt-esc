@@ -341,6 +341,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
             lang={lang}
             t={t}
             resetField={resetField}
+            mediaUrl={mediaUrl}
           />
         </div>
       </div>
