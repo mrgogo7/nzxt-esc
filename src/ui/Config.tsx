@@ -143,6 +143,27 @@ export default function Config() {
     setUrlInput(mediaUrl);
   }, [mediaUrl]);
 
+  // Reset background transforms when mediaUrl changes
+  // CRITICAL: Only reset scale, x, y. Do NOT reset align, fit.
+  // Pinterest resolved URL changes also trigger reset.
+  const prevMediaUrlRef = useRef<string | null>(mediaUrl);
+  useEffect(() => {
+    // Skip on initial mount (prevMediaUrlRef.current === mediaUrl on first render)
+    // Only reset when URL actually changes (not empty to empty, but any non-empty change)
+    if (prevMediaUrlRef.current !== mediaUrl && mediaUrl) {
+      // New URL detected, reset transform values
+      setSettings((prev) => ({
+        ...prev,
+        scale: DEFAULT_SETTINGS.scale,
+        x: DEFAULT_SETTINGS.x,
+        y: DEFAULT_SETTINGS.y,
+        // align and fit are NOT reset - preserve user preference
+      }));
+    }
+    // Update ref for next comparison
+    prevMediaUrlRef.current = mediaUrl;
+  }, [mediaUrl, setSettings]);
+
   // Close context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -696,20 +717,6 @@ export default function Config() {
               <X size={16} />
             </motion.button>
             <Tooltip id="clear-btn-tooltip" />
-            {/* YouTube Info Message - shown when YouTube URL is entered */}
-            {urlInput.trim() && getMediaType(urlInput.trim()) === 'youtube' && (
-              <div
-                style={{
-                  marginTop: '8px',
-                  fontSize: '12px',
-                  color: '#a0a0a0',
-                  lineHeight: '1.4',
-                  padding: '0 4px',
-                }}
-              >
-                {t('youtubeInfoMessage', lang)}
-              </div>
-            )}
             {/* Context Menu */}
             {contextMenu && (
               <div
