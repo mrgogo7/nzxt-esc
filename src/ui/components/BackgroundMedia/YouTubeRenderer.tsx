@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import type { AppSettings } from '../../constants/defaults';
-import { getBaseAlign } from '../../utils/positioning';
+import type { AppSettings } from '../../../constants/defaults';
+import { getBaseAlign } from '../../../utils/positioning';
 
 /**
  * YouTube Renderer Component
