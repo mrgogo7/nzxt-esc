@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import {
   AlignStartHorizontal,
   AlignEndHorizontal,
@@ -11,6 +13,7 @@ import {
 } from 'lucide-react';
 import type { AppSettings } from '../../../constants/defaults';
 import type { Lang, t as tFunction } from '../../../i18n';
+import { getMediaType } from '../../../utils/media';
 import ResetButton from './ResetButton';
 import NumericStepper from '../NumericStepper';
 
@@ -20,6 +23,7 @@ interface BackgroundSettingsProps {
   lang: Lang;
   t: typeof tFunction;
   resetField: (field: keyof AppSettings) => void;
+  mediaUrl: string | null; // For YouTube info message
 }
 
 /**
@@ -32,7 +36,20 @@ export default function BackgroundSettings({
   lang,
   t,
   resetField,
+  mediaUrl,
 }: BackgroundSettingsProps) {
+  // YouTube info message dismiss state
+  const [isDismissed, setIsDismissed] = useState(false);
+
+  // Reset dismiss state when mediaUrl changes (new YouTube URL = show message again)
+  useEffect(() => {
+    setIsDismissed(false);
+  }, [mediaUrl]);
+
+  // Check if current media is YouTube
+  const isYouTube = mediaUrl ? getMediaType(mediaUrl) === 'youtube' : false;
+  const showYouTubeMessage = isYouTube && !isDismissed;
+
   // Icon data
   const alignIcons = [
     { key: 'center', icon: <AlignVerticalSpaceAround size={16} /> },
@@ -51,6 +68,55 @@ export default function BackgroundSettings({
   return (
     <div className="settings-column">
       <div className="panel">
+        {/* YouTube Info Message - shown when YouTube URL is active */}
+        {showYouTubeMessage && (
+          <div
+            style={{
+              marginBottom: '12px',
+              padding: '8px 12px',
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #ffc107',
+              borderRadius: '8px',
+              color: '#ffc107',
+              fontSize: '11px',
+              lineHeight: '1.4',
+              textAlign: 'left',
+              position: 'relative',
+              whiteSpace: 'pre-line', // Support multi-line content
+            }}
+          >
+            <button
+              onClick={() => setIsDismissed(true)}
+              style={{
+                position: 'absolute',
+                top: '4px',
+                right: '4px',
+                background: 'transparent',
+                border: 'none',
+                color: '#ffc107',
+                cursor: 'pointer',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                lineHeight: '1',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 193, 7, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+              aria-label={t('close', lang) || 'Close'}
+            >
+              <X size={14} />
+            </button>
+            {t('youtubeInfoMessage', lang)}
+          </div>
+        )}
+
         <div className="panel-header">
           <h3>{t('settingsTitle', lang)}</h3>
 
