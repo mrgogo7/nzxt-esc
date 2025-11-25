@@ -265,14 +265,14 @@ export default function Config() {
       setMediaUrl(trimmedUrl);
       // Reset background transforms after URL change
       const mediaType = getMediaType(trimmedUrl);
-      setSettings(prev => ({
-        ...prev,
+      setSettings({
+        ...settings,
         scale: 1,
         x: 0,
         y: 0,
         align: 'center',
         fit: mediaType === 'youtube' ? 'contain' : 'cover',
-      }));
+      });
       return;
     }
 
@@ -302,14 +302,14 @@ export default function Config() {
           setMediaUrl(resolvedUrl);
           // Reset background transforms after Pinterest resolve
           const mediaType = getMediaType(resolvedUrl);
-          setSettings(prev => ({
-            ...prev,
+          setSettings({
+            ...settings,
             scale: 1,
             x: 0,
             y: 0,
             align: 'center',
             fit: mediaType === 'youtube' ? 'contain' : 'cover',
-          }));
+          });
           setResolveMessage(t('urlResolved', lang));
           setTimeout(() => {
             setIsResolving(false);
@@ -332,14 +332,14 @@ export default function Config() {
       setMediaUrl(trimmedUrl);
       // Reset background transforms after URL change
       const mediaType = getMediaType(trimmedUrl);
-      setSettings(prev => ({
-        ...prev,
+      setSettings({
+        ...settings,
         scale: 1,
         x: 0,
         y: 0,
         align: 'center',
         fit: mediaType === 'youtube' ? 'contain' : 'cover',
-      }));
+      });
     }
   };
 
