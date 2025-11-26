@@ -294,7 +294,6 @@ npm run preview
 ### 🕛 VERSION HISTORY
 
 #### 5.11.26 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
-(SECTION KEPT — now extended slightly with YouTube note)
 
 **Additional Note:**  
 - Introduced **YouTube background support** (LCD playback) with full positioning/scale alignment using the new placeholder-based Preview system.  
