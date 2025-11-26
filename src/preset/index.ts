@@ -21,15 +21,15 @@ export type { ValidationResult, ValidationIssue } from './validation';
 export type { NormalizationResult, NormalizationChange } from './normalization';
 export { ERROR_CODES, PresetError, getUserFriendlyErrorMessage } from './errors';
 
+import { APP_VERSION } from '../version';
+
 /**
- * Gets current app version from package.json.
- * Falls back to '0.0.1' if not available.
+ * Gets current app version from single source of truth.
+ * @deprecated Directly import APP_VERSION from '../version' instead.
+ * This function is kept for backward compatibility but will be removed in future versions.
  */
 function getAppVersion(): string {
-  // In production build, version might be injected via Vite
-  // For now, we'll use a constant or try to read from package.json
-  // Since we're in browser context, we'll use a simple fallback
-  return '5.11.261'; // Current application version
+  return APP_VERSION;
 }
 
 /**

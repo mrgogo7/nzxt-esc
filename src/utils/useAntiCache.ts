@@ -133,16 +133,15 @@ function shouldDisableRedirect(): boolean {
   return false;
 }
 
+import { APP_VERSION } from '../version';
+
 /**
- * Get current app version from build-time injection.
- * Falls back to '0.0.0' if not available.
+ * Get current app version from single source of truth.
+ * @deprecated Directly import APP_VERSION from '../version' instead.
+ * This function is kept for backward compatibility but will be removed in future versions.
  */
 function getAppVersion(): string {
-  try {
-    return typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0';
-  } catch {
-    return '0.0.0';
-  }
+  return APP_VERSION;
 }
 
 /**

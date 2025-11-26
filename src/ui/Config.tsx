@@ -30,6 +30,7 @@ import {
 } from '../preset/storage';
 // FAZ-11: Import shared preset application utility
 import { applyPresetToRuntimeAndSettings } from './utils/applyPreset';
+import { APP_VERSION } from '../version';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
@@ -654,7 +655,7 @@ export default function Config() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <h1 className="config-title" style={{ margin: 0, fontSize: '20px', fontWeight: 700, lineHeight: '1.2' }}>
-              NZXT Elite Screen Customizer v5.11.261
+              NZXT Elite Screen Customizer v{APP_VERSION}
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <label className="lang-label" htmlFor="lang-select">
