@@ -528,7 +528,7 @@ export default function Config() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
             <h1 className="config-title" style={{ margin: 0, fontSize: '20px', fontWeight: 700, lineHeight: '1.2' }}>
-              NZXT Elite Screen Customizer v5.11.24
+              NZXT Elite Screen Customizer v5.11.26
             </h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <label className="lang-label" htmlFor="lang-select">
