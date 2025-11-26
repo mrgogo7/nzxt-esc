@@ -101,6 +101,7 @@ Inside the editor you can:
 - Add / remove metric, text, and divider elements (up to 20 elements per overlay)
 - Adjust position, rotation, scale, opacity, and color
 - Choose MP4 / GIF / PNG / JPG background media
+- Use Local Media files stored in the browser via IndexedDB
 - Manage presets (Import, Export, Duplicate, Delete, Rename, Apply)
 - Use overlay preset templates (Single, Dual, Triple, Quadruple InfoGraphic layouts)
 - Import overlay presets with Replace or Append options
@@ -172,8 +173,31 @@ The media engine supports:
 - MP4 video (full playback in LCD)
 - GIF animations
 - PNG / JPG images
+- Local Media Files (IndexedDB): Full-resolution images & videos loaded directly from your computer
 - **Pinterest URLs → auto-resolved to direct media**
 - **YouTube URLs (LCD playback)**
+
+
+##### **🆕 Local Media Support (NEW)**
+
+NZXT-ESC now includes a built-in system to load **local images or videos** directly into the editor.  
+Files are securely stored in **IndexedDB** and never leave your device.
+
+Supported file types:
+- JPG / PNG / GIF  
+- MP4 video  
+- Max size: **150 MB**
+
+Key features:
+- Fully offline usage — no external hosting required  
+- Works with rotation, scale, fit/align, and all transform tools  
+- Real-time LCD synchronization identical to remote media  
+- Each preset may contain one local media reference  
+- Local media is **not included** inside exported preset files  
+- Upon import, presets that used local media will display a warning and allow re-selection
+
+This system enables true offline, privacy-friendly backgrounds while remaining 100% compatible with the editor’s transform engine.
+
 
 **YouTube Integration Highlights:**
 
@@ -216,6 +240,13 @@ Export your overlay element configurations as `.nzxt-esc-overlay-preset` files f
 **Quick Favorites Dropdown**
 
 Hovering over the Preset Manager button reveals a compact dropdown listing up to 10 favorite presets (marked with ★). Each entry displays the preset name, favorite status, and an "active" indicator for the currently applied preset. Selecting an item immediately applies that preset using the same atomic merge and autosave logic as the full manager. The dropdown features smooth fade-in/fade-out animations and includes a direct link to open the full Preset Manager interface. This provides an extremely fast workflow for users who frequently switch between a small set of preferred presets.
+
+##### **Local Media & Presets**
+- Exported preset files **do not include** the local media binary  
+- Importing a preset that previously used local media shows a guided warning  
+- Users can reselect the file via the new **Browse** modal  
+- All existing preset functions (Apply, Duplicate, Rename, Delete) fully support local media references  
+- Switching presets automatically loads the appropriate local media from IndexedDB (if available)
 
 ---
 ### 🌍 SUPPORTED LANGUAGES
@@ -292,6 +323,34 @@ npm run preview
 
 ---
 ### 🕛 VERSION HISTORY
+
+#### 5.11.261 — Local Media Support + Editor Improvements (NEW)
+
+**Release Date:** 2025-11-26
+
+##### 🆕 NEW FEATURES
+- **Local Media Backgrounds (IndexedDB)**
+  - Import JPG, PNG, GIF, or MP4 directly from your computer  
+  - Files stored securely via IndexedDB  
+  - Works offline  
+  - Compatible with all fit/scale/align transform modes  
+  - Fully synchronized to the Kraken LCD in real-time  
+  - URL field shows `Local: filename.ext` in multilingual format  
+
+##### 💡 Preset System Enhancements
+- Exporting presets containing local media triggers a warning (media not included)  
+- Importing such presets displays a reselect message  
+- Preset switching automatically loads local media if available  
+
+##### 🖥 UI IMPROVEMENTS
+- New Browse modal for selecting local media  
+- Full multilingual support for all local media messages  
+- New button icon + updated styling  
+
+##### 🧩 STABILITY IMPROVEMENTS
+- Improved media resolution pipeline  
+- Blob revocation + cleanup to prevent leaks  
+- Better error handling & i18n coverage  
 
 #### 5.11.26 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
 
