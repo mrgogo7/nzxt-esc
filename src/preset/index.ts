@@ -29,7 +29,7 @@ function getAppVersion(): string {
   // In production build, version might be injected via Vite
   // For now, we'll use a constant or try to read from package.json
   // Since we're in browser context, we'll use a simple fallback
-  return '0.0.1'; // TODO: Could be injected at build time
+  return '5.11.261'; // Current application version
 }
 
 /**
