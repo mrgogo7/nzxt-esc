@@ -1,11 +1,5 @@
 # NZXT Elite Screen Customizer (NZXT-ESC) v5.11.261
 
-<p align="center">
-  <a href="./docs/">
-    <img src="https://img.shields.io/badge/docs-multi--language-blue?style=for-the-badge&logo=google-translate" alt="Multi-language documentation">
-  </a>
-</p>
-
 A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
 
 Create custom animated backgrounds, metric overlays, text layers, divider lines, and fully personalized layouts — all synchronized live inside NZXT CAM.
@@ -15,6 +9,10 @@ Free for personal use only — commercial use is strictly prohibited.
 ### 🌐 Available Languages
 
 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
+
+  <a href="./docs/">
+    <img src="https://img.shields.io/badge/docs-multi--language-blue?style=for-the-badge&logo=google-translate" alt="Multi-language documentation">
+  </a>
 
 ![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
 
