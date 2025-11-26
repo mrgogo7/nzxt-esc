@@ -1,5 +1,33 @@
 # NZXT Elite Screen Customizer (NZXT-ESC) v5.11.261
 
+<p align="center">
+  <a href="./docs/">
+    <img src="https://img.shields.io/badge/docs-multi--language-blue?style=for-the-badge&logo=google-translate" alt="Multi-language documentation">
+  </a>
+</p>
+
+<div align="center">
+
+### 🌐 Available Languages
+
+🇬🇧 English • 
+
+[🇹🇷 Türkçe](docs/README.tr.md) • 
+
+[🇩🇪 Deutsch](docs/README.de.md) • 
+
+[🇪🇸 Español](docs/README.es.md) • 
+
+[🇧🇷 Português-BR](docs/README.pt-BR.md) • 
+
+[🇫🇷 Français](docs/README.fr.md) • 
+
+[🇮🇹 Italiano](docs/README.it.md) • 
+
+[🇯🇵 日本語](docs/README.ja.md)
+
+</div>
+
 A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
 
 Create custom animated backgrounds, metric overlays, text layers, divider lines, and fully personalized layouts — all synchronized live inside NZXT CAM.

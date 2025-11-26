@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>NZXT-ESC Documentation</title>
+<script>
+  // Language mapping
+  const map = {
+    "tr": "README.tr.md",
+    "de": "README.de.md",
+    "es": "README.es.md",
+    "pt": "README.pt-BR.md",
+    "pt-BR": "README.pt-BR.md",
+    "fr": "README.fr.md",
+    "it": "README.it.md",
+    "ja": "README.ja.md",
+    "jp": "README.ja.md"
+  };
+
+  // Detect browser language
+  const lang = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+
+  // Select best match
+  let target = "README.md"; // fallback = English
+  if (map[lang]) target = map[lang];
+  else {
+    const base = lang.split("-")[0];
+    if (map[base]) target = map[base];
+  }
+
+  // Redirect
+  window.location.href = target;
+</script>
+</head>
+<body>
+  <h3>Redirecting to localized documentation...</h3>
+</body>
+</html>
+
