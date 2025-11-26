@@ -1,4 +1,4 @@
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.241
+# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.26
 
 A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
 
@@ -112,14 +112,21 @@ No external URL or config.html is required anymore.
 ---
 ### 💡 WHAT MAKES NZXT-ESC SPECIAL?
 
-NZXT-ESC is not a theme pack — it is a full visual layout editor built specifically for the Kraken Elite LCD.
+NZXT-ESC is not a theme pack — it is a **full, design-oriented layout editor** built specifically for the Kraken Elite LCD.
 
-It focuses on:
+It offers complete creative freedom far beyond what NZXT CAM supports natively.
 
-- Creative freedom
-- Precision positioning
-- Real-time LCD feedback
-- A clean and intuitive editing experience
+NZXT CAM **does not** allow:
+- Free element positioning  
+- Element scaling or rotation  
+- Custom text overlays  
+- Transparent colors  
+- MP4 backgrounds  
+- YouTube backgrounds  
+- Pinterest URLs  
+- Mixed media + overlay combinations  
+
+NZXT-ESC **enables all of these**.
 
 #### 1. DESIGN-ORIENTED EDITING EXPERIENCE
 
@@ -160,17 +167,34 @@ Quickly apply pre-configured layouts using the template picker modal. Choose fro
 
 #### 4. ADVANCED MEDIA ENGINE
 
-Supports:
+The media engine supports:
 
-- MP4 video
+- MP4 video (full playback in LCD)
 - GIF animations
-- PNG and JPG images
+- PNG / JPG images
+- **Pinterest URLs → auto-resolved to direct media**
+- **YouTube URLs (LCD playback)**
 
-Includes:
+**YouTube Integration Highlights:**
 
-- Cover / Contain / Fill modes
-- Scaling
-- Offset controls
+- YouTube videos **play on the actual LCD** (autoplay/mute/loop supported)
+- The editor’s Preview cannot play YouTube videos due to embedded-player restrictions  
+- Instead, a **red draggable placeholder** is shown  
+- Users can:
+  - Position the YouTube video  
+  - Scale the video  
+  - Apply align/fit settings  
+  - Place any overlay elements on top  
+- The LCD always reflects the final result in real-time  
+- All standard background tools work with YouTube seamlessly
+
+Fit modes:
+
+- **Cover** — fill entire display  
+- **Contain** — maintain full aspect ratio  
+- **Fill** — stretch to fit (optional)  
+
+This makes NZXT-ESC the first full YouTube-capable LCD editor for NZXT CAM.
 
 #### 5. PRESET SYSTEM (EARLY ACCESS)
 
@@ -268,6 +292,13 @@ npm run preview
 
 ---
 ### 🕛 VERSION HISTORY
+
+#### 5.11.26 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
+(SECTION KEPT — now extended slightly with YouTube note)
+
+**Additional Note:**  
+- Introduced **YouTube background support** (LCD playback) with full positioning/scale alignment using the new placeholder-based Preview system.  
+- Unified transform math ensures proportional Preview ↔ LCD alignment.
 
 #### 5.11.241 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
 
