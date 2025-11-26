@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
 import BackgroundMediaRenderer from './BackgroundMediaRenderer';
+import { t, getInitialLang, type Lang } from '../../../i18n';
 
 interface BackgroundPreviewProps {
   mediaUrl: string | null;
@@ -15,6 +16,8 @@ interface BackgroundPreviewProps {
   onScaleChange: (delta: number) => void;
   previewTitle: string;
   offsetScale: number; // For YouTube Preview coordinate conversion
+  isLocalLoading?: boolean;
+  isLocalMissing?: boolean;
 }
 
 /**
@@ -33,7 +36,10 @@ export default function BackgroundPreview({
   onScaleChange,
   previewTitle,
   offsetScale,
+  isLocalLoading = false,
+  isLocalMissing = false,
 }: BackgroundPreviewProps) {
+  const [lang] = useState<Lang>(getInitialLang());
   const [showScaleLabel, setShowScaleLabel] = useState(false);
   const [showOffsetLabel, setShowOffsetLabel] = useState(false);
 
@@ -80,6 +86,22 @@ export default function BackgroundPreview({
           objectPosition={objectPosition}
           offsetScale={offsetScale}
         />
+
+        {/* Local media loading / missing overlays */}
+        {isLocalLoading && (
+          <div className="local-media-overlay">
+            <div className="local-media-overlay-content">
+              {t('localMediaLoading', lang)}
+            </div>
+          </div>
+        )}
+        {isLocalMissing && !isLocalLoading && (
+          <div className="local-media-overlay">
+            <div className="local-media-overlay-content">
+              {t('localMediaNotFound', lang)}
+            </div>
+          </div>
+        )}
 
         {/* Overlay guide - only for alignment reference */}
         {settings.showGuide && (

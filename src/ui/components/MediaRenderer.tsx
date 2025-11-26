@@ -6,12 +6,23 @@ import { getLCDDimensions } from '../../environment';
 import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
+import type { LocalMediaKind } from '../../hooks/useLocalMedia';
 
 interface MediaRendererProps {
   url: string;
   settings: AppSettings;
   className?: string;
   style?: CSSProperties;
+  /**
+   * Optional source type hint for local media.
+   * When sourceType === 'local' and localKind === 'video', the renderer will
+   * treat the media as a video even if the URL is a blob: URL without an
+   * extension (so isVideoUrl() cannot detect it).
+   *
+   * Remote / YouTube / Pinterest behavior remains URL-based and unchanged.
+   */
+  sourceType?: AppSettings['sourceType'];
+  localKind?: LocalMediaKind | null;
 }
 
 /**
@@ -24,9 +35,12 @@ export default function MediaRenderer({
   settings,
   className,
   style,
+  sourceType,
+  localKind,
 }: MediaRendererProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const isVideo = isVideoUrl(url);
+  const isLocalVideo = sourceType === 'local' && localKind === 'video';
+  const isVideo = isLocalVideo || isVideoUrl(url);
   const objectPosition = getObjectPosition(settings.align, settings.x, settings.y);
 
   const mediaStyle: CSSProperties = {

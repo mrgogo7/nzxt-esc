@@ -21,6 +21,7 @@ import {
 } from '../../../preset/storage';
 import { isFavorite } from '../../../preset/storage';
 import { loadPreset } from '@/state/overlayRuntime';
+import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../../preset/utils/mediaSource';
 
 export interface PresetManagerButtonProps {
   lang: Lang;
@@ -99,6 +100,33 @@ export default function PresetManagerButton({
     // Step 3 & 4: Wait 100ms then load settings and media URL
     // This ensures loadPreset completes and runtime is updated before settings change
     setTimeout(() => {
+      // Derive effective background source (v2)
+      const bg: any = preset.preset.background;
+      const rawSource = bg?.source;
+      const sanitizedSource =
+        rawSource !== undefined
+          ? sanitizeBackgroundSource(
+              rawSource,
+              'PresetManagerButton(background.source)'
+            )
+          : null;
+      const effectiveSource =
+        sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
+
+      let mediaUrl: string;
+      let sourceType: AppSettings['sourceType'];
+      let localFileName: AppSettings['localFileName'];
+
+      if (effectiveSource.type === 'local') {
+        mediaUrl = '';
+        sourceType = 'local';
+        localFileName = effectiveSource.localFileName;
+      } else {
+        mediaUrl = (bg?.url as string) || '';
+        sourceType = 'remote';
+        localFileName = undefined;
+      }
+
       // Step 3: Load global config from preset
       setSettings({
         ...preset.preset.background.settings,
@@ -107,10 +135,12 @@ export default function PresetManagerButton({
           elements: [], // ALWAYS empty - elements are in runtime state, not in preset files
         },
         showGuide: preset.preset.misc?.showGuide,
+        sourceType,
+        localFileName,
       });
 
       // Step 4: Load media URL from preset
-      setMediaUrl(preset.preset.background.url);
+      setMediaUrl(mediaUrl);
     }, 100);
 
     // Don't close dropdown - let user select multiple presets or close by clicking outside

@@ -24,6 +24,7 @@ import {
   createPresetError 
 } from './errors';
 import { ensureOverlayFormat } from '../utils/overlayMigration';
+import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from './utils/mediaSource';
 
 /**
  * Complete import result structure.
@@ -166,6 +167,38 @@ export async function importPresetPipeline(
 
     // Step 6: Convert to app settings
     const overlay = ensureOverlayFormat(normalized.overlay);
+
+    // Derive effective background source (v2)
+    const rawSource = (normalized.background as any).source;
+    const sanitizedSource =
+      rawSource !== undefined
+        ? sanitizeBackgroundSource(
+            rawSource,
+            'importPresetPipeline(normalized.background.source)'
+          )
+        : null;
+
+    const effectiveSource =
+      sanitizedSource ?? deriveBackgroundSourceFromUrl(normalized.background.url);
+
+    // Map background.source → AppSettings + mediaUrl
+    let mediaUrl: string;
+    let sourceType: AppSettings['sourceType'];
+    let localFileName: AppSettings['localFileName'];
+
+    if (effectiveSource.type === 'local') {
+      // Local media: runtime will use local layer, mediaUrl must be empty string
+      mediaUrl = '';
+      sourceType = 'local';
+      localFileName = effectiveSource.localFileName;
+    } else {
+      // Remote / YouTube / Pinterest → runtime sees them all as "remote"
+      mediaUrl = typeof normalized.background.url === 'string'
+        ? normalized.background.url
+        : '';
+      sourceType = 'remote';
+      localFileName = undefined;
+    }
     
     const settings: Partial<AppSettings> = {
       scale: normalized.background.settings.scale,
@@ -180,6 +213,8 @@ export async function importPresetPipeline(
       backgroundColor: normalized.background.settings.backgroundColor,
       overlay,
       showGuide: normalized.misc?.showGuide,
+      sourceType,
+      localFileName,
     };
 
     // Step 7: Build result
@@ -187,7 +222,7 @@ export async function importPresetPipeline(
       success: true,
       preset: normalized,
       settings,
-      mediaUrl: normalized.background.url,
+      mediaUrl,
       validation,
       normalization,
     };

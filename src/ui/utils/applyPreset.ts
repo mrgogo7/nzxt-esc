@@ -18,6 +18,7 @@
 import { loadPreset } from '@/state/overlayRuntime';
 import type { StoredPreset } from '../../preset/storage';
 import type { AppSettings } from '../../constants/defaults';
+import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../preset/utils/mediaSource';
 
 export interface ApplyPresetOptions {
   autosaveDelayMs?: number;
@@ -50,6 +51,34 @@ export function applyPresetToRuntimeAndSettings(
   
   // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)
   setTimeout(() => {
+    // Derive effective background source (v2)
+    const bg: any = preset.preset.background;
+    const rawSource = bg?.source;
+    const sanitizedSource =
+      rawSource !== undefined
+        ? sanitizeBackgroundSource(
+            rawSource,
+            'applyPresetToRuntimeAndSettings(background.source)'
+          )
+        : null;
+    const effectiveSource =
+      sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
+
+    // Map background source → AppSettings + mediaUrl
+    let mediaUrl: string;
+    let sourceType: AppSettings['sourceType'];
+    let localFileName: AppSettings['localFileName'];
+
+    if (effectiveSource.type === 'local') {
+      mediaUrl = '';
+      sourceType = 'local';
+      localFileName = effectiveSource.localFileName;
+    } else {
+      mediaUrl = (bg?.url as string) || '';
+      sourceType = 'remote';
+      localFileName = undefined;
+    }
+
     // Step 4: Load settings from preset (background settings, overlay mode, etc.)
     // CRITICAL: settings.overlay should ONLY contain mode, NEVER elements
     const overlayModeFromPreset = preset.preset.overlay?.mode;
@@ -62,6 +91,8 @@ export function applyPresetToRuntimeAndSettings(
         elements: [], // CRITICAL: Always empty - elements are in runtime state only
       },
       showGuide: preset.preset.misc?.showGuide,
+      sourceType,
+      localFileName,
     });
     
     if (isDebug) {
@@ -69,7 +100,7 @@ export function applyPresetToRuntimeAndSettings(
     }
     
     // Step 5: Load media URL from preset
-    setMediaUrl(preset.preset.background.url || '');
+    setMediaUrl(mediaUrl);
     
     if (isDebug) {
       console.log(`[applyPresetToRuntimeAndSettings] Step 5: Applied media URL for preset ${preset.id}`);

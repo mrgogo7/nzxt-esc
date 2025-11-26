@@ -13,6 +13,7 @@ import type { Lang } from '../i18n';
 import { CURRENT_SCHEMA_VERSION } from './constants';
 import { importPresetPipeline, type ImportResult } from './importPipeline';
 import type { AppSettings } from '../constants/defaults';
+import { deriveBackgroundSourceFromUrl } from './utils/mediaSource';
 
 // Re-export types and functions for convenience
 export type { ImportResult } from './importPipeline';
@@ -55,13 +56,48 @@ export function createPresetFromState(
   // settings.overlay.elements should always be empty/undefined
   const elements = Array.isArray(overlayElements) ? overlayElements : [];
 
+  // Determine background.source model (v2)
+  const isLocalSource =
+    settings.sourceType === 'local' && typeof settings.localFileName === 'string';
+
+  let backgroundUrl: string;
+  let backgroundSource:
+    | { type: 'local'; localFileName: string }
+    | ReturnType<typeof deriveBackgroundSourceFromUrl>;
+  let usesLocalMedia = false;
+
+  if (isLocalSource) {
+    // Local media: metadata only, no URL in preset
+    backgroundUrl = '';
+    backgroundSource = {
+      type: 'local',
+      localFileName: settings.localFileName as string,
+    };
+    usesLocalMedia = true;
+  } else {
+    // Remote / YouTube / Pinterest / no-media (empty string)
+    backgroundUrl = mediaUrl;
+    backgroundSource = deriveBackgroundSourceFromUrl(mediaUrl);
+  }
+
+  const misc: PresetFile['misc'] = {};
+  if (settings.showGuide !== undefined) {
+    misc.showGuide = settings.showGuide;
+  }
+  if (usesLocalMedia) {
+    misc.localMediaWarning =
+      'This preset uses a local media file. The media itself is not included in this export.'; // NOTE: This is metadata-only, not shown to user, kept in English for consistency
+  }
+
+  const miscOrUndefined = Object.keys(misc).length > 0 ? misc : undefined;
+
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     exportedAt: now,
     appVersion,
     presetName,
     background: {
-      url: mediaUrl,
+      url: backgroundUrl,
       settings: {
         scale: settings.scale,
         x: settings.x,
@@ -74,12 +110,13 @@ export function createPresetFromState(
         resolution: settings.resolution,
         backgroundColor: settings.backgroundColor || '#000000',
       },
+      source: backgroundSource,
     },
     overlay: {
       mode: settings.overlay?.mode || 'none',
       elements: elements, // FAZ 9: Always use provided elements, never from settings
     },
-    misc: settings.showGuide !== undefined ? { showGuide: settings.showGuide } : undefined,
+    misc: miscOrUndefined,
   };
 }
 
@@ -179,7 +216,8 @@ export async function importPresetLegacy(
 ): Promise<{ preset: PresetFile; settings: Partial<AppSettings>; mediaUrl: string }> {
   const result = await importPresetPipeline(file, 'en');
   
-  if (!result.success || !result.preset || !result.settings || !result.mediaUrl) {
+  // NOTE: mediaUrl can be an empty string ('') for local/no-media presets.
+  if (!result.success || !result.preset || !result.settings || typeof result.mediaUrl !== 'string') {
     const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || 'Import failed';
     throw new Error(errorMessage);
   }

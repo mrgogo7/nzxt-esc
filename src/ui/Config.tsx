@@ -8,7 +8,7 @@ import { useConfig } from '../hooks/useConfig';
 import { useOverlayConfig } from '../hooks/useOverlayConfig';
 import { useAtomicPresetSync } from '../hooks/useAtomicPresetSync';
 import ColorPicker from './components/ColorPicker';
-import { X, Loader2, Check } from 'lucide-react';
+import { X, Loader2, Check, FolderOpen } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import { motion } from 'framer-motion';
 import 'react-tooltip/dist/react-tooltip.css';
@@ -17,8 +17,10 @@ import { normalizePinterestUrl, fetchPinterestMedia } from '../utils/pinterest';
 import PresetManager from './components/PresetManager/PresetManager';
 import PresetManagerButton from './components/PresetManager/PresetManagerButton';
 import ResetConfirmModal from './components/modals/ResetConfirmModal';
+import LocalMediaModal from './components/modals/LocalMediaModal';
 // YouTubeWarningModal removed - YouTube is now supported
 import { getMediaType } from '../utils/media';
+import { saveLocalMedia, deleteLocalMedia } from '../storage/localMedia';
 import { 
   ensureInitialActivePreset, 
   getActivePresetId, 
@@ -132,6 +134,7 @@ export default function Config() {
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);
   const [isPresetManagerOpen, setIsPresetManagerOpen] = useState(false);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isLocalMediaModalOpen, setIsLocalMediaModalOpen] = useState(false);
   // isYouTubeWarningOpen removed - YouTube is now supported
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [autosaveState, setAutosaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -139,9 +142,18 @@ export default function Config() {
   const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // Sync urlInput with mediaUrl changes
+  // CRITICAL: Preserve "Local: filename" display when in local mode
   useEffect(() => {
+    // In local mode, urlInput must always show "Local: filename" (i18n)
+    if (settings.sourceType === 'local' && settings.localFileName) {
+      const prefix = t('localFileIndicator', lang).replace('{fileName}', settings.localFileName);
+      setUrlInput(prefix);
+      return; // Do not fall through to remote sync
+    }
+
+    // Remote mode / no local media: sync with mediaUrl
     setUrlInput(mediaUrl);
-  }, [mediaUrl]);
+  }, [mediaUrl, settings.sourceType, settings.localFileName, lang]);
 
   // Close context menu when clicking outside
   useEffect(() => {
@@ -249,14 +261,77 @@ export default function Config() {
     return /\.(mp4|webm|jpg|jpeg|png|gif|webp)($|\?)/i.test(trimmed);
   };
 
+  /**
+   * Validates if URL is a valid remote media URL.
+   * Only accepts: jpg/jpeg/png/gif/mp4, YouTube, Pinterest.
+   * Rejects: .webp, streaming URLs, and other formats.
+   */
+  const isValidRemoteMediaUrl = (url: string): boolean => {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim();
+    if (!trimmed) return false;
+
+    // Check for direct media URLs (jpg, jpeg, png, gif, mp4 only - NO webp)
+    const isDirectMedia = /\.(jpg|jpeg|png|gif|mp4)($|\?)/i.test(trimmed);
+    if (isDirectMedia) return true;
+
+    // Check for YouTube URLs
+    if (getMediaType(trimmed) === 'youtube') return true;
+
+    // Check for Pinterest URLs
+    if (normalizePinterestUrl(trimmed)) return true;
+
+    return false;
+  };
+
   // Note: isYouTubeUrl function removed - now using isYouTubeUrl from utils/youtube.ts via getMediaType
 
   const handleSave = async () => {
     const trimmedUrl = urlInput.trim();
     
+    // CRITICAL: Guard against saving when in local mode with "Local:" prefix
+    // When sourceType === 'local', urlInput shows "Local: filename" or "Yerel: filename" for user visibility
+    // We must not interpret this as a remote URL and switch modes
+    if (settings.sourceType === 'local') {
+      // Check if input starts with localized "Local:" prefix (en: "Local:", tr: "Yerel:")
+      const localPrefix = t('localFileIndicator', lang).split('{fileName}')[0].trim();
+      if (trimmedUrl.startsWith(localPrefix)) {
+        // User is in local mode - Save button should not do anything
+        // URL input shows "Local: filename" as read-only indicator
+        return;
+      }
+
+      // Local mode but user typed a URL → validate and switch to remote mode
+      if (isValidRemoteMediaUrl(trimmedUrl)) {
+        // Delete IndexedDB local media record
+        const presetId = settings.localMediaId || activePresetId || getActivePresetId();
+        if (presetId) {
+          deleteLocalMedia(presetId).catch((err) => {
+            console.error('[Config] Failed to delete local media during remote switch:', err);
+          });
+        }
+
+        // Reset settings to remote mode (transform will be reset in remote URL processing below)
+        setSettings({
+          ...settings,
+          sourceType: 'remote',
+          localFileName: undefined,
+          localMediaId: undefined,
+        });
+
+        // Continue with remote URL processing below (will set mediaUrl and transform settings)
+        // Fall through to normal remote URL handling
+      } else {
+        // Invalid URL in local mode - do nothing
+        return;
+      }
+    }
+    
     // If empty, clear and return (no reset needed for empty URL)
     if (!trimmedUrl) {
+      // Empty URL input always means "no remote media"
       setMediaUrl('');
+      // Do not touch local mode here; Update button is remote-only
       return;
     }
 
@@ -267,6 +342,9 @@ export default function Config() {
       const mediaType = getMediaType(trimmedUrl);
       setSettings({
         ...settings,
+        sourceType: 'remote',
+        localFileName: undefined,
+        localMediaId: undefined,
         scale: 1,
         x: 0,
         y: 0,
@@ -304,6 +382,9 @@ export default function Config() {
           const mediaType = getMediaType(resolvedUrl);
           setSettings({
             ...settings,
+            sourceType: 'remote',
+            localFileName: undefined,
+            localMediaId: undefined,
             scale: 1,
             x: 0,
             y: 0,
@@ -334,6 +415,9 @@ export default function Config() {
       const mediaType = getMediaType(trimmedUrl);
       setSettings({
         ...settings,
+        sourceType: 'remote',
+        localFileName: undefined,
+        localMediaId: undefined,
         scale: 1,
         x: 0,
         y: 0,
@@ -344,9 +428,29 @@ export default function Config() {
   };
 
   const handleClear = () => {
-    // Clear media URL
-    setMediaUrl('');
-    setUrlInput('');
+    // Local mode: delete local media record and reset to remote/empty
+    if (settings.sourceType === 'local') {
+      const presetId = settings.localMediaId || activePresetId || getActivePresetId();
+      if (presetId) {
+        // Fire and forget deletion; errors will surface via local media hook if needed
+        deleteLocalMedia(presetId).catch((err) => {
+          console.error('[Config] Failed to delete local media:', err);
+        });
+      }
+
+      setSettings({
+        ...settings,
+        sourceType: 'remote',
+        localFileName: undefined,
+        localMediaId: undefined,
+      });
+      setMediaUrl('');
+      setUrlInput('');
+    } else {
+      // Remote mode: keep existing behavior
+      setMediaUrl('');
+      setUrlInput('');
+    }
     setIsResolving(false);
     setResolveMessage(null);
   };
@@ -383,6 +487,28 @@ export default function Config() {
       backgroundColor: '#000000',
       overlay: { mode: 'none', elements: [] },
     });
+  };
+
+  const handleLocalMediaSelect = async (file: File) => {
+    const presetId = activePresetId || getActivePresetId();
+    if (!presetId) {
+      throw new Error('No active preset available for local media.');
+    }
+
+    // Save binary to IndexedDB (silent overwrite)
+    await saveLocalMedia(file, presetId);
+
+    // Switch to local source mode and clear remote URL
+    setSettings({
+      ...settings,
+      sourceType: 'local',
+      localFileName: file.name,
+      localMediaId: presetId,
+    });
+    setMediaUrl('');
+    // Show file name in input for user visibility (read-only indicator) with i18n
+    const indicatorText = t('localFileIndicator', lang).replace('{fileName}', file.name);
+    setUrlInput(indicatorText);
   };
 
   const handleContextMenu = (e: React.MouseEvent<HTMLInputElement>) => {
@@ -812,6 +938,22 @@ export default function Config() {
               </div>
             )}
           </div>
+          <motion.button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsLocalMediaModalOpen(true);
+            }}
+            className="preset-modal-button preset-modal-button-secondary"
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            <FolderOpen size={16} />
+            {t('browse', lang)}
+          </motion.button>
           <motion.button 
             onClick={handleSave} 
             className="save-btn"
@@ -869,6 +1011,13 @@ export default function Config() {
           const preset = getPresetById(activePresetId);
           return preset?.name || 'Default';
         })()}
+        lang={lang}
+      />
+
+      <LocalMediaModal
+        isOpen={isLocalMediaModalOpen}
+        onClose={() => setIsLocalMediaModalOpen(false)}
+        onSelectFile={handleLocalMediaSelect}
         lang={lang}
       />
 

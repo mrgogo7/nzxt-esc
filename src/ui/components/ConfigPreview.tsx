@@ -11,6 +11,7 @@ import { useSettingsSync } from '../../hooks/useSettingsSync';
 import { useDragHandlers } from '../../hooks/useDragHandlers';
 import { useResizeHandlers } from '../../hooks/useResizeHandlers';
 import { useRotationHandlers } from '../../hooks/useRotationHandlers';
+import { useLocalMedia } from '../../hooks/useLocalMedia';
 import type { Overlay } from '../../types/overlay';
 import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
 import { MoveCommand } from '../../transform/history/commands/MoveCommand';
@@ -44,6 +45,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const [lang, setLang] = useState<Lang>(getInitialLang());
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
+  const localMedia = useLocalMedia({ settings, activePresetId });
   
   // Local state for overlay preview background controls (not persisted)
   const [showBackgroundInOverlayPreview, setShowBackgroundInOverlayPreview] = useState(false);
@@ -256,8 +258,17 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedElementId, activePresetId]);
 
-  // Video detection
-  const isVideo = isVideoUrl(mediaUrl);
+  // Effective media URL: prefer local blob when in local mode
+  const effectiveMediaUrl =
+    settings.sourceType === 'local' && localMedia.blobUrl
+      ? localMedia.blobUrl
+      : mediaUrl;
+
+  // Video detection: local mode uses MIME kind, remote uses URL-based detection
+  const isVideo =
+    settings.sourceType === 'local'
+      ? localMedia.kind === 'video'
+      : isVideoUrl(mediaUrl);
 
   // Background positioning - CRITICAL: offsetScale must be used
   const base = getBaseAlign(settings.align);
@@ -321,7 +332,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
         <div className="section-content">
           {/* Background Preview */}
           <BackgroundPreview
-            mediaUrl={mediaUrl}
+            mediaUrl={effectiveMediaUrl}
             settings={settings}
             isVideo={isVideo}
             objectPosition={objectPosition}
@@ -332,6 +343,8 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
             onScaleChange={adjustScale}
             previewTitle={t('previewTitle', lang)}
             offsetScale={offsetScale}
+            isLocalLoading={settings.sourceType === 'local' && localMedia.isLoading}
+            isLocalMissing={settings.sourceType === 'local' && localMedia.isMissing}
           />
 
           {/* Background Settings */}
@@ -370,7 +383,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
             lang={lang}
             t={t}
             settings={settings}
-            mediaUrl={mediaUrl}
+            mediaUrl={effectiveMediaUrl}
             isVideo={isVideo}
             objectPosition={objectPosition}
             showBackgroundInOverlayPreview={showBackgroundInOverlayPreview}

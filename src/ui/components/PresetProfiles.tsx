@@ -110,7 +110,8 @@ export default function PresetProfiles({
     try {
       const result = await importPreset(file, lang);
       
-      if (!result.success || !result.settings || !result.mediaUrl) {
+      // NOTE: mediaUrl can legitimately be an empty string ('') for local/no-media presets.
+      if (!result.success || !result.settings || typeof result.mediaUrl !== 'string') {
         const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || t('presetImportError', lang);
         throw new Error(errorMessage);
       }

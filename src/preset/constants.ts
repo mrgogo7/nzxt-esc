@@ -9,7 +9,7 @@
  * This is the version that all exported presets will use.
  * Increment this when making breaking changes to the preset format.
  */
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 
 /**
  * Minimum supported schema version.
@@ -24,7 +24,8 @@ export const MIN_SUPPORTED_VERSION = 0;
 export const SCHEMA_VERSION_HISTORY: Record<number, string> = {
   0: 'Initial version (no schemaVersion field) - Legacy format',
   1: 'Added presetName field, standardized structure',
-  // Future versions will be added here as they're introduced
+  2: 'Added background.source media source model (remote/youtube/pinterest/local)',
+  // Future versions will be added here as they are introduced
 };
 
 /**

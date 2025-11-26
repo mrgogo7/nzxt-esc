@@ -28,6 +28,7 @@ import PresetList from './PresetList';
 import ExportNameModal from './ExportNameModal';
 import ImportConflictModal from './ImportConflictModal';
 import { loadPreset } from '@/state/overlayRuntime';
+import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../../preset/utils/mediaSource';
 import './PresetManager.css';
 
 export interface PresetManagerProps {
@@ -113,6 +114,33 @@ export default function PresetManager({
     // Step 3 & 4: Wait 100ms then load settings and media URL
     // This ensures loadPreset completes and runtime is updated before settings change
     setTimeout(() => {
+      // Derive effective background source (v2)
+      const bg: any = preset.preset.background;
+      const rawSource = bg?.source;
+      const sanitizedSource =
+        rawSource !== undefined
+          ? sanitizeBackgroundSource(
+              rawSource,
+              'PresetManager(handleApply.background.source)'
+            )
+          : null;
+      const effectiveSource =
+        sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
+
+      let mediaUrl: string;
+      let sourceType: AppSettings['sourceType'];
+      let localFileName: AppSettings['localFileName'];
+
+      if (effectiveSource.type === 'local') {
+        mediaUrl = '';
+        sourceType = 'local';
+        localFileName = effectiveSource.localFileName;
+      } else {
+        mediaUrl = (bg?.url as string) || '';
+        sourceType = 'remote';
+        localFileName = undefined;
+      }
+
       // Step 3: Load global config from preset
       // FAZ 9: setSettings includes empty overlay.elements (elements are in runtime only)
       setSettings({
@@ -122,10 +150,12 @@ export default function PresetManager({
           elements: [], // CRITICAL: Always empty - elements are in runtime state only
         },
         showGuide: preset.preset.misc?.showGuide,
+        sourceType,
+        localFileName,
       });
 
       // Step 4: Load media URL from preset
-      setMediaUrl(preset.preset.background.url);
+      setMediaUrl(mediaUrl);
     }, 100);
 
     // Step 5: Re-enable autosave after 500ms (allows loadPreset + setSettings to complete)
@@ -222,9 +252,18 @@ export default function PresetManager({
       }
 
       // Check if we have required data
-      if (!result.preset || !result.settings || !result.mediaUrl) {
+      // NOTE: mediaUrl can be an empty string ('') for local/no-media presets.
+      if (!result.preset || !result.settings || typeof result.mediaUrl !== 'string') {
         alert(t('presetImportError', lang));
         return;
+      }
+
+      // Non-blocking warning for presets that use local media
+      const usesLocalMedia =
+        result.settings.sourceType === 'local' ||
+        (result.preset.background as any)?.source?.type === 'local';
+      if (usesLocalMedia) {
+        alert(t('localMediaImportWarning', lang));
       }
 
       const presetName = result.preset.presetName || `Preset ${new Date().toISOString().slice(0, 10)}`;

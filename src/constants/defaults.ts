@@ -20,6 +20,32 @@ export interface AppSettings {
   url?: string;
   // Optional: backgroundColor for color tab (solid color background)
   backgroundColor?: string;
+  /**
+   * Background media source type at runtime.
+   *
+   * NOTE:
+   * - This is intentionally coarse-grained: only 'remote' vs 'local'.
+   * - YouTube/Pinterest are represented in preset metadata via
+   *   background.source.type, not here.
+   */
+  sourceType?: 'remote' | 'local';
+  /**
+   * Local media file identifier (metadata only).
+   *
+   * - When sourceType === 'local', this may contain a file name or
+   *   user-defined identifier for the local file.
+   * - Binary data is NEVER stored here.
+   */
+  localFileName?: string;
+  /**
+   * Local media ID used for IndexedDB lookups.
+   *
+   * - Typically this will be set to the presetId so that each preset
+   *   owns at most one local media record.
+   * - This value is NOT exported into .nzxt-esc-preset files; it is
+   *   used only at runtime and in local storage.
+   */
+  localMediaId?: string;
 }
 
 /**

@@ -13,6 +13,7 @@ import type { Overlay } from '../types/overlay';
 import { DEFAULT_OVERLAY } from '../types/overlay';
 import { ensureOverlayFormat } from '../utils/overlayMigration';
 import { isLegacyOverlaySettings } from '../types/overlay';
+import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from './utils/mediaSource';
 
 /**
  * Migration function type.
@@ -27,9 +28,10 @@ export type MigrationFunction = (file: any) => PresetFile;
  */
 const MIGRATION_REGISTRY: Record<number, MigrationFunction> = {
   0: migrate0To1,
+  1: migrate1To2,
   // Future migrations:
-  // 1: migrate1To2,
   // 2: migrate2To3,
+  // 3: migrate3To4,
   // etc.
 };
 
@@ -217,6 +219,61 @@ function migrate0To1(file: any): PresetFile {
 
   // Merge unknown fields for forward compatibility
   return { ...result, ...unknownFields } as PresetFile;
+}
+
+/**
+ * Migrates from version 1 to version 2.
+ *
+ * Changes in v2:
+ * - Added background.source media source model (remote/youtube/pinterest/local)
+ *
+ * Rules:
+ * - background.url remains the primary URL field (string, may be empty).
+ * - background.source is always present after migration and derived from url
+ *   when missing or invalid:
+ *     - url === ''           → { type: 'remote',   url: '' }       (no media)
+ *     - YouTube URL          → { type: 'youtube',  url }
+ *     - Pinterest URL/CDN    → { type: 'pinterest',url }
+ *     - everything else      → { type: 'remote',   url }
+ *
+ * - If an existing background.source is present but invalid, it is ignored
+ *   (warning logged) and replaced by a derived source from url.
+ */
+function migrate1To2(file: PresetFile): PresetFile {
+  const result: PresetFile = {
+    ...file,
+    background: {
+      ...file.background,
+    },
+    schemaVersion: 2,
+  };
+
+  const bg = result.background as PresetFile['background'] & {
+    source?: any;
+  };
+
+  // Ensure url is a string; if not, coerce to empty string to avoid runtime issues.
+  const currentUrl =
+    typeof bg.url === 'string' ? bg.url : ('' as string);
+
+  // Sanitize existing source if present
+  let effectiveSource =
+    bg.source !== undefined
+      ? sanitizeBackgroundSource(
+          bg.source,
+          'migrate1To2(background.source)'
+        )
+      : null;
+
+  // If existing source is invalid or missing, derive from URL
+  if (!effectiveSource) {
+    effectiveSource = deriveBackgroundSourceFromUrl(currentUrl);
+  }
+
+  bg.url = currentUrl;
+  (bg as any).source = effectiveSource;
+
+  return result;
 }
 
 /**
