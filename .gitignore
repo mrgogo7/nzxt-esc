@@ -1,6 +1,7 @@
 node_modules
 dist
 backup
+.cursor
 
 # Development/Internal documentation files (not for public repo)
 CURSOR_RULESET_OPTIMIZED.md
