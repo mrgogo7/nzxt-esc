@@ -64,7 +64,6 @@ export default function OverlaySettingsComponent({
   
   // GLOBAL HARD LIMIT: Get total count from runtime overlay only (ARCHITECT MODE)
   // CRITICAL: Use activePresetId to get runtime count for the specific preset
-  const runtimeCount = getElementCountForPreset(activePresetId);
   const totalCount = getTotalElementCount(activePresetId);
 
   // State for Floating Add Menu

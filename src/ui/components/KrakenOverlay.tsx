@@ -1,11 +1,9 @@
-import { useEffect } from 'react';
 import { useConfig } from '../../hooks/useConfig';
 import { useMediaUrl } from '../../hooks/useMediaUrl';
 import { useMonitoring } from '../../hooks/useMonitoring';
 import { useOverlayConfig } from '../../hooks/useOverlayConfig';
 import { getActivePresetId } from '../../preset/storage';
 import { getLCDDimensions } from '../../environment';
-import { getElementsForPreset } from '../../state/overlayRuntime';
 import { useLocalMedia } from '../../hooks/useLocalMedia';
 import MediaRenderer from './MediaRenderer';
 import UnifiedOverlayRenderer from './UnifiedOverlayRenderer';
