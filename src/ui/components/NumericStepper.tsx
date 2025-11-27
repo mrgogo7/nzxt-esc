@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, KeyboardEvent } from 'react';
+import { useRef, useEffect, useState, useCallback, KeyboardEvent } from 'react';
 import { t, getInitialLang, type Lang } from '../../i18n';
 import '../styles/NumericStepper.css';
 
@@ -107,7 +107,7 @@ export default function NumericStepper({
     };
   }, [value, onChange, step, min, max, isIntegerField, disabled]);
 
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     if (disabled) return;
     const currentValue = typeof value === 'number' ? value : 0;
     const newValue = isIntegerField 
@@ -119,9 +119,9 @@ export default function NumericStepper({
     if (max !== undefined) constrainedValue = Math.min(constrainedValue, max);
     
     onChange(constrainedValue);
-  };
+  }, [disabled, value, isIntegerField, step, min, max, onChange]);
 
-  const handleIncrement = () => {
+  const handleIncrement = useCallback(() => {
     if (disabled) return;
     const currentValue = typeof value === 'number' ? value : 0;
     const newValue = isIntegerField 
@@ -133,7 +133,7 @@ export default function NumericStepper({
     if (max !== undefined) constrainedValue = Math.min(constrainedValue, max);
     
     onChange(constrainedValue);
-  };
+  }, [disabled, value, isIntegerField, step, min, max, onChange]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -208,6 +208,7 @@ export default function NumericStepper({
         onKeyDown={handleKeyDown}
         disabled={disabled}
         className="numeric-stepper-input"
+        aria-label={`Numeric input: ${value}`}
       />
       <button
         type="button"

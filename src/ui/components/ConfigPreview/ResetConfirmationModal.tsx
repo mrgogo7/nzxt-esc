@@ -4,7 +4,7 @@
  * Modal for confirming reset of all element values to defaults.
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
 import type { Lang } from '../../../i18n';
@@ -30,7 +30,12 @@ export default function ResetConfirmationModal({
   descriptionKey = 'resetElementsConfirm',
   confirmButtonKey = 'reset',
 }: ResetConfirmationModalProps) {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleConfirm = useCallback(() => {
+    onConfirm();
+    onClose();
+  }, [onConfirm, onClose]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Enter') {
@@ -38,12 +43,7 @@ export default function ResetConfirmationModal({
       e.preventDefault();
       handleConfirm();
     }
-  };
-
-  const handleConfirm = () => {
-    onConfirm();
-    onClose();
-  };
+  }, [onClose, handleConfirm]);
 
   return (
     <AnimatePresence>

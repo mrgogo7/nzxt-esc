@@ -6,7 +6,7 @@
 
 import { NZXT_DEFAULTS } from '../constants/nzxt';
 import type { OverlayElement } from '../types/overlay';
-import { isMetricElementData, isTextElementData, isDividerElementData } from '../types/overlay';
+import { calculateElementDimensions } from '../transform/engine/BoundingBox';
 
 /**
  * LCD circle radius in pixels (640px diameter = 320px radius).
@@ -21,25 +21,8 @@ export function getElementBounds(
   element: OverlayElement,
   _offsetScale: number
 ): { left: number; right: number; top: number; bottom: number; width: number; height: number } {
-  // Estimate element size based on type
-  let width = 100;
-  let height = 100;
-
-  if (element.type === 'metric' && isMetricElementData(element.data)) {
-    const numberSize = element.data.numberSize || 180;
-    width = numberSize * 1.5;
-    height = numberSize * 0.85;
-  } else if (element.type === 'text' && isTextElementData(element.data)) {
-    const textSize = element.data.textSize || 45;
-    const textLength = (element.data.text || '').length || 1;
-    width = Math.max(textSize * textLength * 0.6, textSize * 2);
-    height = textSize * 1.2;
-  } else if (element.type === 'divider' && isDividerElementData(element.data)) {
-    // Divider is a rectangle element
-    // width and height are already in LCD pixels
-    width = element.data.width || 2;
-    height = element.data.height || 384; // Default length (60% of 640px LCD)
-  }
+  // Use centralized dimension calculation from BoundingBox.ts
+  const { width, height } = calculateElementDimensions(element);
 
   // Element position is centered, so bounds are relative to center
   const halfWidth = width / 2;

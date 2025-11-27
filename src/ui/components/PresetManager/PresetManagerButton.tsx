@@ -8,7 +8,7 @@
  * - Glow animation on preset apply
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Check, ChevronDown } from 'lucide-react';
 import type { Lang } from '../../../i18n';
@@ -151,15 +151,15 @@ export default function PresetManagerButton({
     }, 500);
   };
 
-  const handleButtonClick = () => {
+  const handleButtonClick = useCallback(() => {
     setIsDropdownOpen(false);
     onOpenManager();
-  };
+  }, [onOpenManager]);
 
-  const handleChevronClick = (e: React.MouseEvent) => {
+  const handleChevronClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent button click
     setIsDropdownOpen(!isDropdownOpen);
-  };
+  }, [isDropdownOpen]);
 
   return (
     <div
