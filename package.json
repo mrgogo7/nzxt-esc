@@ -13,12 +13,27 @@
     "web-integration",
     "customization"
   ],
+
+  "homepage": "https://mrgogo7.github.io/nzxt-esc/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrgogo7/nzxt-esc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrgogo7/nzxt-esc/issues"
+  },
+  "author": {
+    "name": "Gökhan Akgül (mRGogo)",
+    "url": "https://github.com/mrgogo7"
+  },
+
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --port 5173",
     "type-check": "tsc --noEmit"
   },
+
   "dependencies": {
     "framer-motion": "^12.23.24",
     "react": "^18.3.1",
@@ -26,6 +41,7 @@
     "react-dom": "^18.3.1",
     "react-tooltip": "^5.30.0"
   },
+
   "devDependencies": {
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
