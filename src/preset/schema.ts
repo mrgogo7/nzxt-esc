@@ -94,10 +94,7 @@ export function isPresetFile(obj: unknown): obj is PresetFile {
   if (bg.source !== undefined) {
     // We NEVER reject a preset because of an invalid source.
     // Instead we sanitize it and, if invalid, warn and ignore.
-    const sanitized = sanitizeBackgroundSource(
-      bg.source as unknown,
-      'isPresetFile(background.source)'
-    );
+    const sanitized = sanitizeBackgroundSource(bg.source as unknown);
 
     if (!sanitized) {
       // Treat as if source does not exist

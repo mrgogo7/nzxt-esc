@@ -255,10 +255,7 @@ function migrate1To2(file: PresetFile): PresetFile {
   // Sanitize existing source if present
   let effectiveSource =
     bg.source !== undefined
-      ? sanitizeBackgroundSource(
-          bg.source,
-          'migrate1To2(background.source)'
-        )
+      ? sanitizeBackgroundSource(bg.source)
       : null;
 
   // If existing source is invalid or missing, derive from URL

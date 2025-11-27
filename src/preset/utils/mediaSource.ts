@@ -86,8 +86,7 @@ export function deriveBackgroundSourceFromUrl(rawUrl: unknown): BackgroundSource
  * - Does NOT throw; logs a warning for forward compatibility.
  */
 export function sanitizeBackgroundSource(
-  source: any,
-  context: string = 'PresetFile.background.source'
+  source: any
 ): BackgroundSource | null {
   if (!source || typeof source !== 'object') {
     return null;

@@ -100,10 +100,7 @@ export default function PresetManagerButton({
       const rawSource = bg?.source;
       const sanitizedSource =
         rawSource !== undefined
-          ? sanitizeBackgroundSource(
-              rawSource,
-              'PresetManagerButton(background.source)'
-            )
+          ? sanitizeBackgroundSource(rawSource)
           : null;
       const effectiveSource =
         sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);

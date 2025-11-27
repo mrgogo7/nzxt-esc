@@ -115,10 +115,7 @@ export default function PresetManager({
       const rawSource = bg?.source;
       const sanitizedSource =
         rawSource !== undefined
-          ? sanitizeBackgroundSource(
-              rawSource,
-              'PresetManager(handleApply.background.source)'
-            )
+          ? sanitizeBackgroundSource(rawSource)
           : null;
       const effectiveSource =
         sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);

@@ -172,10 +172,7 @@ export async function importPresetPipeline(
     const rawSource = (normalized.background as any).source;
     const sanitizedSource =
       rawSource !== undefined
-        ? sanitizeBackgroundSource(
-            rawSource,
-            'importPresetPipeline(normalized.background.source)'
-          )
+        ? sanitizeBackgroundSource(rawSource)
         : null;
 
     const effectiveSource =

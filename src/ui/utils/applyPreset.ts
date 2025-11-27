@@ -48,10 +48,7 @@ export function applyPresetToRuntimeAndSettings(
     const rawSource = bg?.source;
     const sanitizedSource =
       rawSource !== undefined
-        ? sanitizeBackgroundSource(
-            rawSource,
-            'applyPresetToRuntimeAndSettings(background.source)'
-          )
+        ? sanitizeBackgroundSource(rawSource)
         : null;
     const effectiveSource =
       sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
