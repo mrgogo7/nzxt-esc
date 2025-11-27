@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { isVideoUrl, getMediaType } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../utils/youtube';
@@ -7,6 +7,7 @@ import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
 import type { LocalMediaKind } from '../../hooks/useLocalMedia';
+import { t, getInitialLang, type Lang } from '../../i18n';
 
 interface MediaRendererProps {
   url: string;
@@ -39,6 +40,7 @@ export default function MediaRenderer({
   localKind,
 }: MediaRendererProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [lang] = useState<Lang>(getInitialLang());
   const isLocalVideo = sourceType === 'local' && localKind === 'video';
   const isVideo = isLocalVideo || isVideoUrl(url);
   const objectPosition = getObjectPosition(settings.align, settings.x, settings.y);
@@ -74,10 +76,9 @@ export default function MediaRenderer({
           
           // Attempt to play
           await video.play();
-        } catch (error) {
+        } catch {
           // Silently handle autoplay restrictions
           // The video will play when user interacts or when browser allows
-          console.debug('[MediaRenderer] Video play attempt failed:', error);
         }
       }
     };
@@ -187,7 +188,7 @@ export default function MediaRenderer({
   return (
     <img
       src={url}
-      alt="Media"
+      alt={t('mediaAltGeneric', lang)}
       className={className}
       style={mediaStyle}
     />

@@ -105,11 +105,7 @@ export default function PresetManager({
     // Step 2: Load overlay elements from preset into runtime Map
     // CRITICAL: This must happen BEFORE setSettings to ensure useOverlayConfig reads correct elements
     const presetElements = preset.preset.overlay?.elements;
-    const loadedCount = loadPreset(preset.id, presetElements);
-    
-    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-      console.log('[PresetManager] Preset switch:', preset.id, 'elements loaded:', loadedCount, 'media:', preset.preset.background.url);
-    }
+    loadPreset(preset.id, presetElements);
 
     // Step 3 & 4: Wait 100ms then load settings and media URL
     // This ensures loadPreset completes and runtime is updated before settings change
@@ -202,7 +198,6 @@ export default function PresetManager({
       addPreset(newPreset);
       loadPresets();
     } catch (error) {
-      console.error('[PresetManager] Export failed:', error);
       alert(t('presetExportError', lang));
     }
   };
@@ -270,8 +265,6 @@ export default function PresetManager({
       
       // Show warnings if any
       if (result.warnings && result.warnings.length > 0) {
-        const warningMessages = result.warnings.map(w => `${w.field}: ${w.message}`).join('\n');
-        console.warn('[PresetManager] Import warnings:', warningMessages);
         // Optionally show warnings to user (non-blocking)
         // Could show a toast or modal here
       }
@@ -304,7 +297,6 @@ export default function PresetManager({
         loadPresets();
       }
     } catch (error) {
-      console.error('[PresetManager] Import failed:', error);
       alert(error instanceof Error ? error.message : t('presetImportError', lang));
     } finally {
       if (fileInputRef.current) {

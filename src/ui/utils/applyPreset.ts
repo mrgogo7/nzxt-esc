@@ -31,23 +31,15 @@ export function applyPresetToRuntimeAndSettings(
   options: ApplyPresetOptions = {}
 ): void {
   const autosaveDelayMs = options.autosaveDelayMs ?? 700;
-  const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
   
   // Step 1: CRITICAL - Disable autosave FIRST
   if (typeof window !== 'undefined') {
     window.__disableAutosave = true;
-    if (isDebug) {
-      console.log(`[applyPresetToRuntimeAndSettings] Step 1: __disableAutosave = true for preset ${preset.id}`);
-    }
   }
   
   // Step 2: Load overlay elements from preset into runtime
   const presetElements = preset.preset.overlay?.elements ?? [];
   loadPreset(preset.id, presetElements);
-  
-  if (isDebug) {
-    console.log(`[applyPresetToRuntimeAndSettings] Step 2: Loaded ${presetElements.length} elements for preset ${preset.id}`);
-  }
   
   // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)
   setTimeout(() => {
@@ -95,24 +87,13 @@ export function applyPresetToRuntimeAndSettings(
       localFileName,
     });
     
-    if (isDebug) {
-      console.log(`[applyPresetToRuntimeAndSettings] Step 4: Applied settings for preset ${preset.id}`);
-    }
-    
     // Step 5: Load media URL from preset
     setMediaUrl(mediaUrl);
-    
-    if (isDebug) {
-      console.log(`[applyPresetToRuntimeAndSettings] Step 5: Applied media URL for preset ${preset.id}`);
-    }
     
     // Step 6: WAIT autosaveDelayMs (700ms) before re-enabling autosave
     setTimeout(() => {
       if (typeof window !== 'undefined') {
         window.__disableAutosave = false;
-        if (isDebug) {
-          console.log(`[applyPresetToRuntimeAndSettings] Step 6: __disableAutosave = false after ${autosaveDelayMs}ms for preset ${preset.id}`);
-        }
       }
     }, autosaveDelayMs);
   }, 10); // 10ms micro delay

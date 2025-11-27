@@ -101,13 +101,7 @@ export function sanitizeBackgroundSource(
     type !== 'pinterest' &&
     type !== 'local'
   ) {
-    // Invalid type – warn and ignore source entirely
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[mediaSource] Invalid source.type "${String(
-        type
-      )}" in ${context} – ignoring background.source`
-    );
+    // Invalid type – ignore source entirely
     return null;
   }
 

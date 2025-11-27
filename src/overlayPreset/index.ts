@@ -33,15 +33,6 @@ export interface OverlayPresetImportResult {
 import { APP_VERSION } from '../version';
 
 /**
- * Gets current app version from single source of truth.
- * @deprecated Directly import APP_VERSION from '../version' instead.
- * This function is kept for backward compatibility but will be removed in future versions.
- */
-function getAppVersion(): string {
-  return APP_VERSION;
-}
-
-/**
  * Exports overlay elements to .nzxt-esc-overlay-preset file.
  * 
  * @param elements - Array of overlay elements to export
@@ -55,11 +46,8 @@ export async function exportOverlayPreset(
   filename?: string
 ): Promise<void> {
   try {
-    // Debug logging
-    console.log('[exportOverlayPreset] Starting export - presetName:', presetName, 'elements count:', elements.length);
-    
     const now = new Date().toISOString();
-    const appVersion = getAppVersion();
+    const appVersion = APP_VERSION;
     
     // Create overlay preset file structure
     const presetFile: OverlayPresetFile = {
@@ -107,12 +95,8 @@ export async function exportOverlayPreset(
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 1000); // 1 second delay is safe for most browsers
-    
-    console.log('[exportOverlayPreset] Export completed - filename:', `${finalFilename}.nzxt-esc-overlay-preset`);
   } catch (error) {
-    console.error('[OverlayPreset] Export error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[OverlayPreset] Export error details:', errorMessage);
     throw new Error(`Failed to export overlay preset file: ${errorMessage}`);
   }
 }
@@ -183,11 +167,8 @@ export async function importOverlayPreset(
     // (Runtime-level limit check happens in OverlaySettings.tsx)
     let finalElements = elements;
     if (finalElements.length > MAX_OVERLAY_ELEMENTS) {
-      console.warn(`[OverlayPreset] Import file contains ${finalElements.length} elements, truncating to ${MAX_OVERLAY_ELEMENTS} at file level`);
       finalElements = finalElements.slice(0, MAX_OVERLAY_ELEMENTS);
     }
-    
-    console.log('[importOverlayPreset] Imported elements:', finalElements.length);
     
     // Step 6: Return elements
     return {
@@ -197,7 +178,6 @@ export async function importOverlayPreset(
     };
     
   } catch (error) {
-    console.error('[OverlayPreset] Import error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred during import',

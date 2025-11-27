@@ -60,11 +60,6 @@ export default function Config() {
       const preset = getPresetById(currentId);
       if (preset) {
         // FAZ 8.1: Use helper function to apply preset (consolidates initial load and preset switch logic)
-        const presetElements = preset.preset.overlay?.elements;
-        if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-          console.log('[Config] F5 refresh - loading preset:', currentId, 'elements:', presetElements?.length || 0, 'media:', preset.preset.background.url);
-        }
-        
         applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
       } else {
         // No preset found, re-enable autosave immediately
@@ -86,11 +81,6 @@ export default function Config() {
         if (e.newValue) {
           const preset = getPresetById(e.newValue);
           if (preset) {
-            const presetElements = preset.preset.overlay?.elements;
-            if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-              console.log('[Config] Storage event - preset switch:', e.newValue, 'elements:', presetElements?.length || 0);
-            }
-            
             // Use helper function (700ms delay for preset switch)
             applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
           }
@@ -107,11 +97,6 @@ export default function Config() {
       if (newId) {
         const preset = getPresetById(newId);
         if (preset) {
-          const presetElements = preset.preset.overlay?.elements;
-          if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-            console.log('[Config] Custom event - preset switch:', newId, 'elements:', presetElements?.length || 0);
-          }
-          
           // Use helper function (700ms delay for preset switch)
           applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
         }
@@ -307,8 +292,8 @@ export default function Config() {
         // Delete IndexedDB local media record
         const presetId = settings.localMediaId || activePresetId || getActivePresetId();
         if (presetId) {
-          deleteLocalMedia(presetId).catch((err) => {
-            console.error('[Config] Failed to delete local media during remote switch:', err);
+          deleteLocalMedia(presetId).catch(() => {
+            // Silently handle deletion errors
           });
         }
 
@@ -406,7 +391,6 @@ export default function Config() {
         clearTimeout(timeoutId);
         setIsResolving(false);
         setResolveMessage(t('urlResolveError', lang));
-        console.error('[Config] Pinterest URL resolution error:', error);
         setTimeout(() => setResolveMessage(null), 5000);
       }
     } else {
@@ -434,8 +418,8 @@ export default function Config() {
       const presetId = settings.localMediaId || activePresetId || getActivePresetId();
       if (presetId) {
         // Fire and forget deletion; errors will surface via local media hook if needed
-        deleteLocalMedia(presetId).catch((err) => {
-          console.error('[Config] Failed to delete local media:', err);
+        deleteLocalMedia(presetId).catch(() => {
+          // Silently handle deletion errors
         });
       }
 
@@ -547,19 +531,16 @@ export default function Config() {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(textToCopy).then(() => {
             setContextMenu(null);
-          }).catch((err) => {
-            console.error('Clipboard API failed, trying fallback:', err);
+          }).catch(() => {
             // Fallback to execCommand
             try {
               const success = document.execCommand('copy');
               if (success) {
                 setContextMenu(null);
               } else {
-                console.error('execCommand copy failed');
                 setContextMenu(null);
               }
-            } catch (execErr) {
-              console.error('execCommand copy error:', execErr);
+            } catch {
               setContextMenu(null);
             }
           });
@@ -570,16 +551,13 @@ export default function Config() {
             if (success) {
               setContextMenu(null);
             } else {
-              console.error('execCommand copy failed');
               setContextMenu(null);
             }
-          } catch (execErr) {
-            console.error('execCommand copy error:', execErr);
+          } catch {
             setContextMenu(null);
           }
         }
-      } catch (err) {
-        console.error('Failed to copy:', err);
+      } catch {
         setContextMenu(null);
       }
     }
@@ -600,18 +578,12 @@ export default function Config() {
               urlInputRef.current?.setSelectionRange(text.length, text.length);
             }, 0);
             setContextMenu(null);
-          }).catch((err) => {
-            console.error('Clipboard API read failed, trying fallback:', err);
+          }).catch(() => {
             // Fallback: try execCommand paste
             try {
-              const success = document.execCommand('paste');
-              if (!success) {
-                // If execCommand fails, just keep focus for manual paste
-                console.log('execCommand paste not available, input focused for manual paste');
-              }
+              document.execCommand('paste');
               setContextMenu(null);
-            } catch (execErr) {
-              console.error('execCommand paste error:', execErr);
+            } catch {
               // Input is already focused, user can paste manually
               setContextMenu(null);
             }
@@ -619,20 +591,14 @@ export default function Config() {
         } else {
           // Fallback: try execCommand paste
           try {
-            const success = document.execCommand('paste');
-            if (!success) {
-              // If execCommand fails, just keep focus for manual paste
-              console.log('execCommand paste not available, input focused for manual paste');
-            }
+            document.execCommand('paste');
             setContextMenu(null);
-          } catch (execErr) {
-            console.error('execCommand paste error:', execErr);
+          } catch {
             // Input is already focused, user can paste manually
             setContextMenu(null);
           }
         }
-      } catch (err) {
-        console.error('Failed to paste:', err);
+      } catch {
         // Input is already focused, user can paste manually
         urlInputRef.current?.focus();
         setContextMenu(null);
@@ -667,14 +633,14 @@ export default function Config() {
                 value={lang}
                 onChange={handleLangChange}
               >
-                <option value="en">English</option>
-                <option value="tr">Türkçe</option>
-                <option value="es">Español</option>
-                <option value="de">Deutsch</option>
-                <option value="pt-BR">Português</option>
-                <option value="fr">Français</option>
-                <option value="it">Italiano</option>
-                <option value="ja">日本語</option>
+                <option value="en">{t('languageEnglish', lang)}</option>
+                <option value="tr">{t('languageTurkish', lang)}</option>
+                <option value="es">{t('languageSpanish', lang)}</option>
+                <option value="de">{t('languageGerman', lang)}</option>
+                <option value="pt-BR">{t('languagePortuguese', lang)}</option>
+                <option value="fr">{t('languageFrench', lang)}</option>
+                <option value="it">{t('languageItalian', lang)}</option>
+                <option value="ja">{t('languageJapanese', lang)}</option>
               </select>
             </div>
           </div>

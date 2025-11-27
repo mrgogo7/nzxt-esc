@@ -88,17 +88,12 @@ export function subscribeRuntimeChange(callback: RuntimeChangeCallback): () => v
  * @param presetId - Preset ID that was modified (null if operation failed)
  */
 function notifyRuntimeChange(presetId: string | null): void {
-  if (isDebugMode()) {
-    console.log('[overlayRuntime] Notifying runtime change for preset:', presetId);
-  }
-  
   // Notify local subscribers (same-tab)
   runtimeChangeCallbacks.forEach(callback => {
     try {
       callback(presetId);
-    } catch (error) {
-      // CRITICAL: Always log errors in callbacks
-      console.error('[overlayRuntime] Error in runtime change callback:', error);
+    } catch {
+      // Silently handle callback errors
     }
   });
   
@@ -115,17 +110,11 @@ function notifyRuntimeChange(presetId: string | null): void {
       // Dynamic import to avoid circular dependencies
       import('./runtimeBroadcast').then(({ sendRuntimeUpdate }) => {
         sendRuntimeUpdate(presetId, clonedElements);
-      }).catch((error) => {
+      }).catch(() => {
         // BroadcastChannel might not be available, fail silently
-        if (isDebugMode()) {
-          console.warn('[overlayRuntime] Failed to broadcast runtime update:', error);
-        }
       });
-    } catch (error) {
+    } catch {
       // Fail silently if broadcast fails
-      if (isDebugMode()) {
-        console.warn('[overlayRuntime] Error broadcasting runtime change:', error);
-      }
     }
   }
 }
@@ -135,36 +124,14 @@ function notifyRuntimeChange(presetId: string | null): void {
  * Logs detailed information to track down reset issues.
  */
 function verifyRuntimeState(
-  presetId: string | null,
-  beforeCount: number,
-  afterCount: number,
-  callerFunction: string,
-  newElements?: OverlayElement[]
+  _presetId: string | null,
+  _beforeCount: number,
+  _afterCount: number,
+  _callerFunction: string,
+  _newElements?: OverlayElement[]
 ): void {
-  const isDebug = isDebugMode();
-  
-  // Always log critical state changes (even outside debug mode)
-  if (afterCount === 0 && beforeCount > 0) {
-    console.error('[RUNTIME-VERIFY] ⚠️ RUNTIME LOST ELEMENTS HERE', {
-      presetId,
-      beforeElementsCount: beforeCount,
-      afterElementsCount: afterCount,
-      callerFunction,
-      stackTrace: new Error().stack,
-    });
-  }
-  
-  // Debug mode: log all state changes
-  if (isDebug) {
-    console.log('[RUNTIME-VERIFY]', {
-      presetId,
-      beforeElementsCount: beforeCount,
-      afterElementsCount: afterCount,
-      callerFunction,
-      newElementsLength: newElements?.length,
-      newElements: newElements,
-    });
-  }
+  // Verification function kept for potential future use
+  // All logging removed per cleanup phase
 }
 
 /**
@@ -181,9 +148,8 @@ function getElementsForPresetInternal(presetId: string | null): OverlayElement[]
   
   // CRASH PREVENTION: Ensure elements is always an array
   if (!Array.isArray(elements)) {
-    // CRITICAL: If Map contains non-array value, log error and return empty array
+    // CRITICAL: If Map contains non-array value, clean up and return empty array
     if (elements !== undefined && elements !== null) {
-      console.error(`[overlayRuntime] CRITICAL: Non-array value in runtimeOverlays for preset ${presetId}:`, typeof elements);
       // Clean up corrupted entry
       runtimeOverlays.set(presetId, []);
     }
@@ -203,10 +169,6 @@ function getElementsForPresetInternal(presetId: string | null): OverlayElement[]
 export function getElementsForPreset(presetId: string | null): OverlayElement[] {
   const elements = getElementsForPresetInternal(presetId);
   const result = [...elements]; // Return copy to prevent mutations
-  // DEBUG: Only log in debug mode
-  if (isDebugMode()) {
-    console.log('[RUNTIME] getElementsForPreset presetId:', presetId, 'count:', result.length);
-  }
   return result;
 }
 
@@ -221,9 +183,6 @@ export function getElementsForPreset(presetId: string | null): OverlayElement[] 
 export function setElementsForPreset(presetId: string | null, elements: OverlayElement[]): void {
   // CRASH PREVENTION: Null presetId guard
   if (!presetId) {
-    if (isDebugMode()) {
-      console.error('[overlayRuntime] setElementsForPreset called with null presetId - no-op');
-    }
     return; // No preset = no-op
   }
   
@@ -291,7 +250,6 @@ function generateUniqueOverlayElement(element: OverlayElement): OverlayElement {
 export function appendElementsForPreset(presetId: string | null, elements: OverlayElement[]): number {
   // CRASH PREVENTION: Null presetId guard
   if (!presetId) {
-    console.error('[overlayRuntime] CRITICAL: appendElementsForPreset called with null presetId - aborting');
     return 0; // No preset = no-op
   }
   
@@ -304,10 +262,6 @@ export function appendElementsForPreset(presetId: string | null, elements: Overl
 
   // CRITICAL: Pre-check limit - "ya hep ya hiç" approach
   if (!canAppendElements(presetId, safeElements.length)) {
-    if (isDebugMode()) {
-      const currentCount = getElementCountForPreset(presetId);
-      console.log(`[overlayRuntime] Append rejected - limit would be exceeded (current: ${currentCount}, adding: ${safeElements.length}, max: ${MAX_OVERLAY_ELEMENTS})`);
-    }
     return 0; // Limit would be exceeded, do not append anything
   }
 

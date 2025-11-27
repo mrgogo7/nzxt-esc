@@ -86,7 +86,6 @@ export default function PresetProfiles({
       await exportPreset(settings, mediaUrl, presetName, undefined, activePresetId);
       // Export success (file download triggered automatically)
     } catch (error) {
-      console.error('[PresetProfiles] Export failed:', error);
       if (onImportComplete) {
         onImportComplete(false, t('presetExportError', lang));
       }
@@ -129,7 +128,6 @@ export default function PresetProfiles({
 
       onImportComplete?.(true, t('presetImportSuccess', lang));
     } catch (error) {
-      console.error('[PresetProfiles] Import failed:', error);
       const errorMessage = error instanceof Error ? error.message : t('presetImportError', lang);
       onImportComplete?.(false, errorMessage);
 

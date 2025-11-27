@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, KeyboardEvent } from 'react';
+import { t, getInitialLang, type Lang } from '../../i18n';
 import '../styles/NumericStepper.css';
 
 interface NumericStepperProps {
@@ -35,6 +36,7 @@ export default function NumericStepper({
   const inputRef = useRef<HTMLInputElement>(null);
   const [displayValue, setDisplayValue] = useState<string>(String(value ?? ''));
   const [isEditing, setIsEditing] = useState(false);
+  const [lang] = useState<Lang>(getInitialLang());
 
   // Determine if this is an integer field (step >= 1 or undefined)
   const isIntegerField = !step || step >= 1;
@@ -191,7 +193,7 @@ export default function NumericStepper({
         className="numeric-stepper-button numeric-stepper-button-minus"
         onClick={handleDecrement}
         disabled={disabled || (min !== undefined && value <= min)}
-        aria-label="Decrease value"
+        aria-label={t('numericStepperDecrease', lang)}
       >
         −
       </button>
@@ -212,7 +214,7 @@ export default function NumericStepper({
         className="numeric-stepper-button numeric-stepper-button-plus"
         onClick={handleIncrement}
         disabled={disabled || (max !== undefined && value >= max)}
-        aria-label="Increase value"
+        aria-label={t('numericStepperIncrease', lang)}
       >
         +
       </button>

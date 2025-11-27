@@ -37,13 +37,9 @@ function getBroadcastChannel(): BroadcastChannel | null {
       if (typeof BroadcastChannel !== 'undefined') {
         broadcastChannel = new BroadcastChannel('nzxtesc_overlay_runtime');
       } else {
-        if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-          console.warn('[runtimeBroadcast] BroadcastChannel not supported, cross-tab sync disabled');
-        }
         return null;
       }
-    } catch (error) {
-      console.error('[runtimeBroadcast] Failed to create BroadcastChannel:', error);
+    } catch {
       return null;
     }
   }
@@ -88,13 +84,8 @@ export function sendRuntimeUpdate(presetId: string, elements: OverlayElement[]):
     };
 
     channel.postMessage(message);
-
-    const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-    if (isDebug) {
-      console.log('[runtimeBroadcast] Sent runtime update - presetId:', presetId, 'elements:', clonedElements.length);
-    }
-  } catch (error) {
-    console.error('[runtimeBroadcast] Failed to send runtime update:', error);
+  } catch {
+    // Silently handle send errors
   }
 }
 
@@ -122,33 +113,18 @@ export function subscribeRuntimeUpdates(callback: RuntimeUpdateCallback): () => 
       
       // Validate message format
       if (message && message.type === 'runtime_update' && message.presetId && Array.isArray(message.elements)) {
-        const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-        if (isDebug) {
-          console.log('[runtimeBroadcast] Received runtime update - presetId:', message.presetId, 'elements:', message.elements.length);
-        }
-        
         callback(message.presetId, message.elements);
-      } else {
-        console.warn('[runtimeBroadcast] Invalid message format:', message);
       }
-    } catch (error) {
-      console.error('[runtimeBroadcast] Error handling message:', error);
+    } catch {
+      // Silently handle message errors
     }
   };
 
   channel.addEventListener('message', handleMessage);
 
-  const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-  if (isDebug) {
-    console.log('[runtimeBroadcast] Subscribed to runtime updates');
-  }
-
   // Return unsubscribe function
   return () => {
     channel.removeEventListener('message', handleMessage);
-    if (isDebug) {
-      console.log('[runtimeBroadcast] Unsubscribed from runtime updates');
-    }
   };
 }
 
@@ -161,13 +137,8 @@ export function closeBroadcastChannel(): void {
     try {
       broadcastChannel.close();
       broadcastChannel = null;
-      
-      const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-      if (isDebug) {
-        console.log('[runtimeBroadcast] Closed BroadcastChannel');
-      }
-    } catch (error) {
-      console.error('[runtimeBroadcast] Error closing channel:', error);
+    } catch {
+      // Silently handle close errors
     }
   }
 }

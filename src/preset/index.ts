@@ -24,15 +24,6 @@ export { ERROR_CODES, PresetError, getUserFriendlyErrorMessage } from './errors'
 import { APP_VERSION } from '../version';
 
 /**
- * Gets current app version from single source of truth.
- * @deprecated Directly import APP_VERSION from '../version' instead.
- * This function is kept for backward compatibility but will be removed in future versions.
- */
-function getAppVersion(): string {
-  return APP_VERSION;
-}
-
-/**
  * Creates a preset file from current application state.
  * 
  * FAZ 9: overlay.elements should NEVER come from settings - they come from runtime/storage.
@@ -50,7 +41,7 @@ export function createPresetFromState(
   overlayElements?: Array<any> // OverlayElement[] but avoiding circular import
 ): PresetFile {
   const now = new Date().toISOString();
-  const appVersion = getAppVersion();
+  const appVersion = APP_VERSION;
 
   // CRITICAL: overlay.elements should come from runtime/storage, NOT from settings
   // settings.overlay.elements should always be empty/undefined
@@ -150,12 +141,10 @@ export async function exportPreset(
       
       if (storedPreset?.preset?.overlay?.elements) {
         overlayElements = storedPreset.preset.overlay.elements;
-        console.log(`[exportPreset] Read ${overlayElements.length} elements from storage for preset ${activePresetId}`);
       } else {
         // Fallback to runtime
         const { getElementsForPreset } = await import('../state/overlayRuntime');
         overlayElements = getElementsForPreset(activePresetId);
-        console.log(`[exportPreset] Read ${overlayElements.length} elements from runtime for preset ${activePresetId}`);
       }
     }
     
@@ -179,7 +168,6 @@ export async function exportPreset(
     // Clean up
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('[Preset] Export error:', error);
     throw new Error('Failed to export preset file');
   }
 }

@@ -78,10 +78,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   // This ensures single source of truth and prevents state synchronization issues
   // activePresetId is managed in Config.tsx and passed down as prop
   // overlayConfig is computed in Config.tsx using useOverlayConfig and passed down as prop
-  // DEBUG: Only log in debug mode
-  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-    console.log(`[ConfigPreview] Render - activePresetId: ${activePresetId || 'NULL'}, overlayConfig.mode: ${overlayConfigProp.mode}, elements: ${overlayConfigProp.elements?.length || 0}`);
-  }
 
   // Undo/Redo system
   // WHY: Command pattern-based undo/redo for all transform operations.
@@ -98,7 +94,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const updateElement = (elementId: string, updater: (element: any) => any) => {
     // CRITICAL: activePresetId must be valid
     if (!activePresetId) {
-      console.error('[ConfigPreview] CRITICAL: Cannot update element - activePresetId is null');
       return;
     }
     
@@ -106,7 +101,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
     const success = updateElementInRuntime(activePresetId, elementId, updater);
     
     if (!success) {
-      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
       return;
     }
     
@@ -121,14 +115,12 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const handleMoveComplete = (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
     // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
     if (!activePresetId) {
-      console.error('[ConfigPreview] CRITICAL: Cannot handle move - activePresetId is null');
       return;
     }
     
     const runtimeElements = getElementsForPreset(activePresetId);
     const element = runtimeElements.find(el => el.id === elementId);
     if (!element) {
-      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
       return;
     }
     
@@ -145,14 +137,12 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const handleResizeComplete = (elementId: string, oldSize: number, newSize: number) => {
     // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
     if (!activePresetId) {
-      console.error('[ConfigPreview] CRITICAL: Cannot handle resize - activePresetId is null');
       return;
     }
     
     const runtimeElements = getElementsForPreset(activePresetId);
     const element = runtimeElements.find(el => el.id === elementId);
     if (!element) {
-      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
       return;
     }
     
@@ -169,14 +159,12 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   const handleRotateComplete = (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => {
     // ARCHITECT MODE: Get element from runtime overlay Map, NOT from settings
     if (!activePresetId) {
-      console.error('[ConfigPreview] CRITICAL: Cannot handle rotate - activePresetId is null');
       return;
     }
     
     const runtimeElements = getElementsForPreset(activePresetId);
     const element = runtimeElements.find(el => el.id === elementId);
     if (!element) {
-      console.warn(`[ConfigPreview] Element ${elementId} not found in runtime for preset ${activePresetId}`);
       return;
     }
     

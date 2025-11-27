@@ -81,10 +81,6 @@ export function migratePreset(file: unknown): PresetFile {
   // If source version is newer than current, we can't migrate forward
   // But we'll try to preserve as much as possible (forward compatibility)
   if (sourceVersion > CURRENT_SCHEMA_VERSION) {
-    console.warn(
-      `Preset version ${sourceVersion} is newer than current version ${CURRENT_SCHEMA_VERSION}. ` +
-      `Attempting to use forward compatibility mode.`
-    );
     // Try to use the file as-is, but validate it matches current structure
     return file as PresetFile;
   }

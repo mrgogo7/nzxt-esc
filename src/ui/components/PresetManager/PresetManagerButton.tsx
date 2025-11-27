@@ -69,7 +69,6 @@ export default function PresetManagerButton({
 
     // CRITICAL: settings prop null check
     if (!settings) {
-      console.error('[PresetManagerButton] CRITICAL: settings prop is null, cannot apply preset');
       alert('Settings not available. Please try again.');
       return;
     }
@@ -91,11 +90,7 @@ export default function PresetManagerButton({
     // Step 2: Load overlay elements from preset into runtime Map
     // CRITICAL: This must happen BEFORE setSettings to ensure useOverlayConfig reads correct elements
     const presetElements = preset.preset.overlay?.elements;
-    const loadedCount = loadPreset(preset.id, presetElements);
-    
-    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-      console.log('[PresetManagerButton] Preset switch:', preset.id, 'elements loaded:', loadedCount, 'media:', preset.preset.background.url);
-    }
+    loadPreset(preset.id, presetElements);
 
     // Step 3 & 4: Wait 100ms then load settings and media URL
     // This ensures loadPreset completes and runtime is updated before settings change

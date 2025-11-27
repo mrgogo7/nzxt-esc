@@ -100,10 +100,6 @@ export function isPresetFile(obj: unknown): obj is PresetFile {
     );
 
     if (!sanitized) {
-      // eslint-disable-next-line no-console
-      console.warn(
-        '[isPresetFile] Ignoring invalid background.source; falling back to background.url only'
-      );
       // Treat as if source does not exist
       delete (bg as any).source;
     } else {

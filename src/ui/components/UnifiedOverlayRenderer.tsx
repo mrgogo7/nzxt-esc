@@ -36,11 +36,6 @@ function UnifiedOverlayRenderer({
   // DEFENSIVE: Ensure overlay.elements is always an array
   const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
   
-  // DEBUG: Only log in debug mode
-  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-    console.log('[UnifiedOverlayRenderer] Mode:', overlay.mode, 'Elements count:', safeElements.length);
-  }
-  
   if (overlay.mode === 'none' || safeElements.length === 0) {
     return null;
   }

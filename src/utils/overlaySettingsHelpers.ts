@@ -305,8 +305,6 @@ export function addOverlayElement(
     ? safeElements // Don't add if already at limit
     : [...safeElements, element];
   
-  console.warn('[addOverlayElement] DEPRECATED: This function writes to settings.overlay.elements which is IGNORED in ARCHITECT MODE. Use createOverlayElementForAdd() + appendElementsForPreset() instead.');
-  console.log('[addOverlayElement] Adding element, count:', safeElements.length, '->', newElements.length);
   
   return {
     ...settings,
@@ -740,7 +738,6 @@ export function wouldExceedElementLimit(
   const safeNew = typeof newElementCount === 'number' && !isNaN(newElementCount) ? newElementCount : 0;
   
   const result = (safeCurrent + safeNew) > MAX_OVERLAY_ELEMENTS;
-  console.log('[wouldExceedElementLimit] Current:', safeCurrent, 'New:', safeNew, 'Result:', result);
   return result;
 }
 

@@ -34,20 +34,6 @@ export default function KrakenOverlay() {
   const overlayConfig = useOverlayConfig(settings, activePresetId);
   const localMedia = useLocalMedia({ settings, activePresetId });
 
-  // FAZ-11.3 + FAZ-11.4: DIAGNOSTIC DEBUG LOGGING (guarded)
-  useEffect(() => {
-    const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-    if (isDebug) {
-      console.log(`[KrakenOverlay] activePresetId=${activePresetId}`);
-      console.log(`[KrakenOverlay] overlayConfig.mode=${overlayConfig.mode} elements=${overlayConfig.elements?.length ?? 0}`);
-      console.log(`[KrakenOverlay] settings.overlayMode=${settings?.overlay?.mode}`);
-      const runtimeElements = getElementsForPreset(activePresetId);
-      console.log(`[KrakenOverlay] RUNTIME elements for preset=${activePresetId}`, runtimeElements);
-      console.log(`[KrakenOverlay] Render condition check: mode !== 'none' = ${overlayConfig.mode !== 'none'}, elements.length > 0 = ${(overlayConfig.elements?.length ?? 0) > 0}`);
-      console.log(`[KrakenOverlay] Will render overlay: ${overlayConfig.mode !== 'none' || (overlayConfig.elements?.length ?? 0) > 0}`);
-    }
-  }, [activePresetId, overlayConfig.mode, overlayConfig.elements?.length, settings?.overlay?.mode]);
-
   // Get LCD resolution using centralized environment detection
   const { width: lcdResolution } = getLCDDimensions();
   const lcdSize = lcdResolution;
@@ -81,10 +67,6 @@ export default function KrakenOverlay() {
       {/* CRITICAL: Check both mode AND elements.length to ensure overlay renders */}
       {(() => {
         const shouldRender = overlayConfig.mode !== 'none' || (overlayConfig.elements?.length ?? 0) > 0;
-        const isDebug = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-        if (isDebug) {
-          console.log(`[KrakenOverlay] Render decision - shouldRender=${shouldRender}, mode=${overlayConfig.mode}, elements=${overlayConfig.elements?.length ?? 0}`);
-        }
         
         if (!shouldRender) {
           return null;

@@ -53,10 +53,6 @@ export default function OverlaySettingsComponent({
 }: OverlaySettingsProps) {
   // DEFENSIVE: Ensure overlayConfig.elements is always an array before any operations
   const safeElements = Array.isArray(overlayConfig.elements) ? overlayConfig.elements : [];
-  // Debug logging (only in debug mode)
-  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-    console.log('[OverlaySettings] Render - overlayConfig.mode:', overlayConfig.mode, 'elements count:', safeElements.length);
-  }
   
   // Helper: Get metric, text, and divider element counts
   const metricElements = safeElements.filter(el => el?.type === 'metric');
@@ -70,13 +66,6 @@ export default function OverlaySettingsComponent({
   // CRITICAL: Use activePresetId to get runtime count for the specific preset
   const runtimeCount = getElementCountForPreset(activePresetId);
   const totalCount = getTotalElementCount(activePresetId);
-  
-  // Debug logging (only in debug mode)
-  const isDebugMode = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-  
-    if (isDebugMode) {
-      console.log('[OverlaySettings] Element counts - Metric:', metricCount, 'Text:', textCount, 'Divider:', dividerCount, 'Total:', totalCount, 'Runtime:', runtimeCount);
-    }
 
   // State for Floating Add Menu
   const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
@@ -243,7 +232,6 @@ export default function OverlaySettingsComponent({
   const handleExportOverlay = () => {
     // CRITICAL: activePresetId must be valid
     if (!activePresetId) {
-      console.error('[OverlaySettings] CRITICAL: Cannot export overlay - activePresetId is null');
       alert('Please select a preset first.');
       return;
     }
@@ -277,16 +265,8 @@ export default function OverlaySettingsComponent({
         return;
       }
       
-      // Debug logging
-      console.log(`[OverlaySettings] Export overlay - presetId: ${activePresetId}, presetName: ${presetName}, elements: ${safeElements.length}`);
-      
-      if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-        console.log(`[OverlaySettings] Export overlay - preset ${activePresetId}: exporting ${safeElements.length} element(s) from runtime`);
-      }
-      
       await exportOverlayPreset(safeElements, presetName);
     } catch (error) {
-      console.error('[OverlaySettings] Export error:', error);
       const errorMessage = t('overlayExportError', lang);
       alert(errorMessage);
     }
@@ -307,7 +287,6 @@ export default function OverlaySettingsComponent({
       const result = await importOverlayPreset(file);
       
       if (!result.success || !result.elements || result.elements.length === 0) {
-        console.error('[OverlaySettings] Import error:', result.error);
         // Reset input on import failure
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -323,7 +302,6 @@ export default function OverlaySettingsComponent({
       setImportedElements(result.elements);
       setIsImportModalOpen(true);
     } catch (error) {
-      console.error('[OverlaySettings] Import error:', error);
       // Reset input on any error
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -339,25 +317,13 @@ export default function OverlaySettingsComponent({
   // IMPORTANT: This writes to runtime state, NOT to settings.overlay.elements
   // GLOBAL HARD LIMIT: Enforces total (preset manual + runtime imported) <= 20
   const handleImportOverlay = async (elements: OverlayElement[], mode: 'replace' | 'append') => {
-    // Debug logging (only in debug mode)
-    const isDebugMode = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-    if (isDebugMode) {
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] handleImportOverlay called - mode: ${mode}, elements: ${elements.length}, activePresetId: ${activePresetId || 'NULL'}`);
-      }
-    }
-    
     // CRITICAL: activePresetId must be valid for per-preset runtime state
     if (!activePresetId) {
-      console.error('[OverlaySettings] CRITICAL: Cannot import overlay - activePresetId is null');
       alert(t('overlayImportError', lang).replace('{error}', 'No active preset selected. Please select a preset first.'));
       return;
     }
     
     if (elements.length === 0) {
-      if (isDebugMode) {
-        console.warn('[OverlaySettings] handleImportOverlay called with empty elements array');
-      }
       return;
     }
 
@@ -365,14 +331,6 @@ export default function OverlaySettingsComponent({
     const safeElements = Array.isArray(elements) ? elements : [];
     if (safeElements.length === 0) {
       return;
-    }
-
-    // Log runtime state BEFORE operation
-    const runtimeBefore = getElementsForPreset(activePresetId);
-    if (isDebugMode) {
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Runtime state BEFORE ${mode} - preset ${activePresetId}: ${runtimeBefore.length} elements`);
-      }
     }
 
     if (mode === 'replace') {
@@ -385,22 +343,11 @@ export default function OverlaySettingsComponent({
         const message = t('overlayMaxElementsWarning', lang)
           .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
           .replace('{count}', String(safeElements.length));
-        console.error(`[OverlaySettings] CRITICAL: Replace cancelled - limit would be exceeded (requested: ${safeElements.length}, max: ${MAX_OVERLAY_ELEMENTS})`);
         alert(message + `\n\nCannot replace overlay elements. Requested ${safeElements.length} elements exceeds the limit of ${MAX_OVERLAY_ELEMENTS}.`);
         return; // Import iptal, runtime değişmedi
       }
       
-      const actualCount = replaceElementsForPreset(activePresetId, safeElements);
-      if (isDebugMode) {
-        if (isDebugMode) {
-          console.log(`[OverlaySettings] Replace result - requested: ${safeElements.length}, actual: ${actualCount}`);
-        }
-      }
-      
-      // Defensive check (should not happen if pre-check worked)
-      if (actualCount === 0 && safeElements.length > 0) {
-        console.warn(`[OverlaySettings] WARNING: Replace returned 0 despite pre-check passing`);
-      }
+      replaceElementsForPreset(activePresetId, safeElements);
     } else {
       // Append: runtimeOverlay[activePresetId] = [...current, ...imported]
       // ARCHITECT MODE: "Ya hep ya hiç" - canAppendElements pre-check
@@ -412,36 +359,15 @@ export default function OverlaySettingsComponent({
         const message = t('overlayMaxElementsWarning', lang)
           .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
           .replace('{count}', String(safeElements.length));
-        console.error(`[OverlaySettings] CRITICAL: Append cancelled - limit would be exceeded (current: ${currentCount}, incoming: ${safeElements.length}, max: ${MAX_OVERLAY_ELEMENTS})`);
         alert(message + `\n\nCannot append overlay elements. Current runtime count is ${currentCount}/${MAX_OVERLAY_ELEMENTS}. Adding ${safeElements.length} elements would exceed the limit of ${MAX_OVERLAY_ELEMENTS}.`);
         return; // Import iptal, runtime değişmedi
       }
       
       // Normalize zIndex before appending
       const normalizedElements = normalizeZIndexForAppend([], safeElements);
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Append - normalized elements: ${normalizedElements.length}`);
-      }
       
       // Append to runtime (limit already checked, should succeed)
-      const actualCount = appendElementsForPreset(activePresetId, normalizedElements);
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Append result - requested: ${normalizedElements.length}, actual: ${actualCount}`);
-      }
-      
-      // Defensive check (should not happen if pre-check worked)
-      if (actualCount === 0 && normalizedElements.length > 0) {
-        console.warn(`[OverlaySettings] WARNING: Append returned 0 despite pre-check passing`);
-      }
-    }
-
-    // Log runtime state AFTER operation
-    const runtimeAfter = getElementsForPreset(activePresetId);
-    if (isDebugMode) {
-      console.log(`[OverlaySettings] Runtime state AFTER ${mode} - preset ${activePresetId}: ${runtimeAfter.length} elements`);
-    }
-    if (isDebugMode) {
-      console.log(`[OverlaySettings] Runtime state change: ${runtimeBefore.length} -> ${runtimeAfter.length}`);
+      appendElementsForPreset(activePresetId, normalizedElements);
     }
 
     // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
@@ -472,11 +398,6 @@ export default function OverlaySettingsComponent({
     
     clearElementsForPreset(activePresetId);
     
-    // Debug logging (only in debug mode)
-    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-      console.log(`[OverlaySettings] Cleared runtime elements for preset: ${activePresetId}`);
-    }
-    
     // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
     // Autosave will automatically save the cleared state to preset
     setSettings({ ...settings });
@@ -484,15 +405,8 @@ export default function OverlaySettingsComponent({
 
   // Handler: Overlay preset template selection
   const handleOverlayPresetSelect = (templateId: string) => {
-    // Debug logging (only in debug mode)
-    const isDebugMode = typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true;
-    if (isDebugMode) {
-      console.log(`[OverlaySettings] handleOverlayPresetSelect called - templateId: ${templateId}, activePresetId: ${activePresetId || 'NULL'}`);
-    }
-    
     // CRITICAL: activePresetId must be valid for per-preset runtime state
     if (!activePresetId) {
-      console.error('[OverlaySettings] CRITICAL: Cannot import template - activePresetId is null');
       alert(t('overlayImportError', lang).replace('{error}', 'No active preset selected. Please select a preset first.'));
       return;
     }
@@ -500,29 +414,18 @@ export default function OverlaySettingsComponent({
     try {
       // Get template elements with assigned IDs
       const templateElements = getTemplateElements(templateId);
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Template ${templateId} returned ${templateElements.length} elements`);
-      }
       
       if (templateElements.length === 0) {
-        if (isDebugMode) {
-          console.warn(`[OverlaySettings] Template elements empty for: ${templateId}`);
-        }
         alert(t('overlayImportError', lang).replace('{error}', `Template ${templateId} is empty.`));
         return;
       }
       
       // Store in importedElements state
       setImportedElements(templateElements);
-      if (isDebugMode) {
-        console.log(`[OverlaySettings] Stored ${templateElements.length} template elements in importedElements state`);
-        console.log('[OverlaySettings] Import modal opened');
-      }
       
       // Open import modal (FAZ 1 modal - Replace/Append)
       setIsImportModalOpen(true);
     } catch (error) {
-      console.error('[OverlaySettings] Template selection error:', error);
       alert(t('overlayImportError', lang).replace('{error}', error instanceof Error ? error.message : 'Unknown error'));
     }
   };
@@ -548,11 +451,6 @@ export default function OverlaySettingsComponent({
                   // - When OFF (mode='none'): overlay is hidden but elements remain in runtime
                   // - When ON (mode='custom'): overlay is shown with same elements from runtime
                   // - settings.overlay.elements is IGNORED (elements are in runtime, not in settings)
-                  
-                  // Debug logging (only in debug mode)
-                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                    console.log('[OverlaySettings] Toggle overlay mode:', settings.overlay?.mode, '->', newMode);
-                  }
                   
                   // CRITICAL: Only change mode, do NOT touch elements
                   // Elements are in runtime overlay Map, not in settings
@@ -693,14 +591,12 @@ export default function OverlaySettingsComponent({
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      console.error('[OverlaySettings] CRITICAL: Cannot add overlay element - activePresetId is null');
                       alert('Please select a preset first.');
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      console.warn(`[OverlaySettings] Cannot add metric element: global limit reached (${totalCount}/${MAX_OVERLAY_ELEMENTS})`);
                       alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
@@ -722,12 +618,7 @@ export default function OverlaySettingsComponent({
                     });
                     
                     // 2) Add to runtime overlay Map
-                    const addedCount = appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // Debug logging
-                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                      console.log(`[OverlaySettings] Manual Add Metric - preset ${activePresetId}: added ${addedCount} element(s), new count: ${getElementCountForPreset(activePresetId)}`);
-                    }
+                    appendElementsForPreset(activePresetId, [newElement]);
                     
                     // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
                     setSettings({ ...settings });
@@ -772,14 +663,12 @@ export default function OverlaySettingsComponent({
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      console.error('[OverlaySettings] CRITICAL: Cannot add overlay element - activePresetId is null');
                       alert('Please select a preset first.');
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      console.warn(`[OverlaySettings] Cannot add text element: global limit reached (${totalCount}/${MAX_OVERLAY_ELEMENTS})`);
                       alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
@@ -798,12 +687,7 @@ export default function OverlaySettingsComponent({
                     });
                     
                     // 2) Add to runtime overlay Map
-                    const addedCount = appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // Debug logging
-                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                      console.log(`[OverlaySettings] Manual Add Text - preset ${activePresetId}: added ${addedCount} element(s), new count: ${getElementCountForPreset(activePresetId)}`);
-                    }
+                    appendElementsForPreset(activePresetId, [newElement]);
                     
                     // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
                     setSettings({ ...settings });
@@ -848,14 +732,12 @@ export default function OverlaySettingsComponent({
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      console.error('[OverlaySettings] CRITICAL: Cannot add overlay element - activePresetId is null');
                       alert('Please select a preset first.');
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      console.warn(`[OverlaySettings] Cannot add divider element: global limit reached (${totalCount}/${MAX_OVERLAY_ELEMENTS})`);
                       alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
@@ -874,12 +756,7 @@ export default function OverlaySettingsComponent({
                     });
                     
                     // 2) Add to runtime overlay Map
-                    const addedCount = appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // Debug logging
-                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                      console.log(`[OverlaySettings] Manual Add Divider - preset ${activePresetId}: added ${addedCount} element(s), new count: ${getElementCountForPreset(activePresetId)}`);
-                    }
+                    appendElementsForPreset(activePresetId, [newElement]);
                     
                     // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
                     setSettings({ ...settings });
@@ -1247,9 +1124,6 @@ export default function OverlaySettingsComponent({
                                         ...el,
                                         data: { ...(el.data as MetricElementData), metric: newMetric }
                                       }));
-                                      if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                        console.log('[OverlaySettings] Inspector - metric changed:', { elementId: element.id, presetId: activePresetId, metric: newMetric });
-                                      }
                                     }}
                                     aria-label={t('sensor', lang) || t('reading', lang)}
                                     style={{ width: '134px' }}
@@ -1269,9 +1143,6 @@ export default function OverlaySettingsComponent({
                                           ...el,
                                           data: { ...(el.data as MetricElementData), numberColor: color }
                                         }));
-                                        if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                          console.log('[OverlaySettings] Inspector - color changed:', { elementId: element.id, presetId: activePresetId, color });
-                                        }
                                       }}
                                     />
                                   </div>
@@ -1292,9 +1163,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     data: { ...(el.data as MetricElementData), numberSize: value }
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - size changed:', { elementId: element.id, presetId: activePresetId, size: value });
-                                  }
                                 }}
                                 step={1}
                                 labelTooltipId={`size-tooltip-${element.id}`}
@@ -1310,9 +1178,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     angle: value
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - angle changed:', { elementId: element.id, presetId: activePresetId, angle: value });
-                                  }
                                 }}
                                 step={1}
                                 min={0}
@@ -1332,9 +1197,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     x: value
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - X offset changed:', { elementId: element.id, presetId: activePresetId, x: value });
-                                  }
                                 }}
                                 step={1}
                                 labelTooltipId={`xoffset-tooltip-${element.id}`}
@@ -1350,9 +1212,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     y: value
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - Y offset changed:', { elementId: element.id, presetId: activePresetId, y: value });
-                                  }
                                 }}
                                 step={1}
                                 labelTooltipId={`yoffset-tooltip-${element.id}`}
@@ -1593,9 +1452,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       data: { ...(el.data as TextElementData), text: sanitized }
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text changed:', { elementId: element.id, presetId: activePresetId, text: sanitized });
-                                    }
                                   }}
                                   color={data.textColor || '#ffffff'}
                                   onColorChange={(color) => {
@@ -1604,9 +1460,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       data: { ...(el.data as TextElementData), textColor: color }
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text color changed:', { elementId: element.id, presetId: activePresetId, color });
-                                    }
                                   }}
                                   placeholder={t('textInputPlaceholder', lang)}
                                   maxLength={120}
@@ -1628,9 +1481,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       data: { ...(el.data as TextElementData), textSize: Math.max(6, value) }
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text size changed:', { elementId: element.id, presetId: activePresetId, size: value });
-                                    }
                                   }}
                                   step={1}
                                   min={6}
@@ -1647,9 +1497,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       angle: value
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text angle changed:', { elementId: element.id, presetId: activePresetId, angle: value });
-                                    }
                                   }}
                                   step={1}
                                   min={0}
@@ -1669,9 +1516,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       x: value
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text X offset changed:', { elementId: element.id, presetId: activePresetId, x: value });
-                                    }
                                   }}
                                   step={1}
                                   labelTooltipId={`text-xoffset-tooltip-${element.id}`}
@@ -1687,9 +1531,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       y: value
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - text Y offset changed:', { elementId: element.id, presetId: activePresetId, y: value });
-                                    }
                                   }}
                                   step={1}
                                   labelTooltipId={`text-yoffset-tooltip-${element.id}`}
@@ -1911,9 +1752,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), color }
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - divider color changed:', { elementId: element.id, presetId: activePresetId, color });
-                                  }
                                 }}
                                 labelTooltipId={`divider-color-tooltip-${element.id}`}
                                 labelTooltipContent={t('tooltipColor', lang)}
@@ -1928,9 +1766,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), width: Math.max(1, Math.min(400, value)) }
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - divider width changed:', { elementId: element.id, presetId: activePresetId, width: value });
-                                  }
                                 }}
                                 step={1}
                                 min={1}
@@ -1950,9 +1785,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), height: Math.max(10, Math.min(640, value)) }
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - divider height changed:', { elementId: element.id, presetId: activePresetId, height: value });
-                                  }
                                 }}
                                 step={1}
                                 min={10}
@@ -1970,9 +1802,6 @@ export default function OverlaySettingsComponent({
                                     ...el,
                                     angle: value
                                   }));
-                                  if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                    console.log('[OverlaySettings] Inspector - divider angle changed:', { elementId: element.id, presetId: activePresetId, angle: value });
-                                  }
                                 }}
                                   step={1}
                                   min={0}
@@ -1992,9 +1821,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       x: value
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - divider X offset changed:', { elementId: element.id, presetId: activePresetId, x: value });
-                                    }
                                   }}
                                   step={1}
                                   labelTooltipId={`divider-xoffset-tooltip-${element.id}`}
@@ -2010,9 +1836,6 @@ export default function OverlaySettingsComponent({
                                       ...el,
                                       y: value
                                     }));
-                                    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                                      console.log('[OverlaySettings] Inspector - divider Y offset changed:', { elementId: element.id, presetId: activePresetId, y: value });
-                                    }
                                   }}
                                 step={1}
                                 labelTooltipId={`divider-yoffset-tooltip-${element.id}`}
@@ -2206,9 +2029,6 @@ export default function OverlaySettingsComponent({
                 const runtimeElements = getElementsForPreset(activePresetId);
                 const filteredElements = runtimeElements.filter(el => el.id !== removeModalState.elementId);
                 replaceElementsForPreset(activePresetId, filteredElements);
-                if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-                  console.log('[OverlaySettings] Inspector - element removed:', { elementId: removeModalState.elementId, presetId: activePresetId });
-                }
               }
             }
           }}
