@@ -23,7 +23,7 @@ import { normalizeZIndexForAppend } from '../../../overlayPreset/utils';
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
 import { createAddElementAction, createRemoveElementAction, createUpdateElementAction, createUpdateElementDataAction, createBatchAction, createZOrderAction, createSelectAction, createMoveElementZUpAction, createMoveElementZDownAction } from '@/state/overlay/actions';
 import { getElement as getElementFromStore } from '@/state/overlay/elementStore';
-import { bringToFront, sendToBack, moveForward, moveBackward } from '@/state/overlay/zOrder';
+import { bringToFront, sendToBack } from '@/state/overlay/zOrder';
 import { getElementsInZOrder } from '@/state/overlay/selectors';
 // FAZ-4 FINAL: Runtime always enabled (legacy removed)
 import { IS_DEV } from '@/utils/env';
@@ -419,8 +419,8 @@ export default function OverlaySettingsComponent({
       return;
     }
     
-    // FAZ-4-3: Get elements from vNext runtime state
-    if (useNewRuntime && stateManager && runtimeState) {
+    // FAZ-4 FINAL: Get elements from runtime state
+    if (stateManager && runtimeState) {
       const safeElements = Array.from(runtimeState.elements.values());
       
       if (safeElements.length === 0) {
@@ -613,8 +613,8 @@ export default function OverlaySettingsComponent({
       return;
     }
     
-    // FAZ-3B-1: Use new runtime system if feature flag is enabled
-    if (useNewRuntime && stateManager && runtimeState) {
+    // FAZ-4 FINAL: Use runtime system
+    if (stateManager && runtimeState) {
       // Create batch remove actions for all elements
       const elementIds = Array.from(runtimeState.elements.keys());
       if (elementIds.length > 0) {
@@ -702,13 +702,15 @@ export default function OverlaySettingsComponent({
         <div style={{ marginBottom: '16px' }}>
           {effectiveMode === 'custom' && safeElements.length > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-              <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5', flex: 1 }}>
-                {t('overlayOptionsDescription', lang)}
-                {/* FAZ-10: Tooltips for delete buttons */}
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
+                  {t('overlayOptionsDescription', lang)}
+                </p>
+                {/* FAZ-4-POST-FIX-Z-ORDER-AND-TOOLTIP: Tooltips moved outside <p> to fix DOM nesting */}
                 {safeElements.map(el => (
                   <Tooltip key={`delete-tooltip-${el.id}`} id={`delete-element-${el.id}`} />
                 ))}
-              </p>
+              </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexShrink: 0 }}>
                 <button
                   ref={floatingButtonRef}

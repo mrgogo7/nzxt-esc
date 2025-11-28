@@ -9,7 +9,7 @@ import MediaRenderer from './MediaRenderer';
 import UnifiedOverlayRenderer from './UnifiedOverlayRenderer';
 import styles from '../styles/KrakenOverlay.module.css';
 // FAZ-3B-4: New runtime system imports
-import { useOverlayStateManager, getStateManagerForPreset } from '../../state/overlay/useOverlayStateManager';
+import { useOverlayStateManager } from '../../state/overlay/useOverlayStateManager';
 import { getElementsInZOrder } from '../../state/overlay/selectors';
 import type { Overlay, OverlayElement } from '../../types/overlay';
 import type { OverlayRuntimeState } from '../../state/overlay/types';

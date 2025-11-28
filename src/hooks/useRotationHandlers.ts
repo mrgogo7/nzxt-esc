@@ -28,7 +28,8 @@ export function useRotationHandlers(
   onRotateComplete?: (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => void,
   activePresetId?: string | null,
   stateManager?: OverlayStateManager | null,
-  runtimeState?: OverlayRuntimeState | null
+  runtimeState?: OverlayRuntimeState | null,
+  onRotateCompleteSimple?: () => void
 ) {
   const [rotatingElementId, setRotatingElementId] = useState<string | null>(null);
   const rotationStart = useRef<{
@@ -189,11 +190,16 @@ export function useRotationHandlers(
       }
     }
     
+    // FAZ-4-POST-FIX-TRANSFORM-COMPLETE-RESTORE: Call simple complete callback
+    if (onRotateCompleteSimple) {
+      onRotateCompleteSimple();
+    }
+    
     // FAZ-4-3: Legacy overlayRuntime.ts removed - undo/redo handled by stateManager
     
     setRotatingElementId(null);
     rotationStart.current = null;
-  }, [onRotateComplete, activePresetId, stateManager]);
+  }, [onRotateComplete, onRotateCompleteSimple, activePresetId, stateManager]);
 
   // Event listeners for rotation
   useEffect(() => {

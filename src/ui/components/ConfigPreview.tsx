@@ -148,21 +148,21 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   // FAZ-4-3: Legacy updateElement removed - vNext handles updates via stateManager
   // Element updates are now handled directly by transform handlers via stateManager.dispatch()
 
-  // Callbacks for undo/redo
-  // WHY: These callbacks are called when transform operations complete (mouseup).
-  // They create command objects and record them in the action history.
-  // FAZ-3B-3: With new runtime, actions are dispatched during transform, so this only runs for old system
-  // FAZ-4-4D: These callbacks are no longer needed - transactions are handled in handlers
-  const handleMoveComplete = (_elementId: string, _oldPos: { x: number; y: number }, _newPos: { x: number; y: number }) => {
-    // Transaction is already committed in useDragHandlers, no action needed here
+  // FAZ-4-POST-FIX-TRANSFORM-COMPLETE-RESTORE: Transform complete callbacks
+  const handleResizeComplete = () => {
+    try {
+      stateManager?.commitTransaction();
+    } catch (err) {
+      console.error("[Overlay] Resize complete error:", err);
+    }
   };
 
-  const handleResizeComplete = (_elementId: string, _oldSize: number, _newSize: number) => {
-    // Transaction is already committed in useResizeHandlers, no action needed here
-  };
-
-  const handleRotateComplete = (_elementId: string, _oldAngle: number | undefined, _newAngle: number | undefined) => {
-    // Transaction is already committed in useRotationHandlers, no action needed here
+  const handleRotateComplete = () => {
+    try {
+      stateManager?.commitTransaction();
+    } catch (err) {
+      console.error("[Overlay] Rotate complete error:", err);
+    }
   };
 
   // Drag handlers
@@ -178,8 +178,8 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   } = useDragHandlers(
     offsetScale, 
     settingsRef, 
-    setSettings, 
-    handleMoveComplete, 
+    setSettings,
+    handleResizeComplete,
     activePresetId,
     stateManager,
     runtimeState
@@ -204,10 +204,11 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
     offsetScale, 
     settingsRef, 
     setSettings,
-    handleResizeComplete,
+    undefined, // Legacy onResizeComplete signature (not used)
     activePresetId,
     stateManager,
-    runtimeState
+    runtimeState,
+    handleResizeComplete // FAZ-4-POST-FIX: Simple complete callback
   );
   
   // Rotation handlers
@@ -216,10 +217,11 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
     offsetScale, 
     settingsRef, 
     setSettings,
-    handleRotateComplete,
+    undefined, // Legacy onRotateComplete signature (not used)
     activePresetId,
     stateManager,
-    runtimeState
+    runtimeState,
+    handleRotateComplete // FAZ-4-POST-FIX: Simple complete callback
   );
 
   // Language sync

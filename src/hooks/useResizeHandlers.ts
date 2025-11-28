@@ -30,7 +30,8 @@ export function useResizeHandlers(
   onResizeComplete?: (elementId: string, oldSize: number, newSize: number) => void,
   activePresetId?: string | null,
   stateManager?: OverlayStateManager | null,
-  runtimeState?: OverlayRuntimeState | null
+  runtimeState?: OverlayRuntimeState | null,
+  onResizeCompleteSimple?: () => void
 ) {
   const [resizingElementId, setResizingElementId] = useState<string | null>(null);
   const resizeStart = useRef<{ 
@@ -179,11 +180,16 @@ export function useResizeHandlers(
       }
     }
     
+    // FAZ-4-POST-FIX-TRANSFORM-COMPLETE-RESTORE: Call simple complete callback
+    if (onResizeCompleteSimple) {
+      onResizeCompleteSimple();
+    }
+    
     // FAZ-4-3: Legacy overlayRuntime.ts removed - undo/redo handled by stateManager
     
     setResizingElementId(null);
     resizeStart.current = null;
-  }, [onResizeComplete, activePresetId, stateManager]);
+  }, [onResizeComplete, onResizeCompleteSimple, activePresetId, stateManager]);
 
   // Event listeners for resize
   useEffect(() => {

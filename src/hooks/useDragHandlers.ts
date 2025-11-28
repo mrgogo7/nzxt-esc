@@ -19,21 +19,25 @@ import { IS_DEV } from '../utils/env';
  * - Background drag (media positioning)
  * - Element drag (unified for all element types: metric, text, divider)
  * 
- * Supports undo/redo via onMoveComplete callback.
+ * Supports undo/redo via transaction system.
  * 
  * @param offsetScale - Scale factor for converting preview to LCD pixels
  * @param settingsRef - Ref to current settings (to avoid stale closures)
  * @param setSettings - Settings setter function
- * @param onMoveComplete - Optional callback when move completes (for undo/redo)
+ * @param onResizeComplete - Optional callback when resize completes
+ * @param onRotateComplete - Optional callback when rotate completes
+ * @param onTransformComplete - Optional callback when transform completes
  */
 export function useDragHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
-  onMoveComplete?: (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => void,
+  onResizeComplete?: () => void,
   activePresetId?: string | null,
   stateManager?: OverlayStateManager | null,
-  runtimeState?: OverlayRuntimeState | null
+  runtimeState?: OverlayRuntimeState | null,
+  onRotateComplete?: () => void,
+  onTransformComplete?: () => void
 ) {
   // Background drag state
   const [isDragging, setIsDragging] = useState(false);

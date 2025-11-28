@@ -222,9 +222,28 @@ function areElementsDataEqual(a: OverlayElement, b: OverlayElement): boolean {
 }
 
 /**
+ * FAZ-4-POST-FIX-Z-ORDER: Helper to check if two zOrder arrays are different.
+ * Handles null/undefined cases and performs element-by-element comparison.
+ * 
+ * @param a - First zOrder array
+ * @param b - Second zOrder array
+ * @returns true if arrays are different, false if identical
+ */
+function areZOrdersDifferent(a?: string[], b?: string[]): boolean {
+  if (!a && !b) return false;
+  if (!a || !b) return true;
+  if (a.length !== b.length) return true;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return true;
+  }
+  return false;
+}
+
+/**
  * Check if two states are actually different (deep comparison of key fields).
  * 
  * FAZ-4-4M: Enhanced to explicitly check element.data for data-only changes.
+ * FAZ-4-POST-FIX-Z-ORDER: Improved zOrder diff detection using areZOrdersDifferent.
  * 
  * @param currentState - Current state
  * @param incomingState - Incoming state
@@ -279,11 +298,8 @@ function areStatesDifferent(
     }
   }
   
-  // Check zOrder mismatch
-  if (currentState.zOrder.length !== incomingState.zOrder.length) {
-    return true;
-  }
-  if (currentState.zOrder.join(',') !== incomingState.zOrder.join(',')) {
+  // FAZ-4-POST-FIX-Z-ORDER: Improved zOrder diff detection
+  if (areZOrdersDifferent(currentState.zOrder, incomingState.zOrder)) {
     return true;
   }
   
@@ -321,7 +337,6 @@ export function mergeStates(
   
   // FAZ-3E PATCH #2: Defensive check for missing meta.updatedAt
   const currentTimestamp = currentState.meta?.updatedAt ?? 0;
-  const timeDelta = incomingTimestamp - currentTimestamp;
   
   // FAZ-4-4I: ALWAYS apply incoming state if it's different, regardless of timestamp
   // This fixes the issue where LCD has empty state but incoming has elements
