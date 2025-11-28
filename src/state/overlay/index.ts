@@ -117,6 +117,8 @@ export {
   type TransformActionData,
   type SelectActionData,
   type ZOrderActionData,
+  type MoveElementZUpActionData,
+  type MoveElementZDownActionData,
   type BatchActionData,
   generateActionId,
   createAddElementAction,
@@ -125,6 +127,8 @@ export {
   createTransformAction,
   createSelectAction,
   createZOrderAction,
+  createMoveElementZUpAction,
+  createMoveElementZDownAction,
   createBatchAction,
   validateAction,
 } from './actions';

@@ -17,11 +17,13 @@
  * This prevents infinite loops between preset save and overlay config updates.
  */
 
+// FAZ-4-3: Legacy useRuntimeOverlayElements deleted - using vNext instead
 import { useEffect, useRef } from 'react';
 import type { AppSettings } from '../constants/defaults';
 import { createPresetFromState } from '../preset';
 import { getPresetById, updatePreset } from '../preset/storage';
-import { useRuntimeOverlayElements } from './useRuntimeOverlayElements';
+import { useOverlayStateManager } from '../state/overlay/useOverlayStateManager';
+import { getElementsInZOrder } from '../state/overlay/selectors';
 
 /**
  * Debug mode flag for atomic preset sync logging.
@@ -71,8 +73,16 @@ export function useAtomicPresetSync({
   activePresetId,
   presetName,
 }: UseAtomicPresetSyncOptions): void {
-  // CRITICAL: Get runtime elements via hook (reactive subscription)
-  const runtimeElements = useRuntimeOverlayElements(activePresetId);
+  // FAZ-4-3: Legacy useRuntimeOverlayElements deleted - get elements from vNext state
+  const stateManagerHook = activePresetId
+    ? useOverlayStateManager(activePresetId)
+    : null;
+  const runtimeState = stateManagerHook?.state ?? null;
+  
+  // Get runtime elements from vNext state (reactive subscription)
+  const runtimeElements = runtimeState
+    ? getElementsInZOrder(runtimeState.elements, runtimeState.zOrder)
+    : [];
   
   const lastSyncRef = useRef<number>(0);
   const isInitialMountRef = useRef(true);

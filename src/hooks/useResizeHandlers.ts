@@ -9,13 +9,14 @@ import { canResizeElement } from '../utils/resize';
 import { resizeElement, type ResizeOperationConfig } from '../transform/operations/ResizeOperation';
 import type { ResizeHandle } from '../transform/engine/HandlePositioning';
 import type { AppSettings } from '../constants/defaults';
-import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
 // FAZ-3B-3: New runtime system imports (feature-flagged)
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
+import { IS_DEV } from '../utils/env';
 
 /**
  * Hook for managing element resize.
@@ -59,8 +60,11 @@ export function useResizeHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, elementId);
     } else {
-      const runtimeElements = getElementsForPreset(activePresetId);
-      element = runtimeElements.find(el => el.id === elementId);
+      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
+      if (IS_DEV) {
+        console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
+      }
+      element = undefined;
     }
     
     if (!element || !canResizeElement(element)) return;
@@ -68,6 +72,10 @@ export function useResizeHandlers(
     // FAZ-3B-3: Start transaction for new runtime system
     if (useNewRuntime && stateManager) {
       stateManager.startTransaction();
+      // FAZ-4-4C: Dev logging for resize transaction start
+      if (IS_DEV) {
+        console.debug('[OverlayRuntime] Resize transaction started', { elementId });
+      }
     }
     
     // Get initial size
@@ -109,8 +117,11 @@ export function useResizeHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, resizeStart.current!.elementId);
     } else {
-      const runtimeElements = getElementsForPreset(activePresetId);
-      element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
+      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
+      if (IS_DEV) {
+        console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
+      }
+      element = undefined;
     }
     
     if (element) {
@@ -148,9 +159,10 @@ export function useResizeHandlers(
         const action = createTransformAction([element.id], oldStates, newStates);
         stateManager.dispatch(action); // This adds to transaction if active
       } else {
-        // Old system: Update runtime overlay Map, NOT settings
-        // Runtime change notification will trigger UI re-render via subscription
-        updateElementInRuntime(activePresetId, element.id, () => result.element);
+        // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
+        if (IS_DEV) {
+          console.warn('[useResizeHandlers] updateElementInRuntime called but vNext not available');
+        }
       }
     }
   }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
@@ -161,32 +173,13 @@ export function useResizeHandlers(
     if (useNewRuntime && stateManager) {
       // Commit transaction (batches all actions from this resize into single undo/redo entry)
       stateManager.commitTransaction();
-    }
-    
-    // Record resize action for undo/redo (old system only)
-    if (!useNewRuntime && resizeStart.current && onResizeComplete && activePresetId) {
-      const runtimeElements = getElementsForPreset(activePresetId);
-      const element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
-      if (element) {
-        let currentSize = 0;
-        if (element.type === 'metric') {
-          currentSize = (element.data as any).numberSize || 180;
-        } else if (element.type === 'text') {
-          currentSize = (element.data as any).textSize || 45;
-        } else if (element.type === 'divider') {
-          currentSize = (element.data as any).width || 2; // Divider width (thickness) in pixels
-        }
-        
-        // Only record if size actually changed
-        if (currentSize !== resizeStart.current.initialSize) {
-          onResizeComplete(
-            resizeStart.current.elementId,
-            resizeStart.current.initialSize,
-            currentSize
-          );
-        }
+      // FAZ-4-4C: Dev logging for resize transaction commit
+      if (IS_DEV) {
+        console.debug('[OverlayRuntime] Resize transaction committed');
       }
     }
+    
+    // FAZ-4-3: Legacy overlayRuntime.ts removed - undo/redo handled by stateManager
     
     setResizingElementId(null);
     resizeStart.current = null;

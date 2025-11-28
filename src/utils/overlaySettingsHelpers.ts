@@ -12,96 +12,34 @@ import {
   alignCenterX,
   alignCenterY,
 } from './alignment';
-import { getElementCountForPreset, canAppendElements } from '@/state/overlayRuntime';
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - using vNext instead
+import { getStateManagerForPreset } from '../state/overlay/useOverlayStateManager';
+import { getElementsInZOrder } from '../state/overlay/selectors';
 import { generateElementId } from '../overlayPreset/utils';
+import { IS_DEV } from '../utils/env';
 
 // ============================================================================
-// LEGACY HELPERS (Deprecated - kept for backward compatibility)
+// LEGACY HELPERS (FAZ-4-3: DELETED)
 // ============================================================================
-
-/**
- * @deprecated Use new element-based helpers instead. Kept for backward compatibility.
- * Updates a single overlay field in settings.
- */
-export function updateOverlayField(
-  settings: AppSettings,
-  overlayConfig: Overlay,
-  field: string,
-  value: any
-): AppSettings {
-  return {
-    ...settings,
-    overlay: {
-      ...overlayConfig as any,
-      [field]: value,
-    },
-  };
-}
-
-/**
- * @deprecated Use new element-based helpers instead. Kept for backward compatibility.
- * Resets a single overlay field to its default value.
- */
-export function resetOverlayFieldValue(
-  settings: AppSettings,
-  overlayConfig: Overlay,
-  field: string,
-  defaultValue: any
-): AppSettings {
-  return updateOverlayField(settings, overlayConfig, field, defaultValue);
-}
-
-/**
- * @deprecated Use new element-based helpers instead. Kept for backward compatibility.
- * Updates multiple overlay fields at once.
- */
-export function updateOverlayFields(
-  settings: AppSettings,
-  overlayConfig: Overlay,
-  updates: Partial<Overlay>
-): AppSettings {
-  return {
-    ...settings,
-    overlay: {
-      ...overlayConfig as any,
-      ...updates,
-    },
-  };
-}
-
-/**
- * @deprecated Use updateOverlayElement instead. Kept for backward compatibility.
- * Updates a custom reading in the overlay settings.
- */
-export function updateCustomReading(
-  settings: AppSettings,
-  overlayConfig: Overlay,
-  readingId: string,
-  updates: Partial<{ metric: any; numberColor: string; numberSize: number; x: number; y: number }>
-): AppSettings {
-  // Use updateOverlayElement for element-based format
-  return updateOverlayElement(settings, overlayConfig, readingId, updates);
-}
-
-/**
- * @deprecated Use updateOverlayElement instead. Kept for backward compatibility.
- * Updates a custom text in the overlay settings.
- */
-export function updateCustomText(
-  settings: AppSettings,
-  overlayConfig: Overlay,
-  textId: string,
-  updates: Partial<{ text: string; textColor: string; textSize: number; x: number; y: number }>
-): AppSettings {
-  // Use updateOverlayElement for element-based format
-  return updateOverlayElement(settings, overlayConfig, textId, updates);
-}
+// FAZ-4-3: The following legacy functions were deleted:
+// - updateOverlayField
+// - resetOverlayFieldValue
+// - updateOverlayFields
+// - updateCustomReading
+// - updateCustomText
+// All replaced by OverlayStateManager.dispatch() actions
 
 // ============================================================================
 // NEW ELEMENT-BASED HELPERS
 // ============================================================================
 
 /**
+ * NOTE (FAZ-4-2):
+ * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
+ * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
+ *
  * Updates a single overlay element in the overlay.
  * 
  * @param settings - Current app settings
@@ -138,6 +76,12 @@ export function updateOverlayElement(
 }
 
 /**
+ * NOTE (FAZ-4-2):
+ * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
+ * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
+ *
  * Updates the data of a metric element.
  * 
  * @param settings - Current app settings
@@ -186,6 +130,12 @@ export function updateMetricElementData(
 }
 
 /**
+ * NOTE (FAZ-4-2):
+ * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
+ * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
+ *
  * Updates the data of a text element.
  * 
  * @param settings - Current app settings
@@ -231,6 +181,12 @@ export function updateTextElementData(
 }
 
 /**
+ * NOTE (FAZ-4-2):
+ * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
+ * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
+ *
  * Updates the data of a divider element.
  * 
  * @param settings - Current app settings
@@ -278,47 +234,12 @@ export function updateDividerElementData(
   };
 }
 
-/**
- * @deprecated ARCHITECT MODE: This function writes to settings.overlay.elements which is IGNORED.
- * Use createOverlayElementForAdd() + appendElementsForPreset() instead.
- * 
- * Adds a new overlay element to the overlay.
- * Enforces GLOBAL HARD LIMIT before adding.
- * 
- * @param settings - Current app settings
- * @param overlay - Current overlay configuration
- * @param element - New element to add
- * @returns Updated app settings
- */
-export function addOverlayElement(
-  settings: AppSettings,
-  overlay: Overlay,
-  element: OverlayElement
-): AppSettings {
-  // DEFENSIVE: Ensure overlay.elements is always an array
-  const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
-  
-  // GLOBAL HARD LIMIT: Check total (preset manual + runtime imported)
-  // Note: We can't check runtime here, so we rely on canAddElements() check before calling this
-  // But we still enforce the limit on preset elements
-  const newElements = safeElements.length >= MAX_OVERLAY_ELEMENTS 
-    ? safeElements // Don't add if already at limit
-    : [...safeElements, element];
-  
-  
-  return {
-    ...settings,
-    overlay: {
-      ...overlay,
-      elements: newElements,
-    },
-  };
-}
+// FAZ-4-3: addOverlayElement deleted - use OverlayStateManager.dispatch(createAddElementAction(...)) instead
 
 /**
  * Creates a new overlay element with proper defaults and ID generation.
  * ARCHITECT MODE: This function only creates the element, it does NOT write to settings or runtime.
- * Use appendElementsForPreset(activePresetId, [element]) to actually add it to runtime.
+ * Use OverlayStateManager.dispatch(createAddElementAction(element)) to actually add it to runtime.
  * 
  * @param settings - Current app settings (for context, not modified)
  * @param overlayConfig - Current overlay configuration (for zIndex calculation)
@@ -372,45 +293,7 @@ export function removeOverlayElement(
   };
 }
 
-/**
- * Reorders overlay elements by moving an element to a new index.
- * 
- * @param settings - Current app settings
- * @param overlay - Current overlay configuration
- * @param elementId - ID of the element to move
- * @param newIndex - New index for the element
- * @returns Updated app settings
- */
-export function reorderOverlayElements(
-  settings: AppSettings,
-  overlay: Overlay,
-  elementId: string,
-  newIndex: number
-): AppSettings {
-  const elementIndex = overlay.elements.findIndex(el => el.id === elementId);
-  
-  if (elementIndex === -1) {
-    return settings; // Element not found
-  }
-  
-  const updatedElements = [...overlay.elements];
-  const [movedElement] = updatedElements.splice(elementIndex, 1);
-  updatedElements.splice(newIndex, 0, movedElement);
-  
-  // Update zIndex based on new position
-  const elementsWithZIndex = updatedElements.map((el, index) => ({
-    ...el,
-    zIndex: el.zIndex !== undefined ? index : index,
-  }));
-  
-  return {
-    ...settings,
-    overlay: {
-      ...overlay,
-      elements: elementsWithZIndex,
-    },
-  };
-}
+// FAZ-4-3: reorderOverlayElements deleted - use OverlayStateManager.dispatch(createZOrderAction(...)) instead
 
 /**
  * Updates the position of an overlay element.
@@ -654,23 +537,47 @@ export const MAX_OVERLAY_ELEMENTS = 20;
  * Get total element count from runtime overlay only.
  * ARCHITECT MODE: Only runtime overlay elements are counted (preset elements are ignored).
  * 
+ * FAZ-4-3: Migrated to vNext - uses OverlayStateManager
+ * 
  * @param activePresetId - Active preset ID (null for default/fallback)
  * @returns Total element count from runtime overlay
  */
 export function getTotalElementCount(activePresetId: string | null): number {
-  return getElementCountForPreset(activePresetId);
+  if (!activePresetId) {
+    return 0;
+  }
+  try {
+    const stateManager = getStateManagerForPreset(activePresetId);
+    const state = stateManager.getState();
+    const elements = getElementsInZOrder(state.elements, state.zOrder);
+    return elements.length;
+  } catch {
+    return 0;
+  }
 }
 
 /**
  * Checks if adding a single element would exceed the maximum limit.
  * ARCHITECT MODE: Only runtime overlay elements are counted.
  * 
+ * FAZ-4-3: Migrated to vNext - uses OverlayStateManager
+ * 
  * @param activePresetId - Active preset ID (null for default/fallback)
  * @param additionalCount - Number of elements to add (default: 1)
  * @returns true if adding would not exceed limit, false otherwise
  */
 export function canAddElement(activePresetId: string | null, additionalCount: number = 1): boolean {
-  return canAppendElements(activePresetId, additionalCount);
+  if (!activePresetId) {
+    return false;
+  }
+  try {
+    const stateManager = getStateManagerForPreset(activePresetId);
+    const state = stateManager.getState();
+    const elements = getElementsInZOrder(state.elements, state.zOrder);
+    return (elements.length + additionalCount) <= MAX_OVERLAY_ELEMENTS;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -756,4 +663,43 @@ export function clearAllOverlayElements(settings: AppSettings): AppSettings {
       elements: [],
     },
   };
+}
+
+/**
+ * Resolve ID conflicts for overlay elements during append import.
+ * 
+ * FAZ-4-4N: If element ID already exists in current state, clone element with new unique ID.
+ * 
+ * @param element - Element to check/resolve
+ * @param existingElementIds - Set of existing element IDs in current state
+ * @returns Element with resolved ID (cloned with new ID if conflict detected)
+ */
+export function resolveElementIdConflict(
+  element: OverlayElement,
+  existingElementIds: Set<string>
+): OverlayElement {
+  // If ID doesn't exist, return element as-is
+  if (!existingElementIds.has(element.id)) {
+    return element;
+  }
+  
+  // FAZ-4-4N: ID conflict detected - clone element with new unique ID
+  const newId = generateElementId();
+  
+  if (IS_DEV) {
+    console.debug(`[Import][Append] ID conflict detected → cloning element with newId=${newId}`, {
+      originalId: element.id,
+      elementType: element.type,
+    });
+  }
+  
+  // Clone element with new ID
+  const clonedElement: OverlayElement = {
+    ...element,
+    id: newId,
+    // Note: createdAt/updatedAt are not part of OverlayElement interface
+    // They would be in metadata if present, but we're just cloning the element
+  };
+  
+  return clonedElement;
 }

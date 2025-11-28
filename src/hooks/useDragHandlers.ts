@@ -4,13 +4,13 @@ import { constrainToCircle } from '../utils/boundaries';
 import { detectAlignment, applySnapping, type AlignmentGuide, type SnappingState } from '../utils/snapping';
 import type { AppSettings } from '../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
-import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
 // FAZ-3B-3: New runtime system imports (feature-flagged)
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction, createSelectAction } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
-import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
+import { IS_DEV } from '../utils/env';
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -40,7 +40,8 @@ export function useDragHandlers(
   
   // Element drag state (unified for all element types)
   const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
-  const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
+  // FAZ-4-4E: selectedElementId is now derived from runtime state, not local state
+  // Local state removed - selection is managed by runtime state
   
   // Snapping guides state
   const [activeGuides, setActiveGuides] = useState<AlignmentGuide[]>([]);
@@ -104,58 +105,52 @@ export function useDragHandlers(
     e.preventDefault();
     e.stopPropagation();
     
+    // FAZ-4-4E: Always use runtime state - no feature flag gating
+    if (!stateManager || !runtimeState || !activePresetId) {
+      if (IS_DEV) {
+        console.warn('[useDragHandlers] handleElementMouseDown called but runtime not available', {
+          hasStateManager: !!stateManager,
+          hasRuntimeState: !!runtimeState,
+          hasActivePresetId: !!activePresetId,
+        });
+      }
+      return;
+    }
+    
+    // Check if element is already selected (from runtime state)
+    const isSelected = runtimeState.selection.selectedIds.has(elementId);
+    const isLastSelected = runtimeState.selection.lastSelectedId === elementId;
+    
     // If already selected, start dragging immediately
-    if (selectedElementId === elementId) {
+    if (isSelected && isLastSelected) {
       setDraggingElementId(elementId);
       elementDragStart.current = { x: e.clientX, y: e.clientY, elementId };
       
-      // FAZ-3B-3: Start transaction for new runtime system
-      const useNewRuntime = shouldUseFaz3BRuntime();
-      if (useNewRuntime && stateManager && runtimeState) {
-        stateManager.startTransaction();
-      }
+      // FAZ-4-4E: Start transaction for move operation
+      stateManager.startTransaction();
       
       // Store initial position for undo/redo
-      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
-      if (activePresetId) {
-        // FAZ-3B-3: Get initial state from runtime state if available
-        if (useNewRuntime && runtimeState) {
-          const element = getElementFromStore(runtimeState.elements, elementId);
-          if (element) {
-            moveInitialPosition.current = { x: element.x, y: element.y };
-          }
-        } else {
-          const runtimeElements = getElementsForPreset(activePresetId);
-          const element = runtimeElements.find(el => el.id === elementId);
-          if (element) {
-            moveInitialPosition.current = { x: element.x, y: element.y };
-          }
-        }
+      const element = getElementFromStore(runtimeState.elements, elementId);
+      if (element) {
+        moveInitialPosition.current = { x: element.x, y: element.y };
       }
     } else {
       // First click: just select, don't start dragging
-      // FAZ-3B-4: Wire selection to runtime state if feature flag enabled
-      const useNewRuntime = shouldUseFaz3BRuntime();
-      if (useNewRuntime && stateManager && runtimeState) {
-        // Dispatch selection action to runtime
-        const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
-        const oldLastSelectedId = runtimeState.selection.lastSelectedId;
-        const newSelectedIds = [elementId];
-        const newLastSelectedId = elementId;
-        
-        const action = createSelectAction(
-          oldSelectedIds,
-          newSelectedIds,
-          oldLastSelectedId,
-          newLastSelectedId
-        );
-        stateManager.dispatch(action);
-      } else {
-        // Old system: Use local state
-        setSelectedElementId(elementId);
-      }
+      // FAZ-4-4E: Dispatch selection action to runtime state
+      const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
+      const oldLastSelectedId = runtimeState.selection.lastSelectedId;
+      const newSelectedIds = [elementId];
+      const newLastSelectedId = elementId;
+      
+      const action = createSelectAction(
+        oldSelectedIds,
+        newSelectedIds,
+        oldLastSelectedId,
+        newLastSelectedId
+      );
+      stateManager.dispatch(action);
     }
-  }, [selectedElementId, activePresetId, stateManager, runtimeState, setSelectedElementId]);
+  }, [activePresetId, stateManager, runtimeState]);
 
   const handleElementMouseMove = useCallback((e: MouseEvent) => {
     if (!elementDragStart.current) return;
@@ -171,126 +166,106 @@ export function useDragHandlers(
       y: e.clientY - elementDragStart.current.y,
     };
 
-    // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
-    if (!activePresetId) {
+    // FAZ-4-4E: Always use runtime state - no feature flag gating
+    if (!activePresetId || !stateManager || !runtimeState) {
+      if (IS_DEV) {
+        console.warn('[useDragHandlers] handleElementMouseMove called but runtime not available');
+      }
       return;
     }
     
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementDragStart.current!.elementId);
-    
-    if (element) {
-      
-      // Use new MoveOperation (Bug #1 fix)
-      const moveConfig: MoveOperationConfig = {
-        offsetScale,
-        previewRect,
-      };
-      
-      const moveResult = moveElement(element, screenDelta, moveConfig);
-      const newX = moveResult.x;
-      const newY = moveResult.y;
-      
-      // Calculate velocity for escape detection
-      if (lastPosition.current) {
-        snappingState.current.escapeVelocityX = newX - lastPosition.current.x;
-        snappingState.current.escapeVelocityY = newY - lastPosition.current.y;
+    // Get current element state from runtime
+    const element = getElementFromStore(runtimeState.elements, elementDragStart.current!.elementId);
+    if (!element) {
+      if (IS_DEV) {
+        console.warn('[useDragHandlers] handleElementMouseMove: element not found', {
+          elementId: elementDragStart.current!.elementId,
+        });
       }
-      lastPosition.current = { x: newX, y: newY };
-      
-      // Snapping - detect alignment guides (only show when within threshold)
-      const otherElements = runtimeElements.filter(el => el.id !== element.id);
-      const guides = detectAlignment(
-        { ...element, x: newX, y: newY },
-        otherElements,
-        offsetScale
-      );
-      
-      // Only show guides when within threshold
-      setActiveGuides(guides);
-      
-      // Apply soft, magnetic snapping
-      const snapped = applySnapping(newX, newY, guides, snappingState.current);
-      
-      // Update snapping state
-      if (snapped.isSnapped) {
-        // Find which guide we snapped to
-        const xGuide = guides.find(g => g.type === 'center-x');
-        const yGuide = guides.find(g => g.type === 'center-y');
-        if (xGuide) snappingState.current.lastSnappedX = xGuide.x;
-        if (yGuide) snappingState.current.lastSnappedY = yGuide.y;
-      } else {
-        // Clear snapping state if we've escaped
-        const escapedX = snappingState.current.lastSnappedX !== null && 
-          Math.abs(newX - snappingState.current.lastSnappedX) > 15;
-        const escapedY = snappingState.current.lastSnappedY !== null && 
-          Math.abs(newY - snappingState.current.lastSnappedY) > 15;
-        
-        if (escapedX) snappingState.current.lastSnappedX = null;
-        if (escapedY) snappingState.current.lastSnappedY = null;
-      }
-      
-      // Boundary control - constrain element to stay within circle
-      const constrained = constrainToCircle(element, snapped.x, snapped.y, offsetScale);
-      
-      // FAZ-3B-3: Use new runtime system if feature flag is enabled
-      const useNewRuntime = shouldUseFaz3BRuntime();
-      if (useNewRuntime && stateManager && runtimeState) {
-        // Get current element state from runtime
-        const currentElement = getElementFromStore(runtimeState.elements, element.id);
-        if (!currentElement) return;
-        
-        // Create new element state
-        const newElement = {
-          ...currentElement,
-          x: constrained.x,
-          y: constrained.y,
-        };
-        
-        // Create transform action and dispatch (will be batched in transaction)
-        const oldStates = new Map<string, typeof currentElement>();
-        const newStates = new Map<string, typeof newElement>();
-        oldStates.set(element.id, currentElement);
-        newStates.set(element.id, newElement);
-        
-        const action = createTransformAction([element.id], oldStates, newStates);
-        stateManager.dispatch(action); // This adds to transaction if active
-      } else {
-        // Old system: Update runtime overlay Map, NOT settings
-        // Runtime change notification will trigger UI re-render via subscription
-        updateElementInRuntime(activePresetId, element.id, (el) => ({
-          ...el,
-          x: constrained.x,
-          y: constrained.y,
-        }));
-      }
-      
-      // Update drag start position for next frame
-      elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
+      return;
     }
+    
+    // Use MoveOperation to calculate new position
+    const moveConfig: MoveOperationConfig = {
+      offsetScale,
+      previewRect,
+    };
+    
+    const moveResult = moveElement(element, screenDelta, moveConfig);
+    const newX = moveResult.x;
+    const newY = moveResult.y;
+    
+    // FAZ-4 FINAL: MOVE Tick logging removed (production cleanup)
+    
+    // Calculate velocity for escape detection
+    if (lastPosition.current) {
+      snappingState.current.escapeVelocityX = newX - lastPosition.current.x;
+      snappingState.current.escapeVelocityY = newY - lastPosition.current.y;
+    }
+    lastPosition.current = { x: newX, y: newY };
+    
+    // Snapping - detect alignment guides (only show when within threshold)
+    const otherElements = Array.from(runtimeState.elements.values()).filter(el => el.id !== element.id);
+    const guides = detectAlignment(
+      { ...element, x: newX, y: newY },
+      otherElements,
+      offsetScale
+    );
+    
+    // Only show guides when within threshold
+    setActiveGuides(guides);
+    
+    // Apply soft, magnetic snapping
+    const snapped = applySnapping(newX, newY, guides, snappingState.current);
+    
+    // Update snapping state
+    if (snapped.isSnapped) {
+      // Find which guide we snapped to
+      const xGuide = guides.find(g => g.type === 'center-x');
+      const yGuide = guides.find(g => g.type === 'center-y');
+      if (xGuide) snappingState.current.lastSnappedX = xGuide.x;
+      if (yGuide) snappingState.current.lastSnappedY = yGuide.y;
+    } else {
+      // Clear snapping state if we've escaped
+      const escapedX = snappingState.current.lastSnappedX !== null && 
+        Math.abs(newX - snappingState.current.lastSnappedX) > 15;
+      const escapedY = snappingState.current.lastSnappedY !== null && 
+        Math.abs(newY - snappingState.current.lastSnappedY) > 15;
+      
+      if (escapedX) snappingState.current.lastSnappedX = null;
+      if (escapedY) snappingState.current.lastSnappedY = null;
+    }
+    
+    // Boundary control - constrain element to stay within circle
+    const constrained = constrainToCircle(element, snapped.x, snapped.y, offsetScale);
+    
+    // Create new element state
+    const newElement = {
+      ...element,
+      x: constrained.x,
+      y: constrained.y,
+    };
+    
+    // Create transform action and dispatch (will be batched in transaction)
+    const oldStates = new Map<string, typeof element>();
+    const newStates = new Map<string, typeof newElement>();
+    oldStates.set(element.id, element);
+    newStates.set(element.id, newElement);
+    
+    const action = createTransformAction([element.id], oldStates, newStates);
+    stateManager.dispatch(action); // This adds to transaction if active
+    
+    // Update drag start position for next frame
+    elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
   }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleElementMouseUp = useCallback(() => {
-    // FAZ-3B-3: Commit transaction for new runtime system
-    const useNewRuntime = shouldUseFaz3BRuntime();
-    if (useNewRuntime && stateManager) {
+    // FAZ-4-4E: Always commit transaction if stateManager is available
+    if (stateManager) {
       // Commit transaction (batches all actions from this drag into single undo/redo entry)
       stateManager.commitTransaction();
-    }
-    
-    // Record move action for undo/redo (old system only)
-    if (!useNewRuntime && elementDragStart.current && moveInitialPosition.current && onMoveComplete && activePresetId) {
-      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
-      const runtimeElements = getElementsForPreset(activePresetId);
-      const element = runtimeElements.find(el => el.id === elementDragStart.current!.elementId);
-      if (element && (element.x !== moveInitialPosition.current.x || element.y !== moveInitialPosition.current.y)) {
-        // Only record if position actually changed
-        onMoveComplete(
-          elementDragStart.current.elementId,
-          moveInitialPosition.current,
-          { x: element.x, y: element.y }
-        );
-      }
+      
+      // FAZ-4 FINAL: MOVE Commit logging removed (production cleanup)
     }
     
     setDraggingElementId(null);
@@ -306,7 +281,7 @@ export function useDragHandlers(
       escapeVelocityY: 0,
     };
     // Keep selected after drag ends - user can click again to drag
-  }, [onMoveComplete, activePresetId, stateManager]);
+  }, [stateManager, runtimeState]);
 
   // Event listeners for drag handlers
   useEffect(() => {
@@ -349,9 +324,8 @@ export function useDragHandlers(
         }
         
         // Deselect
-        // FAZ-3B-4: Wire deselection to runtime state if feature flag enabled
-        const useNewRuntime = shouldUseFaz3BRuntime();
-        if (useNewRuntime && stateManager && runtimeState) {
+        // FAZ-4-4E: Always wire deselection to runtime state
+        if (stateManager && runtimeState) {
           // Dispatch clear selection action to runtime
           const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
           const oldLastSelectedId = runtimeState.selection.lastSelectedId;
@@ -368,21 +342,23 @@ export function useDragHandlers(
             );
             stateManager.dispatch(action);
           }
-        } else {
-          // Old system: Use local state
-          setSelectedElementId(null);
         }
       }
     };
 
-    if (selectedElementId || draggingElementId) {
+    // FAZ-4-4E: Check selection from runtime state
+    const hasSelection = runtimeState?.selection.selectedIds.size ?? 0 > 0;
+    if (hasSelection || draggingElementId) {
       window.addEventListener('mousedown', handleClickOutside);
       return () => {
         window.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [selectedElementId, draggingElementId]);
+  }, [draggingElementId, stateManager, runtimeState]);
 
+  // FAZ-4-4E: Derive selectedElementId from runtime state (for use in effects)
+  const selectedElementId = runtimeState?.selection.lastSelectedId ?? null;
+  
   // Keyboard arrow key movement for selected element
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -421,39 +397,42 @@ export function useDragHandlers(
       // Prevent default scrolling behavior
       e.preventDefault();
 
-      // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
-      if (!activePresetId) {
-        return;
-      }
+      // FAZ-4-4E: Always use runtime system
+      if (stateManager && runtimeState && activePresetId) {
+        // Get selected element ID from runtime state
+        const selectedId = runtimeState.selection.lastSelectedId;
+        if (!selectedId) return;
+        
+        // Get current element state from runtime
+        const element = getElementFromStore(runtimeState.elements, selectedId);
+        if (!element) return;
 
-      const runtimeElements = getElementsForPreset(activePresetId);
-      const element = runtimeElements.find(el => el.id === selectedElementId);
+        // Calculate new position (LCD coordinates: direct addition)
+        const newX = element.x + dx;
+        const newY = element.y + dy;
 
-      if (!element) {
-        return;
-      }
+        // Apply boundary constraint (constrainToCircle)
+        const constrained = constrainToCircle(element, newX, newY, offsetScale);
 
-      // Store initial position for undo/redo
-      const oldPos = { x: element.x, y: element.y };
+        // Create new element state
+        const newElement = {
+          ...element,
+          x: constrained.x,
+          y: constrained.y,
+        };
 
-      // Calculate new position (LCD coordinates: direct addition)
-      const newX = element.x + dx;
-      const newY = element.y + dy;
+        // Create transform action and dispatch
+        const oldStates = new Map<string, typeof element>();
+        const newStates = new Map<string, typeof newElement>();
+        oldStates.set(element.id, element);
+        newStates.set(element.id, newElement);
 
-      // Apply boundary constraint (constrainToCircle)
-      const constrained = constrainToCircle(element, newX, newY, offsetScale);
-
-      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
-      // Runtime change notification will trigger UI re-render via subscription
-      updateElementInRuntime(activePresetId, element.id, (el) => ({
-        ...el,
-        x: constrained.x,
-        y: constrained.y,
-      }));
-
-      // Record move action for undo/redo (only if position actually changed)
-      if (onMoveComplete && (constrained.x !== oldPos.x || constrained.y !== oldPos.y)) {
-        onMoveComplete(selectedElementId, oldPos, { x: constrained.x, y: constrained.y });
+        const action = createTransformAction([element.id], oldStates, newStates);
+        stateManager.dispatch(action);
+      } else {
+        if (IS_DEV) {
+          console.warn('[useDragHandlers] Keyboard move called but runtime not available');
+        }
       }
     };
 
@@ -462,7 +441,7 @@ export function useDragHandlers(
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedElementId, draggingElementId, offsetScale, onMoveComplete, activePresetId]);
+  }, [draggingElementId, offsetScale, activePresetId, stateManager, runtimeState]);
 
   return {
     // Background drag
@@ -471,8 +450,8 @@ export function useDragHandlers(
     
     // Element drag (unified)
     draggingElementId,
-    selectedElementId,
-    setSelectedElementId,
+    selectedElementId, // Now derived from runtime state
+    setSelectedElementId: () => {}, // No-op - selection is managed by runtime state
     handleElementMouseDown,
     
     // Snapping guides

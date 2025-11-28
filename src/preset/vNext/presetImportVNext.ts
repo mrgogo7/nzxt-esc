@@ -22,6 +22,7 @@ import * as history from '../../state/overlay/history';
 import * as transactions from '../../state/overlay/transactions';
 import { ensureStateConsistency } from '../../state/overlay/validation';
 import { runFullMigration } from './migrationIndex';
+import { IS_DEV } from '../../utils/env';
 
 /**
  * Import warnings interface.
@@ -72,10 +73,20 @@ export function importPresetToRuntimeState(
   let v3Preset: PresetFileV3;
   try {
     v3Preset = runFullMigration(preset);
+    
+    // FAZ-3E PATCH #2: Log migration in dev mode
+    if (IS_DEV) {
+      const sourceVersion = (preset as any)?.schemaVersion ?? 0;
+      if (sourceVersion !== 3) {
+        console.log(`[PresetImport] Migrated preset from v${sourceVersion} to v3`);
+      }
+    }
   } catch (error) {
-    throw new Error(
-      `Preset migration failed: ${error instanceof Error ? error.message : String(error)}`
-    );
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (IS_DEV) {
+      console.error('[PresetImport] Migration failed:', error);
+    }
+    throw new Error(`Preset migration failed: ${errorMessage}`);
   }
   
   // Step 2: Extract elements from preset overlay
@@ -213,6 +224,19 @@ export function importPresetToRuntimeState(
   
   // Step 11: Ensure state consistency (fix any remaining issues)
   const finalState = ensureStateConsistency(newState);
+  
+  // FAZ-3E PATCH #2: Log warnings in dev mode
+  if (IS_DEV && warnings.length > 0) {
+    console.warn(`[PresetImport] Import completed with ${warnings.length} warning(s):`, warnings);
+  }
+  
+  // FAZ-3E PATCH #2: Log successful import in dev mode
+  if (IS_DEV) {
+    console.log(
+      `[PresetImport] Import successful: ${finalState.elements.size} elements, ` +
+      `z-order length: ${finalState.zOrder.length}`
+    );
+  }
   
   return {
     state: finalState,

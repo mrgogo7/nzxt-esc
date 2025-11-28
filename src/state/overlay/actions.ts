@@ -11,7 +11,7 @@
  * - Replay-safe actions
  */
 
-import type { OverlayElement } from '../../types/overlay';
+import type { OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
 import type { OverlayRuntimeState } from './types';
 import * as elementStore from './elementStore';
 import * as selection from './selection';
@@ -24,9 +24,12 @@ export type ActionType =
   | 'addElement'
   | 'removeElement'
   | 'updateElement'
+  | 'updateElementData'
   | 'transform'
   | 'select'
   | 'zOrderChange'
+  | 'moveElementZUp'
+  | 'moveElementZDown'
   | 'batch';
 
 /**
@@ -52,6 +55,16 @@ export interface UpdateElementActionData {
   elementId: string;
   oldState: OverlayElement;
   newState: OverlayElement;
+}
+
+/**
+ * Update element data action data (for partial data updates only).
+ * More efficient than full element update when only data properties change.
+ */
+export interface UpdateElementDataActionData {
+  elementId: string;
+  oldData: MetricElementData | TextElementData | DividerElementData;
+  newData: MetricElementData | TextElementData | DividerElementData;
 }
 
 /**
@@ -83,6 +96,26 @@ export interface ZOrderActionData {
 }
 
 /**
+ * Move element Z-index up action data.
+ * FAZ-4-4P: New action for Move Up button.
+ */
+export interface MoveElementZUpActionData {
+  elementId: string;
+  oldZ: number;
+  newZ: number;
+}
+
+/**
+ * Move element Z-index down action data.
+ * FAZ-4-4P: New action for Move Down button.
+ */
+export interface MoveElementZDownActionData {
+  elementId: string;
+  oldZ: number;
+  newZ: number;
+}
+
+/**
  * Batch action data (contains nested actions).
  */
 export interface BatchActionData {
@@ -96,9 +129,12 @@ export type ActionData =
   | AddElementActionData
   | RemoveElementActionData
   | UpdateElementActionData
+  | UpdateElementDataActionData
   | TransformActionData
   | SelectActionData
   | ZOrderActionData
+  | MoveElementZUpActionData
+  | MoveElementZDownActionData
   | BatchActionData;
 
 /**
@@ -305,6 +341,76 @@ export function createUpdateElementAction(
 }
 
 /**
+ * Create update element data action (for partial data updates only).
+ * More efficient than full element update when only data properties change.
+ * 
+ * FAZ-4-4L: Added for efficient property updates (color, font, text, etc.).
+ * 
+ * @param elementId - Element ID to update
+ * @param oldData - Old element data
+ * @param newData - New element data
+ * @param state - Current state (to get current element)
+ * @returns Update element data action
+ */
+export function createUpdateElementDataAction(
+  elementId: string,
+  oldData: MetricElementData | TextElementData | DividerElementData,
+  newData: MetricElementData | TextElementData | DividerElementData,
+  state: OverlayRuntimeState
+): Action {
+  const currentElement = elementStore.getElement(state.elements, elementId);
+  if (!currentElement) {
+    throw new Error(`Cannot create update element data action: element ${elementId} not found`);
+  }
+  
+  const actionId = generateActionId();
+  const actionData: UpdateElementDataActionData = {
+    elementId,
+    oldData,
+    newData,
+  };
+  
+  return {
+    id: actionId,
+    type: 'updateElementData',
+    timestamp: Date.now(),
+    data: actionData,
+    
+    execute(state: OverlayRuntimeState): OverlayRuntimeState {
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (element) => ({
+          ...element,
+          data: newData,
+        })
+      );
+      
+      return {
+        ...state,
+        elements: newElements,
+      };
+    },
+    
+    undo(state: OverlayRuntimeState): OverlayRuntimeState {
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (element) => ({
+          ...element,
+          data: oldData,
+        })
+      );
+      
+      return {
+        ...state,
+        elements: newElements,
+      };
+    },
+  };
+}
+
+/**
  * Create transform action (for element transformations).
  * 
  * @param elementIds - Element IDs to transform
@@ -475,6 +581,316 @@ export function createZOrderAction(
       return {
         ...state,
         zOrder: [...zOrderData.oldZOrder],
+      };
+    },
+  };
+}
+
+/**
+ * Create move element Z-index up action.
+ * FAZ-4-4P: Increments element.zIndex by 1 and reorders zOrder array.
+ * 
+ * @param elementId - Element ID to move up
+ * @param state - Current state (to get element and calculate zIndex)
+ * @returns Move element Z-index up action
+ */
+export function createMoveElementZUpAction(
+  elementId: string,
+  state: OverlayRuntimeState
+): Action {
+  const element = elementStore.getElement(state.elements, elementId);
+  if (!element) {
+    throw new Error(`Cannot create moveElementZUp action: element ${elementId} not found`);
+  }
+  
+  // Calculate oldZ: use element.zIndex if set, otherwise derive from zOrder position
+  const zOrderIndex = zOrder.getZOrderIndex(state.zOrder, elementId);
+  if (zOrderIndex === -1) {
+    throw new Error(`Cannot create moveElementZUp action: element ${elementId} not in z-order`);
+  }
+  
+  // Get current zIndex or use zOrder position as fallback
+  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
+  
+  // Calculate newZ: increment by 1
+  // Get max zIndex from all elements to ensure we don't exceed bounds
+  const allElements = elementStore.getAllElements(state.elements);
+  const maxZIndex = allElements.reduce((max, el) => {
+    const elZ = el.zIndex !== undefined ? el.zIndex : state.zOrder.indexOf(el.id);
+    return Math.max(max, elZ);
+  }, -1);
+  
+  // If already at max, don't change
+  if (oldZ >= maxZIndex) {
+    // Return no-op action
+    const actionId = generateActionId();
+    const actionData: MoveElementZUpActionData = {
+      elementId,
+      oldZ,
+      newZ: oldZ,
+    };
+    
+    return {
+      id: actionId,
+      type: 'moveElementZUp',
+      timestamp: Date.now(),
+      data: actionData,
+      execute: (s) => s, // No-op
+      undo: (s) => s, // No-op
+    };
+  }
+  
+  const newZ = oldZ + 1;
+  
+  const actionId = generateActionId();
+  const actionData: MoveElementZUpActionData = {
+    elementId,
+    oldZ,
+    newZ,
+  };
+  
+  return {
+    id: actionId,
+    type: 'moveElementZUp',
+    timestamp: Date.now(),
+    data: actionData,
+    
+    execute(state: OverlayRuntimeState): OverlayRuntimeState {
+      // Update element.zIndex
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (el) => ({
+          ...el,
+          zIndex: newZ,
+        })
+      );
+      
+      // Reorder zOrder array based on zIndex values
+      // Sort all elements by zIndex (ascending), preserving relative order for same zIndex
+      const allElementsArray = elementStore.getAllElements(newElements);
+      
+      // Create a map of elementId -> current zOrder index (for tie-breaking)
+      const zOrderIndexMap = new Map<string, number>();
+      state.zOrder.forEach((id, idx) => {
+        zOrderIndexMap.set(id, idx);
+      });
+      
+      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
+        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
+        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
+        
+        // If zIndex values are equal, preserve relative order from old zOrder
+        if (aZ === bZ) {
+          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
+          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
+          return aOrder - bOrder;
+        }
+        
+        return aZ - bZ;
+      });
+      
+      // Create new zOrder array from sorted elements
+      const newZOrder = sortedByZIndex.map(el => el.id);
+      
+      return {
+        ...state,
+        elements: newElements,
+        zOrder: newZOrder,
+      };
+    },
+    
+    undo(state: OverlayRuntimeState): OverlayRuntimeState {
+      // Restore old zIndex
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (el) => ({
+          ...el,
+          zIndex: oldZ,
+        })
+      );
+      
+      // Reorder zOrder array back based on restored zIndex values
+      const allElementsArray = elementStore.getAllElements(newElements);
+      
+      // Create a map of elementId -> current zOrder index (for tie-breaking)
+      const zOrderIndexMap = new Map<string, number>();
+      state.zOrder.forEach((id, idx) => {
+        zOrderIndexMap.set(id, idx);
+      });
+      
+      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
+        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
+        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
+        
+        // If zIndex values are equal, preserve relative order from old zOrder
+        if (aZ === bZ) {
+          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
+          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
+          return aOrder - bOrder;
+        }
+        
+        return aZ - bZ;
+      });
+      
+      const newZOrder = sortedByZIndex.map(el => el.id);
+      
+      return {
+        ...state,
+        elements: newElements,
+        zOrder: newZOrder,
+      };
+    },
+  };
+}
+
+/**
+ * Create move element Z-index down action.
+ * FAZ-4-4P: Decrements element.zIndex by 1 and reorders zOrder array.
+ * 
+ * @param elementId - Element ID to move down
+ * @param state - Current state (to get element and calculate zIndex)
+ * @returns Move element Z-index down action
+ */
+export function createMoveElementZDownAction(
+  elementId: string,
+  state: OverlayRuntimeState
+): Action {
+  const element = elementStore.getElement(state.elements, elementId);
+  if (!element) {
+    throw new Error(`Cannot create moveElementZDown action: element ${elementId} not found`);
+  }
+  
+  // Calculate oldZ: use element.zIndex if set, otherwise derive from zOrder position
+  const zOrderIndex = zOrder.getZOrderIndex(state.zOrder, elementId);
+  if (zOrderIndex === -1) {
+    throw new Error(`Cannot create moveElementZDown action: element ${elementId} not in z-order`);
+  }
+  
+  // Get current zIndex or use zOrder position as fallback
+  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
+  
+  // Calculate newZ: decrement by 1, but don't go below 0
+  if (oldZ <= 0) {
+    // Return no-op action (already at bottom)
+    const actionId = generateActionId();
+    const actionData: MoveElementZDownActionData = {
+      elementId,
+      oldZ,
+      newZ: oldZ,
+    };
+    
+    return {
+      id: actionId,
+      type: 'moveElementZDown',
+      timestamp: Date.now(),
+      data: actionData,
+      execute: (s) => s, // No-op
+      undo: (s) => s, // No-op
+    };
+  }
+  
+  const newZ = oldZ - 1;
+  
+  const actionId = generateActionId();
+  const actionData: MoveElementZDownActionData = {
+    elementId,
+    oldZ,
+    newZ,
+  };
+  
+  return {
+    id: actionId,
+    type: 'moveElementZDown',
+    timestamp: Date.now(),
+    data: actionData,
+    
+    execute(state: OverlayRuntimeState): OverlayRuntimeState {
+      // Update element.zIndex
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (el) => ({
+          ...el,
+          zIndex: newZ,
+        })
+      );
+      
+      // Reorder zOrder array based on zIndex values
+      // Sort all elements by zIndex (ascending), preserving relative order for same zIndex
+      const allElementsArray = elementStore.getAllElements(newElements);
+      
+      // Create a map of elementId -> current zOrder index (for tie-breaking)
+      const zOrderIndexMap = new Map<string, number>();
+      state.zOrder.forEach((id, idx) => {
+        zOrderIndexMap.set(id, idx);
+      });
+      
+      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
+        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
+        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
+        
+        // If zIndex values are equal, preserve relative order from old zOrder
+        if (aZ === bZ) {
+          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
+          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
+          return aOrder - bOrder;
+        }
+        
+        return aZ - bZ;
+      });
+      
+      // Create new zOrder array from sorted elements
+      const newZOrder = sortedByZIndex.map(el => el.id);
+      
+      return {
+        ...state,
+        elements: newElements,
+        zOrder: newZOrder,
+      };
+    },
+    
+    undo(state: OverlayRuntimeState): OverlayRuntimeState {
+      // Restore old zIndex
+      const newElements = elementStore.updateElement(
+        state.elements,
+        elementId,
+        (el) => ({
+          ...el,
+          zIndex: oldZ,
+        })
+      );
+      
+      // Reorder zOrder array back based on restored zIndex values
+      const allElementsArray = elementStore.getAllElements(newElements);
+      
+      // Create a map of elementId -> current zOrder index (for tie-breaking)
+      const zOrderIndexMap = new Map<string, number>();
+      state.zOrder.forEach((id, idx) => {
+        zOrderIndexMap.set(id, idx);
+      });
+      
+      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
+        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
+        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
+        
+        // If zIndex values are equal, preserve relative order from old zOrder
+        if (aZ === bZ) {
+          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
+          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
+          return aOrder - bOrder;
+        }
+        
+        return aZ - bZ;
+      });
+      
+      const newZOrder = sortedByZIndex.map(el => el.id);
+      
+      return {
+        ...state,
+        elements: newElements,
+        zOrder: newZOrder,
       };
     },
   };

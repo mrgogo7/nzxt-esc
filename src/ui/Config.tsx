@@ -5,8 +5,11 @@ import './styles/ConfigPreview.css';
 import { DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
-import { useOverlayConfig } from '../hooks/useOverlayConfig';
+// FAZ-4-3: Legacy useOverlayConfig deleted - using vNext instead
 import { useAtomicPresetSync } from '../hooks/useAtomicPresetSync';
+import { useOverlayStateManager } from '../state/overlay/useOverlayStateManager';
+import { getElementsInZOrder } from '../state/overlay/selectors';
+import type { Overlay } from '../types/overlay';
 import ColorPicker from './components/ColorPicker';
 import { X, Loader2, Check, FolderOpen } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
@@ -114,7 +117,27 @@ export default function Config() {
     };
   }, []);
   
-  const overlayConfig = useOverlayConfig(settings, activePresetId);
+  // FAZ-4-3: Legacy useOverlayConfig deleted - build overlay from vNext state
+  const stateManagerHook = activePresetId
+    ? useOverlayStateManager(activePresetId)
+    : null;
+  const runtimeState = stateManagerHook?.state ?? null;
+  
+  // Build overlay config from runtime state
+  const overlayConfig: Overlay = (() => {
+    if (runtimeState) {
+      const elementsInZOrder = getElementsInZOrder(runtimeState.elements, runtimeState.zOrder);
+      return {
+        mode: elementsInZOrder.length > 0 ? 'custom' : (settings.overlay?.mode || 'none'),
+        elements: elementsInZOrder,
+      };
+    } else {
+      return {
+        mode: settings.overlay?.mode || 'none',
+        elements: [],
+      };
+    }
+  })();
   const [urlInput, setUrlInput] = useState<string>(mediaUrl);
   const [isResolving, setIsResolving] = useState(false);
   const [resolveMessage, setResolveMessage] = useState<string | null>(null);

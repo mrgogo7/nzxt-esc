@@ -19,16 +19,18 @@ import { createStoreFromArray } from './elementStore';
 import { createInitialSelectionState } from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
-import { getElementsForPreset } from '../overlayRuntime';
-// FAZ-3D: Multi-tab sync integration
-import { shouldUseFaz3BRuntime } from '../../utils/featureFlags';
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - initializeFromExistingRuntime now returns empty state
+// FAZ-4 FINAL: Runtime always enabled (legacy removed)
+import { IS_DEV } from '../../utils/env';
 import {
   createStateUpdateMessage,
+  createStateSyncRequestMessage,
+  createStateSyncResponseMessage,
   mergeStates,
   deserializeStateFromSync,
   generateTabId,
   validateSyncMessage,
-  SYNC_MESSAGE_VERSION,
+  isMessageVersionCompatible,
 } from './sync';
 
 /**
@@ -49,12 +51,7 @@ let broadcastChannel: BroadcastChannel | null = null;
  * @returns BroadcastChannel instance or null if not available
  */
 function getBroadcastChannel(): BroadcastChannel | null {
-  // Only create if feature flag is enabled
-  if (!shouldUseFaz3BRuntime()) {
-    return null;
-  }
-  
-  // Check if BroadcastChannel is available
+  // FAZ-4 FINAL: Runtime always enabled - check if BroadcastChannel is available
   if (typeof BroadcastChannel === 'undefined') {
     return null;
   }
@@ -85,27 +82,37 @@ function getCurrentTabId(): string {
 }
 
 /**
- * Initialize runtime state from existing overlayRuntime.ts data.
- * This is a backward compatibility helper to migrate from old runtime to new state.
+ * Check if current route is Kraken view (?kraken=1).
+ * 
+ * FAZ-4-4M: Helper to detect Kraken view for always-accept-remote rule.
+ * 
+ * @returns True if in Kraken view
+ */
+function isKrakenView(): boolean {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  try {
+    return window.location.search.includes('kraken=1');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Initialize runtime state (FAZ-4-3: Legacy runtime deleted, returns empty state).
+ * State will be populated when presets are imported/applied via importPresetToRuntimeState.
  * 
  * @param presetId - Preset ID (null for no preset)
- * @returns Initial runtime state populated from existing runtime overlay
+ * @returns Initial empty runtime state
  */
 function initializeFromExistingRuntime(presetId: string | null): OverlayRuntimeState {
-  // Get existing elements from old runtime system
-  const existingElements = getElementsForPreset(presetId);
-  
-  // Create element store from existing elements
-  const elements = createStoreFromArray(existingElements);
-  
-  // Build z-order from existing elements (preserve order)
-  const zOrder = existingElements.map(el => el.id);
-  
-  // Create initial state
+  // FAZ-4-3: Legacy overlayRuntime.ts deleted - return empty state
+  // State will be populated when presets are imported/applied
   return {
-    elements,
+    elements: createStoreFromArray([]),
     selection: createInitialSelectionState(),
-    zOrder,
+    zOrder: [],
     history: history.createInitialHistoryState(),
     transactions: transactions.createInitialTransactionState(),
     meta: {
@@ -213,35 +220,106 @@ export function useOverlayStateManager(
   // Use useSyncExternalStore for reactive state
   const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   
-  // FAZ-3D: Multi-tab sync integration
-  const useNewRuntime = shouldUseFaz3BRuntime();
+  // FAZ-4 FINAL: Runtime is always enabled (legacy removed)
   const isBroadcastingRef = useRef(false); // Prevent broadcast loops
+  const hasRequestedInitialSyncRef = useRef(false); // Track if initial sync was requested
+  const lastBroadcastStateRef = useRef<string | null>(null); // FAZ-4 FINAL: Prevent duplicate broadcasts
   
   useEffect(() => {
-    if (!useNewRuntime) {
-      return; // Skip sync if feature flag is disabled
-    }
-    
     const channel = getBroadcastChannel();
     if (!channel) {
       return; // BroadcastChannel not available
     }
     
+    // FAZ-4-4I: Initial sync - request full state when hook mounts
+    // This ensures LCD receives state immediately on open
+    if (!hasRequestedInitialSyncRef.current) {
+      hasRequestedInitialSyncRef.current = true;
+      const currentState = stateManager.getState();
+      
+      // Only request sync if local state is empty (LCD scenario)
+      // Preview/editor tabs with state will respond to requests
+      if (currentState.elements.size === 0) {
+        const syncRequest = createStateSyncRequestMessage(getCurrentTabId());
+        try {
+          channel.postMessage(syncRequest);
+          if (IS_DEV) {
+            console.debug('[Sync] Initial sync request sent');
+          }
+        } catch (error) {
+          console.warn('[OverlayStateManager] Failed to send initial sync request:', error);
+        }
+      }
+    }
+    
     // Subscribe to state changes and broadcast them
+    // FAZ-4-4I: Broadcast on EVERY state change, including during transactions
     const unsubscribe = stateManager.subscribe((newState) => {
-      // Prevent broadcast loops (don't broadcast if we're applying incoming sync)
+      // FAZ-3E: Anti-echo loop protection - prevent broadcast if we're applying incoming sync
       if (isBroadcastingRef.current) {
+        // FAZ-4 FINAL: Dev mode logging only
+        if (IS_DEV) {
+          console.debug('[Sync] Broadcast suppressed (preventing echo loop)');
+        }
         return;
       }
+      
+      // FAZ-4 FINAL: Prevent duplicate broadcasts (same state content)
+      const stateFingerprint = JSON.stringify({
+        elements: newState.elements.size,
+        zOrder: newState.zOrder.join(','),
+        selection: Array.from(newState.selection.selectedIds).join(','),
+        meta: newState.meta.updatedAt,
+      });
+      if (lastBroadcastStateRef.current === stateFingerprint) {
+        // Same state - skip broadcast
+        if (IS_DEV) {
+          console.debug('[Sync] Duplicate state detected, skipping broadcast');
+        }
+        return;
+      }
+      lastBroadcastStateRef.current = stateFingerprint;
+      
+      // FAZ-4-4I: Always broadcast state changes, even during transactions
+      // This ensures drag/move/rotate operations broadcast in real-time
       
       // Create state update message
       const message = createStateUpdateMessage(newState, getCurrentTabId());
       
+      // FAZ-4-4H: Final structuredClone gate before BroadcastChannel postMessage
+      // This is the last safety check - if this fails, log and skip broadcast (don't crash)
+      try {
+        // Test cloneability of the complete message
+        structuredClone(message);
+      } catch (cloneError) {
+        // If structuredClone fails, log the failing payload and skip broadcast
+        console.error('[OverlayStateManager] Final structuredClone gate failed:', cloneError);
+        if (IS_DEV) {
+          console.error('[Sync] Failing payload:', message);
+          console.error('[Sync] Failing state:', message.state);
+        }
+        // Skip broadcast but DO NOT crash (avoids infinite error loops)
+        return;
+      }
+      
       // Broadcast to other tabs
       try {
         channel.postMessage(message);
+        
+        // FAZ-4 FINAL: Broadcast logging removed (production cleanup)
       } catch (error) {
         console.warn('[OverlayStateManager] Failed to broadcast state update:', error);
+        
+        // FAZ-3E: Enhanced error logging for dev mode
+        if (IS_DEV) {
+          console.error('[Sync] Broadcast error details:', {
+            error,
+            state: {
+              elements: newState.elements.size,
+              zOrder: newState.zOrder.length,
+            },
+          });
+        }
       }
     });
     
@@ -250,20 +328,71 @@ export function useOverlayStateManager(
       try {
         const message = event.data;
         
+        // FAZ-4 FINAL: Sync event logging removed (production cleanup)
+        
         // Validate message
         if (!validateSyncMessage(message)) {
+          // FAZ-3E: Dev mode logging for invalid messages
+          if (IS_DEV) {
+            console.warn('[Sync] Invalid message format, ignoring:', message);
+          }
           return; // Invalid message, ignore
         }
         
-        // Check message version
-        if (message.version !== SYNC_MESSAGE_VERSION) {
-          console.warn('[OverlayStateManager] Unsupported sync message version:', message.version);
+        // Check message version (with enhanced warning)
+        if (!isMessageVersionCompatible(message.version)) {
+          // Warning already logged in isMessageVersionCompatible for dev mode
           return;
         }
         
-        // Ignore messages from self
+        // Ignore messages from self (anti-echo loop protection)
         if (message.tabId === getCurrentTabId()) {
+          // FAZ-4 FINAL: Self-message logging removed (production cleanup)
           return;
+        }
+        
+        // FAZ-4-4I: Handle state-sync-request (LCD requests initial state)
+        if (message.type === 'state-sync-request') {
+          // Respond with current state
+          const currentState = stateManager.getState();
+          // Only respond if we have state to share (preview/editor tab)
+          if (currentState.elements.size > 0) {
+            const syncResponse = createStateSyncResponseMessage(currentState, getCurrentTabId());
+            try {
+              channel.postMessage(syncResponse);
+              if (IS_DEV) {
+                console.debug('[Sync] State sync response sent:', {
+                  elements: currentState.elements.size,
+                });
+              }
+            } catch (error) {
+              console.warn('[OverlayStateManager] Failed to send sync response:', error);
+            }
+          }
+          return; // No state change from request
+        }
+        
+        // FAZ-4-4I: Handle state-sync-response (initial state received)
+        if (message.type === 'state-sync-response') {
+          // Deserialize incoming state
+          const incomingState = deserializeStateFromSync(message.state);
+          
+          // Apply incoming state directly (this is initial sync, no merge needed)
+          isBroadcastingRef.current = true;
+          try {
+            stateManager.replaceState(incomingState);
+            if (IS_DEV) {
+              console.debug('[Sync] Initial state received and applied:', {
+                elements: incomingState.elements.size,
+                zOrder: incomingState.zOrder.length,
+              });
+            }
+          } finally {
+            setTimeout(() => {
+              isBroadcastingRef.current = false;
+            }, 50);
+          }
+          return; // Initial sync complete
         }
         
         // Handle state update message
@@ -271,7 +400,30 @@ export function useOverlayStateManager(
           // Deserialize incoming state
           const incomingState = deserializeStateFromSync(message.state);
           
-          // Merge states (conflict resolution)
+          // FAZ-4-4M: Kraken view always accepts remote state as truth (no merge heuristics)
+          const krakenView = isKrakenView();
+          if (krakenView) {
+            if (IS_DEV) {
+              console.debug('[Sync][Kraken] Applying remote state as canonical source', {
+                tabId: message.tabId,
+                timestamp: message.timestamp,
+                elements: incomingState.elements.size,
+              });
+            }
+            
+            // Replace local runtime state directly (no merge, no equality check)
+            isBroadcastingRef.current = true;
+            try {
+              stateManager.replaceState(incomingState);
+            } finally {
+              setTimeout(() => {
+                isBroadcastingRef.current = false;
+              }, 50);
+            }
+            return; // Kraken view: always accept remote, skip merge logic
+          }
+          
+          // Editor view: Use merge logic with data-aware equality check
           const currentState = stateManager.getState();
           const mergedState = mergeStates(
             currentState,
@@ -279,22 +431,87 @@ export function useOverlayStateManager(
             message.timestamp
           );
           
+          // FAZ-4-4M: Data-aware state change detection
+          // Check if merged state is actually different from current, including element.data
+          const stateChanged = 
+            mergedState.elements.size !== currentState.elements.size ||
+            mergedState.zOrder.length !== currentState.zOrder.length ||
+            mergedState.selection.selectedIds.size !== currentState.selection.selectedIds.size ||
+            // Deep check: compare element IDs, positions, AND data
+            (() => {
+              let geometryChanged = false;
+              let dataChanged = false;
+              
+              // Check if any elements differ
+              for (const [id, mergedElement] of mergedState.elements) {
+                const currentElement = currentState.elements.get(id);
+                if (!currentElement) {
+                  return true; // New element
+                }
+                
+                // Check geometry (position/transform)
+                if (
+                  currentElement.x !== mergedElement.x ||
+                  currentElement.y !== mergedElement.y ||
+                  currentElement.angle !== mergedElement.angle ||
+                  currentElement.zIndex !== mergedElement.zIndex
+                ) {
+                  geometryChanged = true;
+                }
+                
+                // FAZ-4-4M: Check element.data (color, font, text, etc.)
+                if (JSON.stringify(currentElement.data) !== JSON.stringify(mergedElement.data)) {
+                  dataChanged = true;
+                }
+              }
+              
+              // Check if any elements were removed
+              for (const id of currentState.elements.keys()) {
+                if (!mergedState.elements.has(id)) {
+                  return true; // Element removed
+                }
+              }
+              
+              // FAZ-4-4M: Log data-only changes for debugging
+              if (IS_DEV && !geometryChanged && dataChanged) {
+                console.debug('[Sync] Data-only change detected (element.data). Forcing replaceState.');
+              }
+              
+              return geometryChanged || dataChanged;
+            })();
+          
+          if (!stateChanged) {
+            // FAZ-4-4M: States are the same - no need to apply
+            if (IS_DEV) {
+              console.debug('[Sync] Merge resulted in no state change, skipping replaceState');
+            }
+            return; // No change, skip replaceState
+          }
+          
           // Apply merged state (set flag to prevent broadcast loop)
           isBroadcastingRef.current = true;
           try {
             stateManager.replaceState(mergedState);
+            
+            // FAZ-4 FINAL: Merge logging removed (production cleanup)
           } finally {
             // Reset flag after a short delay to ensure state update completes
+            // FAZ-3E: Increased delay slightly for better loop prevention (10ms -> 50ms)
             setTimeout(() => {
               isBroadcastingRef.current = false;
-            }, 10);
+            }, 50);
           }
         }
-        
-        // TODO: Handle state-sync-request and state-sync-response if needed
-        // For now, we only handle state-update messages (push-based sync)
       } catch (error) {
         console.error('[OverlayStateManager] Error handling sync message:', error);
+        
+        // FAZ-3E: Enhanced error logging for dev mode
+        if (IS_DEV) {
+          console.error('[Sync] Full error details:', {
+            error,
+            message: event.data,
+          });
+        }
       }
     };
     
@@ -304,8 +521,11 @@ export function useOverlayStateManager(
     return () => {
       unsubscribe();
       channel.removeEventListener('message', handleMessage);
+      // Reset initial sync flag on cleanup (allows re-request on remount)
+      hasRequestedInitialSyncRef.current = false;
+      lastBroadcastStateRef.current = null; // FAZ-4 FINAL: Reset duplicate check
     };
-  }, [activePresetId, stateManager, useNewRuntime]);
+  }, [activePresetId, stateManager]);
   
   // Cleanup on unmount (optional - we keep StateManager in cache for persistence)
   useEffect(() => {

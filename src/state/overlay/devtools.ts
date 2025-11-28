@@ -8,6 +8,9 @@
  * - Pure functions only
  * - No production dependencies
  * - Comprehensive diagnostics
+ * 
+ * FAZ-3E PATCH #2: All devtools functions should only be called when IS_DEV === true.
+ * This ensures they are tree-shaken in production builds.
  */
 
 import type { OverlayRuntimeState } from './types';
@@ -17,6 +20,7 @@ import * as elementStore from './elementStore';
 import * as selection from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
+// IS_DEV is used implicitly via tree-shaking - functions should only be called when IS_DEV === true
 
 /**
  * State report interface.

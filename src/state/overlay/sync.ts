@@ -12,7 +12,9 @@
  */
 
 import type { OverlayRuntimeState } from './types';
-import { getSerializableState, deserializeState } from './runtime';
+import type { OverlayElement } from '../../types/overlay';
+import { getSerializableState, deserializeState, sanitizeRuntimeState } from './runtime';
+import { IS_DEV } from '../../utils/env';
 
 /**
  * Sync message version.
@@ -107,21 +109,43 @@ export function deserializeStateFromSync(
 /**
  * Create state update message.
  * 
+ * FAZ-4-4H: Enhanced with strict structuredClone validation and error reporting.
+ * 
  * @param state - Runtime state to broadcast
  * @param tabId - Tab ID (sender)
  * @returns State update message
+ * @throws Error if sanitized state fails structuredClone test
  */
 export function createStateUpdateMessage(
   state: OverlayRuntimeState,
   tabId: string
 ): StateUpdateMessage {
-  return {
+  // FAZ-4-4H: Use sanitizeRuntimeState() directly (it includes structuredClone validation)
+  const safeState = sanitizeRuntimeState(state);
+  
+  // FAZ-4-4H: Verify the entire message is structuredClone-safe
+  const message: StateUpdateMessage = {
     version: SYNC_MESSAGE_VERSION,
     type: 'state-update',
     timestamp: Date.now(),
     tabId,
-    state: serializeStateForSync(state),
+    state: safeState,
   };
+  
+  // FAZ-4-4H: Final structuredClone test on the complete message
+  try {
+    structuredClone(message);
+  } catch (error) {
+    // If structuredClone fails, log the offending object and throw
+    console.error('[Sync] Message failed structuredClone test:', error);
+    console.error('[Sync] Offending message:', message);
+    console.error('[Sync] Offending state:', safeState);
+    throw new Error(
+      `State update message is not structuredClone-safe: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+  
+  return message;
 }
 
 /**
@@ -144,28 +168,135 @@ export function createStateSyncRequestMessage(
 /**
  * Create state sync response message.
  * 
+ * FAZ-4-4H: Enhanced with structuredClone validation.
+ * 
  * @param state - Runtime state to send
  * @param tabId - Tab ID (responder)
  * @returns State sync response message
+ * @throws Error if sanitized state fails structuredClone test
  */
 export function createStateSyncResponseMessage(
   state: OverlayRuntimeState,
   tabId: string
 ): StateSyncResponseMessage {
-  return {
+  // FAZ-4-4H: Use sanitizeRuntimeState() directly (it includes structuredClone validation)
+  const safeState = sanitizeRuntimeState(state);
+  
+  const message: StateSyncResponseMessage = {
     version: SYNC_MESSAGE_VERSION,
     type: 'state-sync-response',
     timestamp: Date.now(),
     tabId,
-    state: serializeStateForSync(state),
+    state: safeState,
   };
+  
+  // FAZ-4-4H: Final structuredClone test on the complete message
+  try {
+    structuredClone(message);
+  } catch (error) {
+    console.error('[Sync] Sync response message failed structuredClone test:', error);
+    console.error('[Sync] Offending message:', message);
+    throw new Error(
+      `State sync response message is not structuredClone-safe: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+  
+  return message;
+}
+
+/**
+ * Check if element data is equal (deep comparison).
+ * 
+ * FAZ-4-4M: Helper to detect data-only changes.
+ * 
+ * @param a - First element
+ * @param b - Second element
+ * @returns True if element data is equal
+ */
+function areElementsDataEqual(a: OverlayElement, b: OverlayElement): boolean {
+  if (a.type !== b.type) {
+    return false;
+  }
+  // Safe simple approach: JSON comparison
+  return JSON.stringify(a.data) === JSON.stringify(b.data);
+}
+
+/**
+ * Check if two states are actually different (deep comparison of key fields).
+ * 
+ * FAZ-4-4M: Enhanced to explicitly check element.data for data-only changes.
+ * 
+ * @param currentState - Current state
+ * @param incomingState - Incoming state
+ * @returns True if states are different
+ */
+function areStatesDifferent(
+  currentState: OverlayRuntimeState,
+  incomingState: OverlayRuntimeState
+): boolean {
+  // Check element count mismatch
+  if (currentState.elements.size !== incomingState.elements.size) {
+    return true;
+  }
+  
+  // Check if any elements are different (by ID, properties, or data)
+  for (const [id, incomingElement] of incomingState.elements) {
+    const currentElement = currentState.elements.get(id);
+    if (!currentElement) {
+      return true; // Element exists in incoming but not in current
+    }
+    
+    // Compare element properties (x, y, angle, zIndex)
+    if (
+      currentElement.x !== incomingElement.x ||
+      currentElement.y !== incomingElement.y ||
+      currentElement.angle !== incomingElement.angle ||
+      currentElement.zIndex !== incomingElement.zIndex
+    ) {
+      return true; // Element geometry/transform differs
+    }
+    
+    // FAZ-4-4M: Explicitly check element.data (color, font, text, etc.)
+    if (!areElementsDataEqual(currentElement, incomingElement)) {
+      return true; // Element data differs
+    }
+  }
+  
+  // Check if any elements exist in current but not in incoming
+  for (const id of currentState.elements.keys()) {
+    if (!incomingState.elements.has(id)) {
+      return true; // Element exists in current but not in incoming
+    }
+  }
+  
+  // Check selectedIds mismatch
+  if (currentState.selection.selectedIds.size !== incomingState.selection.selectedIds.size) {
+    return true;
+  }
+  for (const id of currentState.selection.selectedIds) {
+    if (!incomingState.selection.selectedIds.has(id)) {
+      return true;
+    }
+  }
+  
+  // Check zOrder mismatch
+  if (currentState.zOrder.length !== incomingState.zOrder.length) {
+    return true;
+  }
+  if (currentState.zOrder.join(',') !== incomingState.zOrder.join(',')) {
+    return true;
+  }
+  
+  // States are the same
+  return false;
 }
 
 /**
  * Merge states using conflict-free merge strategy.
  * 
- * Strategy: Latest timestamp wins (simple last-write-wins).
- * For more sophisticated merging, use timestamp + operation-based merging.
+ * FAZ-4-4I: Enhanced to always detect and apply state differences.
+ * 
+ * Strategy: Latest timestamp wins, but ALWAYS apply if states are different.
  * 
  * @param currentState - Current local state
  * @param incomingState - Incoming state from sync
@@ -177,13 +308,39 @@ export function mergeStates(
   incomingState: OverlayRuntimeState,
   incomingTimestamp: number
 ): OverlayRuntimeState {
-  // Simple merge strategy: latest timestamp wins
-  // More sophisticated strategies (operation-based merging) can be added later
+  // FAZ-4-4I PATCH #2: Validate incoming state has valid meta
+  if (!incomingState.meta || typeof incomingState.meta.updatedAt !== 'number') {
+    if (IS_DEV) {
+      console.warn('[Sync] Incoming state has invalid meta, using current state', incomingState);
+    }
+    return currentState;
+  }
   
-  const currentTimestamp = currentState.meta.updatedAt;
+  // FAZ-4-4I: Check if states are actually different
+  const statesAreDifferent = areStatesDifferent(currentState, incomingState);
   
-  if (incomingTimestamp > currentTimestamp) {
-    // Incoming state is newer: use incoming state
+  // FAZ-3E PATCH #2: Defensive check for missing meta.updatedAt
+  const currentTimestamp = currentState.meta?.updatedAt ?? 0;
+  const timeDelta = incomingTimestamp - currentTimestamp;
+  
+  // FAZ-4-4I: ALWAYS apply incoming state if it's different, regardless of timestamp
+  // This fixes the issue where LCD has empty state but incoming has elements
+  if (statesAreDifferent) {
+      // FAZ-4 FINAL: Merge logging removed (production cleanup)
+    // Always use incoming state if it's different
+    return {
+      ...incomingState,
+      meta: {
+        ...incomingState.meta,
+        updatedAt: incomingTimestamp,
+      },
+    };
+  }
+  
+    // States are the same - use timestamp-based merge
+    if (incomingTimestamp > currentTimestamp) {
+      // Incoming state is newer: use incoming state
+      // FAZ-4 FINAL: Merge logging removed (production cleanup)
     return {
       ...incomingState,
       meta: {
@@ -194,17 +351,23 @@ export function mergeStates(
   }
   
   // Current state is newer or equal: keep current state
+  // FAZ-4 FINAL: Merge logging removed (production cleanup)
   return currentState;
 }
 
 /**
  * Validate sync message.
  * 
+ * FAZ-3E PATCH #2: Enhanced validation with better error reporting.
+ * 
  * @param message - Message to validate
  * @returns True if message is valid
  */
 export function validateSyncMessage(message: unknown): message is SyncMessage {
   if (!message || typeof message !== 'object') {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: not an object', message);
+    }
     return false;
   }
   
@@ -212,28 +375,46 @@ export function validateSyncMessage(message: unknown): message is SyncMessage {
   
   // Check required fields
   if (typeof msg.version !== 'number') {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: missing or invalid version field', msg);
+    }
     return false;
   }
   
   if (typeof msg.type !== 'string') {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: missing or invalid type field', msg);
+    }
     return false;
   }
   
   if (!['state-update', 'state-sync-request', 'state-sync-response'].includes(msg.type)) {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: unknown type', msg.type);
+    }
     return false;
   }
   
-  if (typeof msg.timestamp !== 'number') {
+  if (typeof msg.timestamp !== 'number' || isNaN(msg.timestamp)) {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: missing or invalid timestamp', msg);
+    }
     return false;
   }
   
-  if (typeof msg.tabId !== 'string') {
+  if (typeof msg.tabId !== 'string' || !msg.tabId) {
+    if (IS_DEV) {
+      console.warn('[Sync] Invalid message: missing or invalid tabId', msg);
+    }
     return false;
   }
   
   // Type-specific validation
   if (msg.type === 'state-update' || msg.type === 'state-sync-response') {
     if (!msg.state || typeof msg.state !== 'object') {
+      if (IS_DEV) {
+        console.warn('[Sync] Invalid message: missing or invalid state field', msg);
+      }
       return false;
     }
   }
@@ -244,13 +425,25 @@ export function validateSyncMessage(message: unknown): message is SyncMessage {
 /**
  * Check if message version is compatible.
  * 
+ * FAZ-3E: Enhanced with version mismatch warning for dev mode.
+ * 
  * @param messageVersion - Message version
  * @returns True if version is compatible
  */
 export function isMessageVersionCompatible(messageVersion: number): boolean {
+  const isCompatible = messageVersion === SYNC_MESSAGE_VERSION;
+  
+  // FAZ-3E: Dev mode warning for version mismatch
+  if (!isCompatible && IS_DEV) {
+    console.warn(
+      `[Sync] Message version mismatch: received v${messageVersion}, expected v${SYNC_MESSAGE_VERSION}. ` +
+      `Message will be ignored. This may indicate a deployment mismatch between tabs.`
+    );
+  }
+  
   // For now, only exact version match is compatible
   // Future: support version ranges or migration
-  return messageVersion === SYNC_MESSAGE_VERSION;
+  return isCompatible;
 }
 
 /**
@@ -269,34 +462,50 @@ export function handleSyncMessage(
 ): OverlayRuntimeState | null {
   // Ignore own messages
   if (message.tabId === localTabId) {
+    if (IS_DEV) {
+      console.debug('[Sync] Ignoring own message (tabId match)');
+    }
     return null;
   }
   
   // Check version compatibility
   if (!isMessageVersionCompatible(message.version)) {
     // Incompatible version: ignore message
+    // Warning already logged in isMessageVersionCompatible for dev mode
     // Future: attempt migration or request sync
     return null;
   }
   
-  switch (message.type) {
-    case 'state-update':
-      // Merge incoming state update
-      const incomingState = deserializeStateFromSync(message.state);
-      return mergeStates(currentState, incomingState, message.timestamp);
-    
-    case 'state-sync-request':
-      // Request received: respond with current state
-      // (Response is handled by sync coordinator, not here)
-      return null; // No state change, just a request
-    
-    case 'state-sync-response':
-      // Sync response received: merge if newer
-      const responseState = deserializeStateFromSync(message.state);
-      return mergeStates(currentState, responseState, message.timestamp);
-    
-    default:
-      return null;
+  try {
+    switch (message.type) {
+      case 'state-update':
+        // Merge incoming state update
+        const incomingState = deserializeStateFromSync(message.state);
+        return mergeStates(currentState, incomingState, message.timestamp);
+      
+      case 'state-sync-request':
+        // Request received: respond with current state
+        // (Response is handled by sync coordinator, not here)
+        // FAZ-4 FINAL: Request logging removed (production cleanup)
+        return null; // No state change, just a request
+      
+      case 'state-sync-response':
+        // Sync response received: merge if newer
+        const responseState = deserializeStateFromSync(message.state);
+        return mergeStates(currentState, responseState, message.timestamp);
+      
+      default:
+        if (IS_DEV) {
+          console.warn('[Sync] Unknown message type:', (message as any).type);
+        }
+        return null;
+    }
+  } catch (error) {
+    // FAZ-3E PATCH #2: Better error handling for deserialization failures
+    if (IS_DEV) {
+      console.error('[Sync] Error handling sync message:', error, message);
+    }
+    return null; // Fail safe: ignore message on error
   }
 }
 

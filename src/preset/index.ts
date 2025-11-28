@@ -27,15 +27,18 @@ export { ERROR_CODES, PresetError, getUserFriendlyErrorMessage } from './errors'
 import { APP_VERSION } from '../version';
 
 /**
- * Creates a preset file from current application state.
+ * Utility function to create preset file background/misc sections.
  * 
- * FAZ 9: overlay.elements should NEVER come from settings - they come from runtime/storage.
+ * FAZ-4-3: This is a utility function (not legacy) - used to merge background settings
+ * with vNext overlay export. Does not use legacy runtime.
  * 
- * @param settings - Current app settings (overlay.elements should be undefined/empty)
+ * Creates a preset file background/misc sections from settings.
+ * 
+ * @param settings - Current app settings
  * @param mediaUrl - Current media URL
- * @param presetName - Preset name
- * @param overlayElements - Overlay elements from runtime/storage (default: empty array)
- * @returns Preset file object ready for export
+ * @param presetName - Preset name (unused, kept for API compatibility)
+ * @param overlayElements - Overlay elements (unused, kept for API compatibility)
+ * @returns Preset file object with background and misc sections
  */
 export function createPresetFromState(
   settings: AppSettings,
@@ -162,25 +165,9 @@ export async function exportPreset(
       }
     }
     
+    // FAZ-4-3: Legacy path removed - vNext is required
     if (!preset) {
-      // FAZ 9: Old system - Read overlay elements from storage first, fallback to runtime
-      let overlayElements: Array<any> = [];
-      
-      if (activePresetId) {
-        // Try to read from storage first
-        const { getPresetById } = await import('./storage');
-        const storedPreset = getPresetById(activePresetId);
-        
-        if (storedPreset?.preset?.overlay?.elements) {
-          overlayElements = storedPreset.preset.overlay.elements;
-        } else {
-          // Fallback to runtime
-          const { getElementsForPreset } = await import('../state/overlayRuntime');
-          overlayElements = getElementsForPreset(activePresetId);
-        }
-      }
-      
-      preset = createPresetFromState(settings, mediaUrl, presetName, overlayElements);
+      throw new Error('Preset export failed: vNext export is required');
     }
     
     const json = JSON.stringify(preset, null, 2);
@@ -227,27 +214,5 @@ export async function importPreset(
   return importPresetPipeline(file, lang);
 }
 
-/**
- * Legacy import function for backward compatibility.
- * 
- * @deprecated Use importPreset() which returns ImportResult.
- * This function is kept for backward compatibility but will be removed in future versions.
- */
-export async function importPresetLegacy(
-  file: File
-): Promise<{ preset: PresetFile; settings: Partial<AppSettings>; mediaUrl: string }> {
-  const result = await importPresetPipeline(file, 'en');
-  
-  // NOTE: mediaUrl can be an empty string ('') for local/no-media presets.
-  if (!result.success || !result.preset || !result.settings || typeof result.mediaUrl !== 'string') {
-    const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || 'Import failed';
-    throw new Error(errorMessage);
-  }
-
-  return {
-    preset: result.preset,
-    settings: result.settings,
-    mediaUrl: result.mediaUrl,
-  };
-}
+// FAZ-4-3: importPresetLegacy deleted - use importPreset() instead
 

@@ -23,6 +23,8 @@ export type ElementStore = Map<string, OverlayElement>;
  * Add element to store.
  * Returns new Map with element added.
  * 
+ * FAZ-4-4N: Enhanced conflict handling - ID conflicts should be resolved before calling this function.
+ * 
  * @param store - Current element store
  * @param element - Element to add
  * @returns New element store with element added
@@ -33,9 +35,13 @@ export function addElement(
 ): ElementStore {
   const newStore = new Map(store);
   
-  // Check for ID conflict (should not happen in production, but safety check)
+  // Check for ID conflict (should not happen if conflict resolution is used, but safety check)
   if (newStore.has(element.id)) {
-    console.warn(`Element ID conflict: ${element.id} already exists. Skipping add.`);
+    // FAZ-4-4N: Enhanced logging - ID conflicts should be resolved before addElement is called
+    console.warn(
+      `Element ID conflict: ${element.id} already exists. Skipping add. ` +
+      `(Note: In append mode, ID conflicts should be resolved before calling addElement)`
+    );
     return store; // Return unchanged if conflict
   }
   

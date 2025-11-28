@@ -17,6 +17,8 @@ import type { Action } from './actions';
 import type { OverlayRuntimeState } from './types';
 import * as history from './history';
 import * as transactions from './transactions';
+import { sanitizeRuntimeState } from './runtime';
+import { IS_DEV } from '../../utils/env';
 
 /**
  * State change listener callback.
@@ -64,6 +66,8 @@ export class OverlayStateManager {
    * Dispatch action.
    * Executes an action, updates state, and records it in history.
    * 
+   * FAZ-4-4H: Enhanced with structuredClone validation before notifying subscribers.
+   * 
    * @param action - Action to dispatch
    */
   dispatch(action: Action): void {
@@ -74,12 +78,33 @@ export class OverlayStateManager {
       this.state = history.applyAction(this.state, action);
     }
     
+    // FAZ-4-4H: Guarantee the outgoing state is JSON-safe before notifying subscribers
+    // Validate that state can be sanitized (this ensures broadcast safety)
+    try {
+      sanitizeRuntimeState(this.state);
+    } catch (error) {
+      // If sanitization fails, log the error but continue (state is still valid locally)
+      console.error('[OverlayStateManager] State failed sanitization after dispatch:', error);
+      if (IS_DEV) {
+        console.error('[OverlayStateManager] Action that caused issue:', {
+          id: action.id,
+          type: action.type,
+          data: action.data,
+        });
+        console.error('[OverlayStateManager] Current state:', this.state);
+      }
+      // Continue anyway - the state is still valid for local use
+      // Broadcast will be caught by the safety check in useOverlayStateManager
+    }
+    
     this.notifySubscribers();
   }
   
   /**
    * Undo last action.
    * Reverts the last action and moves it to redo stack.
+   * 
+   * FAZ-4-4H: Enhanced with structuredClone validation.
    */
   undo(): void {
     if (!history.canUndo(this.state)) {
@@ -87,12 +112,22 @@ export class OverlayStateManager {
     }
     
     this.state = history.undo(this.state);
+    
+    // FAZ-4-4H: Validate sanitization before notifying
+    try {
+      sanitizeRuntimeState(this.state);
+    } catch (error) {
+      console.error('[OverlayStateManager] State failed sanitization after undo:', error);
+    }
+    
     this.notifySubscribers();
   }
   
   /**
    * Redo next action.
    * Re-executes the next action from redo stack.
+   * 
+   * FAZ-4-4H: Enhanced with structuredClone validation.
    */
   redo(): void {
     if (!history.canRedo(this.state)) {
@@ -100,6 +135,14 @@ export class OverlayStateManager {
     }
     
     this.state = history.redo(this.state);
+    
+    // FAZ-4-4H: Validate sanitization before notifying
+    try {
+      sanitizeRuntimeState(this.state);
+    } catch (error) {
+      console.error('[OverlayStateManager] State failed sanitization after redo:', error);
+    }
+    
     this.notifySubscribers();
   }
   
@@ -115,9 +158,19 @@ export class OverlayStateManager {
   /**
    * Commit transaction.
    * Commits all actions in batch as a single action to history.
+   * 
+   * FAZ-4-4H: Enhanced with structuredClone validation.
    */
   commitTransaction(): void {
     this.state = transactions.commitTransaction(this.state);
+    
+    // FAZ-4-4H: Validate sanitization before notifying
+    try {
+      sanitizeRuntimeState(this.state);
+    } catch (error) {
+      console.error('[OverlayStateManager] State failed sanitization after commitTransaction:', error);
+    }
+    
     this.notifySubscribers();
   }
   
@@ -234,6 +287,11 @@ export class OverlayStateManager {
       elements: new Map(newState.elements),
       // Ensure zOrder array is cloned (reference safety)
       zOrder: [...newState.zOrder],
+      // FAZ-4-4: Update meta.updatedAt on replaceState
+      meta: {
+        ...newState.meta,
+        updatedAt: Date.now(),
+      },
     };
     
     // Replace state

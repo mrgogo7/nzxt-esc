@@ -14,13 +14,10 @@ import { useRotationHandlers } from '../../hooks/useRotationHandlers';
 import { useLocalMedia } from '../../hooks/useLocalMedia';
 import type { Overlay } from '../../types/overlay';
 import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
-import { MoveCommand } from '../../transform/history/commands/MoveCommand';
-import { ResizeCommand } from '../../transform/history/commands/ResizeCommand';
-import { RotateCommand } from '../../transform/history/commands/RotateCommand';
-import { updateElementInRuntime, getElementsForPreset } from '@/state/overlayRuntime';
-// FAZ-3B-3: New runtime system imports (feature-flagged)
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
+// FAZ-4-4D: Always use runtime state (no feature flag gating)
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
-import { shouldUseFaz3BRuntime } from '@/utils/featureFlags';
+import { getElementsInZOrder } from '@/state/overlay/selectors';
 // FAZ-3B-4: Selection runtime wiring imports
 import { getSingleSelectedId } from './ConfigPreview/helpers/selectionHelpers';
 import { hasRealMonitoring } from '../../environment';
@@ -46,7 +43,7 @@ export interface ConfigPreviewProps {
   overlayConfig: Overlay;
 }
 
-export default function ConfigPreview({ activePresetId, overlayConfig: overlayConfigProp }: ConfigPreviewProps) {
+export default function ConfigPreview({ activePresetId, overlayConfig: _overlayConfigProp }: ConfigPreviewProps) {
   const [lang, setLang] = useState<Lang>(getInitialLang());
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
@@ -79,33 +76,44 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
   // Settings sync with throttling
   const { settingsRef } = useSettingsSync(settings, setSettings, mediaUrl);
   
-  // FAZ-3B-3: Feature flag check
-  const useNewRuntime = shouldUseFaz3BRuntime();
-  
-  // FAZ-3B-3: Get StateManager if feature flag is enabled
-  const stateManagerHook = useNewRuntime && activePresetId
-    ? useOverlayStateManager(activePresetId)
-    : null;
+  // FAZ-4-4D: CRITICAL FIX - Always use runtime state, no feature flag gating
+  // Runtime state is the ONLY canonical source for overlay elements
+  const stateManagerHook = useOverlayStateManager(activePresetId);
   const stateManager = stateManagerHook?.stateManager ?? null;
   const runtimeState = stateManagerHook?.state ?? null;
 
-  // CRITICAL: activePresetId and overlayConfig now come from props (Config.tsx)
-  // This ensures single source of truth and prevents state synchronization issues
-  // activePresetId is managed in Config.tsx and passed down as prop
-  // overlayConfig is computed in Config.tsx using useOverlayConfig and passed down as prop
+  // FAZ-4-4D: Build effective overlay config from runtime state ONLY
+  // Remove all fallback logic - runtime state is the single source of truth
+  const effectiveOverlayConfig = useMemo(() => {
+    if (runtimeState) {
+      // Runtime state is canonical source - build overlay from it
+      const elementsInZOrder = getElementsInZOrder(runtimeState.elements, runtimeState.zOrder);
+      return {
+        mode: elementsInZOrder.length > 0 ? 'custom' : (settings.overlay?.mode || 'none'),
+        elements: elementsInZOrder,
+      };
+    } else {
+      // No runtime state available - return empty overlay
+      // This should only happen if no preset is selected
+      return {
+        mode: settings.overlay?.mode || 'none',
+        elements: [],
+      };
+    }
+  }, [runtimeState, settings.overlay?.mode]);
 
   // Undo/Redo system
   // WHY: Command pattern-based undo/redo for all transform operations.
   // Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y / Ctrl+Shift+Z (redo)
-  // FAZ-3B-3: With new runtime, use stateManager undo/redo instead
-  const undoRedo = useUndoRedo({ 
+  // FAZ-4-4D: Disable old undo/redo system - always use stateManager
+  useUndoRedo({ 
     maxHistorySize: 50, 
-    enableKeyboardShortcuts: !useNewRuntime // Disable old keyboard shortcuts if new runtime is active
+    enableKeyboardShortcuts: false // Always disabled - use stateManager instead
   });
   
-  // FAZ-3B-3: Wire keyboard shortcuts to stateManager when new runtime is active
+  // FAZ-4-4D: Wire keyboard shortcuts to stateManager (always active, no feature flag)
   useEffect(() => {
-    if (!useNewRuntime || !stateManager) return;
+    if (!stateManager) return;
     
     const handleKeyDown = (e: KeyboardEvent) => {
       // Check if user is typing in an input field
@@ -128,7 +136,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [useNewRuntime, stateManager]);
+  }, [stateManager]);
 
   /**
    * Updates element in runtime overlay Map (for undo/redo commands).
@@ -137,114 +145,28 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
    * This helper function is used by command objects to update element state.
    * It ensures proper state management and triggers React re-renders via setSettings({ ...settings }).
    */
-  const updateElement = (elementId: string, updater: (element: any) => any) => {
-    // CRITICAL: activePresetId must be valid
-    if (!activePresetId) {
-      return;
-    }
-    
-    // ARCHITECT MODE: Update element in runtime overlay Map, NOT in settings
-    const success = updateElementInRuntime(activePresetId, elementId, updater);
-    
-    if (!success) {
-      return;
-    }
-    
-    // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
-    // CRITICAL: Do NOT modify settings.overlay.elements - useOverlayConfig reads from runtime
-    setSettings({ ...settingsRef.current });
-  };
+  // FAZ-4-3: Legacy updateElement removed - vNext handles updates via stateManager
+  // Element updates are now handled directly by transform handlers via stateManager.dispatch()
 
   // Callbacks for undo/redo
   // WHY: These callbacks are called when transform operations complete (mouseup).
   // They create command objects and record them in the action history.
   // FAZ-3B-3: With new runtime, actions are dispatched during transform, so this only runs for old system
-  const handleMoveComplete = (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => {
-    // FAZ-3B-3: If using new runtime, actions are already dispatched via transactions
-    if (useNewRuntime && stateManager) {
-      // Transaction is already committed in useDragHandlers, no action needed here
-      return;
-    }
-    
-    // Old system: Create command object for undo/redo
-    if (!activePresetId) {
-      return;
-    }
-    
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementId);
-    if (!element) {
-      return;
-    }
-    
-    const command = new MoveCommand(
-      element,
-      oldPos,
-      newPos,
-      (updatedElement) => updateElement(elementId, () => updatedElement)
-    );
-    
-    undoRedo.record(command);
+  // FAZ-4-4D: These callbacks are no longer needed - transactions are handled in handlers
+  const handleMoveComplete = (_elementId: string, _oldPos: { x: number; y: number }, _newPos: { x: number; y: number }) => {
+    // Transaction is already committed in useDragHandlers, no action needed here
   };
 
-  const handleResizeComplete = (elementId: string, oldSize: number, newSize: number) => {
-    // FAZ-3B-3: If using new runtime, actions are already dispatched via transactions
-    if (useNewRuntime && stateManager) {
-      // Transaction is already committed in useResizeHandlers, no action needed here
-      return;
-    }
-    
-    // Old system: Create command object for undo/redo
-    if (!activePresetId) {
-      return;
-    }
-    
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementId);
-    if (!element) {
-      return;
-    }
-    
-    const command = new ResizeCommand(
-      element,
-      oldSize,
-      newSize,
-      (updatedElement) => updateElement(elementId, () => updatedElement)
-    );
-    
-    undoRedo.record(command);
+  const handleResizeComplete = (_elementId: string, _oldSize: number, _newSize: number) => {
+    // Transaction is already committed in useResizeHandlers, no action needed here
   };
 
-  const handleRotateComplete = (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => {
-    // FAZ-3B-3: If using new runtime, actions are already dispatched via transactions
-    if (useNewRuntime && stateManager) {
-      // Transaction is already committed in useRotationHandlers, no action needed here
-      return;
-    }
-    
-    // Old system: Create command object for undo/redo
-    if (!activePresetId) {
-      return;
-    }
-    
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementId);
-    if (!element) {
-      return;
-    }
-    
-    const command = new RotateCommand(
-      element,
-      oldAngle,
-      newAngle,
-      (updatedElement) => updateElement(elementId, () => updatedElement)
-    );
-    
-    undoRedo.record(command);
+  const handleRotateComplete = (_elementId: string, _oldAngle: number | undefined, _newAngle: number | undefined) => {
+    // Transaction is already committed in useRotationHandlers, no action needed here
   };
 
   // Drag handlers
-  // FAZ-3B-3: Pass stateManager for new runtime system
+  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const {
     isDragging,
     handleBackgroundMouseDown,
@@ -259,45 +181,45 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
     setSettings, 
     handleMoveComplete, 
     activePresetId,
-    useNewRuntime ? stateManager : null,
-    useNewRuntime ? runtimeState : null
+    stateManager,
+    runtimeState
   );
   
-  // FAZ-3B-4: Derive selectedElementId from runtime state when feature flag is enabled
+  // FAZ-4-4D: Always derive selectedElementId from runtime state (canonical source)
   const effectiveSelectedElementId = useMemo(() => {
-    if (useNewRuntime && runtimeState) {
+    if (runtimeState) {
       // Get single selected ID from runtime state
       return getSingleSelectedId(runtimeState);
     }
-    // Fallback to drag handler's local state (old system)
+    // Fallback to drag handler's local state only if no runtime state
     return dragHandlerSelectedId;
-  }, [useNewRuntime, runtimeState, dragHandlerSelectedId]);
+  }, [runtimeState, dragHandlerSelectedId]);
   
   // Use effective selected ID throughout component
   const selectedElementId = effectiveSelectedElementId;
 
   // Resize handlers
-  // FAZ-3B-3: Pass stateManager for new runtime system
+  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(
     offsetScale, 
     settingsRef, 
     setSettings,
     handleResizeComplete,
     activePresetId,
-    useNewRuntime ? stateManager : null,
-    useNewRuntime ? runtimeState : null
+    stateManager,
+    runtimeState
   );
   
   // Rotation handlers
-  // FAZ-3B-3: Pass stateManager for new runtime system
+  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const { rotatingElementId, handleRotationMouseDown } = useRotationHandlers(
     offsetScale, 
     settingsRef, 
     setSettings,
     handleRotateComplete,
     activePresetId,
-    useNewRuntime ? stateManager : null,
-    useNewRuntime ? runtimeState : null
+    stateManager,
+    runtimeState
   );
 
   // Language sync
@@ -319,18 +241,19 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
         // Prevent default browser behavior
         e.preventDefault();
         
-        // Get element type from runtime
-        const runtimeElements = getElementsForPreset(activePresetId);
-        const element = runtimeElements.find(el => el.id === selectedElementId);
-        
-        if (element) {
-          // Trigger remove modal via custom event
-          // OverlaySettings will listen to this event
-          window.dispatchEvent(
-            new CustomEvent('deleteOverlayElement', {
-              detail: { elementId: selectedElementId, elementType: element.type },
-            })
-          );
+        // FAZ-4-4D: Always use runtime state (no feature flag gating)
+        if (runtimeState) {
+          const element = runtimeState.elements.get(selectedElementId);
+          
+          if (element) {
+            // Trigger remove modal via custom event
+            // OverlaySettings will listen to this event
+            window.dispatchEvent(
+              new CustomEvent('deleteOverlayElement', {
+                detail: { elementId: selectedElementId, elementType: element.type },
+              })
+            );
+          }
         }
       }
     };
@@ -446,7 +369,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
         <div className="section-content">
           {/* Overlay Preview */}
           <OverlayPreview
-            overlayConfig={overlayConfigProp}
+            overlayConfig={effectiveOverlayConfig}
             metrics={metrics}
             overlayPreviewScale={overlayPreviewScale}
             offsetScale={offsetScale}
@@ -475,7 +398,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: overlayCo
 
           {/* Overlay Options */}
           <OverlaySettingsComponent
-            overlayConfig={overlayConfigProp}
+            overlayConfig={effectiveOverlayConfig}
             settings={settings}
             setSettings={setSettings}
             lang={lang}

@@ -1,4 +1,13 @@
 /**
+ * FAZ-4-2 NOTE:
+ * - Bu utility halen legacy runtime pipeline (overlayRuntime.ts) ile entegre.
+ * - vNext mimarisi: OverlayStateManager tabanlı (FAZ-3A/3B/3C/3D).
+ * - Feature flag (shouldUseFaz3BRuntime) ile vNext path zaten mevcut.
+ * - FAZ-4-2'de sadece işaretleniyor, silme/migration yapılmıyor.
+ * - FAZ-4-3 için: legacy path (loadPreset) kaldırılacak.
+ */
+
+/**
  * Shared utility for applying preset to runtime and settings.
  * 
  * FAZ-11: Extracted from Config.tsx to be reused by both Config and KrakenOverlay.
@@ -15,14 +24,14 @@
  * @param options - Options including autosaveDelayMs
  */
 
-import { loadPreset } from '@/state/overlayRuntime';
+// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
 import type { StoredPreset } from '../../preset/storage';
 import type { AppSettings } from '../../constants/defaults';
 import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../preset/utils/mediaSource';
 // FAZ-3D: vNext preset import system (full integration)
-import { shouldUseFaz3BRuntime } from '../../utils/featureFlags';
 import { importPresetToRuntimeState } from '../../preset/vNext/presetImportVNext';
 import { getStateManagerForPreset } from '../../state/overlay/useOverlayStateManager';
+import { IS_DEV } from '../../utils/env';
 
 export interface ApplyPresetOptions {
   autosaveDelayMs?: number;
@@ -42,36 +51,24 @@ export function applyPresetToRuntimeAndSettings(
   }
   
   // Step 2: Load overlay elements from preset into runtime
-  // FAZ-3D: Full integration with StateManager.replaceState()
-  const useNewRuntime = shouldUseFaz3BRuntime();
-  
-  if (useNewRuntime) {
-    try {
-      // Import preset using vNext system
-      const importResult = importPresetToRuntimeState(preset.preset, preset.id);
-      
-      // Log warnings if any
-      if (importResult.warnings.length > 0) {
-        console.warn('[PresetImport] Import warnings:', importResult.warnings);
-      }
-      
-      // FAZ-3D: Apply imported state to StateManager using replaceState()
-      const stateManager = getStateManagerForPreset(preset.id);
-      stateManager.replaceState(importResult.state);
-      
-      // Skip old system (vNext replaces it)
-      // Continue with settings/mediaUrl handling below
-    } catch (error) {
-      // Fallback to old system if vNext import fails
-      console.warn('[PresetImport] vNext import failed, falling back to old system:', error);
-      // Continue with old system below
-      const presetElements = preset.preset.overlay?.elements ?? [];
-      loadPreset(preset.id, presetElements);
+  // FAZ-4-3: Legacy path removed - only vNext path remains
+  try {
+    // Import preset using vNext system
+    const importResult = importPresetToRuntimeState(preset.preset, preset.id);
+    
+    // FAZ-3E PATCH #2: Log warnings only in dev mode (already logged in importPresetToRuntimeState)
+    // Warnings are already logged in presetImportVNext.ts with IS_DEV check
+    
+    // FAZ-3D: Apply imported state to StateManager using replaceState()
+    const stateManager = getStateManagerForPreset(preset.id);
+    stateManager.replaceState(importResult.state);
+  } catch (error) {
+    // FAZ-4-3: Legacy fallback removed - vNext is required
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (IS_DEV) {
+      console.error('[PresetImport] vNext import failed:', errorMessage);
     }
-  } else {
-    // Old system (used when feature flag is OFF)
-    const presetElements = preset.preset.overlay?.elements ?? [];
-    loadPreset(preset.id, presetElements);
+    // Continue with settings/mediaUrl handling even if import fails
   }
   
   // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)

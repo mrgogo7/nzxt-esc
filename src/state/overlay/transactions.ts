@@ -95,11 +95,16 @@ export function addToTransaction(
   // Add to batch
   const newBatch = [...(state.transactions.batch || []), action];
   
+  // FAZ-4-4C: Update meta.updatedAt on transaction action
   return {
     ...newState,
     transactions: {
       ...state.transactions,
       batch: newBatch,
+    },
+    meta: {
+      ...newState.meta,
+      updatedAt: Date.now(),
     },
   };
 }
@@ -135,7 +140,7 @@ export function commitTransaction(
   // Apply batch action (adds to history as single action)
   const newState = applyAction(state, batchAction);
   
-  // Clear transaction
+  // Clear transaction (meta.updatedAt already updated by applyAction)
   return {
     ...newState,
     transactions: createInitialTransactionState(),

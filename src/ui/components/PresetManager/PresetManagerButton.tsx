@@ -20,8 +20,8 @@ import {
   type StoredPreset 
 } from '../../../preset/storage';
 import { isFavorite } from '../../../preset/storage';
-import { loadPreset } from '@/state/overlayRuntime';
-import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../../preset/utils/mediaSource';
+// FAZ-4-3: Legacy loadPreset deleted - using applyPresetToRuntimeAndSettings instead
+import { applyPresetToRuntimeAndSettings } from '../../utils/applyPreset';
 
 export interface PresetManagerButtonProps {
   lang: Lang;
@@ -81,59 +81,14 @@ export default function PresetManagerButton({
     // 5. Re-enable autosave after delay
 
     // Overlay mode: preset dosyasından gelmeli, yoksa mevcut mode korunmalı
-    const overlayModeFromPreset = preset.preset.overlay?.mode;
-    const preservedOverlayMode = overlayModeFromPreset || settings.overlay?.mode || 'none';
+    // Note: preservedOverlayMode is handled by applyPresetToRuntimeAndSettings
 
+    // FAZ-4-3: Legacy loadPreset removed - use applyPresetToRuntimeAndSettings instead
     // Step 1: Set active preset ID (storage + event dispatch)
     setActivePresetIdStorage(preset.id);
-
-    // Step 2: Load overlay elements from preset into runtime Map
-    // CRITICAL: This must happen BEFORE setSettings to ensure useOverlayConfig reads correct elements
-    const presetElements = preset.preset.overlay?.elements;
-    loadPreset(preset.id, presetElements);
-
-    // Step 3 & 4: Wait 100ms then load settings and media URL
-    // This ensures loadPreset completes and runtime is updated before settings change
-    setTimeout(() => {
-      // Derive effective background source (v2)
-      const bg: any = preset.preset.background;
-      const rawSource = bg?.source;
-      const sanitizedSource =
-        rawSource !== undefined
-          ? sanitizeBackgroundSource(rawSource)
-          : null;
-      const effectiveSource =
-        sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
-
-      let mediaUrl: string;
-      let sourceType: AppSettings['sourceType'];
-      let localFileName: AppSettings['localFileName'];
-
-      if (effectiveSource.type === 'local') {
-        mediaUrl = '';
-        sourceType = 'local';
-        localFileName = effectiveSource.localFileName;
-      } else {
-        mediaUrl = (bg?.url as string) || '';
-        sourceType = 'remote';
-        localFileName = undefined;
-      }
-
-      // Step 3: Load global config from preset
-      setSettings({
-        ...preset.preset.background.settings,
-        overlay: {
-          mode: preservedOverlayMode,
-          elements: [], // ALWAYS empty - elements are in runtime state, not in preset files
-        },
-        showGuide: preset.preset.misc?.showGuide,
-        sourceType,
-        localFileName,
-      });
-
-      // Step 4: Load media URL from preset
-      setMediaUrl(mediaUrl);
-    }, 100);
+    
+    // Step 2: Apply preset using vNext system
+    applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
 
     // Don't close dropdown - let user select multiple presets or close by clicking outside
 
@@ -141,13 +96,6 @@ export default function PresetManagerButton({
     setIsGlowing(true);
     setTimeout(() => {
       setIsGlowing(false);
-    }, 500);
-
-    // Step 5: Re-enable autosave after 500ms (allows loadPreset + setSettings to complete)
-    setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.__disableAutosave = false;
-      }
     }, 500);
   };
 

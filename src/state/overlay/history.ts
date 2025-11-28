@@ -63,9 +63,14 @@ export function applyAction(
     newHistory.past = newHistory.past.slice(removeCount);
   }
   
+  // FAZ-4-4C: Update meta.updatedAt on state change
   return {
     ...newState,
     history: newHistory,
+    meta: {
+      ...newState.meta,
+      updatedAt: Date.now(),
+    },
   };
 }
 
@@ -94,9 +99,14 @@ export function undo(state: OverlayRuntimeState): OverlayRuntimeState {
     maxHistorySize: state.history.maxHistorySize,
   };
   
+  // FAZ-4-4C: Update meta.updatedAt on undo
   return {
     ...newState,
     history: newHistory,
+    meta: {
+      ...newState.meta,
+      updatedAt: Date.now(),
+    },
   };
 }
 
@@ -125,9 +135,14 @@ export function redo(state: OverlayRuntimeState): OverlayRuntimeState {
     maxHistorySize: state.history.maxHistorySize,
   };
   
+  // FAZ-4-4C: Update meta.updatedAt on redo
   return {
     ...newState,
     history: newHistory,
+    meta: {
+      ...newState.meta,
+      updatedAt: Date.now(),
+    },
   };
 }
 

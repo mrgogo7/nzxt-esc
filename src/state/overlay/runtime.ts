@@ -14,7 +14,8 @@
 
 import type { OverlayElement, Overlay } from '../../types/overlay';
 import type { PresetFile } from '../../preset/schema';
-import type { OverlayRuntimeState, StateMetadata } from './types';
+import type { OverlayRuntimeState, StateMetadata, HistoryState, TransactionState } from './types';
+import type { ActionData, TransformActionData, BatchActionData } from './actions';
 import * as elementStore from './elementStore';
 import * as selection from './selection';
 import * as zOrder from './zOrder';
@@ -31,6 +32,80 @@ const DEFAULT_METADATA: StateMetadata = {
   updatedAt: Date.now(),
   presetId: null,
 };
+
+/**
+ * Serializable version of TransformActionData (Maps converted to plain objects).
+ */
+interface SerializableTransformActionData {
+  elementIds: string[];
+  oldStates: Record<string, OverlayElement>; // Plain object instead of Map
+  newStates: Record<string, OverlayElement>; // Plain object instead of Map
+}
+
+/**
+ * Serializable version of BatchActionData (nested actions without functions).
+ */
+interface SerializableBatchActionData {
+  actions: Array<{
+    id: string;
+    type: string;
+    timestamp: number;
+    data: SerializableActionData;
+    // Functions (execute/undo) are NOT included
+  }>;
+}
+
+/**
+ * Serializable version of ActionData (for sync/broadcast).
+ */
+type SerializableActionData =
+  | Omit<Exclude<ActionData, TransformActionData | BatchActionData>, never>
+  | SerializableTransformActionData
+  | SerializableBatchActionData;
+
+/**
+ * Sanitize action data for serialization.
+ * Converts Maps to plain objects/arrays to ensure structuredClone compatibility.
+ * 
+ * FAZ-4-4H: Enhanced to handle BatchActionData (removes functions from nested actions).
+ * 
+ * @param data - Action data to sanitize
+ * @returns Sanitized action data (Maps converted to objects/arrays, functions removed)
+ */
+function sanitizeActionData(data: ActionData): SerializableActionData {
+  // TransformActionData contains Maps that need to be converted
+  if (data && typeof data === 'object' && 'oldStates' in data && 'newStates' in data) {
+    const transformData = data as TransformActionData;
+    return {
+      elementIds: transformData.elementIds,
+      // Convert Map<string, OverlayElement> to plain object
+      oldStates: transformData.oldStates instanceof Map
+        ? Object.fromEntries(transformData.oldStates)
+        : (transformData.oldStates as any),
+      newStates: transformData.newStates instanceof Map
+        ? Object.fromEntries(transformData.newStates)
+        : (transformData.newStates as any),
+    };
+  }
+  
+  // BatchActionData contains nested Actions with functions - sanitize them
+  if (data && typeof data === 'object' && 'actions' in data) {
+    const batchData = data as BatchActionData;
+    const serializedBatch: SerializableBatchActionData = {
+      actions: batchData.actions.map(action => ({
+        id: action.id,
+        type: action.type,
+        timestamp: action.timestamp,
+        data: sanitizeActionData(action.data),
+        // Functions (execute/undo) are NOT included in serialized form
+      })),
+    };
+    return serializedBatch as SerializableActionData;
+  }
+  
+  // All other action data types are already serializable
+  return data as SerializableActionData;
+}
 
 /**
  * Initialize runtime state.
@@ -197,114 +272,230 @@ export function exportPresetFromState(
 }
 
 /**
- * Get serializable state representation.
- * Converts runtime state to JSON-serializable format.
+ * Serializable version of OverlayRuntimeState (all Maps/Sets converted to plain objects/arrays).
  * 
- * @param state - Runtime state to serialize
- * @returns Serializable state object
+ * FAZ-4-4G: StructuredClone-safe state representation.
  */
-export function getSerializableState(
-  state: OverlayRuntimeState
-): {
-  elements: OverlayElement[];
+interface SerializableOverlayRuntimeState {
+  elements: Record<string, OverlayElement>; // Map → Record
   selection: {
-    selectedIds: string[];
+    selectedIds: string[]; // Set → Array
     lastSelectedId: string | null;
   };
   zOrder: string[];
   history: {
-    past: unknown[];
-    present: unknown | null;
-    future: unknown[];
+    past: Array<{
+      id: string;
+      type: string;
+      timestamp: number;
+      data: SerializableActionData;
+    }>;
+    present: {
+      id: string;
+      type: string;
+      timestamp: number;
+      data: SerializableActionData;
+    } | null;
+    future: Array<{
+      id: string;
+      type: string;
+      timestamp: number;
+      data: SerializableActionData;
+    }>;
     maxHistorySize: number;
   };
   transactions: {
     active: boolean;
-    batch: unknown[] | null;
-    startState: null; // Start state not serialized (too large)
+    batch: Array<{
+      id: string;
+      type: string;
+      timestamp: number;
+      data: SerializableActionData;
+    }> | null;
+    startState: null; // Not serialized
   };
   meta: StateMetadata;
-} {
-  return {
-    elements: Array.from(state.elements.values()),
+}
+
+/**
+ * Sanitize runtime state for structuredClone compatibility.
+ * Converts all Maps and Sets to plain objects/arrays.
+ * 
+ * FAZ-4-4H: Enhanced with structuredClone validation and comprehensive sanitization.
+ * 
+ * @param state - Runtime state to sanitize
+ * @returns Sanitized state (all Maps/Sets converted to plain objects/arrays)
+ * @throws Error if sanitized state fails structuredClone test
+ */
+export function sanitizeRuntimeState(state: OverlayRuntimeState): SerializableOverlayRuntimeState {
+  const sanitized: SerializableOverlayRuntimeState = {
+    // Convert Map<string, OverlayElement> to Record<string, OverlayElement>
+    elements: Object.fromEntries(state.elements),
+    
+    // Convert Set<string> to string[]
     selection: {
       selectedIds: Array.from(state.selection.selectedIds),
       lastSelectedId: state.selection.lastSelectedId,
     },
+    
+    // zOrder is already an array
     zOrder: [...state.zOrder],
+    
+    // Sanitize history entries (sanitize action data)
     history: {
       past: state.history.past.map(action => ({
         id: action.id,
         type: action.type,
         timestamp: action.timestamp,
-        data: action.data,
-        // Note: execute/undo methods are not serialized (functions)
+        data: sanitizeActionData(action.data),
       })),
       present: state.history.present ? {
         id: state.history.present.id,
         type: state.history.present.type,
         timestamp: state.history.present.timestamp,
-        data: state.history.present.data,
+        data: sanitizeActionData(state.history.present.data),
       } : null,
       future: state.history.future.map(action => ({
         id: action.id,
         type: action.type,
         timestamp: action.timestamp,
-        data: action.data,
+        data: sanitizeActionData(action.data),
       })),
       maxHistorySize: state.history.maxHistorySize,
     },
+    
+    // Sanitize transaction batch (sanitize action data)
     transactions: {
       active: state.transactions.active,
       batch: state.transactions.batch ? state.transactions.batch.map(action => ({
         id: action.id,
         type: action.type,
         timestamp: action.timestamp,
-        data: action.data,
+        data: sanitizeActionData(action.data),
       })) : null,
-      startState: null, // Not serialized (too large, reconstructed on load)
+      startState: null, // Not serialized (too large)
     },
+    
+    // Meta is already plain object
     meta: { ...state.meta },
   };
+  
+  // FAZ-4-4H: Validate that sanitized state passes structuredClone test
+  try {
+    structuredClone(sanitized);
+  } catch (error) {
+    // If structuredClone fails, log the offending state and throw
+    console.error('[sanitizeRuntimeState] Sanitized state failed structuredClone test:', error);
+    console.error('[sanitizeRuntimeState] Sanitized state:', sanitized);
+    throw new Error(
+      `Sanitized state is not structuredClone-safe: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+  
+  return sanitized;
+}
+
+/**
+ * Get serializable state representation.
+ * Converts runtime state to JSON-serializable format.
+ * 
+ * FAZ-4-4H: Uses sanitizeRuntimeState() to ensure structuredClone compatibility.
+ * 
+ * @param state - Runtime state to serialize
+ * @returns Serializable state object
+ */
+export function getSerializableState(
+  state: OverlayRuntimeState
+): SerializableOverlayRuntimeState {
+  // FAZ-4-4H: Use sanitizeRuntimeState() to ensure structuredClone compatibility
+  return sanitizeRuntimeState(state);
 }
 
 /**
  * Deserialize state from serializable representation.
  * Reconstructs runtime state from serialized format.
  * 
+ * FAZ-4-4I: Fixed to handle plain objects/arrays from sanitizeRuntimeState().
+ * 
  * Note: Actions cannot be fully reconstructed (execute/undo methods are lost).
  * This is for sync/migration purposes only, not for full state restoration.
  * 
- * @param serialized - Serialized state
- * @returns Runtime state (with limited action reconstruction)
+ * @param serialized - Serialized state (plain objects/arrays, not Maps/Sets)
+ * @returns Runtime state (with Maps/Sets reconstructed)
  */
 export function deserializeState(
   serialized: ReturnType<typeof getSerializableState>
 ): OverlayRuntimeState {
-  // Reconstruct element store
-  const elements = elementStore.createStoreFromArray(serialized.elements);
+  // FAZ-4-4I: Reconstruct element store from Record<string, OverlayElement>
+  // serialized.elements is now a plain object, not a Map or array
+  const elementsArray = Object.values(serialized.elements);
+  const elements = elementStore.createStoreFromArray(elementsArray);
   
-  // Reconstruct selection
+  // FAZ-4-4I: Reconstruct selection from array
+  // serialized.selection.selectedIds is now string[], not Set<string>
   const selectionState = selection.selectElements(
     selection.createInitialSelectionState(),
-    serialized.selection.selectedIds
+    serialized.selection.selectedIds // Already an array, selectElements handles it
   );
   const selectionWithLast: typeof selectionState = {
     ...selectionState,
     lastSelectedId: serialized.selection.lastSelectedId,
   };
   
-  // Reconstruct z-order
+  // Reconstruct z-order (already an array, no change needed)
   const zOrderArray = zOrder.filterValidZOrder(
     serialized.zOrder,
     new Set(elements.keys())
   );
   
-  // Reconstruct history (actions cannot be fully reconstructed, create empty)
-  const historyState = history.createInitialHistoryState(serialized.history.maxHistorySize);
+  // FAZ-4-4I: Reconstruct history from sanitized actions
+  // Actions are sanitized (no execute/undo functions), so we create stub actions
+  // that preserve metadata but have no-op execute/undo
+  const historyState: HistoryState = {
+    past: serialized.history.past.map(action => ({
+      id: action.id,
+      type: action.type as any,
+      timestamp: action.timestamp,
+      data: action.data as any,
+      // Stub functions (actions can't be executed/undone after deserialization)
+      execute: (state: OverlayRuntimeState) => state,
+      undo: (state: OverlayRuntimeState) => state,
+    })),
+    present: serialized.history.present ? {
+      id: serialized.history.present.id,
+      type: serialized.history.present.type as any,
+      timestamp: serialized.history.present.timestamp,
+      data: serialized.history.present.data as any,
+      // Stub functions
+      execute: (state: OverlayRuntimeState) => state,
+      undo: (state: OverlayRuntimeState) => state,
+    } : null,
+    future: serialized.history.future.map(action => ({
+      id: action.id,
+      type: action.type as any,
+      timestamp: action.timestamp,
+      data: action.data as any,
+      // Stub functions
+      execute: (state: OverlayRuntimeState) => state,
+      undo: (state: OverlayRuntimeState) => state,
+    })),
+    maxHistorySize: serialized.history.maxHistorySize,
+  };
   
-  // Reconstruct transactions (start state cannot be reconstructed)
-  const transactionsState = transactions.createInitialTransactionState();
+  // FAZ-4-4I: Reconstruct transactions from sanitized batch
+  const transactionsState: TransactionState = {
+    active: serialized.transactions.active,
+    batch: serialized.transactions.batch ? serialized.transactions.batch.map(action => ({
+      id: action.id,
+      type: action.type as any,
+      timestamp: action.timestamp,
+      data: action.data as any,
+      // Stub functions
+      execute: (state: OverlayRuntimeState) => state,
+      undo: (state: OverlayRuntimeState) => state,
+    })) : null,
+    startState: null, // Not serialized (too large)
+  };
   
   // Reconstruct metadata
   const meta: StateMetadata = {
@@ -312,7 +503,7 @@ export function deserializeState(
     updatedAt: Date.now(),
   };
   
-  return {
+  const deserialized: OverlayRuntimeState = {
     elements,
     selection: selectionWithLast,
     zOrder: zOrderArray,
@@ -320,5 +511,18 @@ export function deserializeState(
     transactions: transactionsState,
     meta,
   };
+  
+  // FAZ-4-4I: Validate that deserialized state passes structuredClone test
+  // (This ensures the reconstructed state is still cloneable)
+  try {
+    structuredClone(sanitizeRuntimeState(deserialized));
+  } catch (error) {
+    console.error('[deserializeState] Deserialized state failed structuredClone test:', error);
+    throw new Error(
+      `Deserialized state is not structuredClone-safe: ${error instanceof Error ? error.message : String(error)}`
+    );
+  }
+  
+  return deserialized;
 }
 

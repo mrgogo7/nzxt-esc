@@ -14,6 +14,7 @@ import type { OverlayElement } from '../../types/overlay';
 import type { OverlayRuntimeState } from './types';
 import * as selection from './selection';
 import * as transactions from './transactions';
+import { IS_DEV } from '../../utils/env';
 
 /**
  * Validation error interface.
@@ -368,6 +369,11 @@ export function ensureStateConsistency(
         },
       };
     }
+  }
+  
+  // FAZ-3E PATCH #2: Log errors in dev mode for diagnostic purposes
+  if (IS_DEV && errors.length > 0) {
+    console.debug(`[Validation] ensureStateConsistency fixed ${errors.length} issue(s):`, errors);
   }
   
   // Return corrected state (errors are logged but not included in return)
