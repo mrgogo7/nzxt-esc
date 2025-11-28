@@ -1,5 +1,5 @@
 import type { MouseEvent } from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus, Layout, Trash2 } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import type { AppSettings } from '../../../constants/defaults';
@@ -18,6 +18,12 @@ import { exportOverlayPreset, importOverlayPreset } from '../../../overlayPreset
 import { getTemplateElements } from '../../../overlayPreset/templates';
 import { normalizeZIndexForAppend } from '../../../overlayPreset/utils';
 import { appendElementsForPreset, replaceElementsForPreset, getElementCountForPreset, clearElementsForPreset, getElementsForPreset, updateElementInRuntime } from '@/state/overlayRuntime';
+// FAZ-3B-1: New runtime system imports (feature-flagged)
+import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
+import { createAddElementAction, createRemoveElementAction, createUpdateElementAction, createBatchAction, createZOrderAction, createSelectAction } from '@/state/overlay/actions';
+import { getElement as getElementFromStore } from '@/state/overlay/elementStore';
+import { bringToFront, sendToBack, moveForward, moveBackward } from '@/state/overlay/zOrder';
+import { shouldUseFaz3BRuntime } from '@/utils/featureFlags';
 
 interface OverlaySettingsProps {
   overlayConfig: Overlay;
@@ -51,6 +57,16 @@ export default function OverlaySettingsComponent({
   setSelectedElementId,
   activePresetId,
 }: OverlaySettingsProps) {
+  // FAZ-3B-1: Feature flag check
+  const useNewRuntime = shouldUseFaz3BRuntime();
+  
+  // FAZ-3B-1: Get StateManager if feature flag is enabled
+  const stateManagerHook = useNewRuntime && activePresetId
+    ? useOverlayStateManager(activePresetId)
+    : null;
+  const stateManager = stateManagerHook?.stateManager ?? null;
+  const runtimeState = stateManagerHook?.state ?? null;
+  
   // DEFENSIVE: Ensure overlayConfig.elements is always an array before any operations
   const safeElements = Array.isArray(overlayConfig.elements) ? overlayConfig.elements : [];
   
@@ -65,6 +81,135 @@ export default function OverlaySettingsComponent({
   // GLOBAL HARD LIMIT: Get total count from runtime overlay only (ARCHITECT MODE)
   // CRITICAL: Use activePresetId to get runtime count for the specific preset
   const totalCount = getTotalElementCount(activePresetId);
+  
+  // FAZ-3B-1: Helper function to update element (feature-flagged)
+  const updateElement = useCallback((elementId: string, updater: (element: OverlayElement) => OverlayElement) => {
+    if (!activePresetId) return;
+    
+    if (useNewRuntime && stateManager && runtimeState) {
+      // New system: Get current element, apply updater, create update action
+      const currentElement = getElementFromStore(runtimeState.elements, elementId);
+      if (!currentElement) return;
+      
+      const newElement = updater(currentElement);
+      const action = createUpdateElementAction(elementId, currentElement, newElement);
+      stateManager.dispatch(action);
+    } else {
+      // Old system
+      updateElementInRuntime(activePresetId, elementId, updater);
+      setSettings({ ...settings });
+    }
+  }, [activePresetId, useNewRuntime, stateManager, runtimeState, settings, setSettings]);
+  
+  // FAZ-3B-2: Helper function for z-order operations (feature-flagged)
+  const handleZOrderChange = useCallback((elementId: string, direction: 'forward' | 'backward' | 'front' | 'back') => {
+    if (!activePresetId) return;
+    
+    if (useNewRuntime && stateManager && runtimeState) {
+      // New system: Use canonical zOrder array
+      const currentZOrder = runtimeState.zOrder;
+      let newZOrder: string[];
+      
+      switch (direction) {
+        case 'forward':
+          newZOrder = moveForward(currentZOrder, elementId);
+          break;
+        case 'backward':
+          newZOrder = moveBackward(currentZOrder, elementId);
+          break;
+        case 'front':
+          newZOrder = bringToFront(currentZOrder, elementId);
+          break;
+        case 'back':
+          newZOrder = sendToBack(currentZOrder, elementId);
+          break;
+        default:
+          return;
+      }
+      
+      // Only dispatch if z-order actually changed
+      if (newZOrder !== currentZOrder && JSON.stringify(newZOrder) !== JSON.stringify(currentZOrder)) {
+        const action = createZOrderAction(currentZOrder, newZOrder);
+        stateManager.dispatch(action);
+      }
+    } else {
+      // Old system: Use reorderOverlayElements helper
+      const sortedElements = [...safeElements].sort((a, b) => (a.zIndex ?? safeElements.indexOf(a)) - (b.zIndex ?? safeElements.indexOf(b)));
+      const unifiedIndex = sortedElements.findIndex(el => el.id === elementId);
+      
+      if (unifiedIndex === -1) return;
+      
+      let newIndex: number;
+      if (direction === 'forward') {
+        newIndex = unifiedIndex + 1;
+      } else if (direction === 'backward') {
+        newIndex = unifiedIndex - 1;
+      } else {
+        // front/back not directly supported by reorderOverlayElements with index
+        // Fallback to forward/backward for now
+        return;
+      }
+      
+      if (newIndex >= 0 && newIndex < sortedElements.length) {
+        setSettings(reorderOverlayElements(settings, overlayConfig, elementId, newIndex));
+      }
+    }
+  }, [activePresetId, useNewRuntime, stateManager, runtimeState, settings, overlayConfig, safeElements, setSettings]);
+  
+  // FAZ-3B-2: Wrapper for setSelectedElementId that also updates runtime state
+  const handleSelectionChange = useCallback((elementId: string | null) => {
+    // Always call parent setter for UI backward compatibility
+    setSelectedElementId(elementId);
+    
+    // Also update runtime state if new runtime is active
+    if (useNewRuntime && stateManager && runtimeState) {
+      const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
+      const oldLastSelectedId = runtimeState.selection.lastSelectedId;
+      
+      let newSelectedIds: string[];
+      let newLastSelectedId: string | null;
+      
+      if (elementId === null) {
+        // Deselect all
+        newSelectedIds = [];
+        newLastSelectedId = null;
+      } else {
+        // Single select (UI currently only supports single selection)
+        newSelectedIds = [elementId];
+        newLastSelectedId = elementId;
+      }
+      
+      // Only dispatch if selection actually changed
+      if (JSON.stringify(oldSelectedIds.sort()) !== JSON.stringify(newSelectedIds.sort()) ||
+          oldLastSelectedId !== newLastSelectedId) {
+        const action = createSelectAction(
+          oldSelectedIds,
+          newSelectedIds,
+          oldLastSelectedId,
+          newLastSelectedId
+        );
+        stateManager.dispatch(action);
+      }
+    }
+  }, [useNewRuntime, stateManager, runtimeState, setSelectedElementId]);
+  
+  // FAZ-3B-2: Derive selectedElementId from runtime state if new runtime is active
+  // This ensures UI stays in sync with runtime state
+  const effectiveSelectedElementId = useMemo(() => {
+    if (useNewRuntime && runtimeState) {
+      // Get single selected ID from runtime state (UI only supports single selection for now)
+      if (runtimeState.selection.selectedIds.size === 1) {
+        return Array.from(runtimeState.selection.selectedIds)[0];
+      } else if (runtimeState.selection.selectedIds.size === 0) {
+        return null;
+      } else {
+        // Multi-select case: use lastSelectedId for UI (single-selection UI)
+        return runtimeState.selection.lastSelectedId;
+      }
+    }
+    // Fallback to prop (old system or when runtime not active)
+    return selectedElementId;
+  }, [useNewRuntime, runtimeState, selectedElementId]);
 
   // State for Floating Add Menu
   const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
@@ -365,13 +510,25 @@ export default function OverlaySettingsComponent({
       // Normalize zIndex before appending
       const normalizedElements = normalizeZIndexForAppend([], safeElements);
       
-      // Append to runtime (limit already checked, should succeed)
-      appendElementsForPreset(activePresetId, normalizedElements);
+      // FAZ-3B-1: Use new runtime system if feature flag is enabled
+      if (useNewRuntime && stateManager) {
+        // Dispatch add actions for each element
+        normalizedElements.forEach(element => {
+          const action = createAddElementAction(element);
+          stateManager.dispatch(action);
+        });
+      } else {
+        // Append to runtime (limit already checked, should succeed) (old system)
+        appendElementsForPreset(activePresetId, normalizedElements);
+        // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
+        setSettings({ ...settings });
+      }
     }
 
-    // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
-    // We trigger a minimal update to cause useOverlayConfig to recompute
-    setSettings({ ...settings });
+    // Force re-render only if using old system (new system uses subscribe callback)
+    if (!useNewRuntime || !stateManager) {
+      setSettings({ ...settings });
+    }
 
     // Reset state
     setImportedElements([]);
@@ -395,11 +552,21 @@ export default function OverlaySettingsComponent({
       return;
     }
     
-    clearElementsForPreset(activePresetId);
-    
-    // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
-    // Autosave will automatically save the cleared state to preset
-    setSettings({ ...settings });
+    // FAZ-3B-1: Use new runtime system if feature flag is enabled
+    if (useNewRuntime && stateManager && runtimeState) {
+      // Create batch remove actions for all elements
+      const elementIds = Array.from(runtimeState.elements.keys());
+      if (elementIds.length > 0) {
+        const removeActions = elementIds.map(id => createRemoveElementAction(id, runtimeState));
+        const batchAction = createBatchAction(removeActions);
+        stateManager.dispatch(batchAction);
+      }
+    } else {
+      // Old system
+      clearElementsForPreset(activePresetId);
+      // Force re-render by updating settings (useOverlayConfig will pick up runtime changes)
+      setSettings({ ...settings });
+    }
   };
 
   // Handler: Overlay preset template selection
@@ -616,11 +783,16 @@ export default function OverlaySettingsComponent({
                       } as MetricElementData,
                     });
                     
-                    // 2) Add to runtime overlay Map
-                    appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
-                    setSettings({ ...settings });
+                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
+                    if (useNewRuntime && stateManager) {
+                      const action = createAddElementAction(newElement);
+                      stateManager.dispatch(action);
+                    } else {
+                      // 2) Add to runtime overlay Map (old system)
+                      appendElementsForPreset(activePresetId, [newElement]);
+                      // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
+                      setSettings({ ...settings });
+                    }
                     setIsFloatingMenuOpen(false);
                   }}
                   disabled={!canAddElement(activePresetId, 1)}
@@ -685,11 +857,16 @@ export default function OverlaySettingsComponent({
                       } as TextElementData,
                     });
                     
-                    // 2) Add to runtime overlay Map
-                    appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
-                    setSettings({ ...settings });
+                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
+                    if (useNewRuntime && stateManager) {
+                      const action = createAddElementAction(newElement);
+                      stateManager.dispatch(action);
+                    } else {
+                      // 2) Add to runtime overlay Map (old system)
+                      appendElementsForPreset(activePresetId, [newElement]);
+                      // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
+                      setSettings({ ...settings });
+                    }
                     setIsFloatingMenuOpen(false);
                   }}
                   disabled={!canAddElement(activePresetId, 1)}
@@ -754,11 +931,16 @@ export default function OverlaySettingsComponent({
                       } as DividerElementData,
                     });
                     
-                    // 2) Add to runtime overlay Map
-                    appendElementsForPreset(activePresetId, [newElement]);
-                    
-                    // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
-                    setSettings({ ...settings });
+                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
+                    if (useNewRuntime && stateManager) {
+                      const action = createAddElementAction(newElement);
+                      stateManager.dispatch(action);
+                    } else {
+                      // 2) Add to runtime overlay Map (old system)
+                      appendElementsForPreset(activePresetId, [newElement]);
+                      // 3) Re-render (settings.overlay.elements is NOT modified - useOverlayConfig reads from runtime)
+                      setSettings({ ...settings });
+                    }
                     setIsFloatingMenuOpen(false);
                   }}
                   disabled={!canAddElement(activePresetId, 1)}
@@ -914,7 +1096,7 @@ export default function OverlaySettingsComponent({
                       ];
 
                       const isCollapsed = collapsedElements.has(element.id);
-                      const isSelected = selectedElementId === element.id;
+                      const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
                         <div 
@@ -932,7 +1114,7 @@ export default function OverlaySettingsComponent({
                         >
                           {/* Compact Element Header */}
                           <div
-                            onClick={() => setSelectedElementId(element.id)}
+                            onClick={() => handleSelectionChange(element.id)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -1018,7 +1200,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex < sortedElements.length - 1) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex + 1));
+                                    handleZOrderChange(element.id, 'forward');
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
@@ -1060,7 +1242,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex > 0) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex - 1));
+                                    handleZOrderChange(element.id, 'backward');
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
@@ -1119,7 +1301,7 @@ export default function OverlaySettingsComponent({
                                     onChange={(e) => {
                                       if (!activePresetId) return;
                                       const newMetric = e.target.value as OverlayMetricKey;
-                                      updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                      updateElement(element.id, (el) => ({
                                         ...el,
                                         data: { ...(el.data as MetricElementData), metric: newMetric }
                                       }));
@@ -1138,7 +1320,7 @@ export default function OverlaySettingsComponent({
                                       value={data.numberColor || '#ffffff'}
                                       onChange={(color) => {
                                         if (!activePresetId) return;
-                                        updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                        updateElement(element.id, (el) => ({
                                           ...el,
                                           data: { ...(el.data as MetricElementData), numberColor: color }
                                         }));
@@ -1158,7 +1340,7 @@ export default function OverlaySettingsComponent({
                                 value={data.numberSize}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     data: { ...(el.data as MetricElementData), numberSize: value }
                                   }));
@@ -1173,7 +1355,7 @@ export default function OverlaySettingsComponent({
                                 value={element.angle ?? 0}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     angle: value
                                   }));
@@ -1192,7 +1374,7 @@ export default function OverlaySettingsComponent({
                                 value={element.x}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     x: value
                                   }));
@@ -1207,7 +1389,7 @@ export default function OverlaySettingsComponent({
                                 value={element.y}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     y: value
                                   }));
@@ -1242,7 +1424,7 @@ export default function OverlaySettingsComponent({
                       };
 
                       const isCollapsed = collapsedElements.has(element.id);
-                      const isSelected = selectedElementId === element.id;
+                      const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
                         <div 
@@ -1260,7 +1442,7 @@ export default function OverlaySettingsComponent({
                         >
                           {/* Compact Element Header */}
                           <div
-                            onClick={() => setSelectedElementId(element.id)}
+                            onClick={() => handleSelectionChange(element.id)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -1346,7 +1528,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex < sortedElements.length - 1) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex + 1));
+                                    handleZOrderChange(element.id, 'forward');
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
@@ -1388,7 +1570,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex > 0) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex - 1));
+                                    handleZOrderChange(element.id, 'backward');
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
@@ -1447,7 +1629,7 @@ export default function OverlaySettingsComponent({
                                   onTextChange={(text) => {
                                     if (!activePresetId) return;
                                     const sanitized = sanitizeText(text);
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       data: { ...(el.data as TextElementData), text: sanitized }
                                     }));
@@ -1455,7 +1637,7 @@ export default function OverlaySettingsComponent({
                                   color={data.textColor || '#ffffff'}
                                   onColorChange={(color) => {
                                     if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       data: { ...(el.data as TextElementData), textColor: color }
                                     }));
@@ -1476,7 +1658,7 @@ export default function OverlaySettingsComponent({
                                   value={data.textSize}
                                   onChange={(value) => {
                                     if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       data: { ...(el.data as TextElementData), textSize: Math.max(6, value) }
                                     }));
@@ -1492,7 +1674,7 @@ export default function OverlaySettingsComponent({
                                   value={element.angle ?? 0}
                                   onChange={(value) => {
                                     if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       angle: value
                                     }));
@@ -1511,26 +1693,26 @@ export default function OverlaySettingsComponent({
                                   value={element.x}
                                   onChange={(value) => {
                                     if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       x: value
                                     }));
                                   }}
-                                  step={1}
-                                  labelTooltipId={`text-xoffset-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipXOffset', lang)}
-                                />
-                                <OverlayField
-                                  type="number"
-                                  label={t('customYOffset', lang)}
-                                  value={element.y}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
-                                      ...el,
-                                      y: value
-                                    }));
-                                  }}
+                                step={1}
+                                labelTooltipId={`text-xoffset-tooltip-${element.id}`}
+                                labelTooltipContent={t('tooltipXOffset', lang)}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('customYOffset', lang)}
+                                value={element.y}
+                                onChange={(value) => {
+                                  if (!activePresetId) return;
+                                  updateElement(element.id, (el) => ({
+                                    ...el,
+                                    y: value
+                                  }));
+                                }}
                                   step={1}
                                   labelTooltipId={`text-yoffset-tooltip-${element.id}`}
                                   labelTooltipContent={t('tooltipYOffset', lang)}
@@ -1552,7 +1734,7 @@ export default function OverlaySettingsComponent({
                       ];
 
                       const isCollapsed = collapsedElements.has(element.id);
-                      const isSelected = selectedElementId === element.id;
+                      const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
                         <div 
@@ -1570,7 +1752,7 @@ export default function OverlaySettingsComponent({
                         >
                           {/* Compact Element Header */}
                           <div
-                            onClick={() => setSelectedElementId(element.id)}
+                            onClick={() => handleSelectionChange(element.id)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -1656,7 +1838,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex < sortedElements.length - 1) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex + 1));
+                                    handleZOrderChange(element.id, 'forward');
                                   }
                                 }}
                                 disabled={unifiedIndex === sortedElements.length - 1}
@@ -1698,7 +1880,7 @@ export default function OverlaySettingsComponent({
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (unifiedIndex > 0) {
-                                    setSettings(reorderOverlayElements(settings, overlayConfig, element.id, unifiedIndex - 1));
+                                    handleZOrderChange(element.id, 'backward');
                                   }
                                 }}
                                 disabled={unifiedIndex === 0}
@@ -1747,7 +1929,7 @@ export default function OverlaySettingsComponent({
                                 value={data.color}
                                 onChange={(color) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), color }
                                   }));
@@ -1761,7 +1943,7 @@ export default function OverlaySettingsComponent({
                                 value={data.width}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), width: Math.max(1, Math.min(400, value)) }
                                   }));
@@ -1780,7 +1962,7 @@ export default function OverlaySettingsComponent({
                                 value={data.height}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     data: { ...(el.data as DividerElementData), height: Math.max(10, Math.min(640, value)) }
                                   }));
@@ -1797,7 +1979,7 @@ export default function OverlaySettingsComponent({
                                 value={element.angle ?? 0}
                                 onChange={(value) => {
                                   if (!activePresetId) return;
-                                  updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                  updateElement(element.id, (el) => ({
                                     ...el,
                                     angle: value
                                   }));
@@ -1816,26 +1998,26 @@ export default function OverlaySettingsComponent({
                                   value={element.x}
                                   onChange={(value) => {
                                     if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
+                                    updateElement(element.id, (el) => ({
                                       ...el,
                                       x: value
                                     }));
                                   }}
-                                  step={1}
-                                  labelTooltipId={`divider-xoffset-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipXOffset', lang)}
-                                />
-                                <OverlayField
-                                  type="number"
-                                  label={t('customYOffset', lang)}
-                                  value={element.y}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElementInRuntime(activePresetId, element.id, (el) => ({
-                                      ...el,
-                                      y: value
-                                    }));
-                                  }}
+                                step={1}
+                                labelTooltipId={`divider-xoffset-tooltip-${element.id}`}
+                                labelTooltipContent={t('tooltipXOffset', lang)}
+                              />
+                              <OverlayField
+                                type="number"
+                                label={t('customYOffset', lang)}
+                                value={element.y}
+                                onChange={(value) => {
+                                  if (!activePresetId) return;
+                                  updateElement(element.id, (el) => ({
+                                    ...el,
+                                    y: value
+                                  }));
+                                }}
                                 step={1}
                                 labelTooltipId={`divider-yoffset-tooltip-${element.id}`}
                                 labelTooltipContent={t('tooltipYOffset', lang)}
@@ -2025,9 +2207,17 @@ export default function OverlaySettingsComponent({
             if (removeModalState.elementId) {
               // ARCHITECT MODE: Remove element from runtime, NOT from settings
               if (activePresetId && removeModalState.elementId) {
-                const runtimeElements = getElementsForPreset(activePresetId);
-                const filteredElements = runtimeElements.filter(el => el.id !== removeModalState.elementId);
-                replaceElementsForPreset(activePresetId, filteredElements);
+                // FAZ-3B-1: Use new runtime system if feature flag is enabled
+                if (useNewRuntime && stateManager && runtimeState) {
+                  const action = createRemoveElementAction(removeModalState.elementId, runtimeState);
+                  stateManager.dispatch(action);
+                } else {
+                  // Old system
+                  const runtimeElements = getElementsForPreset(activePresetId);
+                  const filteredElements = runtimeElements.filter(el => el.id !== removeModalState.elementId);
+                  replaceElementsForPreset(activePresetId, filteredElements);
+                  setSettings({ ...settings });
+                }
               }
             }
           }}

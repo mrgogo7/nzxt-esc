@@ -19,6 +19,10 @@ import { loadPreset } from '@/state/overlayRuntime';
 import type { StoredPreset } from '../../preset/storage';
 import type { AppSettings } from '../../constants/defaults';
 import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../preset/utils/mediaSource';
+// FAZ-3D: vNext preset import system (full integration)
+import { shouldUseFaz3BRuntime } from '../../utils/featureFlags';
+import { importPresetToRuntimeState } from '../../preset/vNext/presetImportVNext';
+import { getStateManagerForPreset } from '../../state/overlay/useOverlayStateManager';
 
 export interface ApplyPresetOptions {
   autosaveDelayMs?: number;
@@ -38,8 +42,37 @@ export function applyPresetToRuntimeAndSettings(
   }
   
   // Step 2: Load overlay elements from preset into runtime
-  const presetElements = preset.preset.overlay?.elements ?? [];
-  loadPreset(preset.id, presetElements);
+  // FAZ-3D: Full integration with StateManager.replaceState()
+  const useNewRuntime = shouldUseFaz3BRuntime();
+  
+  if (useNewRuntime) {
+    try {
+      // Import preset using vNext system
+      const importResult = importPresetToRuntimeState(preset.preset, preset.id);
+      
+      // Log warnings if any
+      if (importResult.warnings.length > 0) {
+        console.warn('[PresetImport] Import warnings:', importResult.warnings);
+      }
+      
+      // FAZ-3D: Apply imported state to StateManager using replaceState()
+      const stateManager = getStateManagerForPreset(preset.id);
+      stateManager.replaceState(importResult.state);
+      
+      // Skip old system (vNext replaces it)
+      // Continue with settings/mediaUrl handling below
+    } catch (error) {
+      // Fallback to old system if vNext import fails
+      console.warn('[PresetImport] vNext import failed, falling back to old system:', error);
+      // Continue with old system below
+      const presetElements = preset.preset.overlay?.elements ?? [];
+      loadPreset(preset.id, presetElements);
+    }
+  } else {
+    // Old system (used when feature flag is OFF)
+    const presetElements = preset.preset.overlay?.elements ?? [];
+    loadPreset(preset.id, presetElements);
+  }
   
   // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)
   setTimeout(() => {

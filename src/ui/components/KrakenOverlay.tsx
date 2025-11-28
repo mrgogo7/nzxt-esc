@@ -8,6 +8,11 @@ import { useLocalMedia } from '../../hooks/useLocalMedia';
 import MediaRenderer from './MediaRenderer';
 import UnifiedOverlayRenderer from './UnifiedOverlayRenderer';
 import styles from '../styles/KrakenOverlay.module.css';
+// FAZ-3B-4: New runtime system imports (feature-flagged)
+import { useOverlayStateManager } from '../../state/overlay/useOverlayStateManager';
+import { shouldUseFaz3BRuntime } from '../../utils/featureFlags';
+import { getElementsInZOrder } from '../../state/overlay/selectors';
+import type { Overlay } from '../../types/overlay';
 
 /**
  * KrakenOverlay component.
@@ -29,8 +34,30 @@ export default function KrakenOverlay() {
   const { mediaUrl } = useMediaUrl();
   const metrics = useMonitoring();
   const activePresetId = getActivePresetId();
-  const overlayConfig = useOverlayConfig(settings, activePresetId);
   const localMedia = useLocalMedia({ settings, activePresetId });
+  
+  // FAZ-3B-4: Feature flag check
+  const useNewRuntime = shouldUseFaz3BRuntime();
+  
+  // FAZ-3B-4: Get StateManager if feature flag is enabled
+  const stateManagerHook = useNewRuntime && activePresetId
+    ? useOverlayStateManager(activePresetId)
+    : null;
+  const runtimeState = stateManagerHook?.state ?? null;
+  
+  // FAZ-3B-4: Get overlay config from runtime state or old system
+  let overlayConfig: Overlay;
+  if (useNewRuntime && runtimeState) {
+    // New runtime: Build overlay from runtime state
+    const elementsInZOrder = getElementsInZOrder(runtimeState.elements, runtimeState.zOrder);
+    overlayConfig = {
+      mode: elementsInZOrder.length > 0 ? 'custom' : 'none',
+      elements: elementsInZOrder,
+    };
+  } else {
+    // Old system: Use useOverlayConfig hook
+    overlayConfig = useOverlayConfig(settings, activePresetId);
+  }
 
   // Get LCD resolution using centralized environment detection
   const { width: lcdResolution } = getLCDDimensions();

@@ -14,6 +14,9 @@ import { CURRENT_SCHEMA_VERSION } from './constants';
 import { importPresetPipeline, type ImportResult } from './importPipeline';
 import type { AppSettings } from '../constants/defaults';
 import { deriveBackgroundSourceFromUrl } from './utils/mediaSource';
+// FAZ-3C: vNext preset system imports
+import { exportRuntimeStateToPreset } from './vNext/presetExportVNext';
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 
 // Re-export types and functions for convenience
 export type { ImportResult } from './importPipeline';
@@ -131,24 +134,55 @@ export async function exportPreset(
   activePresetId?: string | null
 ): Promise<void> {
   try {
-    // FAZ 9: Read overlay elements from storage first, fallback to runtime
-    let overlayElements: Array<any> = [];
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    let preset: PresetFile | null = null;
     
-    if (activePresetId) {
-      // Try to read from storage first
-      const { getPresetById } = await import('./storage');
-      const storedPreset = getPresetById(activePresetId);
-      
-      if (storedPreset?.preset?.overlay?.elements) {
-        overlayElements = storedPreset.preset.overlay.elements;
-      } else {
-        // Fallback to runtime
-        const { getElementsForPreset } = await import('../state/overlayRuntime');
-        overlayElements = getElementsForPreset(activePresetId);
+    // FAZ-3C: Use vNext export system when feature flag is enabled
+    if (useNewRuntime && activePresetId) {
+      try {
+        // Get StateManager instance (cached or created)
+        const { getStateManagerForPreset } = await import('../state/overlay/useOverlayStateManager');
+        const stateManager = getStateManagerForPreset(activePresetId);
+        const runtimeState = stateManager.getState();
+        
+        // Export runtime state to v3 preset
+        const exportedPreset = exportRuntimeStateToPreset(runtimeState, presetName);
+        
+        // Merge background settings from current settings (background is not part of runtime state)
+        const backgroundFromSettings = createPresetFromState(settings, mediaUrl, presetName);
+        preset = {
+          ...exportedPreset,
+          background: backgroundFromSettings.background,
+          misc: backgroundFromSettings.misc,
+        };
+      } catch (error) {
+        // Fallback to old system if vNext export fails
+        console.warn('[PresetExport] vNext export failed, falling back to old system:', error);
+        preset = null; // Force old system path
       }
     }
     
-    const preset = createPresetFromState(settings, mediaUrl, presetName, overlayElements);
+    if (!preset) {
+      // FAZ 9: Old system - Read overlay elements from storage first, fallback to runtime
+      let overlayElements: Array<any> = [];
+      
+      if (activePresetId) {
+        // Try to read from storage first
+        const { getPresetById } = await import('./storage');
+        const storedPreset = getPresetById(activePresetId);
+        
+        if (storedPreset?.preset?.overlay?.elements) {
+          overlayElements = storedPreset.preset.overlay.elements;
+        } else {
+          // Fallback to runtime
+          const { getElementsForPreset } = await import('../state/overlayRuntime');
+          overlayElements = getElementsForPreset(activePresetId);
+        }
+      }
+      
+      preset = createPresetFromState(settings, mediaUrl, presetName, overlayElements);
+    }
+    
     const json = JSON.stringify(preset, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

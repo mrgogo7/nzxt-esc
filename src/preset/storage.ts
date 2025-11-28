@@ -8,6 +8,9 @@
 import type { PresetFile } from './schema';
 import { CURRENT_SCHEMA_VERSION } from './constants';
 import { mergePresetFields } from './utils/atomicMerge';
+// FAZ-3C: vNext migration system
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
+import { runFullMigration } from './vNext/migrationIndex';
 
 export interface StoredPreset {
   id: string;
@@ -103,6 +106,36 @@ export function getPresets(): StoredPreset[] {
     
     if (stored) {
       presets = JSON.parse(stored);
+    }
+    
+    // FAZ-3C: Migrate presets to v3 if feature flag is enabled
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    if (useNewRuntime) {
+      // Migrate each preset to v3
+      presets = presets.map(preset => {
+        try {
+          const migratedPreset = runFullMigration(preset.preset);
+          return {
+            ...preset,
+            preset: migratedPreset,
+          };
+        } catch (error) {
+          console.warn(`[PresetStorage] Failed to migrate preset ${preset.id} to v3:`, error);
+          // Return original preset if migration fails
+          return preset;
+        }
+      });
+      
+      // Save migrated presets back to storage (lazy migration on load)
+      // Only save if any preset was migrated
+      const needsSave = presets.some((p, i) => {
+        const original = JSON.parse(stored || '[]');
+        return original[i]?.preset?.schemaVersion !== p.preset?.schemaVersion;
+      });
+      
+      if (needsSave) {
+        savePresets(presets);
+      }
     }
     
     // Ensure default preset exists

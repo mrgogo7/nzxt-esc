@@ -10,6 +10,12 @@ import { resizeElement, type ResizeOperationConfig } from '../transform/operatio
 import type { ResizeHandle } from '../transform/engine/HandlePositioning';
 import type { AppSettings } from '../constants/defaults';
 import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
+// FAZ-3B-3: New runtime system imports (feature-flagged)
+import type { OverlayStateManager } from '../state/overlay/stateManager';
+import type { OverlayRuntimeState } from '../state/overlay/types';
+import { createTransformAction } from '../state/overlay/actions';
+import { getElement as getElementFromStore } from '../state/overlay/elementStore';
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 
 /**
  * Hook for managing element resize.
@@ -21,7 +27,9 @@ export function useResizeHandlers(
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
   onResizeComplete?: (elementId: string, oldSize: number, newSize: number) => void,
-  activePresetId?: string | null
+  activePresetId?: string | null,
+  stateManager?: OverlayStateManager | null,
+  runtimeState?: OverlayRuntimeState | null
 ) {
   const [resizingElementId, setResizingElementId] = useState<string | null>(null);
   const resizeStart = useRef<{ 
@@ -45,10 +53,22 @@ export function useResizeHandlers(
       return;
     }
     
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementId);
+    // FAZ-3B-3: Get element from new runtime or old runtime
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    let element;
+    if (useNewRuntime && runtimeState) {
+      element = getElementFromStore(runtimeState.elements, elementId);
+    } else {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      element = runtimeElements.find(el => el.id === elementId);
+    }
     
     if (!element || !canResizeElement(element)) return;
+    
+    // FAZ-3B-3: Start transaction for new runtime system
+    if (useNewRuntime && stateManager) {
+      stateManager.startTransaction();
+    }
     
     // Get initial size
     let initialSize = 0;
@@ -68,7 +88,7 @@ export function useResizeHandlers(
       handle,
       initialSize,
     };
-  }, [activePresetId]);
+  }, [activePresetId, stateManager, runtimeState]);
 
   const handleResizeMouseMove = useCallback((e: MouseEvent) => {
     if (!resizeStart.current) return;
@@ -83,8 +103,15 @@ export function useResizeHandlers(
       return;
     }
     
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
+    // FAZ-3B-3: Get element from new runtime or old runtime
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    let element;
+    if (useNewRuntime && runtimeState) {
+      element = getElementFromStore(runtimeState.elements, resizeStart.current!.elementId);
+    } else {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
+    }
     
     if (element) {
       
@@ -106,15 +133,38 @@ export function useResizeHandlers(
         resizeConfig
       );
       
-      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
-      // Runtime change notification will trigger UI re-render via subscription
-      updateElementInRuntime(activePresetId, element.id, () => result.element);
+      // FAZ-3B-3: Use new runtime system if feature flag is enabled
+      if (useNewRuntime && stateManager && runtimeState) {
+        // Get current element state from runtime
+        const currentElement = getElementFromStore(runtimeState.elements, element.id);
+        if (!currentElement) return;
+        
+        // Create transform action and dispatch (will be batched in transaction)
+        const oldStates = new Map<string, typeof currentElement>();
+        const newStates = new Map<string, typeof result.element>;
+        oldStates.set(element.id, currentElement);
+        newStates.set(element.id, result.element);
+        
+        const action = createTransformAction([element.id], oldStates, newStates);
+        stateManager.dispatch(action); // This adds to transaction if active
+      } else {
+        // Old system: Update runtime overlay Map, NOT settings
+        // Runtime change notification will trigger UI re-render via subscription
+        updateElementInRuntime(activePresetId, element.id, () => result.element);
+      }
     }
-  }, [offsetScale, setSettings, settingsRef, activePresetId]);
+  }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleResizeMouseUp = useCallback(() => {
-    // Record resize action for undo/redo
-    if (resizeStart.current && onResizeComplete && activePresetId) {
+    // FAZ-3B-3: Commit transaction for new runtime system
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    if (useNewRuntime && stateManager) {
+      // Commit transaction (batches all actions from this resize into single undo/redo entry)
+      stateManager.commitTransaction();
+    }
+    
+    // Record resize action for undo/redo (old system only)
+    if (!useNewRuntime && resizeStart.current && onResizeComplete && activePresetId) {
       const runtimeElements = getElementsForPreset(activePresetId);
       const element = runtimeElements.find(el => el.id === resizeStart.current!.elementId);
       if (element) {
@@ -140,7 +190,7 @@ export function useResizeHandlers(
     
     setResizingElementId(null);
     resizeStart.current = null;
-  }, [onResizeComplete, activePresetId]);
+  }, [onResizeComplete, activePresetId, stateManager]);
 
   // Event listeners for resize
   useEffect(() => {

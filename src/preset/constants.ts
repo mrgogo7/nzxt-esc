@@ -8,8 +8,18 @@
  * Current schema version.
  * This is the version that all exported presets will use.
  * Increment this when making breaking changes to the preset format.
+ * 
+ * FAZ-3C: v3 introduces canonical z-order support.
+ * However, we keep v2 as CURRENT until v3 is fully tested and validated.
  */
 export const CURRENT_SCHEMA_VERSION = 2;
+
+/**
+ * Next schema version (v3) - used when FAZ-3C feature flag is enabled.
+ * 
+ * FAZ-3C: v3 introduces canonical z-order in overlay.zOrder field.
+ */
+export const NEXT_SCHEMA_VERSION = 3;
 
 /**
  * Minimum supported schema version.

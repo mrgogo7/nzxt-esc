@@ -8,6 +8,12 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { rotateElement, type RotateOperationConfig } from '../transform/operations/RotateOperation';
 import type { AppSettings } from '../constants/defaults';
 import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
+// FAZ-3B-3: New runtime system imports (feature-flagged)
+import type { OverlayStateManager } from '../state/overlay/stateManager';
+import type { OverlayRuntimeState } from '../state/overlay/types';
+import { createTransformAction } from '../state/overlay/actions';
+import { getElement as getElementFromStore } from '../state/overlay/elementStore';
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 
 /**
  * Hook for managing element rotation.
@@ -19,7 +25,9 @@ export function useRotationHandlers(
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
   onRotateComplete?: (elementId: string, oldAngle: number | undefined, newAngle: number | undefined) => void,
-  activePresetId?: string | null
+  activePresetId?: string | null,
+  stateManager?: OverlayStateManager | null,
+  runtimeState?: OverlayRuntimeState | null
 ) {
   const [rotatingElementId, setRotatingElementId] = useState<string | null>(null);
   const rotationStart = useRef<{
@@ -45,10 +53,22 @@ export function useRotationHandlers(
       return;
     }
     
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === elementId);
+    // FAZ-3B-3: Get element from new runtime or old runtime
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    let element;
+    if (useNewRuntime && runtimeState) {
+      element = getElementFromStore(runtimeState.elements, elementId);
+    } else {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      element = runtimeElements.find(el => el.id === elementId);
+    }
     
     if (!element) return;
+    
+    // FAZ-3B-3: Start transaction for new runtime system
+    if (useNewRuntime && stateManager) {
+      stateManager.startTransaction();
+    }
     
     // Get current element angle
     const currentElementAngle = element.angle ?? 0;
@@ -75,7 +95,7 @@ export function useRotationHandlers(
       elementId,
       initialAngle: currentElementAngle,
     };
-  }, [activePresetId]);
+  }, [activePresetId, stateManager, runtimeState]);
 
   const handleRotationMouseMove = useCallback((e: MouseEvent) => {
     if (!rotationStart.current) return;
@@ -90,8 +110,15 @@ export function useRotationHandlers(
       return;
     }
     
-    const runtimeElements = getElementsForPreset(activePresetId);
-    const element = runtimeElements.find(el => el.id === rotationStart.current!.elementId);
+    // FAZ-3B-3: Get element from new runtime or old runtime
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    let element;
+    if (useNewRuntime && runtimeState) {
+      element = getElementFromStore(runtimeState.elements, rotationStart.current!.elementId);
+    } else {
+      const runtimeElements = getElementsForPreset(activePresetId);
+      element = runtimeElements.find(el => el.id === rotationStart.current!.elementId);
+    }
     
     if (element) {
       
@@ -116,15 +143,38 @@ export function useRotationHandlers(
         rotateConfig
       );
       
-      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
-      // Runtime change notification will trigger UI re-render via subscription
-      updateElementInRuntime(activePresetId, element.id, () => result.element);
+      // FAZ-3B-3: Use new runtime system if feature flag is enabled
+      if (useNewRuntime && stateManager && runtimeState) {
+        // Get current element state from runtime
+        const currentElement = getElementFromStore(runtimeState.elements, element.id);
+        if (!currentElement) return;
+        
+        // Create transform action and dispatch (will be batched in transaction)
+        const oldStates = new Map<string, typeof currentElement>();
+        const newStates = new Map<string, typeof result.element>;
+        oldStates.set(element.id, currentElement);
+        newStates.set(element.id, result.element);
+        
+        const action = createTransformAction([element.id], oldStates, newStates);
+        stateManager.dispatch(action); // This adds to transaction if active
+      } else {
+        // Old system: Update runtime overlay Map, NOT settings
+        // Runtime change notification will trigger UI re-render via subscription
+        updateElementInRuntime(activePresetId, element.id, () => result.element);
+      }
     }
-  }, [_offsetScale, setSettings, settingsRef, activePresetId]);
+  }, [_offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleRotationMouseUp = useCallback(() => {
-    // Record rotate action for undo/redo
-    if (rotationStart.current && onRotateComplete && activePresetId) {
+    // FAZ-3B-3: Commit transaction for new runtime system
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    if (useNewRuntime && stateManager) {
+      // Commit transaction (batches all actions from this rotate into single undo/redo entry)
+      stateManager.commitTransaction();
+    }
+    
+    // Record rotate action for undo/redo (old system only)
+    if (!useNewRuntime && rotationStart.current && onRotateComplete && activePresetId) {
       const runtimeElements = getElementsForPreset(activePresetId);
       const element = runtimeElements.find(el => el.id === rotationStart.current!.elementId);
       if (element) {
@@ -144,7 +194,7 @@ export function useRotationHandlers(
     
     setRotatingElementId(null);
     rotationStart.current = null;
-  }, [onRotateComplete, activePresetId]);
+  }, [onRotateComplete, activePresetId, stateManager]);
 
   // Event listeners for rotation
   useEffect(() => {

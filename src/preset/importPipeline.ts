@@ -17,6 +17,9 @@ import type { Lang } from '../i18n';
 import { migratePreset, getSchemaVersion } from './migration';
 import { validatePresetFile, type ValidationResult } from './validation';
 import { normalizePresetFile, type NormalizationResult } from './normalization';
+// FAZ-3C: vNext migration system
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
+import { runFullMigration } from './vNext/migrationIndex';
 import { 
   PresetError, 
   ERROR_CODES, 
@@ -125,7 +128,22 @@ export async function importPresetPipeline(
         );
       }
 
-      migrated = migratePreset(parsed);
+      // FAZ-3C: Use vNext migration system when feature flag is enabled
+      const useNewRuntime = shouldUseFaz3BRuntime();
+      
+      if (useNewRuntime) {
+        // Use vNext migration system (migrates to v3)
+        try {
+          migrated = runFullMigration(parsed);
+        } catch (error) {
+          // Fallback to old migration system if vNext fails
+          console.warn('[PresetImport] vNext migration failed, falling back to old system:', error);
+          migrated = migratePreset(parsed);
+        }
+      } else {
+        // Old migration system (migrates to v2)
+        migrated = migratePreset(parsed);
+      }
     } catch (error) {
       if (error instanceof PresetError) {
         throw error;

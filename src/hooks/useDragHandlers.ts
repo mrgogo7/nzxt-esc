@@ -5,6 +5,12 @@ import { detectAlignment, applySnapping, type AlignmentGuide, type SnappingState
 import type { AppSettings } from '../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
 import { getElementsForPreset, updateElementInRuntime } from '../state/overlayRuntime';
+// FAZ-3B-3: New runtime system imports (feature-flagged)
+import type { OverlayStateManager } from '../state/overlay/stateManager';
+import type { OverlayRuntimeState } from '../state/overlay/types';
+import { createTransformAction, createSelectAction } from '../state/overlay/actions';
+import { getElement as getElementFromStore } from '../state/overlay/elementStore';
+import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -25,7 +31,9 @@ export function useDragHandlers(
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
   onMoveComplete?: (elementId: string, oldPos: { x: number; y: number }, newPos: { x: number; y: number }) => void,
-  activePresetId?: string | null
+  activePresetId?: string | null,
+  stateManager?: OverlayStateManager | null,
+  runtimeState?: OverlayRuntimeState | null
 ) {
   // Background drag state
   const [isDragging, setIsDragging] = useState(false);
@@ -101,20 +109,53 @@ export function useDragHandlers(
       setDraggingElementId(elementId);
       elementDragStart.current = { x: e.clientX, y: e.clientY, elementId };
       
+      // FAZ-3B-3: Start transaction for new runtime system
+      const useNewRuntime = shouldUseFaz3BRuntime();
+      if (useNewRuntime && stateManager && runtimeState) {
+        stateManager.startTransaction();
+      }
+      
       // Store initial position for undo/redo
       // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
       if (activePresetId) {
-        const runtimeElements = getElementsForPreset(activePresetId);
-        const element = runtimeElements.find(el => el.id === elementId);
-        if (element) {
-          moveInitialPosition.current = { x: element.x, y: element.y };
+        // FAZ-3B-3: Get initial state from runtime state if available
+        if (useNewRuntime && runtimeState) {
+          const element = getElementFromStore(runtimeState.elements, elementId);
+          if (element) {
+            moveInitialPosition.current = { x: element.x, y: element.y };
+          }
+        } else {
+          const runtimeElements = getElementsForPreset(activePresetId);
+          const element = runtimeElements.find(el => el.id === elementId);
+          if (element) {
+            moveInitialPosition.current = { x: element.x, y: element.y };
+          }
         }
       }
     } else {
       // First click: just select, don't start dragging
-      setSelectedElementId(elementId);
+      // FAZ-3B-4: Wire selection to runtime state if feature flag enabled
+      const useNewRuntime = shouldUseFaz3BRuntime();
+      if (useNewRuntime && stateManager && runtimeState) {
+        // Dispatch selection action to runtime
+        const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
+        const oldLastSelectedId = runtimeState.selection.lastSelectedId;
+        const newSelectedIds = [elementId];
+        const newLastSelectedId = elementId;
+        
+        const action = createSelectAction(
+          oldSelectedIds,
+          newSelectedIds,
+          oldLastSelectedId,
+          newLastSelectedId
+        );
+        stateManager.dispatch(action);
+      } else {
+        // Old system: Use local state
+        setSelectedElementId(elementId);
+      }
     }
-  }, [selectedElementId, activePresetId]);
+  }, [selectedElementId, activePresetId, stateManager, runtimeState, setSelectedElementId]);
 
   const handleElementMouseMove = useCallback((e: MouseEvent) => {
     if (!elementDragStart.current) return;
@@ -192,22 +233,53 @@ export function useDragHandlers(
       // Boundary control - constrain element to stay within circle
       const constrained = constrainToCircle(element, snapped.x, snapped.y, offsetScale);
       
-      // ARCHITECT MODE: Update runtime overlay Map, NOT settings
-      // Runtime change notification will trigger UI re-render via subscription
-      updateElementInRuntime(activePresetId, element.id, (el) => ({
-        ...el,
-        x: constrained.x,
-        y: constrained.y,
-      }));
+      // FAZ-3B-3: Use new runtime system if feature flag is enabled
+      const useNewRuntime = shouldUseFaz3BRuntime();
+      if (useNewRuntime && stateManager && runtimeState) {
+        // Get current element state from runtime
+        const currentElement = getElementFromStore(runtimeState.elements, element.id);
+        if (!currentElement) return;
+        
+        // Create new element state
+        const newElement = {
+          ...currentElement,
+          x: constrained.x,
+          y: constrained.y,
+        };
+        
+        // Create transform action and dispatch (will be batched in transaction)
+        const oldStates = new Map<string, typeof currentElement>();
+        const newStates = new Map<string, typeof newElement>();
+        oldStates.set(element.id, currentElement);
+        newStates.set(element.id, newElement);
+        
+        const action = createTransformAction([element.id], oldStates, newStates);
+        stateManager.dispatch(action); // This adds to transaction if active
+      } else {
+        // Old system: Update runtime overlay Map, NOT settings
+        // Runtime change notification will trigger UI re-render via subscription
+        updateElementInRuntime(activePresetId, element.id, (el) => ({
+          ...el,
+          x: constrained.x,
+          y: constrained.y,
+        }));
+      }
       
       // Update drag start position for next frame
       elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
     }
-  }, [offsetScale, setSettings, settingsRef]);
+  }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleElementMouseUp = useCallback(() => {
-    // Record move action for undo/redo
-    if (elementDragStart.current && moveInitialPosition.current && onMoveComplete && activePresetId) {
+    // FAZ-3B-3: Commit transaction for new runtime system
+    const useNewRuntime = shouldUseFaz3BRuntime();
+    if (useNewRuntime && stateManager) {
+      // Commit transaction (batches all actions from this drag into single undo/redo entry)
+      stateManager.commitTransaction();
+    }
+    
+    // Record move action for undo/redo (old system only)
+    if (!useNewRuntime && elementDragStart.current && moveInitialPosition.current && onMoveComplete && activePresetId) {
       // ARCHITECT MODE: Read from runtime overlay Map, NOT from settings
       const runtimeElements = getElementsForPreset(activePresetId);
       const element = runtimeElements.find(el => el.id === elementDragStart.current!.elementId);
@@ -234,7 +306,7 @@ export function useDragHandlers(
       escapeVelocityY: 0,
     };
     // Keep selected after drag ends - user can click again to drag
-  }, [onMoveComplete, activePresetId]);
+  }, [onMoveComplete, activePresetId, stateManager]);
 
   // Event listeners for drag handlers
   useEffect(() => {
@@ -277,7 +349,29 @@ export function useDragHandlers(
         }
         
         // Deselect
-        setSelectedElementId(null);
+        // FAZ-3B-4: Wire deselection to runtime state if feature flag enabled
+        const useNewRuntime = shouldUseFaz3BRuntime();
+        if (useNewRuntime && stateManager && runtimeState) {
+          // Dispatch clear selection action to runtime
+          const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
+          const oldLastSelectedId = runtimeState.selection.lastSelectedId;
+          const newSelectedIds: string[] = [];
+          const newLastSelectedId: string | null = null;
+          
+          // Only dispatch if there was a selection
+          if (oldSelectedIds.length > 0) {
+            const action = createSelectAction(
+              oldSelectedIds,
+              newSelectedIds,
+              oldLastSelectedId,
+              newLastSelectedId
+            );
+            stateManager.dispatch(action);
+          }
+        } else {
+          // Old system: Use local state
+          setSelectedElementId(null);
+        }
       }
     };
 
