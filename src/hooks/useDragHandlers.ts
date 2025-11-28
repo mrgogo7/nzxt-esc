@@ -24,20 +24,20 @@ import { IS_DEV } from '../utils/env';
  * @param offsetScale - Scale factor for converting preview to LCD pixels
  * @param settingsRef - Ref to current settings (to avoid stale closures)
  * @param setSettings - Settings setter function
- * @param onResizeComplete - Optional callback when resize completes
- * @param onRotateComplete - Optional callback when rotate completes
- * @param onTransformComplete - Optional callback when transform completes
+ * @param _onResizeComplete - Optional callback when resize completes
+ * @param _onRotateComplete - Optional callback when rotate completes
+ * @param _onTransformComplete - Optional callback when transform completes
  */
 export function useDragHandlers(
   offsetScale: number,
   settingsRef: React.MutableRefObject<AppSettings>,
   setSettings: (settings: AppSettings) => void,
-  onResizeComplete?: () => void,
+  _onResizeComplete?: () => void,
   activePresetId?: string | null,
   stateManager?: OverlayStateManager | null,
   runtimeState?: OverlayRuntimeState | null,
-  onRotateComplete?: () => void,
-  onTransformComplete?: () => void
+  _onRotateComplete?: () => void,
+  _onTransformComplete?: () => void
 ) {
   // Background drag state
   const [isDragging, setIsDragging] = useState(false);
