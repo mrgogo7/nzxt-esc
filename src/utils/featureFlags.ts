@@ -15,90 +15,11 @@
 import { IS_DEV } from './env';
 
 /**
- * Feature flag: Use FAZ-3B new runtime system.
- * 
- * When true: Use OverlayStateManager and new action-based system.
- * When false: Use old overlayRuntime.ts and direct mutations.
- * 
- * Default: false (disabled until stable)
- * 
- * FAZ-3E: Enhanced with multiple override sources:
- * - URL query param: ?runtimev3=1
- * - LocalStorage: nzxtesc_runtimev3
- * - Window global: __NZXT_ESC_USE_FAZ3B_RUNTIME
- * - Dev shortcut: Ctrl+Alt+Shift+R (toggles localStorage)
- */
-export const USE_FAZ3B_RUNTIME = (() => {
-  if (typeof window === 'undefined') {
-    return false; // SSR safety
-  }
-  
-  // Priority 1: URL query parameter (highest priority)
-  try {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlValue = urlParams.get('runtimev3');
-    if (urlValue !== null) {
-      return urlValue === '1' || urlValue === 'true';
-    }
-  } catch {
-    // URL parsing might fail, continue to next source
-  }
-  
-  // Priority 2: LocalStorage override
-  try {
-    const stored = localStorage.getItem('nzxtesc_runtimev3');
-    if (stored !== null) {
-      return stored === 'true' || stored === '1';
-    }
-  } catch {
-    // localStorage might not be available, continue to next source
-  }
-  
-  // Priority 3: Window global variable (backward compatibility)
-  try {
-    const envValue = (window as any).__NZXT_ESC_USE_FAZ3B_RUNTIME;
-    if (envValue !== undefined) {
-      return envValue === true || envValue === 'true';
-    }
-    
-    // Also check legacy localStorage key (backward compatibility)
-    const legacyStored = localStorage.getItem('__NZXT_ESC_USE_FAZ3B_RUNTIME');
-    if (legacyStored !== null) {
-      return legacyStored === 'true';
-    }
-  } catch {
-    // Continue to default
-  }
-  
-  // Priority 4: Default value (disabled)
-  return false;
-})();
-
-/**
- * Log active feature flags on app start (dev mode only).
- * FAZ-3E PATCH #2: Added for visibility and debugging.
- */
-if (IS_DEV && typeof window !== 'undefined') {
-  // Log once on module load (app start)
-  const activeFlags: string[] = [];
-  if (USE_FAZ3B_RUNTIME) {
-    activeFlags.push('USE_FAZ3B_RUNTIME');
-  }
-  
-  if (activeFlags.length > 0) {
-    console.log(`[FeatureFlags] Active flags: ${activeFlags.join(', ')}`);
-  } else {
-    console.log('[FeatureFlags] All flags disabled (using legacy systems)');
-  }
-}
-
-/**
  * Check if FAZ-3B runtime should be used.
  * 
  * FAZ-3E: Dynamic check (re-evaluates on each call for URL/localStorage changes).
  * 
- * FAZ-4-4 HOTFIX: Legacy overlayRuntime.ts deleted, so vNext is required.
- * In DEV mode, default to true to ensure runtime works.
+ * FAZ-4-4 HOTFIX: In DEV mode, default to true to ensure runtime works.
  * 
  * @returns True if new runtime system should be used
  */
@@ -145,13 +66,30 @@ export function shouldUseFaz3BRuntime(): boolean {
   }
   
   // Priority 4: FAZ-4-4 HOTFIX - DEV mode default to true
-  // Legacy overlayRuntime.ts deleted, so vNext is required for overlay to work
   if (IS_DEV) {
     return true;
   }
   
   // Priority 5: Default (production)
   return false;
+}
+
+/**
+ * Log active feature flags on app start (dev mode only).
+ * FAZ-3E PATCH #2: Added for visibility and debugging.
+ */
+if (IS_DEV && typeof window !== 'undefined') {
+  // Log once on module load (app start)
+  const activeFlags: string[] = [];
+  if (shouldUseFaz3BRuntime()) {
+    activeFlags.push('USE_FAZ3B_RUNTIME');
+  }
+  
+  if (activeFlags.length > 0) {
+    console.log(`[FeatureFlags] Active flags: ${activeFlags.join(', ')}`);
+  } else {
+    console.log('[FeatureFlags] All flags disabled (using legacy systems)');
+  }
 }
 
 /**

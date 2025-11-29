@@ -4,8 +4,6 @@ import { constrainToCircle } from '../utils/boundaries';
 import { detectAlignment, applySnapping, type AlignmentGuide, type SnappingState } from '../utils/snapping';
 import type { AppSettings } from '../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
-// FAZ-3B-3: New runtime system imports (feature-flagged)
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction, createSelectAction } from '../state/overlay/actions';

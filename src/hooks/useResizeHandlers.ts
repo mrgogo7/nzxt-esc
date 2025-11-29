@@ -9,8 +9,6 @@ import { canResizeElement } from '../utils/resize';
 import { resizeElement, type ResizeOperationConfig } from '../transform/operations/ResizeOperation';
 import type { ResizeHandle } from '../transform/engine/HandlePositioning';
 import type { AppSettings } from '../constants/defaults';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
-// FAZ-3B-3: New runtime system imports (feature-flagged)
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction } from '../state/overlay/actions';
@@ -61,7 +59,6 @@ export function useResizeHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, elementId);
     } else {
-      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
       if (IS_DEV) {
         console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
       }
@@ -118,7 +115,6 @@ export function useResizeHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, resizeStart.current!.elementId);
     } else {
-      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
       if (IS_DEV) {
         console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
       }
@@ -160,7 +156,6 @@ export function useResizeHandlers(
         const action = createTransformAction([element.id], oldStates, newStates);
         stateManager.dispatch(action); // This adds to transaction if active
       } else {
-        // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
         if (IS_DEV) {
           console.warn('[useResizeHandlers] updateElementInRuntime called but vNext not available');
         }
@@ -184,8 +179,6 @@ export function useResizeHandlers(
     if (onResizeCompleteSimple) {
       onResizeCompleteSimple();
     }
-    
-    // FAZ-4-3: Legacy overlayRuntime.ts removed - undo/redo handled by stateManager
     
     setResizingElementId(null);
     resizeStart.current = null;

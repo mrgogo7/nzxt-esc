@@ -19,8 +19,6 @@ import { createStoreFromArray } from './elementStore';
 import { createInitialSelectionState } from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - initializeFromExistingRuntime now returns empty state
-// FAZ-4 FINAL: Runtime always enabled (legacy removed)
 import { IS_DEV } from '../../utils/env';
 import {
   createStateUpdateMessage,
@@ -107,7 +105,6 @@ function isKrakenView(): boolean {
  * @returns Initial empty runtime state
  */
 function initializeFromExistingRuntime(presetId: string | null): OverlayRuntimeState {
-  // FAZ-4-3: Legacy overlayRuntime.ts deleted - return empty state
   // State will be populated when presets are imported/applied
   return {
     elements: createStoreFromArray([]),

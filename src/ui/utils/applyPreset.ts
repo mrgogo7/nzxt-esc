@@ -24,7 +24,6 @@
  * @param options - Options including autosaveDelayMs
  */
 
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
 import type { StoredPreset } from '../../preset/storage';
 import type { AppSettings } from '../../constants/defaults';
 import { deriveBackgroundSourceFromUrl, sanitizeBackgroundSource } from '../../preset/utils/mediaSource';

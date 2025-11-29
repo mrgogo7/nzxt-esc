@@ -14,8 +14,6 @@ import { useRotationHandlers } from '../../hooks/useRotationHandlers';
 import { useLocalMedia } from '../../hooks/useLocalMedia';
 import type { Overlay } from '../../types/overlay';
 import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
-// FAZ-4-4D: Always use runtime state (no feature flag gating)
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
 import { getElementsInZOrder } from '@/state/overlay/selectors';
 // FAZ-3B-4: Selection runtime wiring imports

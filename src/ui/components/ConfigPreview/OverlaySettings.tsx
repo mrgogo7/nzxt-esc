@@ -18,8 +18,6 @@ import CombinedTextColorInput from './CombinedTextColorInput';
 import { exportOverlayPreset, importOverlayPreset } from '../../../overlayPreset';
 import { getTemplateElements } from '../../../overlayPreset/templates';
 import { normalizeZIndexForAppend } from '../../../overlayPreset/utils';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
-// FAZ-3B-1: New runtime system imports (feature-flagged)
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
 import { createAddElementAction, createRemoveElementAction, createUpdateElementAction, createUpdateElementDataAction, createBatchAction, createZOrderAction, createSelectAction, createMoveElementZUpAction, createMoveElementZDownAction } from '@/state/overlay/actions';
 import { getElement as getElementFromStore } from '@/state/overlay/elementStore';
@@ -544,7 +542,6 @@ export default function OverlaySettingsComponent({
         const addBatch = createBatchAction(addActions);
         stateManager.dispatch(addBatch);
       } else {
-        // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
         if (IS_DEV) {
           console.warn('[OverlaySettings] Replace called but vNext not available');
         }
@@ -581,7 +578,6 @@ export default function OverlaySettingsComponent({
           stateManager.dispatch(action);
         });
       } else {
-        // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
         if (IS_DEV) {
           console.warn('[OverlaySettings] Append called but vNext not available');
         }
@@ -623,7 +619,6 @@ export default function OverlaySettingsComponent({
         stateManager.dispatch(batchAction);
       }
     } else {
-      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
       if (IS_DEV) {
         console.warn('[OverlaySettings] ClearAll called but vNext not available');
       }
@@ -855,7 +850,6 @@ export default function OverlaySettingsComponent({
                         console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
                       }
                     } else {
-                      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
                       if (IS_DEV) {
                         console.warn('[OverlaySettings] Add metric called but vNext not available');
                       }
@@ -933,7 +927,6 @@ export default function OverlaySettingsComponent({
                         console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
                       }
                     } else {
-                      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
                       if (IS_DEV) {
                         console.warn('[OverlaySettings] Add text called but vNext not available');
                       }
@@ -1011,7 +1004,6 @@ export default function OverlaySettingsComponent({
                         console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
                       }
                     } else {
-                      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
                       if (IS_DEV) {
                         console.warn('[OverlaySettings] Add divider called but vNext not available');
                       }
@@ -2292,7 +2284,6 @@ export default function OverlaySettingsComponent({
                     // FAZ-4 FINAL: Element removal logging removed (production cleanup)
                   }
                 } else {
-                  // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
                   if (IS_DEV) {
                     console.warn('[OverlaySettings] Remove element called but vNext not available');
                   }

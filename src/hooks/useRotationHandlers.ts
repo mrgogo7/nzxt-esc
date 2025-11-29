@@ -7,8 +7,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { rotateElement, type RotateOperationConfig } from '../transform/operations/RotateOperation';
 import type { AppSettings } from '../constants/defaults';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - only vNext path remains
-// FAZ-3B-3: New runtime system imports (feature-flagged)
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction } from '../state/overlay/actions';
@@ -61,7 +59,6 @@ export function useRotationHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, elementId);
     } else {
-      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
       if (IS_DEV) {
         console.warn('[useRotationHandlers] getElementsForPreset called but vNext not available');
       }
@@ -125,7 +122,6 @@ export function useRotationHandlers(
     if (useNewRuntime && runtimeState) {
       element = getElementFromStore(runtimeState.elements, rotationStart.current!.elementId);
     } else {
-      // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
       if (IS_DEV) {
         console.warn('[useRotationHandlers] getElementsForPreset called but vNext not available');
       }
@@ -170,7 +166,6 @@ export function useRotationHandlers(
         const action = createTransformAction([element.id], oldStates, newStates);
         stateManager.dispatch(action); // This adds to transaction if active
       } else {
-        // FAZ-4-3: Legacy overlayRuntime.ts removed - vNext is required
         if (IS_DEV) {
           console.warn('[useRotationHandlers] updateElementInRuntime called but vNext not available');
         }
@@ -194,8 +189,6 @@ export function useRotationHandlers(
     if (onRotateCompleteSimple) {
       onRotateCompleteSimple();
     }
-    
-    // FAZ-4-3: Legacy overlayRuntime.ts removed - undo/redo handled by stateManager
     
     setRotatingElementId(null);
     rotationStart.current = null;

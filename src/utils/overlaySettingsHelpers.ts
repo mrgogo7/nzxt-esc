@@ -12,7 +12,6 @@ import {
   alignCenterX,
   alignCenterY,
 } from './alignment';
-// FAZ-4-3: Legacy overlayRuntime.ts deleted - using vNext instead
 import { getStateManagerForPreset } from '../state/overlay/useOverlayStateManager';
 import { getElementsInZOrder } from '../state/overlay/selectors';
 import { generateElementId } from '../overlayPreset/utils';
