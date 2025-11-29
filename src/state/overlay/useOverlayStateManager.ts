@@ -20,7 +20,7 @@ import { createInitialSelectionState } from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
 import { IS_DEV } from '../../utils/env';
-import { devLog, devError, devDebug } from '../../debug/dev';
+import { devError, devDebug } from '../../debug/dev';
 import {
   createStateUpdateMessage,
   createStateSyncRequestMessage,

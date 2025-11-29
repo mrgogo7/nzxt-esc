@@ -152,7 +152,7 @@ export default function KrakenOverlay() {
       devError('[KrakenOverlay] Initial hydrate failed:', errorMessage);
       
       if (IS_DEV) {
-        devError('[KrakenOverlay] Full error details:', error);
+        devError('KrakenOverlay', 'Full error details:', error);
       }
       
       // Mark as hydrated even on error (prevents infinite retries)
