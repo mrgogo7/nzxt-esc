@@ -15,8 +15,8 @@ import { useLocalMedia } from '../../hooks/useLocalMedia';
 import type { Overlay } from '../../types/overlay';
 import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
+import { devError } from '../../debug/dev';
 import { getElementsInZOrder } from '@/state/overlay/selectors';
-// FAZ-3B-4: Selection runtime wiring imports
 import { getSingleSelectedId } from './ConfigPreview/helpers/selectionHelpers';
 import { hasRealMonitoring } from '../../environment';
 import { lcdToPreview, getBaseAlign } from '../../utils/positioning';
@@ -74,14 +74,13 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   // Settings sync with throttling
   const { settingsRef } = useSettingsSync(settings, setSettings, mediaUrl);
   
-  // FAZ-4-4D: CRITICAL FIX - Always use runtime state, no feature flag gating
-  // Runtime state is the ONLY canonical source for overlay elements
+  // Always use runtime state - runtime state is the ONLY canonical source for overlay elements
   const stateManagerHook = useOverlayStateManager(activePresetId);
   const stateManager = stateManagerHook?.stateManager ?? null;
   const runtimeState = stateManagerHook?.state ?? null;
 
-  // FAZ-4-4D: Build effective overlay config from runtime state ONLY
-  // Remove all fallback logic - runtime state is the single source of truth
+  // Build effective overlay config from runtime state ONLY
+  // Runtime state is the single source of truth
   const effectiveOverlayConfig = useMemo(() => {
     if (runtimeState) {
       // Runtime state is canonical source - build overlay from it
@@ -103,13 +102,13 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   // Undo/Redo system
   // WHY: Command pattern-based undo/redo for all transform operations.
   // Keyboard shortcuts: Ctrl+Z (undo), Ctrl+Y / Ctrl+Shift+Z (redo)
-  // FAZ-4-4D: Disable old undo/redo system - always use stateManager
+  // Disable old undo/redo system - always use stateManager
   useUndoRedo({ 
     maxHistorySize: 50, 
     enableKeyboardShortcuts: false // Always disabled - use stateManager instead
   });
   
-  // FAZ-4-4D: Wire keyboard shortcuts to stateManager (always active, no feature flag)
+  // Wire keyboard shortcuts to stateManager
   useEffect(() => {
     if (!stateManager) return;
     
@@ -143,15 +142,14 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
    * This helper function is used by command objects to update element state.
    * It ensures proper state management and triggers React re-renders via setSettings({ ...settings }).
    */
-  // FAZ-4-3: Legacy updateElement removed - vNext handles updates via stateManager
   // Element updates are now handled directly by transform handlers via stateManager.dispatch()
 
-  // FAZ-4-POST-FIX-TRANSFORM-COMPLETE-RESTORE: Transform complete callbacks
+  // Transform complete callbacks
   const handleResizeComplete = () => {
     try {
       stateManager?.commitTransaction();
     } catch (err) {
-      console.error("[Overlay] Resize complete error:", err);
+      devError('ConfigPreview', 'Resize complete error', { error: err });
     }
   };
 
@@ -159,12 +157,11 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
     try {
       stateManager?.commitTransaction();
     } catch (err) {
-      console.error("[Overlay] Rotate complete error:", err);
+      devError('ConfigPreview', 'Rotate complete error', { error: err });
     }
   };
 
   // Drag handlers
-  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const {
     isDragging,
     handleBackgroundMouseDown,
@@ -183,7 +180,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
     runtimeState
   );
   
-  // FAZ-4-4D: Always derive selectedElementId from runtime state (canonical source)
+  // Always derive selectedElementId from runtime state (canonical source)
   const effectiveSelectedElementId = useMemo(() => {
     if (runtimeState) {
       // Get single selected ID from runtime state
@@ -197,29 +194,27 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   const selectedElementId = effectiveSelectedElementId;
 
   // Resize handlers
-  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(
     offsetScale, 
     settingsRef, 
     setSettings,
-    undefined, // Legacy onResizeComplete signature (not used)
+    undefined,
     activePresetId,
     stateManager,
     runtimeState,
-    handleResizeComplete // FAZ-4-POST-FIX: Simple complete callback
+    handleResizeComplete
   );
   
   // Rotation handlers
-  // FAZ-4-4D: Always pass stateManager and runtimeState (no feature flag gating)
   const { rotatingElementId, handleRotationMouseDown } = useRotationHandlers(
     offsetScale, 
     settingsRef, 
     setSettings,
-    undefined, // Legacy onRotateComplete signature (not used)
+    undefined,
     activePresetId,
     stateManager,
     runtimeState,
-    handleRotateComplete // FAZ-4-POST-FIX: Simple complete callback
+    handleRotateComplete
   );
 
   // Language sync
@@ -233,7 +228,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // FAZ-10: Delete key handler for selected overlay element
+  // Delete key handler for selected overlay element
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle Delete key (not Backspace)
@@ -241,7 +236,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
         // Prevent default browser behavior
         e.preventDefault();
         
-        // FAZ-4-4D: Always use runtime state (no feature flag gating)
+        // Always use runtime state
         if (runtimeState) {
           const element = runtimeState.elements.get(selectedElementId);
           

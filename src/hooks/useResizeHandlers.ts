@@ -15,6 +15,7 @@ import { createTransformAction } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 import { IS_DEV } from '../utils/env';
+import { devWarn, devDebug } from '../debug/dev';
 
 /**
  * Hook for managing element resize.
@@ -60,7 +61,7 @@ export function useResizeHandlers(
       element = getElementFromStore(runtimeState.elements, elementId);
     } else {
       if (IS_DEV) {
-        console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
+        devWarn('useResizeHandlers', 'getElementsForPreset called but vNext not available');
       }
       element = undefined;
     }
@@ -72,7 +73,7 @@ export function useResizeHandlers(
       stateManager.startTransaction();
       // FAZ-4-4C: Dev logging for resize transaction start
       if (IS_DEV) {
-        console.debug('[OverlayRuntime] Resize transaction started', { elementId });
+        devDebug('OverlayRuntime', 'Resize transaction started', { elementId });
       }
     }
     
@@ -116,7 +117,7 @@ export function useResizeHandlers(
       element = getElementFromStore(runtimeState.elements, resizeStart.current!.elementId);
     } else {
       if (IS_DEV) {
-        console.warn('[useResizeHandlers] getElementsForPreset called but vNext not available');
+        devWarn('useResizeHandlers', 'getElementsForPreset called but vNext not available');
       }
       element = undefined;
     }
@@ -157,7 +158,7 @@ export function useResizeHandlers(
         stateManager.dispatch(action); // This adds to transaction if active
       } else {
         if (IS_DEV) {
-          console.warn('[useResizeHandlers] updateElementInRuntime called but vNext not available');
+          devWarn('useResizeHandlers', 'updateElementInRuntime called but vNext not available');
         }
       }
     }
@@ -171,7 +172,7 @@ export function useResizeHandlers(
       stateManager.commitTransaction();
       // FAZ-4-4C: Dev logging for resize transaction commit
       if (IS_DEV) {
-        console.debug('[OverlayRuntime] Resize transaction committed');
+        devDebug('OverlayRuntime', 'Resize transaction committed');
       }
     }
     

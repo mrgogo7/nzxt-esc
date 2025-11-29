@@ -20,6 +20,7 @@ import { createInitialSelectionState } from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
 import { IS_DEV } from '../../utils/env';
+import { devLog, devError, devDebug } from '../../debug/dev';
 import {
   createStateUpdateMessage,
   createStateSyncRequestMessage,
@@ -241,7 +242,7 @@ export function useOverlayStateManager(
         try {
           channel.postMessage(syncRequest);
           if (IS_DEV) {
-            console.debug('[Sync] Initial sync request sent');
+            devDebug('OverlaySync', 'Initial sync request sent');
           }
         } catch (error) {
           console.warn('[OverlayStateManager] Failed to send initial sync request:', error);
@@ -256,7 +257,7 @@ export function useOverlayStateManager(
       if (isBroadcastingRef.current) {
         // FAZ-4 FINAL: Dev mode logging only
         if (IS_DEV) {
-          console.debug('[Sync] Broadcast suppressed (preventing echo loop)');
+          devDebug('OverlaySync', 'Broadcast suppressed (preventing echo loop)');
         }
         return;
       }
@@ -271,7 +272,7 @@ export function useOverlayStateManager(
       if (lastBroadcastStateRef.current === stateFingerprint) {
         // Same state - skip broadcast
         if (IS_DEV) {
-          console.debug('[Sync] Duplicate state detected, skipping broadcast');
+          devDebug('OverlaySync', 'Duplicate state detected, skipping broadcast');
         }
         return;
       }
@@ -292,8 +293,7 @@ export function useOverlayStateManager(
         // If structuredClone fails, log the failing payload and skip broadcast
         console.error('[OverlayStateManager] Final structuredClone gate failed:', cloneError);
         if (IS_DEV) {
-          console.error('[Sync] Failing payload:', message);
-          console.error('[Sync] Failing state:', message.state);
+          devError('OverlaySync', 'Failing payload', { payload: message, state: message.state });
         }
         // Skip broadcast but DO NOT crash (avoids infinite error loops)
         return;
@@ -309,7 +309,7 @@ export function useOverlayStateManager(
         
         // FAZ-3E: Enhanced error logging for dev mode
         if (IS_DEV) {
-          console.error('[Sync] Broadcast error details:', {
+          devError('OverlaySync', 'Broadcast error details', {
             error,
             state: {
               elements: newState.elements.size,
@@ -358,7 +358,7 @@ export function useOverlayStateManager(
             try {
               channel.postMessage(syncResponse);
               if (IS_DEV) {
-                console.debug('[Sync] State sync response sent:', {
+                devDebug('OverlaySync', 'State sync response sent', {
                   elements: currentState.elements.size,
                 });
               }
@@ -379,7 +379,7 @@ export function useOverlayStateManager(
           try {
             stateManager.replaceState(incomingState);
             if (IS_DEV) {
-              console.debug('[Sync] Initial state received and applied:', {
+              devDebug('OverlaySync', 'Initial state received and applied', {
                 elements: incomingState.elements.size,
                 zOrder: incomingState.zOrder.length,
               });
@@ -401,7 +401,7 @@ export function useOverlayStateManager(
           const krakenView = isKrakenView();
           if (krakenView) {
             if (IS_DEV) {
-              console.debug('[Sync][Kraken] Applying remote state as canonical source', {
+              devDebug('OverlaySync', 'Applying remote state as canonical source (Kraken view)', {
                 tabId: message.tabId,
                 timestamp: message.timestamp,
                 elements: incomingState.elements.size,
@@ -471,7 +471,7 @@ export function useOverlayStateManager(
               
               // FAZ-4-4M: Log data-only changes for debugging
               if (IS_DEV && !geometryChanged && dataChanged) {
-                console.debug('[Sync] Data-only change detected (element.data). Forcing replaceState.');
+                devDebug('OverlaySync', 'Data-only change detected (element.data). Forcing replaceState.');
               }
               
               return geometryChanged || dataChanged;
@@ -480,7 +480,7 @@ export function useOverlayStateManager(
           if (!stateChanged) {
             // FAZ-4-4M: States are the same - no need to apply
             if (IS_DEV) {
-              console.debug('[Sync] Merge resulted in no state change, skipping replaceState');
+              devDebug('OverlaySync', 'Merge resulted in no state change, skipping replaceState');
             }
             return; // No change, skip replaceState
           }
@@ -504,7 +504,7 @@ export function useOverlayStateManager(
         
         // FAZ-3E: Enhanced error logging for dev mode
         if (IS_DEV) {
-          console.error('[Sync] Full error details:', {
+          devError('OverlaySync', 'Full error details', {
             error,
             message: event.data,
           });

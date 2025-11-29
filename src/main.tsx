@@ -4,7 +4,7 @@ import Config from "./ui/Config";
 import KrakenOverlay from "./ui/components/KrakenOverlay";
 import { isNZXTCAM } from "./environment";
 import { initAntiCache } from "./utils/useAntiCache";
-// FAZ-3E: Initialize dev toggle shortcut
+// Legacy: Initialize dev toggle shortcut (now a no-op, kept for compatibility)
 import { initializeDevToggleShortcut } from "./utils/featureFlags";
 
 /**
@@ -17,7 +17,7 @@ import { initializeDevToggleShortcut } from "./utils/featureFlags";
 // Initialize anti-cache system before rendering
 initAntiCache();
 
-// FAZ-3E: Initialize dev toggle shortcut (Ctrl+Alt+Shift+R)
+// Legacy: Initialize dev toggle shortcut (now a no-op since runtime is always enabled)
 initializeDevToggleShortcut();
 
 const rootElement = document.getElementById("root");

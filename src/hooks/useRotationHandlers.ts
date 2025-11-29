@@ -13,6 +13,7 @@ import { createTransformAction } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 import { IS_DEV } from '../utils/env';
+import { devWarn, devDebug } from '../debug/dev';
 
 /**
  * Hook for managing element rotation.
@@ -60,7 +61,7 @@ export function useRotationHandlers(
       element = getElementFromStore(runtimeState.elements, elementId);
     } else {
       if (IS_DEV) {
-        console.warn('[useRotationHandlers] getElementsForPreset called but vNext not available');
+        devWarn('useRotationHandlers', 'getElementsForPreset called but vNext not available');
       }
       element = undefined;
     }
@@ -70,9 +71,8 @@ export function useRotationHandlers(
     // FAZ-3B-3: Start transaction for new runtime system
     if (useNewRuntime && stateManager) {
       stateManager.startTransaction();
-      // FAZ-4-4C: Dev logging for rotation transaction start
       if (IS_DEV) {
-        console.debug('[OverlayRuntime] Rotation transaction started', { elementId });
+        devDebug('OverlayRuntime', 'Rotation transaction started', { elementId });
       }
     }
     
@@ -123,7 +123,7 @@ export function useRotationHandlers(
       element = getElementFromStore(runtimeState.elements, rotationStart.current!.elementId);
     } else {
       if (IS_DEV) {
-        console.warn('[useRotationHandlers] getElementsForPreset called but vNext not available');
+        devWarn('useRotationHandlers', 'getElementsForPreset called but vNext not available');
       }
       element = undefined;
     }
@@ -167,7 +167,7 @@ export function useRotationHandlers(
         stateManager.dispatch(action); // This adds to transaction if active
       } else {
         if (IS_DEV) {
-          console.warn('[useRotationHandlers] updateElementInRuntime called but vNext not available');
+          devWarn('useRotationHandlers', 'updateElementInRuntime called but vNext not available');
         }
       }
     }
@@ -181,7 +181,7 @@ export function useRotationHandlers(
       stateManager.commitTransaction();
       // FAZ-4-4C: Dev logging for rotation transaction commit
       if (IS_DEV) {
-        console.debug('[OverlayRuntime] Rotation transaction committed');
+        devDebug('OverlayRuntime', 'Rotation transaction committed');
       }
     }
     

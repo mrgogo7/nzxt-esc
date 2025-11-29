@@ -9,6 +9,7 @@ import type { OverlayRuntimeState } from '../state/overlay/types';
 import { createTransformAction, createSelectAction } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { IS_DEV } from '../utils/env';
+import { devWarn } from '../debug/dev';
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -110,7 +111,7 @@ export function useDragHandlers(
     // FAZ-4-4E: Always use runtime state - no feature flag gating
     if (!stateManager || !runtimeState || !activePresetId) {
       if (IS_DEV) {
-        console.warn('[useDragHandlers] handleElementMouseDown called but runtime not available', {
+        devWarn('useDragHandlers', 'handleElementMouseDown called but runtime not available', {
           hasStateManager: !!stateManager,
           hasRuntimeState: !!runtimeState,
           hasActivePresetId: !!activePresetId,
@@ -171,7 +172,7 @@ export function useDragHandlers(
     // FAZ-4-4E: Always use runtime state - no feature flag gating
     if (!activePresetId || !stateManager || !runtimeState) {
       if (IS_DEV) {
-        console.warn('[useDragHandlers] handleElementMouseMove called but runtime not available');
+        devWarn('useDragHandlers', 'handleElementMouseMove called but runtime not available');
       }
       return;
     }
@@ -180,7 +181,7 @@ export function useDragHandlers(
     const element = getElementFromStore(runtimeState.elements, elementDragStart.current!.elementId);
     if (!element) {
       if (IS_DEV) {
-        console.warn('[useDragHandlers] handleElementMouseMove: element not found', {
+        devWarn('useDragHandlers', 'handleElementMouseMove: element not found', {
           elementId: elementDragStart.current!.elementId,
         });
       }
@@ -433,7 +434,7 @@ export function useDragHandlers(
         stateManager.dispatch(action);
       } else {
         if (IS_DEV) {
-          console.warn('[useDragHandlers] Keyboard move called but runtime not available');
+          devWarn('useDragHandlers', 'Keyboard move called but runtime not available');
         }
       }
     };

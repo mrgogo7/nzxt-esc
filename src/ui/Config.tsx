@@ -5,7 +5,6 @@ import './styles/ConfigPreview.css';
 import { DEFAULT_SETTINGS } from '../constants/defaults';
 import { useMediaUrl } from '../hooks/useMediaUrl';
 import { useConfig } from '../hooks/useConfig';
-// FAZ-4-3: Legacy useOverlayConfig deleted - using vNext instead
 import { useAtomicPresetSync } from '../hooks/useAtomicPresetSync';
 import { useOverlayStateManager } from '../state/overlay/useOverlayStateManager';
 import { getElementsInZOrder } from '../state/overlay/selectors';
@@ -31,9 +30,11 @@ import {
   updatePreset,
   DEFAULT_PRESET_FILE 
 } from '../preset/storage';
-// FAZ-11: Import shared preset application utility
 import { applyPresetToRuntimeAndSettings } from './utils/applyPreset';
 import { APP_VERSION } from '../version';
+import AppDevBadge from './components/AppDevBadge';
+import { devMode } from '../debug/devToggle';
+import { IS_DEV, devLog } from '../debug/dev';
 
 export default function Config() {
   const [lang, setLangState] = useState<Lang>(getInitialLang());
@@ -53,7 +54,7 @@ export default function Config() {
     const currentId = getActivePresetId();
     setActivePresetId(currentId);
     
-    // FAZ 7.1: Load ALL preset data on mount (F5 refresh)
+    // Load ALL preset data on mount (F5 refresh)
     // CRITICAL: Disable autosave during initial load to prevent loops
     if (typeof window !== 'undefined') {
       window.__disableAutosave = true;
@@ -62,7 +63,7 @@ export default function Config() {
     if (currentId) {
       const preset = getPresetById(currentId);
       if (preset) {
-        // FAZ 8.1: Use helper function to apply preset (consolidates initial load and preset switch logic)
+        // Use helper function to apply preset (consolidates initial load and preset switch logic)
         applyPresetToRuntimeAndSettings(preset, setSettings, setMediaUrl, { autosaveDelayMs: 700 });
       } else {
         // No preset found, re-enable autosave immediately
@@ -80,7 +81,7 @@ export default function Config() {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'nzxtActivePresetId') {
         setActivePresetId(e.newValue);
-        // FAZ 8.1: Load ALL preset data when preset changes via storage event
+        // Load ALL preset data when preset changes via storage event
         if (e.newValue) {
           const preset = getPresetById(e.newValue);
           if (preset) {
@@ -96,7 +97,7 @@ export default function Config() {
       const customEvent = e as CustomEvent<{ newValue: string | null; oldValue: string | null }>;
       const newId = customEvent.detail?.newValue;
       setActivePresetId(newId);
-      // FAZ 8.1: Load ALL preset data when preset changes via custom event
+      // Load ALL preset data when preset changes via custom event
       if (newId) {
         const preset = getPresetById(newId);
         if (preset) {
@@ -117,7 +118,7 @@ export default function Config() {
     };
   }, []);
   
-  // FAZ-4-3: Legacy useOverlayConfig deleted - build overlay from vNext state
+  // Build overlay from runtime state
   const stateManagerHook = activePresetId
     ? useOverlayStateManager(activePresetId)
     : null;
@@ -197,6 +198,36 @@ export default function Config() {
   // First-run: ensure default preset is active
   useEffect(() => {
     ensureInitialActivePreset();
+  }, []);
+
+  // Dev mode hotkey listener (CTRL+ALT+SHIFT+R or CMD+ALT+SHIFT+R on Mac)
+  useEffect(() => {
+    // Only register in dev mode
+    if (!IS_DEV) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Check if user is typing in an input field
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+        return;
+      }
+
+      // Check for CTRL+ALT+SHIFT+R (Windows/Linux) or CMD+ALT+SHIFT+R (Mac)
+      const isModifierPressed = (event.ctrlKey || event.metaKey) && event.altKey && event.shiftKey;
+      if (isModifierPressed && event.key === 'R') {
+        event.preventDefault();
+        event.stopPropagation();
+        devLog('DevToggle', 'Hotkey Ctrl+Alt+Shift+R pressed', { timestamp: Date.now() });
+        devMode.toggle();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // Atomic preset sync: automatically save config state to active preset
@@ -639,6 +670,7 @@ export default function Config() {
 
   return (
     <div className="config-page">
+      <AppDevBadge />
       {/* top header */}
       <header className="config-header">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
