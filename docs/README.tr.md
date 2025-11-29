@@ -1,7 +1,7 @@
 > ⚠️ This document is an automatically translated version of the main English README.
 > Technical terms, code blocks, filenames, and project terminology are intentionally kept in their original form.
 
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.261
+# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.27
 
 NZXT Kraken Elite LCD ekranları için modern, tarayıcı tabanlı medya ve overlay editörü.
 
