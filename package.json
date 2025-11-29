@@ -1,7 +1,7 @@
 {
   "name": "nzxt-esc",
   "private": true,
-  "version": "5.11.261",
+  "version": "5.11.27",
   "type": "module",
   "description": "A browser-based media and overlay editor for NZXT Kraken Elite LCD screens",
   "license": "Personal-Use-Only",
