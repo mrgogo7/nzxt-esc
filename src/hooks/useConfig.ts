@@ -22,7 +22,7 @@ export function useConfig() {
         const parsed = JSON.parse(saved);
         setSettingsState(mergeSettings(parsed));
       } catch (error) {
-        console.error('[useConfig] Parse error:', error);
+        // Parse error handled silently
       }
     }
   }, []);
@@ -38,7 +38,7 @@ export function useConfig() {
         const parsed = JSON.parse(newValue);
         setSettingsState(mergeSettings(parsed));
       } catch (error) {
-        console.error('[useConfig] Sync error:', error);
+        // Sync error handled silently
       }
     }
   });
@@ -50,7 +50,7 @@ export function useConfig() {
         const parsed = JSON.parse(newValue);
         setSettingsState(mergeSettings(parsed));
       } catch (error) {
-        console.error('[useConfig] Sync error (compat):', error);
+        // Sync error handled silently
       }
     }
   });

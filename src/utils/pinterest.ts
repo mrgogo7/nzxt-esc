@@ -85,7 +85,7 @@ async function resolvePinItUrl(shortUrl: string): Promise<string | null> {
       }
     }
   } catch (error) {
-    console.warn('[Pinterest] Failed to resolve pin.it URL:', error);
+    // Failed to resolve pin.it URL
   }
   
   return null;
@@ -110,7 +110,7 @@ export function extractMediaFromHtml(html: string): string | null {
         const mediaUrl = findMediaInJson(jsonData);
         if (mediaUrl) return mediaUrl;
       } catch (e) {
-        console.warn('[Pinterest] Failed to parse initial-state JSON:', e);
+        // Failed to parse initial-state JSON
       }
     }
     
@@ -122,7 +122,7 @@ export function extractMediaFromHtml(html: string): string | null {
         const mediaUrl = findMediaInJson(jsonData);
         if (mediaUrl) return mediaUrl;
       } catch (e) {
-        console.warn('[Pinterest] Failed to parse __initialData__ JSON:', e);
+        // Failed to parse __initialData__ JSON
       }
     }
     
@@ -188,7 +188,7 @@ export function extractMediaFromHtml(html: string): string | null {
     }
     
   } catch (e) {
-    console.error('[Pinterest] Error extracting media from HTML:', e);
+    // Error extracting media from HTML
   }
   
   return null;
@@ -328,7 +328,6 @@ export async function fetchPinterestMedia(pinterestUrl: string): Promise<string 
       normalizedUrl = resolved;
     } else {
       // If resolution fails, try to use the short URL directly with proxy
-      console.warn('[Pinterest] Could not resolve pin.it URL, trying direct fetch');
     }
   }
   
@@ -349,7 +348,6 @@ export async function fetchPinterestMedia(pinterestUrl: string): Promise<string 
       if (mediaUrl) return mediaUrl;
     }
   } catch (error) {
-    console.warn('[Pinterest] Direct fetch failed (expected due to CORS), trying proxy:', error);
   }
   
   // Method 2: Use CORS proxy (allorigins.win - free public CORS proxy)
@@ -365,7 +363,6 @@ export async function fetchPinterestMedia(pinterestUrl: string): Promise<string 
       }
     }
   } catch (error) {
-    console.warn('[Pinterest] allorigins.win proxy failed, trying alternative:', error);
   }
   
   // Method 3: Try alternative CORS proxy (corsproxy.io)
@@ -379,7 +376,6 @@ export async function fetchPinterestMedia(pinterestUrl: string): Promise<string 
       if (mediaUrl) return mediaUrl;
     }
   } catch (error) {
-    console.warn('[Pinterest] corsproxy.io also failed:', error);
   }
   
   // Method 4: Try another proxy (cors-anywhere alternative)
@@ -395,7 +391,7 @@ export async function fetchPinterestMedia(pinterestUrl: string): Promise<string 
       if (mediaUrl) return mediaUrl;
     }
   } catch (error) {
-    console.error('[Pinterest] All proxy methods failed:', error);
+    // All proxy methods failed
   }
   
   return null;

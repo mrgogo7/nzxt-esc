@@ -1,5 +1,5 @@
 /**
- * Pointer Event Utilities — FAZ-3B-3: Transform API Integration
+ * Pointer Event Utilities
  * 
  * Utility functions for handling pointer/mouse events in ConfigPreview.
  * These helpers extract relevant data from mouse events for transform operations.

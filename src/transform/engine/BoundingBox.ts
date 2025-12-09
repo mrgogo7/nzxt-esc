@@ -1,6 +1,20 @@
 /**
  * BoundingBox.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Calculates element dimensions and bounding boxes
+ * - Handles rotated bounding box geometry (AABB calculation)
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Bounding box geometry calculations MUST remain identical
+ * - Dimension calculation formulas MUST NOT change
+ * - AABB vs Rotated Bounding Box logic MUST remain identical
+ * 
  * Bounding box calculation utilities for TransformEngine v1.
  * 
  * This module provides functions to calculate:
@@ -12,7 +26,8 @@
  * Even when elements are rotated, the bounding box remains axis-aligned.
  */
 
-import type { OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
+import type { OverlayElement } from '../../types/overlay';
+import { isMetricElementData, isTextElementData, isDividerElementData, isClockElementData, isDateElementData } from '../../types/overlay';
 
 /**
  * Element dimensions in LCD coordinates.
@@ -55,30 +70,55 @@ export interface RotatedBoundingBox {
  * @returns Element dimensions in LCD coordinates
  */
 export function calculateElementDimensions(element: OverlayElement): ElementDimensions {
-  if (element.type === 'metric') {
-    const data = element.data as MetricElementData;
-    const numberSize = data.numberSize || 180;
+  if (element.type === 'metric' && isMetricElementData(element.data)) {
+    const numberSize = element.data.numberSize || 180;
     // Same calculation as boundaries.ts and OverlayPreview.tsx
     return {
       width: numberSize * 1.5,
       height: numberSize * 0.85,
     };
-  } else if (element.type === 'text') {
-    const data = element.data as TextElementData;
-    const textSize = data.textSize || 45;
-    const textLength = (data.text || '').length || 1;
+  } else if (element.type === 'text' && isTextElementData(element.data)) {
+    const textSize = element.data.textSize || 45;
+    const textLength = (element.data.text || '').length || 1;
     // Same calculation as boundaries.ts and OverlayPreview.tsx
     return {
       width: Math.max(textSize * textLength * 0.6, textSize * 2),
       height: textSize * 1.2,
     };
-  } else if (element.type === 'divider') {
-    const data = element.data as DividerElementData;
+  } else if (element.type === 'clock' && isClockElementData(element.data)) {
+    const fontSize = element.data.fontSize || 45;
+    // Clock behaves like text - calculate actual text length based on format and mode
+    // Use the same calculation logic as text element
+    // Maximum possible length: "12:59:59 PM" (11 chars) or "23:59:59" (8 chars)
+    let clockLength = 5; // Minimum: "HH:mm" = 5 chars
+    if (element.data.format === 'HH:mm:ss') {
+      clockLength = 8; // "HH:mm:ss" = 8 chars
+    }
+    if (element.data.mode === '12h') {
+      clockLength += 4; // Add " AM" or " PM" = 4 chars
+    }
+    // Use exact same formula as text element
+    return {
+      width: Math.max(fontSize * clockLength * 0.6, fontSize * 2),
+      height: fontSize * 1.2,
+    };
+  } else if (element.type === 'date' && isDateElementData(element.data)) {
+    const fontSize = element.data.fontSize || 45;
+    // Date behaves like text - calculate actual text length based on format string
+    // Estimate length from format string (after token replacement, typical date is 8-15 chars)
+    // Use format string length as approximation (format tokens are replaced with actual values)
+    const formatLength = element.data.format.length || 10; // Default to 10 for "DD.MM.YYYY"
+    // Use exact same formula as text element
+    return {
+      width: Math.max(fontSize * formatLength * 0.6, fontSize * 2),
+      height: fontSize * 1.2,
+    };
+  } else if (element.type === 'divider' && isDividerElementData(element.data)) {
     // Divider is a rectangle element
     // width and height are already in LCD pixels
     return {
-      width: data.width || 2,
-      height: data.height || 384, // Default length (60% of 640px LCD)
+      width: element.data.width || 2,
+      height: element.data.height || 384, // Default length (60% of 640px LCD)
     };
   }
   

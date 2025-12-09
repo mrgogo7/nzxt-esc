@@ -7,8 +7,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import './PresetManager.css';
 
 export interface ExportNameModalProps {
@@ -26,6 +26,7 @@ export default function ExportNameModal({
   lang,
   initialName = '',
 }: ExportNameModalProps) {
+  const t = useI18n();
   const [name, setName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -53,7 +54,6 @@ export default function ExportNameModal({
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Enter' && name.trim()) {
-      // FAZ-10: ENTER triggers primary action (submit form)
       e.preventDefault();
       handleSubmit(e);
     }
@@ -82,11 +82,11 @@ export default function ExportNameModal({
             onKeyDown={handleKeyDown}
           >
             <div className="preset-modal-header">
-              <h3>{t('presetExportTitle', lang)}</h3>
+              <h3>{t('presetExportTitle')}</h3>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -95,7 +95,7 @@ export default function ExportNameModal({
             <form onSubmit={handleSubmit}>
               <div className="preset-modal-content">
                 <label htmlFor="preset-name-input" className="preset-modal-label">
-                  {t('presetNameLabel', lang)}
+                  {t('presetNameLabel')}
                 </label>
                 <input
                   id="preset-name-input"
@@ -104,7 +104,7 @@ export default function ExportNameModal({
                   className="preset-modal-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={t('presetNamePlaceholder', lang)}
+                  placeholder={t('presetNamePlaceholder')}
                   maxLength={50}
                   autoFocus
                 />
@@ -116,14 +116,14 @@ export default function ExportNameModal({
                   className="preset-modal-button preset-modal-button-secondary"
                   onClick={onClose}
                 >
-                  {t('cancel', lang)}
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="preset-modal-button preset-modal-button-primary"
                   disabled={!name.trim()}
                 >
-                  {t('export', lang)}
+                  {t('export')}
                 </button>
               </div>
             </form>

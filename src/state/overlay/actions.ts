@@ -16,6 +16,12 @@ import type { OverlayRuntimeState } from './types';
 import * as elementStore from './elementStore';
 import * as selection from './selection';
 import * as zOrder from './zOrder';
+// FAZ-7 / Task 6E: Operation detector for v2Meta computation
+import { detectOperationTypeV2 } from '../../transform/operation-detector/operationDetectorV2';
+// FAZ-7 / Task 7E: UI helpers for group metadata
+import { computeGroupBoundingBox, type ElementBoundingBox } from '../../ui/helpers/groupBoundingBox';
+// FAZ-7 / Task 7E: Element dimensions (read-only from Frozen Zone for UI calculations)
+import { calculateElementDimensions } from '../../transform/engine/BoundingBox';
 
 /**
  * Action type discriminated union.
@@ -75,6 +81,152 @@ export interface TransformActionData {
   elementIds: string[];
   oldStates: Map<string, OverlayElement>; // Old element states
   newStates: Map<string, OverlayElement>; // New element states
+}
+
+/**
+ * FAZ-7 / Task 5B — Transform Snapshot v2
+ * 
+ * This is a versioned snapshot payload for future undo/redo and multi-select features.
+ * It is currently NOT integrated into the runtime history system.
+ * 
+ * Behavior note:
+ * - Existing TransformActionData and history logic remain the source of truth.
+ * - This type is additive and will be adopted gradually in future phases.
+ */
+
+/**
+ * Discriminated transform operation type for v2 snapshots.
+ */
+export type TransformOperationTypeV2 =
+  | 'move'
+  | 'resize'
+  | 'rotate'
+  | 'zOrder'
+  | 'data'
+  | 'other';
+
+/**
+ * FAZ-7 / Task 6D: Transform operation metadata (v2)
+ * 
+ * This is optional, additive metadata attached to actions.
+ * It NEVER participates in execute()/undo() logic.
+ */
+export interface TransformMetadataV2 {
+  opType: TransformOperationTypeV2;
+  groupId?: string;
+  deltas?: {
+    dx?: number;
+    dy?: number;
+    dWidth?: number;
+    dHeight?: number;
+    dRotationDeg?: number;
+  };
+  affectedIds?: string[];
+  confidence?: number;      // 0..1 (optional, future use)
+  analysisVersion: 2;       // version marker for this metadata shape
+  // FAZ-7 / Task 7E: Multi-select metadata extensions
+  groupBoundingBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    centerX: number;
+    centerY: number;
+  };
+  relativeOffsets?: Record<string, { dx: number; dy: number }>;
+  perElementDeltas?: Record<string, {
+    dx?: number;
+    dy?: number;
+    dWidth?: number;
+    dHeight?: number;
+    dRotationDeg?: number;
+  }>;
+  groupScaleFactor?: number;      // Placeholder (computed in future tasks)
+  groupRotationAngle?: number;    // Placeholder (computed in future tasks)
+}
+
+/**
+ * v2 snapshot metadata type.
+ * 
+ * Provides rich metadata for transform operations, including deltas, bounding boxes,
+ * and multi-select support. All fields beyond required ones are optional.
+ */
+export interface TransformSnapshotMetaV2 {
+  /** Schema version identifier for future migrations */
+  version: 'v2';
+
+  /** Unique snapshot ID (for debugging, analytics, correlation) */
+  snapshotId: string;
+
+  /** High-level transform type (move/resize/rotate/zOrder/data/etc.) */
+  operationType: TransformOperationTypeV2;
+
+  /** Unix timestamp (ms) when this snapshot was created */
+  timestamp: number;
+
+  /** All elements affected by this transform */
+  affectedElementIds: string[];
+
+  /** Optional group ID for multi-select/group transforms */
+  groupId?: string;
+
+  /** Optional group bounding box at the moment of transform */
+  groupBoundingBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+
+  /** Optional per-transform delta meta (e.g. dx/dy/dScale/dAngle) */
+  deltas?: {
+    dx?: number;
+    dy?: number;
+    dWidth?: number;
+    dHeight?: number;
+    dRotationDeg?: number;
+  };
+
+  /** Optional origin point used for rotation/scale transforms */
+  origin?: {
+    x: number;
+    y: number;
+  };
+
+  /** Optional free-form metadata for future extensions */
+  extra?: Record<string, unknown>;
+}
+
+/**
+ * Transform action data v2.
+ * 
+ * FAZ-7 / Task 5B — Transform Snapshot v2
+ * 
+ * This is a versioned snapshot payload for future undo/redo and multi-select features.
+ * It is currently NOT integrated into the runtime history system.
+ * 
+ * Behavior note:
+ * - Existing TransformActionData and history logic remain the source of truth.
+ * - This type is additive and will be adopted gradually in future phases.
+ */
+export interface TransformActionDataV2 {
+  /** Optional reference to the previous v1-style payload (for migration / debugging) */
+  legacy?: TransformActionData;
+
+  /** Snapshot metadata (v2 schema) */
+  meta: TransformSnapshotMetaV2;
+
+  /**
+   * Full pre-transform snapshot of affected elements.
+   * For multi-select, this can contain multiple elements.
+   */
+  before: OverlayElement[];
+
+  /**
+   * Full post-transform snapshot of affected elements.
+   * For multi-select, this can contain multiple elements.
+   */
+  after: OverlayElement[];
 }
 
 /**
@@ -159,6 +311,15 @@ export interface Action {
   
   /** Undo action (pure function, deterministic) */
   undo(state: OverlayRuntimeState): OverlayRuntimeState;
+  
+  /**
+   * FAZ-7 / Task 6D: Optional v2 metadata (additive, backward compatible)
+   * 
+   * This is optional, additive metadata that NEVER participates in execute()/undo() logic.
+   * It is used only for UI features (timeline, filtering, smart undo) and is completely
+   * optional. Existing actions without v2Meta continue to work perfectly.
+   */
+  v2Meta?: TransformMetadataV2;
 }
 
 /**
@@ -177,6 +338,7 @@ export function generateActionId(): string {
  * @returns Add element action
  */
 export function createAddElementAction(element: OverlayElement): Action {
+  
   const actionId = generateActionId();
   
   return {
@@ -481,6 +643,296 @@ export function createTransformAction(
 }
 
 /**
+ * FAZ-7 / Task 6D-6E: Optional v2 metadata wrapper for transform actions
+ * 
+ * NOTE: This helper is NOT used anywhere yet. It only prepares the API surface.
+ * ZERO behavior change guaranteed until call sites adopt it in a future task.
+ * 
+ * This is a thin wrapper around createTransformAction that provides an extension point
+ * for attaching v2 metadata. When includeV2Meta is true, it computes minimal metadata
+ * (opType, affectedIds, analysisVersion) using the operation detector.
+ */
+export interface CreateTransformActionV2Options {
+  /**
+   * When true, the caller intends to attach v2 metadata.
+   * The helper will compute minimal v2Meta (opType, affectedIds, analysisVersion).
+   */
+  includeV2Meta?: boolean;
+}
+
+/**
+ * Create transform action with optional v2 metadata support.
+ * 
+ * FAZ-7 / Task 6E:
+ * This helper prepares a v2Meta-enriched transform action.
+ * It is NOT used by any existing code path yet.
+ * Behavior remains identical until call sites explicitly adopt it.
+ * 
+ * @param elementIds - Element IDs affected by the transform
+ * @param oldStates - Old element states (Map)
+ * @param newStates - New element states (Map)
+ * @param options - Optional v2 metadata options
+ * @returns Transform action (with optional v2Meta if includeV2Meta is true)
+ */
+export function createTransformActionWithV2(
+  elementIds: string[],
+  oldStates: Map<string, OverlayElement>,
+  newStates: Map<string, OverlayElement>,
+  options?: CreateTransformActionV2Options
+): Action {
+  const baseAction = createTransformAction(elementIds, oldStates, newStates);
+
+  if (!options?.includeV2Meta) {
+    // No metadata requested → return the original action untouched.
+    return baseAction;
+  }
+
+  try {
+    // Build before[] and after[] arrays based on elementIds
+    const before: OverlayElement[] = [];
+    const after: OverlayElement[] = [];
+
+    for (const id of elementIds) {
+      const beforeEl = oldStates.get(id);
+      const afterEl = newStates.get(id);
+
+      if (!beforeEl || !afterEl) {
+        // Inconsistent snapshot → skip v2Meta entirely for safety.
+        return baseAction;
+      }
+
+      before.push(beforeEl);
+      after.push(afterEl);
+    }
+
+    if (before.length === 0 || after.length === 0) {
+      // Nothing to analyze → skip v2Meta
+      return baseAction;
+    }
+
+    const opType = detectOperationTypeV2(before, after);
+
+    // FAZ-7 / Task 7E: Detect multi-select scenario
+    const isMulti = elementIds.length > 1;
+
+    // FAZ-7 / Task 7E: Build enhanced v2Meta for multi-select, minimal for single-select
+    let v2Meta: TransformMetadataV2;
+
+    if (isMulti) {
+      // Multi-select: Compute group metadata
+      try {
+        // Build UI-level bounding boxes from before[] snapshot
+        const elementBoxes: ElementBoundingBox[] = [];
+        for (const el of before) {
+          const dimensions = calculateElementDimensions(el);
+          // Convert element center (x, y) to top-left corner for bounding box
+          elementBoxes.push({
+            id: el.id,
+            x: el.x - dimensions.width / 2,
+            y: el.y - dimensions.height / 2,
+            width: dimensions.width,
+            height: dimensions.height,
+          });
+        }
+
+        // Compute group bounding box
+        const groupBBox = computeGroupBoundingBox(elementBoxes);
+        if (!groupBBox) {
+          // Group box computation failed → fallback to minimal v2Meta
+          v2Meta = {
+            opType,
+            affectedIds: elementIds.slice(),
+            analysisVersion: 2,
+          };
+        } else {
+          // Compute per-element deltas (compare before/after)
+          const perElementDeltas: Record<string, {
+            dx?: number;
+            dy?: number;
+            dWidth?: number;
+            dHeight?: number;
+            dRotationDeg?: number;
+          }> = {};
+
+          for (const beforeEl of before) {
+            const afterEl = after.find(a => a.id === beforeEl.id);
+            if (!afterEl) continue;
+
+            // Compute position deltas
+            const dx = afterEl.x - beforeEl.x;
+            const dy = afterEl.y - beforeEl.y;
+
+            // Compute size deltas (using element dimensions)
+            const beforeDims = calculateElementDimensions(beforeEl);
+            const afterDims = calculateElementDimensions(afterEl);
+            const dWidth = afterDims.width - beforeDims.width;
+            const dHeight = afterDims.height - beforeDims.height;
+
+            // Compute rotation delta
+            const beforeAngle = beforeEl.angle ?? 0;
+            const afterAngle = afterEl.angle ?? 0;
+            let dRotationDeg = afterAngle - beforeAngle;
+            // Normalize angle delta to [-180, 180] range
+            if (dRotationDeg > 180) dRotationDeg -= 360;
+            if (dRotationDeg < -180) dRotationDeg += 360;
+
+            perElementDeltas[beforeEl.id] = {
+              dx,
+              dy,
+              dWidth,
+              dHeight,
+              dRotationDeg: dRotationDeg !== 0 ? dRotationDeg : undefined,
+            };
+          }
+
+          // Generate group ID
+          const groupId = typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `group_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+
+          // Assemble enhanced v2Meta for multi-select
+          v2Meta = {
+            opType,
+            affectedIds: elementIds.slice(),
+            analysisVersion: 2,
+            groupId,
+            groupBoundingBox: {
+              x: groupBBox.x,
+              y: groupBBox.y,
+              width: groupBBox.width,
+              height: groupBBox.height,
+              centerX: groupBBox.centerX,
+              centerY: groupBBox.centerY,
+            },
+            relativeOffsets: groupBBox.relativeOffsets,
+            perElementDeltas,
+            groupScaleFactor: 1,         // Placeholder (computed in future tasks)
+            groupRotationAngle: 0,      // Placeholder (computed in future tasks)
+          };
+        }
+      } catch (err) {
+        // If group metadata computation fails, fallback to minimal v2Meta
+        // (Error is silently handled - v2Meta is optional and should not break action creation)
+        v2Meta = {
+          opType,
+          affectedIds: elementIds.slice(),
+          analysisVersion: 2,
+        };
+      }
+    } else {
+      // Single-select: Use minimal v2Meta (unchanged from Task 6E)
+      v2Meta = {
+        opType,
+        affectedIds: elementIds.slice(),
+        analysisVersion: 2,
+      };
+    }
+
+    // NOTE: v2Meta is optional metadata only and does not affect execution or undo/redo.
+    // v1 action payload (oldStates/newStates) remains the source of truth for all runtime behavior.
+    return {
+      ...baseAction,
+      v2Meta,
+    };
+  } catch {
+    // Safety: if anything goes wrong, we completely ignore v2Meta.
+    return baseAction;
+  }
+}
+
+/**
+ * Generate unique snapshot ID for v2 snapshots.
+ * Uses crypto.randomUUID() if available, otherwise falls back to time-based ID.
+ * 
+ * @returns Unique snapshot ID string
+ */
+function generateSnapshotId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback: time-based ID with random suffix
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Create transform action v2 (for element transformations with rich metadata).
+ * 
+ * FAZ-7 / Task 5B — Transform Snapshot v2
+ * 
+ * This is a versioned snapshot payload for future undo/redo and multi-select features.
+ * It is currently NOT integrated into the runtime history system.
+ * 
+ * Behavior note:
+ * - Existing TransformActionData and history logic remain the source of truth.
+ * - This type is additive and will be adopted gradually in future phases.
+ * 
+ * @param params - Parameters for creating v2 transform action data
+ * @returns Transform action data v2
+ */
+export function createTransformActionV2(params: {
+  operationType: TransformOperationTypeV2;
+  before: OverlayElement[];
+  after: OverlayElement[];
+  affectedElementIds?: string[];
+  groupId?: string;
+  groupBoundingBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  deltas?: {
+    dx?: number;
+    dy?: number;
+    dWidth?: number;
+    dHeight?: number;
+    dRotationDeg?: number;
+  };
+  origin?: {
+    x: number;
+    y: number;
+  };
+  legacy?: TransformActionData;
+  extra?: Record<string, unknown>;
+}): TransformActionDataV2 {
+  const {
+    operationType,
+    before,
+    after,
+    affectedElementIds,
+    groupId,
+    groupBoundingBox,
+    deltas,
+    origin,
+    legacy,
+    extra,
+  } = params;
+
+  const primaryIds =
+    affectedElementIds && affectedElementIds.length > 0
+      ? affectedElementIds
+      : after.map((el) => el.id);
+
+  return {
+    legacy,
+    meta: {
+      version: 'v2',
+      snapshotId: generateSnapshotId(),
+      operationType,
+      timestamp: Date.now(),
+      affectedElementIds: primaryIds,
+      groupId,
+      groupBoundingBox,
+      deltas,
+      origin,
+      extra,
+    },
+    before,
+    after,
+  };
+}
+
+/**
  * Create selection change action.
  * 
  * @param oldSelectedIds - Old selected IDs
@@ -603,27 +1055,17 @@ export function createMoveElementZUpAction(
     throw new Error(`Cannot create moveElementZUp action: element ${elementId} not found`);
   }
   
-  // Calculate oldZ: use element.zIndex if set, otherwise derive from zOrder position
+  // Use zOrder as source of truth - get current position in zOrder array
   const zOrderIndex = zOrder.getZOrderIndex(state.zOrder, elementId);
   if (zOrderIndex === -1) {
     throw new Error(`Cannot create moveElementZUp action: element ${elementId} not in z-order`);
   }
   
-  // Get current zIndex or use zOrder position as fallback
-  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
-  
-  // Calculate newZ: increment by 1
-  // Get max zIndex from all elements to ensure we don't exceed bounds
-  const allElements = elementStore.getAllElements(state.elements);
-  const maxZIndex = allElements.reduce((max, el) => {
-    const elZ = el.zIndex !== undefined ? el.zIndex : state.zOrder.indexOf(el.id);
-    return Math.max(max, elZ);
-  }, -1);
-  
-  // If already at max, don't change
-  if (oldZ >= maxZIndex) {
+  // Check if already at front (last index in zOrder array = front position)
+  if (zOrderIndex === state.zOrder.length - 1) {
     // Return no-op action
     const actionId = generateActionId();
+    const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
     const actionData: MoveElementZUpActionData = {
       elementId,
       oldZ,
@@ -640,13 +1082,12 @@ export function createMoveElementZUpAction(
     };
   }
   
-  const newZ = oldZ + 1;
-  
   const actionId = generateActionId();
+  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
   const actionData: MoveElementZUpActionData = {
     elementId,
     oldZ,
-    newZ,
+    newZ: zOrderIndex + 1, // Will be normalized after zOrder change
   };
   
   return {
@@ -656,42 +1097,25 @@ export function createMoveElementZUpAction(
     data: actionData,
     
     execute(state: OverlayRuntimeState): OverlayRuntimeState {
-      // Update element.zIndex
-      const newElements = elementStore.updateElement(
-        state.elements,
-        elementId,
-        (el) => ({
-          ...el,
-          zIndex: newZ,
-        })
-      );
+      // Step 1: Move element forward in zOrder array (swap with next element)
+      const newZOrder = zOrder.moveForward(state.zOrder, elementId);
       
-      // Reorder zOrder array based on zIndex values
-      // Sort all elements by zIndex (ascending), preserving relative order for same zIndex
-      const allElementsArray = elementStore.getAllElements(newElements);
-      
-      // Create a map of elementId -> current zOrder index (for tie-breaking)
-      const zOrderIndexMap = new Map<string, number>();
-      state.zOrder.forEach((id, idx) => {
-        zOrderIndexMap.set(id, idx);
-      });
-      
-      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
-        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
-        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
-        
-        // If zIndex values are equal, preserve relative order from old zOrder
-        if (aZ === bZ) {
-          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
-          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
-          return aOrder - bOrder;
+      // Step 2: Normalize zIndex values to match zOrder positions (0..N-1)
+      let newElements = state.elements;
+      for (let i = 0; i < newZOrder.length; i++) {
+        const elId = newZOrder[i];
+        const el = elementStore.getElement(newElements, elId);
+        if (el && el.zIndex !== i) {
+          newElements = elementStore.updateElement(
+            newElements,
+            elId,
+            (element) => ({
+              ...element,
+              zIndex: i,
+            })
+          );
         }
-        
-        return aZ - bZ;
-      });
-      
-      // Create new zOrder array from sorted elements
-      const newZOrder = sortedByZIndex.map(el => el.id);
+      }
       
       return {
         ...state,
@@ -701,40 +1125,25 @@ export function createMoveElementZUpAction(
     },
     
     undo(state: OverlayRuntimeState): OverlayRuntimeState {
-      // Restore old zIndex
-      const newElements = elementStore.updateElement(
-        state.elements,
-        elementId,
-        (el) => ({
-          ...el,
-          zIndex: oldZ,
-        })
-      );
+      // Move element backward in zOrder array (opposite of moveForward)
+      const newZOrder = zOrder.moveBackward(state.zOrder, elementId);
       
-      // Reorder zOrder array back based on restored zIndex values
-      const allElementsArray = elementStore.getAllElements(newElements);
-      
-      // Create a map of elementId -> current zOrder index (for tie-breaking)
-      const zOrderIndexMap = new Map<string, number>();
-      state.zOrder.forEach((id, idx) => {
-        zOrderIndexMap.set(id, idx);
-      });
-      
-      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
-        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
-        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
-        
-        // If zIndex values are equal, preserve relative order from old zOrder
-        if (aZ === bZ) {
-          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
-          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
-          return aOrder - bOrder;
+      // Normalize zIndex values to match zOrder positions (0..N-1)
+      let newElements = state.elements;
+      for (let i = 0; i < newZOrder.length; i++) {
+        const elId = newZOrder[i];
+        const el = elementStore.getElement(newElements, elId);
+        if (el && el.zIndex !== i) {
+          newElements = elementStore.updateElement(
+            newElements,
+            elId,
+            (element) => ({
+              ...element,
+              zIndex: i,
+            })
+          );
         }
-        
-        return aZ - bZ;
-      });
-      
-      const newZOrder = sortedByZIndex.map(el => el.id);
+      }
       
       return {
         ...state,
@@ -762,19 +1171,17 @@ export function createMoveElementZDownAction(
     throw new Error(`Cannot create moveElementZDown action: element ${elementId} not found`);
   }
   
-  // Calculate oldZ: use element.zIndex if set, otherwise derive from zOrder position
+  // Use zOrder as source of truth - get current position in zOrder array
   const zOrderIndex = zOrder.getZOrderIndex(state.zOrder, elementId);
   if (zOrderIndex === -1) {
     throw new Error(`Cannot create moveElementZDown action: element ${elementId} not in z-order`);
   }
   
-  // Get current zIndex or use zOrder position as fallback
-  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
-  
-  // Calculate newZ: decrement by 1, but don't go below 0
-  if (oldZ <= 0) {
-    // Return no-op action (already at bottom)
+  // Check if already at back (first index in zOrder array = back position)
+  if (zOrderIndex === 0) {
+    // Return no-op action (already at back)
     const actionId = generateActionId();
+    const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
     const actionData: MoveElementZDownActionData = {
       elementId,
       oldZ,
@@ -791,13 +1198,12 @@ export function createMoveElementZDownAction(
     };
   }
   
-  const newZ = oldZ - 1;
-  
   const actionId = generateActionId();
+  const oldZ = element.zIndex !== undefined ? element.zIndex : zOrderIndex;
   const actionData: MoveElementZDownActionData = {
     elementId,
     oldZ,
-    newZ,
+    newZ: zOrderIndex - 1, // Will be normalized after zOrder change
   };
   
   return {
@@ -807,42 +1213,25 @@ export function createMoveElementZDownAction(
     data: actionData,
     
     execute(state: OverlayRuntimeState): OverlayRuntimeState {
-      // Update element.zIndex
-      const newElements = elementStore.updateElement(
-        state.elements,
-        elementId,
-        (el) => ({
-          ...el,
-          zIndex: newZ,
-        })
-      );
+      // Step 1: Move element backward in zOrder array (swap with previous element)
+      const newZOrder = zOrder.moveBackward(state.zOrder, elementId);
       
-      // Reorder zOrder array based on zIndex values
-      // Sort all elements by zIndex (ascending), preserving relative order for same zIndex
-      const allElementsArray = elementStore.getAllElements(newElements);
-      
-      // Create a map of elementId -> current zOrder index (for tie-breaking)
-      const zOrderIndexMap = new Map<string, number>();
-      state.zOrder.forEach((id, idx) => {
-        zOrderIndexMap.set(id, idx);
-      });
-      
-      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
-        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
-        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
-        
-        // If zIndex values are equal, preserve relative order from old zOrder
-        if (aZ === bZ) {
-          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
-          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
-          return aOrder - bOrder;
+      // Step 2: Normalize zIndex values to match zOrder positions (0..N-1)
+      let newElements = state.elements;
+      for (let i = 0; i < newZOrder.length; i++) {
+        const elId = newZOrder[i];
+        const el = elementStore.getElement(newElements, elId);
+        if (el && el.zIndex !== i) {
+          newElements = elementStore.updateElement(
+            newElements,
+            elId,
+            (element) => ({
+              ...element,
+              zIndex: i,
+            })
+          );
         }
-        
-        return aZ - bZ;
-      });
-      
-      // Create new zOrder array from sorted elements
-      const newZOrder = sortedByZIndex.map(el => el.id);
+      }
       
       return {
         ...state,
@@ -852,40 +1241,25 @@ export function createMoveElementZDownAction(
     },
     
     undo(state: OverlayRuntimeState): OverlayRuntimeState {
-      // Restore old zIndex
-      const newElements = elementStore.updateElement(
-        state.elements,
-        elementId,
-        (el) => ({
-          ...el,
-          zIndex: oldZ,
-        })
-      );
+      // Move element forward in zOrder array (opposite of moveBackward)
+      const newZOrder = zOrder.moveForward(state.zOrder, elementId);
       
-      // Reorder zOrder array back based on restored zIndex values
-      const allElementsArray = elementStore.getAllElements(newElements);
-      
-      // Create a map of elementId -> current zOrder index (for tie-breaking)
-      const zOrderIndexMap = new Map<string, number>();
-      state.zOrder.forEach((id, idx) => {
-        zOrderIndexMap.set(id, idx);
-      });
-      
-      const sortedByZIndex = [...allElementsArray].sort((a, b) => {
-        const aZ = a.zIndex !== undefined ? a.zIndex : (zOrderIndexMap.get(a.id) ?? 0);
-        const bZ = b.zIndex !== undefined ? b.zIndex : (zOrderIndexMap.get(b.id) ?? 0);
-        
-        // If zIndex values are equal, preserve relative order from old zOrder
-        if (aZ === bZ) {
-          const aOrder = zOrderIndexMap.get(a.id) ?? 0;
-          const bOrder = zOrderIndexMap.get(b.id) ?? 0;
-          return aOrder - bOrder;
+      // Normalize zIndex values to match zOrder positions (0..N-1)
+      let newElements = state.elements;
+      for (let i = 0; i < newZOrder.length; i++) {
+        const elId = newZOrder[i];
+        const el = elementStore.getElement(newElements, elId);
+        if (el && el.zIndex !== i) {
+          newElements = elementStore.updateElement(
+            newElements,
+            elId,
+            (element) => ({
+              ...element,
+              zIndex: i,
+            })
+          );
         }
-        
-        return aZ - bZ;
-      });
-      
-      const newZOrder = sortedByZIndex.map(el => el.id);
+      }
       
       return {
         ...state,

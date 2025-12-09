@@ -1,6 +1,20 @@
 /**
  * Sync — PART 4: Multi-Tab Sync Compatibility
  * 
+ * Runtime Merge Overview (High-Level)
+ * - Compares current and incoming runtime state
+ * - Deep-compare behavior MUST remain identical
+ * - Early-return fast paths added in FAZ-6 Task 4 (micro-optimization)
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Merge logic (areStatesDifferent, mergeStates) MUST remain identical
+ * - Sync broadcast decision logic MUST NOT change
+ * - Hydration/serialization behavior MUST remain identical
+ * 
  * Serialization, deserialization, and sync message handling for multi-tab synchronization.
  * 
  * Design Principles:
@@ -332,7 +346,38 @@ export function mergeStates(
     return currentState;
   }
   
-  // FAZ-4-4I: Check if states are actually different
+  // FAZ-6 / Task 4: Reference-based early return (micro-optimization)
+  // If both states are the same reference, they are by definition equal
+  if (currentState === incomingState) {
+    return currentState;
+  }
+  
+  // FAZ-6 / Task 4: Shallow structural fast path (micro-optimization)
+  // Check if all core fields are reference-identical before expensive deep comparison
+  // This covers the common case where state object identity is preserved
+  if (
+    currentState.elements === incomingState.elements &&
+    currentState.selection === incomingState.selection &&
+    currentState.zOrder === incomingState.zOrder
+  ) {
+    // All core structural fields are reference-identical → structural content is same
+    // Still need timestamp-based merge logic for meta.updatedAt differences
+    const currentTimestamp = currentState.meta?.updatedAt ?? 0;
+    if (incomingTimestamp > currentTimestamp) {
+      // Incoming timestamp is newer: return incoming state with updated timestamp
+      return {
+        ...incomingState,
+        meta: {
+          ...incomingState.meta,
+          updatedAt: incomingTimestamp,
+        },
+      };
+    }
+    // Current state is newer or equal: keep current state (no clone needed)
+    return currentState;
+  }
+  
+  // FAZ-4-4I: Check if states are actually different (expensive deep comparison)
   const statesAreDifferent = areStatesDifferent(currentState, incomingState);
   
   // FAZ-3E PATCH #2: Defensive check for missing meta.updatedAt
@@ -341,7 +386,6 @@ export function mergeStates(
   // FAZ-4-4I: ALWAYS apply incoming state if it's different, regardless of timestamp
   // This fixes the issue where LCD has empty state but incoming has elements
   if (statesAreDifferent) {
-      // FAZ-4 FINAL: Merge logging removed (production cleanup)
     // Always use incoming state if it's different
     return {
       ...incomingState,
@@ -355,8 +399,7 @@ export function mergeStates(
     // States are the same - use timestamp-based merge
     if (incomingTimestamp > currentTimestamp) {
       // Incoming state is newer: use incoming state
-      // FAZ-4 FINAL: Merge logging removed (production cleanup)
-    return {
+      return {
       ...incomingState,
       meta: {
         ...incomingState.meta,
@@ -366,7 +409,6 @@ export function mergeStates(
   }
   
   // Current state is newer or equal: keep current state
-  // FAZ-4 FINAL: Merge logging removed (production cleanup)
   return currentState;
 }
 
@@ -501,7 +543,6 @@ export function handleSyncMessage(
       case 'state-sync-request':
         // Request received: respond with current state
         // (Response is handled by sync coordinator, not here)
-        // FAZ-4 FINAL: Request logging removed (production cleanup)
         return null; // No state change, just a request
       
       case 'state-sync-response':
@@ -511,7 +552,8 @@ export function handleSyncMessage(
       
       default:
         if (IS_DEV) {
-          console.warn('[Sync] Unknown message type:', (message as any).type);
+          const unknownMessage = message as { type?: unknown };
+          console.warn('[Sync] Unknown message type:', unknownMessage.type);
         }
         return null;
     }

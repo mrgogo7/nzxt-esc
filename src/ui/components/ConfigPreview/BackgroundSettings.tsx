@@ -12,7 +12,8 @@ import {
   MoveHorizontal,
 } from 'lucide-react';
 import type { AppSettings } from '../../../constants/defaults';
-import type { Lang, t as tFunction } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import { getMediaType } from '../../../utils/media';
 import ResetButton from './ResetButton';
 import NumericStepper from '../NumericStepper';
@@ -21,7 +22,6 @@ interface BackgroundSettingsProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
   lang: Lang;
-  t: typeof tFunction;
   resetField: (field: keyof AppSettings) => void;
   mediaUrl: string | null; // For YouTube info message
 }
@@ -34,10 +34,10 @@ export default function BackgroundSettings({
   settings,
   setSettings,
   lang,
-  t,
   resetField,
   mediaUrl,
 }: BackgroundSettingsProps) {
+  const t = useI18n();
   // YouTube info message dismiss state
   const [isDismissed, setIsDismissed] = useState(false);
 
@@ -109,19 +109,19 @@ export default function BackgroundSettings({
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent';
               }}
-              aria-label={t('close', lang) || 'Close'}
+              aria-label={t('close')}
             >
               <X size={14} />
             </button>
-            {t('youtubeInfoMessage', lang)}
+            {t('youtubeInfoMessage')}
           </div>
         )}
 
         <div className="panel-header">
-          <h3>{t('settingsTitle', lang)}</h3>
+          <h3>{t('settingsTitle')}</h3>
 
           <div className="overlay-toggle-compact">
-            <span>{t('overlayGuide', lang)}</span>
+            <span>{t('overlayGuide')}</span>
             <label className="switch">
               <input
                 type="checkbox"
@@ -141,9 +141,9 @@ export default function BackgroundSettings({
         <div className="settings-grid-modern">
           {/* SCALE / X / Y */}
           {[
-            { field: 'scale', label: t('scale', lang), step: 0.1, isInteger: false },
-            { field: 'x', label: t('xOffset', lang), step: 1, isInteger: true },
-            { field: 'y', label: t('yOffset', lang), step: 1, isInteger: true },
+            { field: 'scale', label: t('scale'), step: 0.1, isInteger: false },
+            { field: 'x', label: t('xOffset'), step: 1, isInteger: true },
+            { field: 'y', label: t('yOffset'), step: 1, isInteger: true },
           ].map(({ field, label, step, isInteger }) => {
             return (
               <div className="setting-row" key={field}>
@@ -165,7 +165,7 @@ export default function BackgroundSettings({
 
                 <ResetButton
                   onClick={() => resetField(field as keyof AppSettings)}
-                  tooltipContent={t('reset', lang)}
+                  tooltipContent={t('reset')}
                 />
               </div>
             );
@@ -173,14 +173,14 @@ export default function BackgroundSettings({
 
           {/* ALIGN */}
           <div className="setting-row">
-            <label>{t('align', lang)}</label>
+            <label>{t('align')}</label>
             <div className="icon-group">
               {alignIcons.map(({ key, icon }) => (
                 <motion.button
                   key={key}
                   className={`icon-btn ${settings.align === key ? 'active' : ''}`}
                   data-tooltip-id={`align-${key}-tooltip`}
-                  data-tooltip-content={t(`align${key[0].toUpperCase() + key.slice(1)}`, lang)}
+                  data-tooltip-content={t(`align${key[0].toUpperCase() + key.slice(1)}`)}
                   onClick={() =>
                     setSettings({
                       ...settings,
@@ -198,20 +198,20 @@ export default function BackgroundSettings({
 
             <ResetButton
               onClick={() => resetField('align')}
-              tooltipContent={t('reset', lang)}
+              tooltipContent={t('reset')}
             />
           </div>
 
           {/* FIT */}
           <div className="setting-row">
-            <label>{t('fit', lang)}</label>
+            <label>{t('fit')}</label>
             <div className="icon-group">
               {fitIcons.map(({ key, icon }) => (
                 <motion.button
                   key={key}
                   className={`icon-btn ${settings.fit === key ? 'active' : ''}`}
                   data-tooltip-id={`fit-${key}-tooltip`}
-                  data-tooltip-content={t(`fit${key[0].toUpperCase() + key.slice(1)}`, lang)}
+                  data-tooltip-content={t(`fit${key[0].toUpperCase() + key.slice(1)}`)}
                   onClick={() =>
                     setSettings({
                       ...settings,
@@ -229,7 +229,7 @@ export default function BackgroundSettings({
 
             <ResetButton
               onClick={() => resetField('fit')}
-              tooltipContent={t('reset', lang)}
+              tooltipContent={t('reset')}
             />
           </div>
         </div>

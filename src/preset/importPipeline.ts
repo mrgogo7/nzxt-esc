@@ -13,7 +13,7 @@
 
 import type { PresetFile } from './schema';
 import type { AppSettings } from '../constants/defaults';
-import type { Lang } from '../i18n';
+import type { Lang } from '@/i18n';
 import { migratePreset, getSchemaVersion } from './migration';
 import { validatePresetFile, type ValidationResult } from './validation';
 import { normalizePresetFile, type NormalizationResult } from './normalization';

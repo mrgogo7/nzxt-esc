@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { t, type Lang } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 const MAX_FILE_SIZE_BYTES = 150 * 1024 * 1024; // 150 MB
@@ -19,6 +20,7 @@ export default function LocalMediaModal({
   onSelectFile,
   lang,
 }: LocalMediaModalProps) {
+  const t = useI18n();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +49,7 @@ export default function LocalMediaModal({
 
     // Validate size
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      setError(t('localMediaFileTooLarge', lang));
+      setError(t('localMediaFileTooLarge'));
       return;
     }
 
@@ -65,7 +67,7 @@ export default function LocalMediaModal({
       mime.startsWith('image/') || mime === 'video/mp4' || mime.startsWith('video/');
 
     if (!isSupportedExtension && !isSupportedMime) {
-      setError(t('localMediaUnsupportedType', lang));
+      setError(t('localMediaUnsupportedType'));
       return;
     }
 
@@ -74,7 +76,7 @@ export default function LocalMediaModal({
 
   const handleConfirm = async () => {
     if (!selectedFile) {
-      setError(t('localMediaNoFileSelected', lang));
+      setError(t('localMediaNoFileSelected'));
       return;
     }
 
@@ -90,7 +92,7 @@ export default function LocalMediaModal({
       setError(
         err instanceof Error
           ? err.message
-          : t('localMediaSaveFailed', lang)
+          : t('localMediaSaveFailed')
       );
     }
   };
@@ -118,12 +120,12 @@ export default function LocalMediaModal({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="preset-modal-header">
-              <h3>{t('localMediaTitle', lang)}</h3>
+              <h3>{t('localMediaTitle')}</h3>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
                 disabled={isSaving}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -131,14 +133,14 @@ export default function LocalMediaModal({
 
             <div className="preset-modal-content">
               <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#a0a0a0', lineHeight: '1.5' }}>
-                {t('localMediaDescription', lang)}
+                {t('localMediaDescription')}
               </p>
               <p className="local-media-supported" style={{ margin: '0 0 16px 0', fontSize: '12px', color: '#6b6b6b' }}>
-                {t('localMediaSupportedFormats', lang)}
+                {t('localMediaSupportedFormats')}
               </p>
 
               <label htmlFor="local-media-file-input" className="preset-modal-label">
-                {t('selectFile', lang) || 'Select File'}
+                {t('selectFile')}
               </label>
               <input
                 id="local-media-file-input"
@@ -187,7 +189,7 @@ export default function LocalMediaModal({
                 onClick={onClose}
                 disabled={isSaving}
               >
-                {t('cancel', lang) || 'Cancel'}
+                {t('cancel')}
               </button>
               <button
                 type="button"
@@ -196,8 +198,8 @@ export default function LocalMediaModal({
                 disabled={isSaving || !selectedFile}
               >
                 {isSaving
-                  ? t('saving', lang) || 'Saving...'
-                  : t('confirm', lang) || 'Use Media'}
+                  ? t('saving')
+                  : t('useMedia')}
               </button>
             </div>
           </motion.div>

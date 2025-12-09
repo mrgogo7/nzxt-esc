@@ -7,8 +7,8 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 export interface YouTubeWarningModalProps {
@@ -22,6 +22,7 @@ export default function YouTubeWarningModal({
   onClose,
   lang,
 }: YouTubeWarningModalProps) {
+  const t = useI18n();
   // Handle ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,12 +62,12 @@ export default function YouTubeWarningModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t('youtubeNotSupportedTitle', lang)}</h3>
+                <h3>{t('youtubeNotSupportedTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -75,7 +76,7 @@ export default function YouTubeWarningModal({
             <div className="preset-modal-content">
               <p className="preset-conflict-message" style={{ whiteSpace: 'pre-line' }}>
                 {(() => {
-                  const message = t('youtubeNotSupportedMessage', lang);
+                  const message = t('youtubeNotSupportedMessage');
                   // Split message by "Pinterest" and render it as a link
                   const parts = message.split(/(Pinterest)/i);
                   return parts.map((part, index) => {
@@ -109,7 +110,7 @@ export default function YouTubeWarningModal({
                 onClick={onClose}
                 style={{ width: '100%' }}
               >
-                {t('youtubeNotSupportedOk', lang)}
+                {t('youtubeNotSupportedOk')}
               </button>
             </div>
           </motion.div>

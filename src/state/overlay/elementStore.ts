@@ -71,6 +71,7 @@ export function updateElement(
   }
   
   const updatedElement = updater(element);
+  
   const newStore = new Map(store);
   newStore.set(elementId, updatedElement);
   

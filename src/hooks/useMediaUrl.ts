@@ -34,7 +34,7 @@ export function useMediaUrl() {
       const fromLocalStorage = localStorage.getItem(STORAGE_KEYS.MEDIA_URL);
       if (fromLocalStorage !== null) return fromLocalStorage;
     } catch (e) {
-      console.warn('[useMediaUrl] localStorage read failed:', e);
+      // localStorage read failed
     }
     
     // 3. Try config object (ConfigPreview writes URL there for backward compatibility)
@@ -136,7 +136,7 @@ export function useMediaUrl() {
     try {
       localStorage.setItem(STORAGE_KEYS.MEDIA_URL, url);
     } catch (e) {
-      console.warn('[useMediaUrl] localStorage write failed:', e);
+      // localStorage write failed
     }
     setMediaUrlState(url);
   };

@@ -116,10 +116,10 @@ export type OverlayMetrics = {
 
 /**
  * Overlay element types.
- * Only metric, text, and divider are supported.
+ * Only metric, text, divider, clock, and date are supported.
  * Icon and weather types reserved for future use.
  */
-export type OverlayElementType = "metric" | "text" | "divider";
+export type OverlayElementType = "metric" | "text" | "divider" | "clock" | "date";
 
 /**
  * Metric element data.
@@ -131,6 +131,8 @@ export interface MetricElementData {
   textColor: string;
   textSize: number;
   showLabel?: boolean; // Default: true
+  outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
+  outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
 }
 
 /**
@@ -140,6 +142,8 @@ export interface TextElementData {
   text: string; // Plain text content (max 120 characters, sanitized)
   textColor: string;
   textSize: number; // Minimum 6
+  outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
+  outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
 }
 
 /**
@@ -154,11 +158,39 @@ export interface DividerElementData {
   width: number; // Rectangle width in pixels (thickness)
   height: number; // Rectangle height in pixels (length)
   color: string;
+  outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
+  outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
+}
+
+/**
+ * Clock element data.
+ */
+export interface ClockElementData {
+  format: "HH:mm" | "HH:mm:ss";
+  mode: "24h" | "12h";
+  fontSize: number;
+  color: string;
+  outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
+  outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
+}
+
+/**
+ * Date element data.
+ */
+export interface DateElementData {
+  format: string; // Free text format string (e.g., "DD.MM.YYYY", "YYYY/MM/DD")
+  fontSize: number;
+  color: string;
+  outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
+  outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
 }
 
 /**
  * Overlay element.
  * Supports rotation via angle property.
+ * 
+ * Type safety: Use type guards (isMetricElementData, isTextElementData, isDividerElementData, isClockElementData, isDateElementData)
+ * to narrow the data type based on the element.type property for type-safe access.
  */
 export interface OverlayElement {
   id: string;
@@ -167,7 +199,7 @@ export interface OverlayElement {
   y: number; // Y position in LCD coordinates
   zIndex?: number; // Render order (default: element index in array)
   angle?: number; // Rotation angle in degrees (0-360, default: 0)
-  data: MetricElementData | TextElementData | DividerElementData; // Discriminated union based on type
+  data: MetricElementData | TextElementData | DividerElementData | ClockElementData | DateElementData; // Discriminated union based on type
 }
 
 /**
@@ -321,5 +353,41 @@ export function isDividerElementData(data: unknown): data is DividerElementData 
     !('metric' in data) &&
     !('text' in data) &&
     !('thickness' in data) // Old schema marker - exclude legacy dividers
+  );
+}
+
+/**
+ * Type guard for ClockElementData.
+ * Checks if data object is ClockElementData.
+ */
+export function isClockElementData(data: unknown): data is ClockElementData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'format' in data &&
+    'mode' in data &&
+    'fontSize' in data &&
+    'color' in data &&
+    !('metric' in data) &&
+    !('text' in data) &&
+    !('width' in data) // Ensure it's not a divider element
+  );
+}
+
+/**
+ * Type guard for DateElementData.
+ * Checks if data object is DateElementData.
+ */
+export function isDateElementData(data: unknown): data is DateElementData {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'format' in data &&
+    'fontSize' in data &&
+    'color' in data &&
+    !('metric' in data) &&
+    !('text' in data) &&
+    !('width' in data) &&
+    !('mode' in data) // Ensure it's not a clock element (clock has mode, date doesn't)
   );
 }

@@ -7,8 +7,8 @@
 import React, { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 export interface ResetConfirmationModalProps {
@@ -30,6 +30,7 @@ export default function ResetConfirmationModal({
   descriptionKey = 'resetElementsConfirm',
   confirmButtonKey = 'reset',
 }: ResetConfirmationModalProps) {
+  const t = useI18n();
   const handleConfirm = useCallback(() => {
     onConfirm();
     onClose();
@@ -39,7 +40,6 @@ export default function ResetConfirmationModal({
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Enter') {
-      // FAZ-10: ENTER triggers primary action (confirm)
       e.preventDefault();
       handleConfirm();
     }
@@ -71,12 +71,12 @@ export default function ResetConfirmationModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t(titleKey, lang)}</h3>
+                <h3>{t(titleKey)}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -84,7 +84,7 @@ export default function ResetConfirmationModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t(descriptionKey, lang)}
+                {t(descriptionKey)}
               </p>
             </div>
 
@@ -94,14 +94,14 @@ export default function ResetConfirmationModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('cancel', lang)}
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-warning"
                 onClick={handleConfirm}
               >
-                {t(confirmButtonKey, lang)}
+                {t(confirmButtonKey)}
               </button>
             </div>
           </motion.div>

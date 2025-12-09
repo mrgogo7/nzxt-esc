@@ -6,10 +6,57 @@ import type { AppSettings } from '../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../transform/operations/MoveOperation';
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
-import { createTransformAction, createSelectAction } from '../state/overlay/actions';
+import { createTransformAction, createSelectAction, createTransformActionWithV2 } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { IS_DEV } from '../utils/env';
 import { devWarn } from '../debug/dev';
+import { selectSingle, toggleSelect } from '../ui/components/ConfigPreview/helpers/selectionHelpers';
+import { computeGroupBoundingBox, type ElementBoundingBox } from '../ui/helpers/groupBoundingBox';
+import { calculateElementDimensions } from '../transform/engine/BoundingBox';
+import type { OverlayElement } from '../types/overlay';
+import type { GroupBoundingBox } from '../ui/helpers/groupBoundingBox';
+import { LCD_FRAME_MS } from '../overlay/helpers/renderLoop';
+
+/**
+ * Helper function to dispatch unified transform action for a group of elements.
+ * 
+ * @param afterArray - Array of elements after transformation
+ * @param options - Options including useV2, opType, and groupBBox
+ */
+function updateElementGroup(
+  afterArray: OverlayElement[],
+  options: {
+    useV2: boolean;
+    opType: 'move' | 'rotate' | 'resize';
+    groupBBox: GroupBoundingBox | null;
+  },
+  current: OverlayRuntimeState,
+  stateManager: OverlayStateManager
+) {
+  const beforeMap = new Map<string, OverlayElement>();
+  const afterMap = new Map<string, OverlayElement>();
+
+  afterArray.forEach(el => {
+    const beforeEl = getElementFromStore(current.elements, el.id);
+    if (beforeEl) {
+      beforeMap.set(el.id, beforeEl);
+      afterMap.set(el.id, el);
+    }
+  });
+
+  if (beforeMap.size === 0 || afterMap.size === 0) {
+    return;
+  }
+
+  const action = createTransformActionWithV2(
+    Array.from(beforeMap.keys()),
+    beforeMap,
+    afterMap,
+    { includeV2Meta: options.useV2 }
+  );
+
+  stateManager.dispatch(action);
+}
 
 /**
  * Hook for managing all drag handlers in ConfigPreview.
@@ -43,8 +90,8 @@ export function useDragHandlers(
   
   // Element drag state (unified for all element types)
   const [draggingElementId, setDraggingElementId] = useState<string | null>(null);
-  // FAZ-4-4E: selectedElementId is now derived from runtime state, not local state
-  // Local state removed - selection is managed by runtime state
+  
+  const MULTI_SELECT_TRANSFORM_EXPERIMENT = true;
   
   // Snapping guides state
   const [activeGuides, setActiveGuides] = useState<AlignmentGuide[]>([]);
@@ -66,6 +113,13 @@ export function useDragHandlers(
   
   // Store initial position for undo/redo
   const moveInitialPosition = useRef<{ x: number; y: number } | null>(null);
+  
+  const lastTransformDispatchTime = useRef<number>(0);
+  const pendingTransformRef = useRef<{
+    element: OverlayElement;
+    newElement: OverlayElement;
+    guides: AlignmentGuide[];
+  } | null>(null);
 
   // Background drag handlers
   const handleBackgroundMouseDown = useCallback((e: React.MouseEvent) => {
@@ -95,7 +149,7 @@ export function useDragHandlers(
     });
   }, [offsetScale, setSettings, settingsRef]);
 
-  const handleBackgroundMouseUp = useCallback(() => {
+  const handleBackgroundMouseUp = useCallback((e?: MouseEvent) => {
     setIsDragging(false);
     dragStart.current = null;
   }, []);
@@ -108,7 +162,6 @@ export function useDragHandlers(
     e.preventDefault();
     e.stopPropagation();
     
-    // FAZ-4-4E: Always use runtime state - no feature flag gating
     if (!stateManager || !runtimeState || !activePresetId) {
       if (IS_DEV) {
         devWarn('useDragHandlers', 'handleElementMouseDown called but runtime not available', {
@@ -129,7 +182,8 @@ export function useDragHandlers(
       setDraggingElementId(elementId);
       elementDragStart.current = { x: e.clientX, y: e.clientY, elementId };
       
-      // FAZ-4-4E: Start transaction for move operation
+      lastTransformDispatchTime.current = performance.now();
+      
       stateManager.startTransaction();
       
       // Store initial position for undo/redo
@@ -139,19 +193,17 @@ export function useDragHandlers(
       }
     } else {
       // First click: just select, don't start dragging
-      // FAZ-4-4E: Dispatch selection action to runtime state
-      const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
-      const oldLastSelectedId = runtimeState.selection.lastSelectedId;
-      const newSelectedIds = [elementId];
-      const newLastSelectedId = elementId;
+      const isMultiSelect = e.shiftKey || e.ctrlKey || e.metaKey;
       
-      const action = createSelectAction(
-        oldSelectedIds,
-        newSelectedIds,
-        oldLastSelectedId,
-        newLastSelectedId
-      );
-      stateManager.dispatch(action);
+      if (isMultiSelect) {
+        // Multi-select: toggle selection
+        const action = toggleSelect(runtimeState, elementId);
+        stateManager.dispatch(action);
+      } else {
+        // Single select: clear existing selection, select only this element
+        const action = selectSingle(runtimeState, elementId);
+        stateManager.dispatch(action);
+      }
     }
   }, [activePresetId, stateManager, runtimeState]);
 
@@ -169,7 +221,6 @@ export function useDragHandlers(
       y: e.clientY - elementDragStart.current.y,
     };
 
-    // FAZ-4-4E: Always use runtime state - no feature flag gating
     if (!activePresetId || !stateManager || !runtimeState) {
       if (IS_DEV) {
         devWarn('useDragHandlers', 'handleElementMouseMove called but runtime not available');
@@ -188,6 +239,94 @@ export function useDragHandlers(
       return;
     }
     
+    const selectedIds = Array.from(runtimeState.selection.selectedIds);
+    const elementId = elementDragStart.current!.elementId;
+    const isMulti = MULTI_SELECT_TRANSFORM_EXPERIMENT && selectedIds.length > 1 && selectedIds.includes(elementId);
+    
+    if (isMulti) {
+      // Build per-element bounding boxes (UI layer)
+      const beforeElements: OverlayElement[] = [];
+      const elementBoxes: ElementBoundingBox[] = [];
+      
+      for (const selectedId of selectedIds) {
+        const selectedElement = getElementFromStore(runtimeState.elements, selectedId);
+        if (!selectedElement) continue;
+        
+        beforeElements.push(selectedElement);
+        
+        const dimensions = calculateElementDimensions(selectedElement);
+        elementBoxes.push({
+          id: selectedElement.id,
+          x: selectedElement.x - dimensions.width / 2, // Convert center to top-left
+          y: selectedElement.y - dimensions.height / 2,
+          width: dimensions.width,
+          height: dimensions.height,
+        });
+      }
+      
+      // Compute group bounding box
+      const groupBBox = computeGroupBoundingBox(elementBoxes);
+      if (!groupBBox) {
+        // Fallback to single-element behavior if group box computation fails
+        // Fall through to single-element logic below
+      } else {
+        try {
+          // Convert screen delta to LCD delta using previewToLcd
+          const lcdDx = previewToLcd(screenDelta.x, offsetScale);
+          const lcdDy = previewToLcd(screenDelta.y, offsetScale);
+          
+          // Build after elements array
+          const after = beforeElements.map(el => {
+            const rel = groupBBox.relativeOffsets[el.id];
+            if (!rel) return el;
+            
+            // Compute new position based on group center + relative offset + delta
+            const newGroupCenterX = groupBBox.centerX + lcdDx;
+            const newGroupCenterY = groupBBox.centerY + lcdDy;
+            const newElementCenterX = newGroupCenterX + rel.dx;
+            const newElementCenterY = newGroupCenterY + rel.dy;
+            
+            // Apply boundary constraint (constrainToCircle)
+            const constrained = constrainToCircle(el, newElementCenterX, newElementCenterY, offsetScale);
+            
+            return {
+              ...el,
+              x: constrained.x,
+              y: constrained.y,
+            };
+          });
+          
+          const now = performance.now();
+          const timeSinceLastDispatch = now - lastTransformDispatchTime.current;
+          
+          if (timeSinceLastDispatch >= LCD_FRAME_MS) {
+          // Dispatch unified transform action
+          updateElementGroup(after, {
+            useV2: true,
+            opType: 'move',
+            groupBBox,
+          }, runtimeState, stateManager);
+            
+            lastTransformDispatchTime.current = now;
+            
+            // CRITICAL: Only update drag start position AFTER successful dispatch
+            // This prevents delta accumulation issues when transforms are throttled
+            elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
+          }
+          // If throttled, do NOT update elementDragStart.current - wait for next successful dispatch
+          
+          return; // Multi-select handled, don't fall through to single-element logic
+        } catch (err) {
+          // Safety guard: fallback to single-element behavior on error
+          if (IS_DEV) {
+            devWarn('useDragHandlers', 'Multi-select move failed, falling back to single-element', err);
+          }
+          // Fall through to single-element logic below
+        }
+      }
+    }
+    
+    // Existing single-element transform logic (unchanged)
     // Use MoveOperation to calculate new position
     const moveConfig: MoveOperationConfig = {
       offsetScale,
@@ -197,8 +336,6 @@ export function useDragHandlers(
     const moveResult = moveElement(element, screenDelta, moveConfig);
     const newX = moveResult.x;
     const newY = moveResult.y;
-    
-    // FAZ-4 FINAL: MOVE Tick logging removed (production cleanup)
     
     // Calculate velocity for escape detection
     if (lastPosition.current) {
@@ -249,7 +386,19 @@ export function useDragHandlers(
       y: constrained.y,
     };
     
-    // Create transform action and dispatch (will be batched in transaction)
+    // Store pending transform for immediate UI feedback
+    pendingTransformRef.current = {
+      element,
+      newElement,
+      guides,
+    };
+    
+    // Only dispatch transform if enough time has passed (60Hz = 16.67ms)
+    const now = performance.now();
+    const timeSinceLastDispatch = now - lastTransformDispatchTime.current;
+    
+    if (timeSinceLastDispatch >= LCD_FRAME_MS) {
+      // Dispatch transform action (will be batched in transaction)
     const oldStates = new Map<string, typeof element>();
     const newStates = new Map<string, typeof newElement>();
     oldStates.set(element.id, element);
@@ -257,18 +406,33 @@ export function useDragHandlers(
     
     const action = createTransformAction([element.id], oldStates, newStates);
     stateManager.dispatch(action); // This adds to transaction if active
-    
-    // Update drag start position for next frame
-    elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
+      
+      lastTransformDispatchTime.current = now;
+      pendingTransformRef.current = null; // Clear pending after dispatch
+      
+      // CRITICAL: Only update drag start position AFTER successful dispatch
+      // This prevents delta accumulation issues when transforms are throttled
+      elementDragStart.current = { ...elementDragStart.current, x: e.clientX, y: e.clientY };
+    }
+    // If throttled, pendingTransformRef will be dispatched on next eligible frame
+    // Do NOT update elementDragStart.current here - wait for next successful dispatch
   }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
-  const handleElementMouseUp = useCallback(() => {
-    // FAZ-4-4E: Always commit transaction if stateManager is available
-    if (stateManager) {
-      // Commit transaction (batches all actions from this drag into single undo/redo entry)
-      stateManager.commitTransaction();
+  const handleElementMouseUp = useCallback((e?: MouseEvent) => {
+    if (pendingTransformRef.current && stateManager && runtimeState) {
+      const { element, newElement } = pendingTransformRef.current;
+      const oldStates = new Map<string, typeof element>();
+      const newStates = new Map<string, typeof newElement>();
+      oldStates.set(element.id, element);
+      newStates.set(element.id, newElement);
       
-      // FAZ-4 FINAL: MOVE Commit logging removed (production cleanup)
+      const action = createTransformAction([element.id], oldStates, newStates);
+      stateManager.dispatch(action);
+      pendingTransformRef.current = null;
+    }
+    
+    if (stateManager) {
+      stateManager.commitTransaction();
     }
     
     setDraggingElementId(null);
@@ -283,28 +447,34 @@ export function useDragHandlers(
       escapeVelocityX: 0,
       escapeVelocityY: 0,
     };
+    lastTransformDispatchTime.current = 0;
+    pendingTransformRef.current = null;
     // Keep selected after drag ends - user can click again to drag
   }, [stateManager, runtimeState]);
 
   // Event listeners for drag handlers
   useEffect(() => {
     if (isDragging) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleBackgroundMouseUp(e);
       window.addEventListener('mousemove', handleBackgroundMouseMove);
-      window.addEventListener('mouseup', handleBackgroundMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleBackgroundMouseMove);
-        window.removeEventListener('mouseup', handleBackgroundMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [isDragging, handleBackgroundMouseMove, handleBackgroundMouseUp]);
 
   useEffect(() => {
     if (draggingElementId) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleElementMouseUp(e);
       window.addEventListener('mousemove', handleElementMouseMove);
-      window.addEventListener('mouseup', handleElementMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleElementMouseMove);
-        window.removeEventListener('mouseup', handleElementMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [draggingElementId, handleElementMouseMove, handleElementMouseUp]);
@@ -326,8 +496,6 @@ export function useDragHandlers(
           elementDragStart.current = null;
         }
         
-        // Deselect
-        // FAZ-4-4E: Always wire deselection to runtime state
         if (stateManager && runtimeState) {
           // Dispatch clear selection action to runtime
           const oldSelectedIds = Array.from(runtimeState.selection.selectedIds);
@@ -349,7 +517,6 @@ export function useDragHandlers(
       }
     };
 
-    // FAZ-4-4E: Check selection from runtime state
     const hasSelection = runtimeState?.selection.selectedIds.size ?? 0 > 0;
     if (hasSelection || draggingElementId) {
       window.addEventListener('mousedown', handleClickOutside);
@@ -359,7 +526,6 @@ export function useDragHandlers(
     }
   }, [draggingElementId, stateManager, runtimeState]);
 
-  // FAZ-4-4E: Derive selectedElementId from runtime state (for use in effects)
   const selectedElementId = runtimeState?.selection.lastSelectedId ?? null;
   
   // Keyboard arrow key movement for selected element
@@ -400,7 +566,6 @@ export function useDragHandlers(
       // Prevent default scrolling behavior
       e.preventDefault();
 
-      // FAZ-4-4E: Always use runtime system
       if (stateManager && runtimeState && activePresetId) {
         // Get selected element ID from runtime state
         const selectedId = runtimeState.selection.lastSelectedId;

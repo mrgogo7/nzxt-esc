@@ -163,8 +163,6 @@ export function migrateOverlaySettingsToOverlay(oldSettings: OverlaySettings | n
         return DEFAULT_OVERLAY;
     }
   } catch (error) {
-    // Any error during migration - return default
-    console.warn('[overlayMigration] Migration error, using default overlay:', error);
     return DEFAULT_OVERLAY;
   }
 }
@@ -198,7 +196,6 @@ export function isLegacyOverlaySettings(obj: any): obj is OverlaySettings {
  */
 export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | undefined): Overlay {
   if (!overlay) {
-    console.log('[ensureOverlayFormat] No overlay, returning DEFAULT_OVERLAY');
     return DEFAULT_OVERLAY;
   }
 
@@ -211,7 +208,6 @@ export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | 
       ...result,
       elements: Array.isArray(result.elements) ? result.elements : [],
     };
-    console.log('[ensureOverlayFormat] New format, migrated dividers, elements:', safeResult.elements.length);
     return safeResult;
   }
 
@@ -224,7 +220,6 @@ export function ensureOverlayFormat(overlay: OverlaySettings | Overlay | null | 
     ...result,
     elements: Array.isArray(result.elements) ? result.elements : [],
   };
-  console.log('[ensureOverlayFormat] Legacy format migrated, elements:', safeResult.elements.length);
   return safeResult;
 }
 

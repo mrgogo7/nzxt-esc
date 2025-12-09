@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
 import { getBaseAlign } from '../../../utils/positioning';
-import { t, getInitialLang, type Lang } from '../../../i18n';
+import { getInitialLang, type Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 
 /**
  * YouTube Renderer Component
@@ -43,7 +44,7 @@ export default function YouTubeRenderer({
   align,
   fit,
 }: YouTubeRendererProps) {
-  const [lang] = useState<Lang>(getInitialLang());
+  const t = useI18n();
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
 
@@ -138,7 +139,7 @@ export default function YouTubeRenderer({
         style={iframeStyle}
         allow="autoplay; encrypted-media"
         allowFullScreen={false}
-        title={t('mediaYoutubeBackgroundTitle', lang)}
+        title={t('mediaYoutubeBackgroundTitle')}
       />
     </div>
   );

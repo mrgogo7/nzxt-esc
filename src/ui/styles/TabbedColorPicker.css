@@ -1,0 +1,328 @@
+.tabbed-color-picker-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tabbed-color-picker-trigger {
+  width: 78px;
+  height: 32px;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  background: #2c2c2c;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.tabbed-color-picker-trigger:hover {
+  border-color: #8a2be2;
+  background: #353535;
+}
+
+.tabbed-color-picker-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  background: currentColor;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2);
+}
+
+.tabbed-color-picker-popup {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: auto;
+  /* Ensure pointer events reach react-colorful for drag */
+}
+
+.tabbed-color-picker-container {
+  background: #202020;
+  border: 1px solid #2e2e2e;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 280px;
+  width: 280px;
+  box-sizing: border-box;
+}
+
+/* Tabs */
+.tabbed-color-picker-tabs {
+  display: flex;
+  border-bottom: 1px solid #2e2e2e;
+  padding: 0 16px;
+}
+
+.tabbed-color-picker-tab {
+  flex: 1;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #a0a0a0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.tabbed-color-picker-tab:hover {
+  color: #f2f2f2;
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.tabbed-color-picker-tab.active {
+  color: #f2f2f2;
+  border-bottom-color: #8a2be2;
+}
+
+/* Content area */
+.tabbed-color-picker-content {
+  padding: 16px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  /* Ensure pointer events reach react-colorful for drag */
+}
+
+/* Swatch grid */
+.tabbed-color-picker-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.tabbed-color-picker-swatch {
+  aspect-ratio: 1;
+  border: 2px solid #3a3a3a;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  background: transparent;
+  position: relative;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.tabbed-color-picker-swatch:hover {
+  border-color: #8a2be2;
+  transform: scale(1.05);
+}
+
+.tabbed-color-picker-swatch.selected {
+  border-color: #8a2be2;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+}
+
+/* Custom view */
+.tabbed-color-picker-custom-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+  /* Ensure pointer events reach react-colorful for drag */
+  /* Don't block mousemove events that react-colorful needs */
+}
+
+.tabbed-color-picker-custom-view .react-colorful {
+  width: 100%;
+  height: 200px;
+}
+
+.tabbed-color-picker-custom-view .react-colorful__saturation {
+  border-radius: 6px 6px 0 0;
+  cursor: crosshair;
+}
+
+.tabbed-color-picker-custom-view .react-colorful__hue {
+  height: 20px;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.tabbed-color-picker-custom-view .react-colorful__alpha {
+  height: 20px;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+}
+
+.tabbed-color-picker-custom-view .react-colorful__pointer {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.tabbed-color-picker-custom-view .react-colorful__saturation-pointer {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Input wrapper */
+.tabbed-color-picker-input-wrapper {
+  padding-top: 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tabbed-color-picker-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.tabbed-color-picker-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  background: #2c2c2c;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #f2f2f2;
+  font-family: monospace;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  user-select: text;
+}
+
+.tabbed-color-picker-input:hover {
+  background: #353535;
+}
+
+.tabbed-color-picker-input:focus {
+  outline: none;
+  border-color: #8a2be2;
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+}
+
+.tabbed-color-picker-rgb-input {
+  flex: 1;
+  padding: 6px 8px;
+  background: #2c2c2c;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: #f2f2f2;
+  font-size: 12px;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+  width: 50px;
+}
+
+.tabbed-color-picker-rgb-input:hover {
+  background: #353535;
+}
+
+.tabbed-color-picker-rgb-input:focus {
+  outline: none;
+  border-color: #8a2be2;
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+}
+
+.tabbed-color-picker-thickness-input {
+  width: 60px;
+  padding: 6px 8px;
+  background: #2c2c2c;
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  color: #f2f2f2;
+  font-size: 12px;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.tabbed-color-picker-thickness-input:hover {
+  background: #353535;
+}
+
+.tabbed-color-picker-thickness-input:focus {
+  outline: none;
+  border-color: #8a2be2;
+  box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+}
+
+.tabbed-color-picker-input-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.tabbed-color-picker-action-btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: #2c2c2c;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  color: #f2f2f2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.tabbed-color-picker-action-btn:hover {
+  background: #3a3a3a;
+  border-color: #8a2be2;
+  color: #c29cff;
+}
+
+.tabbed-color-picker-action-btn:active {
+  background: #252525;
+}
+
+/* Buttons */
+.tabbed-color-picker-buttons {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #2e2e2e;
+}
+
+.tabbed-color-picker-btn {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tabbed-color-picker-btn-primary {
+  background: #8a2be2;
+  color: #ffffff;
+  border-color: #8a2be2;
+}
+
+.tabbed-color-picker-btn-primary:hover {
+  background: #9d3ff5;
+  border-color: #9d3ff5;
+}
+
+.tabbed-color-picker-btn-secondary {
+  background: #2c2c2c;
+  color: #f2f2f2;
+}
+
+.tabbed-color-picker-btn-secondary:hover {
+  background: #3a3a3a;
+  border-color: #8a2be2;
+}

@@ -1,6 +1,20 @@
 /**
  * TransformMatrix.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Pure 2D affine transformation matrix utilities
+ * - Matrix math (multiplication, inversion, point transformation)
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Matrix multiplication formulas MUST remain identical
+ * - Matrix inversion logic MUST NOT change
+ * - Point transformation calculations MUST remain identical
+ * 
  * 2D Transform Matrix utilities for TransformEngine v1.
  * 
  * This module provides pure functions for 2D affine transformations using

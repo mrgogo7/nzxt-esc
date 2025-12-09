@@ -86,7 +86,7 @@ export default function OverlayField({
       
       {type === 'select' && (
         <select
-          className={`url-input ${className}`}
+          className={className ? `url-input ${className}` : 'url-input'}
           value={value ?? ''}
           onChange={(e) => onChange(e.target.value)}
         >

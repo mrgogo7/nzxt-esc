@@ -23,6 +23,8 @@ import type { PresetFile } from '../schema';
  * - overlay.mode: full overwrite if newPart.overlay.mode exists
  * - overlay.elements: ID-based partial merge (update existing, preserve others)
  * 
+ * CRITICAL: In dev mode, if color picker is open, freeze merge to prevent re-renders.
+ * 
  * @param oldPreset - Existing preset file
  * @param newPart - Partial preset file with updates
  * @returns Merged preset file
@@ -58,8 +60,10 @@ export function mergePresetFields(
       elements: newElements, // FAZ 7 FIX v2: Save runtime elements to preset (NEVER override with [])
     };
     
-    // DEBUG: Log overlay merge
-    console.log('[atomicMerge] Overlay merge - mode:', merged.overlay.mode, 'elements count:', newElements.length, 'elements:', newElements);
+    // DEBUG: Log overlay merge (dev-only)
+    if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
+      console.log('[atomicMerge] Overlay merge - mode:', merged.overlay.mode, 'elements count:', newElements.length, 'elements:', newElements);
+    }
   } else {
     // DEFENSIVE: Preserve existing overlay elements from oldPreset (FAZ 7 FIX v2)
     if (!merged.overlay) {

@@ -9,9 +9,11 @@
  */
 
 import { memo } from 'react';
-import type { OverlayElement, OverlayMetrics, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
+import type { OverlayElement, OverlayMetrics, MetricElementData, TextElementData, DividerElementData, ClockElementData, DateElementData } from '../../types/overlay';
 import { getOverlayLabelAndValue } from '../../types/overlay';
 import AnimateNumber from './AnimateNumber';
+import ClockElementRenderer from './ClockElementRenderer';
+import DateElementRenderer from './DateElementRenderer';
 import styles from '../styles/UnifiedOverlay.module.css';
 
 interface OverlayElementRendererProps {
@@ -41,6 +43,12 @@ function renderMetricElement(
   
   const isClock = info.valueUnitType === "clock";
   
+  // Check if outline should be applied to number
+  const hasNumberOutline = data.outlineColor && 
+    data.outlineColor !== 'transparent' && 
+    (data.outlineThickness ?? 0) > 0;
+  const numberOutlineThickness = hasNumberOutline ? (data.outlineThickness ?? 0) * scale : 0;
+  
   return (
     <div className={styles.elementContainer}>
       {/* Number + unit */}
@@ -52,6 +60,11 @@ function renderMetricElement(
             style={{
               fontSize: `${numberSize}px`,
               color: data.numberColor,
+              ...(hasNumberOutline && {
+                WebkitTextStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                textStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                paintOrder: 'stroke fill',
+              }),
             }}
           />
           
@@ -63,6 +76,11 @@ function renderMetricElement(
                 style={{
                   fontSize: `${unitSize}px`,
                   color: data.numberColor,
+                  ...(hasNumberOutline && {
+                    WebkitTextStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                    textStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                    paintOrder: 'stroke fill',
+                  }),
                 }}
               >
                 {info.valueUnit}
@@ -77,6 +95,11 @@ function renderMetricElement(
               style={{
                 fontSize: `${unitSize}px`,
                 color: data.numberColor,
+                ...(hasNumberOutline && {
+                  WebkitTextStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                  textStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                  paintOrder: 'stroke fill',
+                }),
               }}
             >
               {info.valueUnit}
@@ -92,6 +115,11 @@ function renderMetricElement(
             style={{
               fontSize: `${numberSize}px`,
               color: data.numberColor,
+              ...(hasNumberOutline && {
+                WebkitTextStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                textStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                paintOrder: 'stroke fill',
+              }),
             }}
             as="div"
           />
@@ -104,6 +132,11 @@ function renderMetricElement(
               marginTop: -numberSize * 0.15,
               marginBottom: 6,
               color: data.numberColor,
+              ...(hasNumberOutline && {
+                WebkitTextStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                textStroke: `${numberOutlineThickness}px ${data.outlineColor}`,
+                paintOrder: 'stroke fill',
+              }),
             }}
           >
             MHz
@@ -118,6 +151,13 @@ function renderMetricElement(
           style={{
             fontSize: `${data.textSize * scale}px`,
             color: data.textColor,
+            ...(data.outlineColor && 
+              data.outlineColor !== 'transparent' && 
+              (data.outlineThickness ?? 0) > 0 && {
+              WebkitTextStroke: `${(data.outlineThickness ?? 0) * scale}px ${data.outlineColor}`,
+              textStroke: `${(data.outlineThickness ?? 0) * scale}px ${data.outlineColor}`,
+              paintOrder: 'stroke fill',
+            }),
           }}
         >
           {info.label}
@@ -135,6 +175,11 @@ function renderTextElement(
   data: TextElementData,
   scale: number
 ) {
+  const hasOutline = data.outlineColor && 
+    data.outlineColor !== 'transparent' && 
+    (data.outlineThickness ?? 0) > 0;
+  const outlineThickness = hasOutline ? (data.outlineThickness ?? 0) * scale : 0;
+  
   return (
     <div
       className={styles.textElement}
@@ -144,6 +189,11 @@ function renderTextElement(
         fontFamily: 'nzxt-extrabold',
         whiteSpace: 'nowrap',
         userSelect: 'none',
+        ...(hasOutline && {
+          WebkitTextStroke: `${outlineThickness}px ${data.outlineColor}`,
+          textStroke: `${outlineThickness}px ${data.outlineColor}`,
+          paintOrder: 'stroke fill',
+        }),
       }}
     >
       {data.text}
@@ -171,7 +221,13 @@ function renderDividerElement(
   const previewWidth = Math.max(1, data.width * scale);
   const previewHeight = Math.max(1, data.height * scale);
   
-  // Simple rectangle divider
+  // Check if outline should be applied
+  const hasOutline = data.outlineColor && 
+    data.outlineColor !== 'transparent' && 
+    (data.outlineThickness ?? 0) > 0;
+  const outlineThickness = hasOutline ? (data.outlineThickness ?? 0) * scale : 0;
+  
+  // Simple rectangle divider with optional outline
   return (
     <div
       className={styles.dividerElement}
@@ -181,6 +237,10 @@ function renderDividerElement(
         backgroundColor: data.color,
         minWidth: '1px', // Ensure minimum visibility
         minHeight: '1px',
+        ...(hasOutline && {
+          border: `${outlineThickness}px solid ${data.outlineColor}`,
+          boxSizing: 'border-box',
+        }),
       }}
     />
   );
@@ -204,6 +264,12 @@ function OverlayElementRenderer({
     
     case 'divider':
       return renderDividerElement(element, element.data as DividerElementData, scale);
+    
+    case 'clock':
+      return <ClockElementRenderer element={element} data={element.data as ClockElementData} scale={scale} />;
+    
+    case 'date':
+      return <DateElementRenderer element={element} data={element.data as DateElementData} scale={scale} />;
     
     default:
       return null;

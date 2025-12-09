@@ -21,7 +21,7 @@ import type { AppSettings } from '../../constants/defaults';
 import { moveElement, type MoveOperationConfig } from '../operations/MoveOperation';
 import { resizeElement, type ResizeOperationConfig } from '../operations/ResizeOperation';
 import { rotateElement, type RotateOperationConfig } from '../operations/RotateOperation';
-import { isMetricElementData, isTextElementData } from '../../types/overlay';
+import { isMetricElementData, isTextElementData, isClockElementData, isDateElementData } from '../../types/overlay';
 
 /**
  * Transform engine hook configuration.
@@ -216,7 +216,7 @@ export function useTransformEngine(
     moveStart.current.startMousePos = { x: e.clientX, y: e.clientY };
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
-  const handleElementMouseUp = useCallback(() => {
+  const handleElementMouseUp = useCallback((e?: MouseEvent) => {
     setState(prev => ({ ...prev, draggingElementId: null }));
     moveStart.current = null;
   }, []);
@@ -239,8 +239,12 @@ export function useTransformEngine(
       initialSize = element.data.numberSize || 180;
     } else if (element.type === 'text' && isTextElementData(element.data)) {
       initialSize = element.data.textSize || 45;
+    } else if (element.type === 'clock' && isClockElementData(element.data)) {
+      initialSize = element.data.fontSize || 45; // Clock font size (same as text)
+    } else if (element.type === 'date' && isDateElementData(element.data)) {
+      initialSize = element.data.fontSize || 45; // Date font size (same as text)
     } else {
-      return; // Only metric and text can be resized
+      return; // Only metric, text, clock, and date can be resized
     }
     
     setState(prev => ({ ...prev, resizingElementId: elementId }));
@@ -276,7 +280,7 @@ export function useTransformEngine(
     updateElement(result.element);
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
-  const handleResizeMouseUp = useCallback(() => {
+  const handleResizeMouseUp = useCallback((e?: MouseEvent) => {
     setState(prev => ({ ...prev, resizingElementId: null }));
     resizeStart.current = null;
   }, []);
@@ -329,7 +333,7 @@ export function useTransformEngine(
     updateElement(result.element);
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
-  const handleRotationMouseUp = useCallback(() => {
+  const handleRotationMouseUp = useCallback((e?: MouseEvent) => {
     setState(prev => ({ ...prev, rotatingElementId: null }));
     rotateStart.current = null;
   }, []);
@@ -337,33 +341,39 @@ export function useTransformEngine(
   // Event listeners
   useEffect(() => {
     if (state.draggingElementId) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleElementMouseUp(e);
       window.addEventListener('mousemove', handleElementMouseMove);
-      window.addEventListener('mouseup', handleElementMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleElementMouseMove);
-        window.removeEventListener('mouseup', handleElementMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [state.draggingElementId, handleElementMouseMove, handleElementMouseUp]);
-  
+
   useEffect(() => {
     if (state.resizingElementId) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleResizeMouseUp(e);
       window.addEventListener('mousemove', handleResizeMouseMove);
-      window.addEventListener('mouseup', handleResizeMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleResizeMouseMove);
-        window.removeEventListener('mouseup', handleResizeMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [state.resizingElementId, handleResizeMouseMove, handleResizeMouseUp]);
-  
+
   useEffect(() => {
     if (state.rotatingElementId) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleRotationMouseUp(e);
       window.addEventListener('mousemove', handleRotationMouseMove);
-      window.addEventListener('mouseup', handleRotationMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleRotationMouseMove);
-        window.removeEventListener('mouseup', handleRotationMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [state.rotatingElementId, handleRotationMouseMove, handleRotationMouseUp]);

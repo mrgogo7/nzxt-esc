@@ -1,6 +1,20 @@
 /**
  * ResizeOperation.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Handles element resizing operations with aspect ratio lock
+ * - Supports rotated elements with local coordinate space calculations
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Resize math (delta calculations, local space transforms) MUST remain identical
+ * - Aspect ratio lock logic MUST NOT change
+ * - Size constraint calculations MUST remain identical
+ * 
  * Resize operation for TransformEngine v1.
  * 
  * This module handles element resizing with proper support for rotated elements.
@@ -16,7 +30,8 @@
  * - All 8 handles supported (4 corners + 4 edges, including NE)
  */
 
-import type { OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
+import type { OverlayElement } from '../../types/overlay';
+import { isMetricElementData, isTextElementData, isDividerElementData, isClockElementData, isDateElementData } from '../../types/overlay';
 import type { ResizeHandle } from '../engine/HandlePositioning';
 import { 
   createRotationMatrix,
@@ -94,8 +109,8 @@ export function resizeElement(
   currentMousePos: { x: number; y: number },
   config: ResizeOperationConfig
 ): ResizeResult {
-  // Only metric, text, and divider elements can be resized
-  if (element.type !== 'metric' && element.type !== 'text' && element.type !== 'divider') {
+  // Only metric, text, clock, date, and divider elements can be resized
+  if (element.type !== 'metric' && element.type !== 'text' && element.type !== 'clock' && element.type !== 'date' && element.type !== 'divider') {
     return {
       element,
       newSize: getElementSize(element),
@@ -129,7 +144,7 @@ export function resizeElement(
     );
   }
   
-  // For metric and text elements, use aspect ratio lock (always ON)
+  // For metric, text, and clock elements, use aspect ratio lock (always ON)
   // Calculate resize delta in element's local coordinate space
   // WHY: This is the critical fix for Bug #2. When an element is rotated,
   // the mouse movement is in global (screen) coordinates, but resize should
@@ -153,7 +168,7 @@ export function resizeElement(
   // Apply size constraints
   const constraints = element.type === 'metric' 
     ? SIZE_CONSTRAINTS.metric 
-    : SIZE_CONSTRAINTS.text;
+    : SIZE_CONSTRAINTS.text; // text, clock, and date use same constraints
   const constrainedSize = Math.round(Math.max(
     constraints.min,
     Math.min(constraints.max, targetSize)
@@ -304,15 +319,16 @@ function getCornerHandleSign(
  * For divider: returns width (for undo/redo consistency).
  */
 function getElementSize(element: OverlayElement): number {
-  if (element.type === 'metric') {
-    const data = element.data as MetricElementData;
-    return data.numberSize || 180;
-  } else if (element.type === 'text') {
-    const data = element.data as TextElementData;
-    return data.textSize || 45;
-  } else if (element.type === 'divider') {
-    const data = element.data as DividerElementData;
-    return data.width || 2;
+  if (element.type === 'metric' && isMetricElementData(element.data)) {
+    return element.data.numberSize || 180;
+  } else if (element.type === 'text' && isTextElementData(element.data)) {
+    return element.data.textSize || 45;
+  } else if (element.type === 'divider' && isDividerElementData(element.data)) {
+    return element.data.width || 2;
+  } else if (element.type === 'clock' && isClockElementData(element.data)) {
+    return element.data.fontSize || 45; // Clock font size (same as text)
+  } else if (element.type === 'date' && isDateElementData(element.data)) {
+    return element.data.fontSize || 45; // Date font size (same as text)
   }
   return 0;
 }
@@ -340,7 +356,13 @@ function resizeDividerRectangle(
   angle: number,
   _config: ResizeOperationConfig
 ): ResizeResult {
-  const data = element.data as DividerElementData;
+  if (!isDividerElementData(element.data)) {
+    // Invalid state: fallback to original element
+    return {
+      element,
+      newSize: getElementSize(element),
+    };
+  }
   
   // CRITICAL FIX: Use the EXACT same delta calculation as metric/text elements
   // This ensures divider resize speed matches metric/text exactly.
@@ -352,8 +374,8 @@ function resizeDividerRectangle(
   );
   
   // Get current values (already in LCD pixels)
-  let currentWidth = data.width || 2;
-  let currentHeight = data.height || 384; // Default 60% of 640px LCD
+  let currentWidth = element.data.width || 2;
+  let currentHeight = element.data.height || 384; // Default 60% of 640px LCD
   
   // CRITICAL: For divider, width and height are independent (no aspect ratio lock)
   // But we use the same delta calculation as metric/text for consistency.
@@ -401,7 +423,7 @@ function resizeDividerRectangle(
   const updatedElement: OverlayElement = {
     ...element,
     data: {
-      ...data,
+      ...element.data,
       width: constrainedWidth,
       height: constrainedHeight,
     },
@@ -421,24 +443,40 @@ function updateElementSize(
   element: OverlayElement,
   newSize: number
 ): OverlayElement {
-  if (element.type === 'metric') {
+  if (element.type === 'metric' && isMetricElementData(element.data)) {
     return {
       ...element,
       data: {
-        ...(element.data as MetricElementData),
+        ...element.data,
         numberSize: newSize,
       },
     };
-  } else if (element.type === 'text') {
+  } else if (element.type === 'text' && isTextElementData(element.data)) {
     return {
       ...element,
       data: {
-        ...(element.data as TextElementData),
+        ...element.data,
         textSize: newSize,
       },
     };
+  } else if (element.type === 'clock' && isClockElementData(element.data)) {
+    return {
+      ...element,
+      data: {
+        ...element.data,
+        fontSize: newSize,
+      },
+    };
+  } else if (element.type === 'date' && isDateElementData(element.data)) {
+    return {
+      ...element,
+      data: {
+        ...element.data,
+        fontSize: newSize,
+      },
+    };
   } else if (element.type === 'divider') {
-    // This function is only used for metric/text, divider uses resizeDividerRectangle
+    // This function is only used for metric/text/clock/date, divider uses resizeDividerRectangle
     return element;
   }
   return element;

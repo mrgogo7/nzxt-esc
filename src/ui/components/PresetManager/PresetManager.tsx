@@ -22,12 +22,11 @@ import {
 } from '../../../preset/storage';
 import { exportPreset, importPreset, type ImportResult } from '../../../preset';
 import type { AppSettings } from '../../../constants/defaults';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import PresetList from './PresetList';
 import ExportNameModal from './ExportNameModal';
 import ImportConflictModal from './ImportConflictModal';
-// FAZ-4-3: Legacy loadPreset deleted - using applyPresetToRuntimeAndSettings instead
 import { applyPresetToRuntimeAndSettings } from '../../utils/applyPreset';
 import './PresetManager.css';
 
@@ -52,6 +51,7 @@ export default function PresetManager({
   setMediaUrl,
   activePresetId,
 }: PresetManagerProps) {
+  const t = useI18n();
   const [presets, setPresets] = useState<StoredPreset[]>([]);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
@@ -98,7 +98,6 @@ export default function PresetManager({
     // Overlay mode: preset dosyasından gelmeli, yoksa mevcut mode korunmalı
     // Note: preservedOverlayMode is handled by applyPresetToRuntimeAndSettings
 
-    // FAZ-4-3: Legacy loadPreset removed - use applyPresetToRuntimeAndSettings instead
     // Step 1: Set active preset ID (storage + event dispatch)
     setActivePresetIdStorage(preset.id);
     
@@ -112,19 +111,16 @@ export default function PresetManager({
 
   const handleExportConfirm = async (presetName: string) => {
     try {
-      // FAZ 9: Pass activePresetId to read overlay elements from storage/runtime
       await exportPreset(settings, mediaUrl, presetName, undefined, activePresetId);
       
       // Add to preset list
       const { createPresetFromState } = await import('../../../preset/index');
-      // FAZ 9: Read elements from storage/runtime for createPresetFromState
       let overlayElements: any[] = [];
       if (activePresetId) {
         const storedPreset = getPresetById(activePresetId);
         if (storedPreset?.preset?.overlay?.elements) {
           overlayElements = storedPreset.preset.overlay.elements;
         } else {
-          // FAZ-4-3: Legacy getElementsForPreset removed - elements come from vNext state
           // For export, use vNext export system instead
           overlayElements = [];
         }
@@ -143,21 +139,20 @@ export default function PresetManager({
       addPreset(newPreset);
       loadPresets();
     } catch (error) {
-      alert(t('presetExportError', lang));
+      alert(t('presetExportError'));
     }
   };
 
   const handleNewPreset = async () => {
-    // FAZ-10: Create completely empty preset
     const { DEFAULT_PRESET_FILE } = await import('../../../preset/storage');
     const now = new Date().toISOString();
     
     const newPreset: StoredPreset = {
       id: `preset-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: generateUniquePresetName('New Preset'),
+      name: generateUniquePresetName(t('newPreset')),
       preset: {
         ...DEFAULT_PRESET_FILE,
-        presetName: 'New Preset',
+        presetName: t('newPreset'),
       },
       isDefault: false,
       isFavorite: false,
@@ -186,7 +181,7 @@ export default function PresetManager({
       // Check if import was successful
       if (!result.success) {
         // Build error message from errors
-        const errorMessages = result.errors?.map(err => err.userMessage || err.message).join('\n') || t('presetImportError', lang);
+        const errorMessages = result.errors?.map(err => err.userMessage || err.message).join('\n') || t('presetImportError');
         alert(errorMessages);
         return;
       }
@@ -194,7 +189,7 @@ export default function PresetManager({
       // Check if we have required data
       // NOTE: mediaUrl can be an empty string ('') for local/no-media presets.
       if (!result.preset || !result.settings || typeof result.mediaUrl !== 'string') {
-        alert(t('presetImportError', lang));
+        alert(t('presetImportError'));
         return;
       }
 
@@ -203,7 +198,7 @@ export default function PresetManager({
         result.settings.sourceType === 'local' ||
         (result.preset.background as any)?.source?.type === 'local';
       if (usesLocalMedia) {
-        alert(t('localMediaImportWarning', lang));
+        alert(t('localMediaImportWarning'));
       }
 
       const presetName = result.preset.presetName || `Preset ${new Date().toISOString().slice(0, 10)}`;
@@ -242,7 +237,7 @@ export default function PresetManager({
         loadPresets();
       }
     } catch (error) {
-      alert(error instanceof Error ? error.message : t('presetImportError', lang));
+      alert(error instanceof Error ? error.message : t('presetImportError'));
     } finally {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -305,7 +300,7 @@ export default function PresetManager({
   };
 
   const handleDelete = (preset: StoredPreset) => {
-    if (window.confirm(t('presetDeleteConfirm', lang).replace('{name}', preset.name))) {
+    if (window.confirm(t('presetDeleteConfirm').replace('{name}', preset.name))) {
       deletePreset(preset.id);
       loadPresets();
     }
@@ -364,39 +359,38 @@ export default function PresetManager({
               <div className="preset-manager-header">
                 <div className="preset-manager-title">
                   <Settings size={20} />
-                  <h2>{t('presetManager', lang)}</h2>
+                  <h2>{t('presetManager')}</h2>
                 </div>
                 <button
                   className="preset-manager-close"
                   onClick={onClose}
-                  aria-label={t('close', lang)}
+                  aria-label={t('close')}
                 >
                   <X size={20} />
                 </button>
               </div>
 
               <div className="preset-manager-actions">
-                {/* FAZ-10: New Preset button */}
                 <button
                   className="preset-manager-action-btn"
                   onClick={handleNewPreset}
                 >
                   <Plus size={16} />
-                  <span>{t('createPreset', lang) || 'Create Preset'}</span>
+                  <span>{t('createPreset')}</span>
                 </button>
                 <button
                   className="preset-manager-action-btn"
                   onClick={handleExport}
                 >
                   <Download size={16} />
-                  <span>{t('presetExport', lang)}</span>
+                  <span>{t('presetExport')}</span>
                 </button>
                 <button
                   className="preset-manager-action-btn"
                   onClick={handleImport}
                 >
                   <Upload size={16} />
-                  <span>{t('presetImport', lang)}</span>
+                  <span>{t('presetImport')}</span>
                 </button>
               </div>
 
@@ -422,7 +416,7 @@ export default function PresetManager({
         accept=".nzxt-esc-preset"
         onChange={handleImportFile}
         style={{ display: 'none' }}
-        aria-label={t('presetImport', lang)}
+        aria-label={t('presetImport')}
       />
 
     </>

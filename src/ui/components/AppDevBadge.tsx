@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { devMode } from '../../debug/devToggle';
+import { useI18n } from '@/i18n/useI18n';
 
 /**
  * Dev mode badge component.
@@ -9,6 +10,7 @@ import { devMode } from '../../debug/devToggle';
  * Reactively updates when dev mode is toggled.
  */
 export default function AppDevBadge() {
+  const t = useI18n();
   const [isDevMode, setIsDevMode] = useState(() => devMode.enabled);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function AppDevBadge() {
         zIndex: 9999,
       }}
     >
-      DEV MODE
+      {t('devMode')}
     </div>
   );
 }

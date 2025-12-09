@@ -1,4 +1,4 @@
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.11.27
+# NZXT Elite Screen Customizer (NZXT-ESC) v5.12 (Build 08)
 
 A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
 

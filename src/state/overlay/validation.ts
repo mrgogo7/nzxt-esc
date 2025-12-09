@@ -84,7 +84,7 @@ function validateElementStructure(element: unknown): ValidationError[] {
       elementId: el.id,
     });
   } else {
-    const validTypes = ['metric', 'text', 'divider'];
+    const validTypes = ['metric', 'text', 'divider', 'clock', 'date'];
     if (!validTypes.includes(el.type)) {
       errors.push({
         code: 'UNKNOWN_ELEMENT_TYPE',

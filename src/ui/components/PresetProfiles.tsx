@@ -10,8 +10,8 @@ import { Download, Upload, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { exportPreset, importPreset } from '../../preset';
 import type { AppSettings } from '../../constants/defaults';
-import type { Lang } from '../../i18n';
-import { t } from '../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import './PresetProfiles.css';
 
 export interface PresetProfilesProps {
@@ -40,6 +40,7 @@ export default function PresetProfiles({
   onImportStart,
   onImportComplete,
 }: PresetProfilesProps) {
+  const t = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -80,14 +81,13 @@ export default function PresetProfiles({
 
     try {
       const presetName = `Preset ${new Date().toISOString().slice(0, 10)}`;
-      // FAZ 9: Get activePresetId from storage for export
       const { getActivePresetId } = await import('../../preset/storage');
       const activePresetId = getActivePresetId();
       await exportPreset(settings, mediaUrl, presetName, undefined, activePresetId);
       // Export success (file download triggered automatically)
     } catch (error) {
       if (onImportComplete) {
-        onImportComplete(false, t('presetExportError', lang));
+        onImportComplete(false, t('presetExportError'));
       }
     } finally {
       setIsExporting(false);
@@ -111,7 +111,7 @@ export default function PresetProfiles({
       
       // NOTE: mediaUrl can legitimately be an empty string ('') for local/no-media presets.
       if (!result.success || !result.settings || typeof result.mediaUrl !== 'string') {
-        const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || t('presetImportError', lang);
+        const errorMessage = result.errors?.[0]?.userMessage || result.errors?.[0]?.message || t('presetImportError');
         throw new Error(errorMessage);
       }
       
@@ -126,9 +126,9 @@ export default function PresetProfiles({
         fileInputRef.current.value = '';
       }
 
-      onImportComplete?.(true, t('presetImportSuccess', lang));
+      onImportComplete?.(true, t('presetImportSuccess'));
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : t('presetImportError', lang);
+      const errorMessage = error instanceof Error ? error.message : t('presetImportError');
       onImportComplete?.(false, errorMessage);
 
       // Clear file input on error
@@ -146,9 +146,9 @@ export default function PresetProfiles({
         className="preset-profiles-button"
         onClick={() => setIsOpen(!isOpen)}
         disabled={isExporting || isImporting}
-        title={t('presetProfiles', lang)}
+        title={t('presetProfiles')}
       >
-        <span>{t('presetProfiles', lang)}</span>
+        <span>{t('presetProfiles')}</span>
         <ChevronDown 
           size={16} 
           className={`preset-profiles-chevron ${isOpen ? 'open' : ''}`}
@@ -170,7 +170,7 @@ export default function PresetProfiles({
               disabled={isExporting || isImporting}
             >
               <Download size={16} />
-              <span>{t('presetExport', lang)}</span>
+              <span>{t('presetExport')}</span>
               {isExporting && <span className="preset-profiles-loading">...</span>}
             </button>
 
@@ -180,7 +180,7 @@ export default function PresetProfiles({
               disabled={isExporting || isImporting}
             >
               <Upload size={16} />
-              <span>{t('presetImport', lang)}</span>
+              <span>{t('presetImport')}</span>
               {isImporting && <span className="preset-profiles-loading">...</span>}
             </button>
           </motion.div>

@@ -1,6 +1,20 @@
 /**
  * CoordinateSystem.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Single source of truth for coordinate system transformations
+ * - CRITICAL FORMULA: offsetScale = previewSize / lcdResolution
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - CRITICAL FORMULA MUST NOT CHANGE: offsetScale = previewSize / lcdResolution
+ * - Coordinate conversion calculations MUST remain identical
+ * - Screen → Preview → LCD transformation chain MUST NOT change
+ * 
  * Coordinate system utilities for TransformEngine v1.
  * 
  * This module provides the single source of truth for coordinate transformations

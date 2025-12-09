@@ -1,5 +1,5 @@
 /**
- * Selection Helpers — FAZ-3B-4: Selection Runtime Wiring
+ * Selection Helpers
  * 
  * Helper functions for selection operations in ConfigPreview.
  * These helpers bridge UI interactions to runtime selection state.
@@ -12,6 +12,8 @@
 
 import type { OverlayRuntimeState } from '../../../../state/overlay/types';
 import { getSelectedElement } from '../../../../state/overlay/selectors';
+import { createSelectAction } from '../../../../state/overlay/actions';
+import type { Action } from '../../../../state/overlay/actions';
 
 /**
  * Get single selected element ID from runtime state.
@@ -57,5 +59,97 @@ export function isElementSelected(state: OverlayRuntimeState, elementId: string)
  */
 export function getSelectedIds(state: OverlayRuntimeState): string[] {
   return Array.from(state.selection.selectedIds);
+}
+
+/**
+ * Multi-select safe selection helpers
+ * 
+ * These helpers create selection actions for UI layer.
+ * They work with selectedIds: Set<string> and always produce new Set instances.
+ */
+
+/**
+ * Create action to select a single element (clears existing selection).
+ * 
+ * @param currentState - Current runtime state
+ * @param elementId - Element ID to select
+ * @returns Selection action
+ */
+export function selectSingle(currentState: OverlayRuntimeState, elementId: string): Action {
+  const oldSelectedIds = Array.from(currentState.selection.selectedIds);
+  const oldLastSelectedId = currentState.selection.lastSelectedId;
+  const newSelectedIds = [elementId];
+  const newLastSelectedId = elementId;
+  
+  return createSelectAction(
+    oldSelectedIds,
+    newSelectedIds,
+    oldLastSelectedId,
+    newLastSelectedId
+  );
+}
+
+/**
+ * Create action to toggle element selection (add if not selected, remove if selected).
+ * 
+ * @param currentState - Current runtime state
+ * @param elementId - Element ID to toggle
+ * @returns Selection action
+ */
+export function toggleSelect(currentState: OverlayRuntimeState, elementId: string): Action {
+  const oldSelectedIds = Array.from(currentState.selection.selectedIds);
+  const oldLastSelectedId = currentState.selection.lastSelectedId;
+  
+  // Create new Set (immutable)
+  const newSelectedIdsSet = new Set(currentState.selection.selectedIds);
+  
+  if (newSelectedIdsSet.has(elementId)) {
+    // Remove from selection
+    newSelectedIdsSet.delete(elementId);
+    
+    // Update lastSelectedId if removed element was last selected
+    let newLastSelectedId = oldLastSelectedId;
+    if (oldLastSelectedId === elementId) {
+      const remainingIds = Array.from(newSelectedIdsSet);
+      newLastSelectedId = remainingIds.length > 0 ? remainingIds[remainingIds.length - 1] : null;
+    }
+    
+    return createSelectAction(
+      oldSelectedIds,
+      Array.from(newSelectedIdsSet),
+      oldLastSelectedId,
+      newLastSelectedId
+    );
+  } else {
+    // Add to selection
+    newSelectedIdsSet.add(elementId);
+    
+    return createSelectAction(
+      oldSelectedIds,
+      Array.from(newSelectedIdsSet),
+      oldLastSelectedId,
+      elementId // Update last selected
+    );
+  }
+}
+
+/**
+ * Create action to clear all selections.
+ * 
+ * @param currentState - Current runtime state
+ * @returns Selection action
+ */
+export function clearSelection(currentState: OverlayRuntimeState): Action {
+  const oldSelectedIds = Array.from(currentState.selection.selectedIds);
+  const oldLastSelectedId = currentState.selection.lastSelectedId;
+  const newSelectedIds: string[] = [];
+  const newLastSelectedId: string | null = null;
+  
+  return createSelectAction(
+    oldSelectedIds,
+    newSelectedIds,
+    oldLastSelectedId,
+    newLastSelectedId
+  );
 }
 

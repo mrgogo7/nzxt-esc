@@ -19,8 +19,8 @@ import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
 import type { StoredPreset } from '../../../preset/storage';
 import { presetNameExists, DEFAULT_PRESET_ID, toggleFavorite, isFavorite, getPresets } from '../../../preset/storage';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import './PresetManager.css';
 
 export interface PresetListProps {
@@ -42,6 +42,7 @@ export default function PresetList({
   onDelete,
   lang,
 }: PresetListProps) {
+  const t = useI18n();
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
@@ -60,7 +61,7 @@ export default function PresetList({
     const success = toggleFavorite(presetId);
     if (!success) {
       // Favorite limit reached
-      alert(t('favoriteLimitMessage', lang));
+      alert(t('favoriteLimitMessage'));
     } else {
       // Reload presets from storage to reflect changes
       // Parent (PresetManager) will also reload via storage event listener
@@ -157,8 +158,8 @@ export default function PresetList({
                 }}
                 onBlur={() => handleRenameConfirm(preset.id)}
                 onClick={(e) => e.stopPropagation()}
-                aria-label={t('presetRename', lang)}
-                title={t('presetRename', lang)}
+                aria-label={t('presetRename')}
+                title={t('presetRename')}
                 placeholder={preset.name}
               />
             ) : (
@@ -179,26 +180,25 @@ export default function PresetList({
                 {isActive && (
                   <span className="preset-active-badge">
                     <Check size={12} />
-                    {t('presetActive', lang)}
+                    {t('presetActive')}
                   </span>
                 )}
               </div>
             )}
             {preset.isDefault && preset.id !== DEFAULT_PRESET_ID && (
-              <span className="preset-default-badge">{t('presetDefault', lang)}</span>
+              <span className="preset-default-badge">{t('presetDefault')}</span>
             )}
           </div>
           
           <div className="preset-item-actions">
-            {/* FAZ-10: Button order: Delete — Favorite — Duplicate — Rename — Apply */}
             {!preset.isDefault && preset.id !== DEFAULT_PRESET_ID && (
               <button
                 className="preset-action-btn preset-action-delete"
                 onClick={(e) => handleActionClick(e, () => onDelete(preset))}
                 data-tooltip-id={`${presetId}-delete`}
-                data-tooltip-content={t('presetDelete', lang)}
-                aria-label={t('presetDelete', lang)}
-                title={t('presetDelete', lang)}
+                data-tooltip-content={t('presetDelete')}
+                aria-label={t('presetDelete')}
+                title={t('presetDelete')}
               >
                 <Trash2 size={14} />
               </button>
@@ -208,9 +208,9 @@ export default function PresetList({
               className="preset-action-btn preset-action-favorite"
               onClick={(e) => handleActionClick(e, () => handleToggleFavorite(preset.id))}
               data-tooltip-id={`${presetId}-favorite`}
-              data-tooltip-content={favorited ? 'Remove from favorites' : 'Add to favorites'}
-              aria-label={favorited ? 'Remove from favorites' : 'Add to favorites'}
-              title={favorited ? 'Remove from favorites' : 'Add to favorites'}
+              data-tooltip-content={favorited ? t('removeFromFavorites') : t('addToFavorites')}
+              aria-label={favorited ? t('removeFromFavorites') : t('addToFavorites')}
+              title={favorited ? t('removeFromFavorites') : t('addToFavorites')}
               style={{
                 color: favorited ? '#fbbf24' : '#9CA3AF',
                 transition: 'color 0.2s ease',
@@ -232,9 +232,9 @@ export default function PresetList({
               className="preset-action-btn preset-action-duplicate"
               onClick={(e) => handleActionClick(e, () => onDuplicate(preset))}
               data-tooltip-id={`${presetId}-duplicate`}
-              data-tooltip-content={t('presetDuplicate', lang)}
-              aria-label={t('presetDuplicate', lang)}
-              title={t('presetDuplicate', lang)}
+              data-tooltip-content={t('presetDuplicate')}
+              aria-label={t('presetDuplicate')}
+              title={t('presetDuplicate')}
             >
               <Copy size={14} />
             </button>
@@ -242,9 +242,9 @@ export default function PresetList({
               className="preset-action-btn preset-action-rename"
               onClick={(e) => handleRenameStart(preset, e)}
               data-tooltip-id={`${presetId}-rename`}
-              data-tooltip-content={t('presetRename', lang)}
-              aria-label={t('presetRename', lang)}
-              title={t('presetRename', lang)}
+              data-tooltip-content={t('presetRename')}
+              aria-label={t('presetRename')}
+              title={t('presetRename')}
             >
               <Edit2 size={14} />
             </button>
@@ -252,9 +252,9 @@ export default function PresetList({
               className="preset-action-btn preset-action-apply"
               onClick={(e) => handleActionClick(e, () => onApply(preset))}
               data-tooltip-id={`${presetId}-apply`}
-              data-tooltip-content={t('presetApply', lang)}
-              aria-label={t('presetApply', lang)}
-              title={t('presetApply', lang)}
+              data-tooltip-content={t('presetApply')}
+              aria-label={t('presetApply')}
+              title={t('presetApply')}
             >
               <Play size={14} />
             </button>
@@ -274,7 +274,7 @@ export default function PresetList({
   if (presets.length === 0) {
     return (
       <div className="preset-list-empty">
-        <p>{t('presetListEmpty', lang)}</p>
+        <p>{t('presetListEmpty')}</p>
       </div>
     );
   }
@@ -286,7 +286,7 @@ export default function PresetList({
           <button
             className="preset-list-section-header"
             onClick={() => setIsDefaultPresetsOpen(!isDefaultPresetsOpen)}
-            title={isDefaultPresetsOpen ? 'Collapse section' : 'Expand section'}
+            title={isDefaultPresetsOpen ? t('collapseSection') : t('expandSection')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -305,7 +305,7 @@ export default function PresetList({
               <ChevronRight size={16} style={{ opacity: 0.7 }} />
             )}
             <h4 className="preset-list-section-title" style={{ margin: 0 }}>
-              {t('presetDefaultPresets', lang)}
+              {t('presetDefaultPresets')}
             </h4>
           </button>
           {isDefaultPresetsOpen && (
@@ -321,7 +321,7 @@ export default function PresetList({
           <button
             className="preset-list-section-header"
             onClick={() => setIsUserPresetsOpen(!isUserPresetsOpen)}
-            title={isUserPresetsOpen ? 'Collapse section' : 'Expand section'}
+            title={isUserPresetsOpen ? t('collapseSection') : t('expandSection')}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -340,7 +340,7 @@ export default function PresetList({
               <ChevronRight size={16} style={{ opacity: 0.7 }} />
             )}
             <h4 className="preset-list-section-title" style={{ margin: 0 }}>
-              {t('presetUserPresets', lang)}
+              {t('presetUserPresets')}
             </h4>
           </button>
           {isUserPresetsOpen && (

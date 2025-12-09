@@ -20,7 +20,7 @@ import { createInitialSelectionState } from './selection';
 import * as history from './history';
 import * as transactions from './transactions';
 import { IS_DEV } from '../../utils/env';
-import { devError, devDebug } from '../../debug/dev';
+import { devError, devDebug, devWarn, devLog } from '../../debug/dev';
 import {
   createStateUpdateMessage,
   createStateSyncRequestMessage,
@@ -200,6 +200,153 @@ export function useOverlayStateManager(
   const subscribe = useCallback(
     (callback: () => void) => {
       return stateManager.subscribe(() => {
+        // FAZ-7 / Task 5C: Snapshot v2 Shadow Mode (DEV-only, currently disabled)
+        // Generate v2 snapshot for transform actions (shadow only, not used)
+        // NOTE: Do not enable in production builds. This is for internal testing only.
+        const SNAPSHOT_V2_SHADOW_ENABLED = false;
+        if (IS_DEV && SNAPSHOT_V2_SHADOW_ENABLED) {
+          try {
+            const currentState = stateManager.getState();
+            const presentAction = currentState.history.present;
+            
+            if (presentAction && presentAction.type === 'transform') {
+              const actionId = presentAction.id;
+              
+              // Skip if already processed
+              const transformData = presentAction.data as import('../../state/overlay/actions').TransformActionData;
+              processTransformActionForShadow(transformData, actionId);
+            } else if (presentAction && presentAction.type === 'batch') {
+              // Handle batch actions (transaction commits)
+              const batchData = presentAction.data as import('../../state/overlay/actions').BatchActionData;
+              const actionId = presentAction.id;
+              
+              // Skip if already processed
+              if (!processedActionIdsRef.current.has(actionId)) {
+                processedActionIdsRef.current.add(actionId);
+                
+                // Process each action in batch
+                for (const nestedAction of batchData.actions) {
+                  if (nestedAction.type === 'transform') {
+                    const nestedTransformData = nestedAction.data as import('../../state/overlay/actions').TransformActionData;
+                    processTransformActionForShadow(nestedTransformData, nestedAction.id);
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            // Silently ignore errors in shadow mode (non-blocking)
+            if (IS_DEV) {
+              devWarn('snapshot-v2-shadow', 'Error in shadow mode processing', err);
+            }
+          }
+        }
+        
+        // FAZ-7 / Task 6B: Operation Detector v2 Shadow Mode (DEV-only, currently disabled)
+        // Detect operation type using operationDetectorV2 (shadow only, not used)
+        // NOTE: Do not enable in production builds. This is for internal testing only.
+        const OPERATION_DETECTOR_V2_SHADOW_ENABLED = false;
+        if (IS_DEV && OPERATION_DETECTOR_V2_SHADOW_ENABLED) {
+          try {
+            const currentState = stateManager.getState();
+            const presentAction = currentState.history.present;
+            
+            if (presentAction && presentAction.type === 'transform') {
+              const actionId = presentAction.id;
+              
+              // Skip if already processed
+              if (!processedOpDetectorIdsRef.current.has(actionId)) {
+                processedOpDetectorIdsRef.current.add(actionId);
+                
+                // Dynamic import to ensure tree-shaking in production builds
+                import('../../transform/operation-detector/operationDetectorV2').then(({ detectOperationTypeV2 }) => {
+                  try {
+                    const transformData = presentAction.data as import('../../state/overlay/actions').TransformActionData;
+                    
+                    // Convert Map to arrays for operation detector
+                    const before: import('../../types/overlay').OverlayElement[] = [];
+                    const after: import('../../types/overlay').OverlayElement[] = [];
+                    
+                    for (const elementId of transformData.elementIds) {
+                      const oldState = transformData.oldStates.get(elementId);
+                      const newState = transformData.newStates.get(elementId);
+                      if (oldState) before.push(oldState);
+                      if (newState) after.push(newState);
+                    }
+                    
+                    // Detect operation type
+                    const opTypeV2 = detectOperationTypeV2(before, after);
+                    
+                    devLog('op-detector-v2-shadow', 'Detected operation (shadow only)', {
+                      opTypeV2,
+                      beforeIds: before.map(e => e.id),
+                      afterIds: after.map(e => e.id),
+                    });
+                  } catch (err) {
+                    devWarn('op-detector-v2-shadow', 'Failed to process detector shadow', err);
+                  }
+                }).catch((err) => {
+                  devWarn('op-detector-v2-shadow', 'Failed to import detectOperationTypeV2', err);
+                });
+              }
+            } else if (presentAction && presentAction.type === 'batch') {
+              // Handle batch actions (transaction commits)
+              const batchData = presentAction.data as import('../../state/overlay/actions').BatchActionData;
+              const actionId = presentAction.id;
+              
+              // Skip if already processed
+              if (!processedOpDetectorIdsRef.current.has(actionId)) {
+                processedOpDetectorIdsRef.current.add(actionId);
+                
+                // Process each transform action in batch
+                for (const nestedAction of batchData.actions) {
+                  if (nestedAction.type === 'transform') {
+                    const nestedActionId = nestedAction.id;
+                    if (!processedOpDetectorIdsRef.current.has(nestedActionId)) {
+                      processedOpDetectorIdsRef.current.add(nestedActionId);
+                      
+                      // Dynamic import to ensure tree-shaking in production builds
+                      import('../../transform/operation-detector/operationDetectorV2').then(({ detectOperationTypeV2 }) => {
+                        try {
+                          const nestedTransformData = nestedAction.data as import('../../state/overlay/actions').TransformActionData;
+                          
+                          // Convert Map to arrays for operation detector
+                          const before: import('../../types/overlay').OverlayElement[] = [];
+                          const after: import('../../types/overlay').OverlayElement[] = [];
+                          
+                          for (const elementId of nestedTransformData.elementIds) {
+                            const oldState = nestedTransformData.oldStates.get(elementId);
+                            const newState = nestedTransformData.newStates.get(elementId);
+                            if (oldState) before.push(oldState);
+                            if (newState) after.push(newState);
+                          }
+                          
+                          // Detect operation type
+                          const opTypeV2 = detectOperationTypeV2(before, after);
+                          
+                          devLog('op-detector-v2-shadow', 'Detected operation from batch (shadow only)', {
+                            opTypeV2,
+                            beforeIds: before.map(e => e.id),
+                            afterIds: after.map(e => e.id),
+                          });
+                        } catch (err) {
+                          devWarn('op-detector-v2-shadow', 'Failed to process detector shadow from batch', err);
+                        }
+                      }).catch((err) => {
+                        devWarn('op-detector-v2-shadow', 'Failed to import detectOperationTypeV2 for batch', err);
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          } catch (err) {
+            // Silently ignore errors in shadow mode (non-blocking)
+            if (IS_DEV) {
+              devWarn('op-detector-v2-shadow', 'Error in operation detector shadow mode processing', err);
+            }
+          }
+        }
+        
         callback();
       });
     },
@@ -222,6 +369,97 @@ export function useOverlayStateManager(
   const isBroadcastingRef = useRef(false); // Prevent broadcast loops
   const hasRequestedInitialSyncRef = useRef(false); // Track if initial sync was requested
   const lastBroadcastStateRef = useRef<string | null>(null); // FAZ-4 FINAL: Prevent duplicate broadcasts
+  
+  // FAZ-7 / Task 5C: Snapshot v2 Shadow Mode (DEV-only)
+  // Track processed action IDs to avoid duplicate v2 snapshot generation
+  const processedActionIdsRef = useRef<Set<string>>(new Set());
+  
+  // FAZ-7 / Task 6B: Operation Detector v2 Shadow Mode (DEV-only)
+  // Track processed action IDs to avoid duplicate operation detection
+  const processedOpDetectorIdsRef = useRef<Set<string>>(new Set());
+  
+  // Helper function to determine operation type from element changes
+  const determineOperationType = useCallback((
+    before: import('../../types/overlay').OverlayElement[],
+    after: import('../../types/overlay').OverlayElement[]
+  ): import('../../state/overlay/actions').TransformOperationTypeV2 => {
+    if (before.length === 0 || after.length === 0) {
+      return 'other';
+    }
+    
+    const firstBefore = before[0];
+    const firstAfter = after[0];
+    const moved = firstBefore.x !== firstAfter.x || firstBefore.y !== firstAfter.y;
+    const rotated = (firstBefore.angle ?? 0) !== (firstAfter.angle ?? 0);
+    
+    // Check if size changed (for resize detection)
+    const beforeData = firstBefore.data;
+    const afterData = firstAfter.data;
+    let sizeChanged = false;
+    if ('numberSize' in beforeData && 'numberSize' in afterData) {
+      sizeChanged = beforeData.numberSize !== afterData.numberSize;
+    } else if ('textSize' in beforeData && 'textSize' in afterData) {
+      sizeChanged = beforeData.textSize !== afterData.textSize;
+    } else if ('width' in beforeData && 'width' in afterData) {
+      sizeChanged = beforeData.width !== afterData.width;
+    }
+    
+    if (moved && !rotated && !sizeChanged) {
+      return 'move';
+    } else if (sizeChanged && !moved && !rotated) {
+      return 'resize';
+    } else if (rotated && !moved && !sizeChanged) {
+      return 'rotate';
+    } else if (moved || rotated || sizeChanged) {
+      return 'other'; // Combined transform
+    }
+    
+    return 'other';
+  }, []);
+  
+  // Helper function to process transform action for v2 shadow mode
+  const processTransformActionForShadow = useCallback((
+    transformData: import('../../state/overlay/actions').TransformActionData,
+    actionId: string
+  ) => {
+    if (processedActionIdsRef.current.has(actionId)) {
+      return; // Already processed
+    }
+    
+    processedActionIdsRef.current.add(actionId);
+    
+    // Dynamic import to ensure tree-shaking in production builds
+    import('../../state/overlay/actions').then(({ createTransformActionV2 }) => {
+      try {
+        // Convert Map to arrays for v2
+        const before: import('../../types/overlay').OverlayElement[] = [];
+        const after: import('../../types/overlay').OverlayElement[] = [];
+        
+        for (const elementId of transformData.elementIds) {
+          const oldState = transformData.oldStates.get(elementId);
+          const newState = transformData.newStates.get(elementId);
+          if (oldState) before.push(oldState);
+          if (newState) after.push(newState);
+        }
+        
+        const operationType = determineOperationType(before, after);
+        
+        const v2 = createTransformActionV2({
+          operationType,
+          before,
+          after,
+          affectedElementIds: transformData.elementIds,
+          legacy: transformData,
+        });
+        
+        devLog('snapshot-v2-shadow', 'Generated v2 snapshot (shadow only)', v2);
+      } catch (err) {
+        devWarn('snapshot-v2-shadow', 'Failed to generate v2 snapshot', err);
+      }
+    }).catch((err) => {
+      devWarn('snapshot-v2-shadow', 'Failed to import createTransformActionV2', err);
+    });
+  }, [determineOperationType]);
   
   useEffect(() => {
     const channel = getBroadcastChannel();
@@ -277,6 +515,81 @@ export function useOverlayStateManager(
         return;
       }
       lastBroadcastStateRef.current = stateFingerprint;
+      
+      // --- FAZ-6 / Task 2C: Shadow Mode Fingerprint v2 (DEV ONLY) ---
+      // FAZ-6 / Task 2E: Shadow Mode Soft-Off — Disabled via guard flag
+      // FAZ-7 Final Review: Fingerprint v2 shadow mode (DEV-only, currently disabled)
+      // NOTE: Do not enable in production builds. This is for internal testing only.
+      const FPV2_SHADOW_ENABLED = false;
+      if (IS_DEV && FPV2_SHADOW_ENABLED) {
+        // Dynamic import to ensure tree-shaking in production builds
+        import('../../fingerprint/computeFingerprintV2').then(({ computeFingerprintV2 }) => {
+          // Convert OverlayRuntimeState elements to HashableOverlayElement format
+          const hashableElements: Array<{
+            id: string;
+            type: string;
+            zIndex: number;
+            data: unknown;
+            transform: { x: number; y: number; angle?: number };
+          }> = [];
+          
+          // Get elements in z-order
+          for (const elementId of newState.zOrder) {
+            const element = newState.elements.get(elementId);
+            if (element) {
+              hashableElements.push({
+                id: element.id,
+                type: element.type,
+                zIndex: element.zIndex ?? 0,
+                data: element.data,
+                transform: {
+                  x: element.x,
+                  y: element.y,
+                  angle: element.angle,
+                },
+              });
+            }
+          }
+          
+          // Add any elements not in z-order (safety fallback)
+          for (const element of newState.elements.values()) {
+            if (!newState.zOrder.includes(element.id)) {
+              hashableElements.push({
+                id: element.id,
+                type: element.type,
+                zIndex: element.zIndex ?? 0,
+                data: element.data,
+                transform: {
+                  x: element.x,
+                  y: element.y,
+                  angle: element.angle,
+                },
+              });
+            }
+          }
+          
+          // Compute fingerprint v2
+          const fingerprintV2 = computeFingerprintV2({
+            elements: hashableElements,
+            version: 2,
+          });
+          
+          // Compare v1 and v2 (v1 is the JSON.stringify result)
+          if (stateFingerprint !== fingerprintV2) {
+            devWarn('FINGERPRINT', 'Fingerprint v1/v2 mismatch detected', {
+              v1: stateFingerprint,
+              v2: fingerprintV2,
+              elementCount: newState.elements.size,
+            });
+          }
+        }).catch((error) => {
+          // Silently ignore import errors (should not happen, but safe fallback)
+          if (IS_DEV) {
+            devDebug('FINGERPRINT', 'Failed to load fingerprint v2', error);
+          }
+        });
+      }
+      // --- End Shadow Mode ---
       
       // FAZ-4-4I: Always broadcast state changes, even during transactions
       // This ensures drag/move/rotate operations broadcast in real-time

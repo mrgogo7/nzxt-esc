@@ -7,8 +7,8 @@
 import React, { useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 export interface RemoveConfirmationModalProps {
@@ -26,6 +26,7 @@ export default function RemoveConfirmationModal({
   lang,
   elementType,
 }: RemoveConfirmationModalProps) {
+  const t = useI18n();
   const handleConfirm = useCallback(() => {
     onConfirm();
     onClose();
@@ -35,7 +36,6 @@ export default function RemoveConfirmationModal({
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Enter') {
-      // FAZ-10: ENTER triggers primary action (confirm)
       e.preventDefault();
       handleConfirm();
     }
@@ -43,11 +43,11 @@ export default function RemoveConfirmationModal({
 
   const getElementTypeLabel = () => {
     if (elementType === 'metric') {
-      return t('reading', lang) || 'Reading';
+      return t('metric');
     } else if (elementType === 'text') {
-      return t('text', lang) || 'Text';
+      return t('text');
     } else {
-      return t('divider', lang) || 'Divider';
+      return t('divider');
     }
   };
 
@@ -77,12 +77,12 @@ export default function RemoveConfirmationModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t('removeElementConfirmTitle', lang) || `Remove ${getElementTypeLabel()}`}</h3>
+                <h3>{t('removeElementConfirmTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -90,7 +90,7 @@ export default function RemoveConfirmationModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t('removeElementConfirm', lang) || `Are you sure you want to remove this ${getElementTypeLabel().toLowerCase()}? This action cannot be undone.`}
+                {t('removeElementConfirm')}
               </p>
             </div>
 
@@ -100,14 +100,14 @@ export default function RemoveConfirmationModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('cancel', lang)}
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-warning"
                 onClick={handleConfirm}
               >
-                {t('remove', lang) || 'Remove'}
+                {t('remove')}
               </button>
             </div>
           </motion.div>

@@ -1,20 +1,22 @@
 import type { MouseEvent } from 'react';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { ChevronUp, ChevronDown, Plus, X, BarChart3, Type, Minus, Layout, Trash2 } from 'lucide-react';
+import { Plus, BarChart3, Type, Minus, Layout, Trash2, Clock, Calendar } from 'lucide-react';
 import { Tooltip } from 'react-tooltip';
 import type { AppSettings } from '../../../constants/defaults';
-import type { Overlay, OverlayMetricKey, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../../types/overlay';
-import type { Lang, t as tFunction } from '../../../i18n';
-// FAZ-4-3: Legacy reorderOverlayElements deleted - only vNext path remains
-import { createOverlayElementForAdd, MAX_OVERLAY_ELEMENTS, canAddElement, getTotalElementCount, resolveElementIdConflict } from '../../../utils/overlaySettingsHelpers';
-import OverlayField from './OverlayField';
+import type { Overlay, OverlayMetricKey, OverlayElement, MetricElementData, TextElementData, DividerElementData, ClockElementData, DateElementData } from '../../../types/overlay';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
+import { createOverlayElementForAdd, defaultClockElement, defaultDateElement, MAX_OVERLAY_ELEMENTS, canAddElement, getTotalElementCount, resolveElementIdConflict } from '../../../utils/overlaySettingsHelpers';
 import ResetConfirmationModal from './ResetConfirmationModal';
 import RemoveConfirmationModal from './RemoveConfirmationModal';
 import ImportOverlayModal from './ImportOverlayModal';
 import OverlayPresetPickerModal from '../modals/OverlayPresetPickerModal';
 import OverlayExportNameModal from './OverlayExportNameModal';
-import ColorPicker from '../ColorPicker';
-import CombinedTextColorInput from './CombinedTextColorInput';
+import { MetricElementInspector } from './ElementCards/MetricElementInspector';
+import { TextElementInspector } from './ElementCards/TextElementInspector';
+import { DividerElementInspector } from './ElementCards/DividerElementInspector';
+import { ClockElementInspector } from './ElementCards/ClockElementInspector';
+import { DateElementInspector } from './ElementCards/DateElementInspector';
 import { exportOverlayPreset, importOverlayPreset } from '../../../overlayPreset';
 import { getTemplateElements } from '../../../overlayPreset/templates';
 import { normalizeZIndexForAppend } from '../../../overlayPreset/utils';
@@ -23,7 +25,6 @@ import { createAddElementAction, createRemoveElementAction, createUpdateElementA
 import { getElement as getElementFromStore } from '@/state/overlay/elementStore';
 import { bringToFront, sendToBack } from '@/state/overlay/zOrder';
 import { getElementsInZOrder } from '@/state/overlay/selectors';
-// FAZ-4 FINAL: Runtime always enabled (legacy removed)
 import { IS_DEV } from '@/utils/env';
 
 interface OverlaySettingsProps {
@@ -31,7 +32,6 @@ interface OverlaySettingsProps {
   settings: AppSettings;
   setSettings: (settings: AppSettings) => void;
   lang: Lang;
-  t: typeof tFunction;
   selectedElementId: string | null;
   setSelectedElementId: (elementId: string | null) => void;
   activePresetId: string | null; // Active preset ID for per-preset runtime overlay state
@@ -53,31 +53,26 @@ export default function OverlaySettingsComponent({
   settings,
   setSettings,
   lang,
-  t,
   selectedElementId,
   setSelectedElementId,
   activePresetId,
 }: OverlaySettingsProps) {
-  // FAZ-4 FINAL: Runtime always enabled - get StateManager
+  const t = useI18n();
   const stateManagerHook = activePresetId
     ? useOverlayStateManager(activePresetId)
     : null;
   const stateManager = stateManagerHook?.stateManager ?? null;
   const runtimeState = stateManagerHook?.state ?? null;
   
-  // FAZ-4-4 HOTFIX: Use runtime state as canonical source for elements
-  // overlayConfig prop may be stale, so we use runtime state when available
   const safeElements = useMemo(() => {
     if (runtimeState) {
       // Runtime: Get elements from runtime state (canonical source)
       return getElementsInZOrder(runtimeState.elements, runtimeState.zOrder);
     } else {
-      // Fallback: Use overlayConfig prop (should not happen after FAZ-4-4)
       return Array.isArray(overlayConfig.elements) ? overlayConfig.elements : [];
     }
   }, [runtimeState, overlayConfig.elements]);
   
-  // FAZ-4-4: Derive effective mode from runtime state
   const effectiveMode = useMemo(() => {
     if (runtimeState) {
       // Runtime: Mode is 'custom' if elements exist, otherwise use settings
@@ -88,20 +83,21 @@ export default function OverlaySettingsComponent({
     }
   }, [runtimeState, safeElements.length, settings.overlay?.mode]);
   
-  // Helper: Get metric, text, and divider element counts
   const metricElements = safeElements.filter(el => el?.type === 'metric');
   const textElements = safeElements.filter(el => el?.type === 'text');
   const dividerElements = safeElements.filter(el => el?.type === 'divider');
+  const clockElements = safeElements.filter(el => el?.type === 'clock');
+  const dateElements = safeElements.filter(el => el?.type === 'date');
   const metricCount = metricElements.length;
   const textCount = textElements.length;
   const dividerCount = dividerElements.length;
+  const clockCount = clockElements.length;
+  const dateCount = dateElements.length;
   
   // GLOBAL HARD LIMIT: Get total count from runtime overlay only (ARCHITECT MODE)
   // CRITICAL: Use activePresetId to get runtime count for the specific preset
   const totalCount = getTotalElementCount(activePresetId);
   
-  // FAZ-4 FINAL: Helper function to update element
-  // FAZ-4-4L: Enhanced to use updateElementData action for data-only changes (more efficient)
   const updateElement = useCallback((elementId: string, updater: (element: OverlayElement) => OverlayElement) => {
     if (!activePresetId) return;
     
@@ -112,7 +108,6 @@ export default function OverlaySettingsComponent({
       
       const newElement = updater(currentElement);
       
-      // FAZ-4-4L: Check if only data changed (more efficient action)
       const onlyDataChanged = 
         currentElement.id === newElement.id &&
         currentElement.type === newElement.type &&
@@ -137,30 +132,26 @@ export default function OverlaySettingsComponent({
         stateManager.dispatch(action);
       }
     }
-    // FAZ-4 FINAL: Runtime always enabled - no legacy fallback
   }, [activePresetId, stateManager, runtimeState]);
   
-  // FAZ-4 FINAL: Helper function for z-order operations
-  // FAZ-4-4P: Updated to use new moveElementZUp/moveElementZDown actions
   const handleZOrderChange = useCallback((elementId: string, direction: 'forward' | 'backward' | 'front' | 'back') => {
-    if (!activePresetId) return;
+    if (!activePresetId) {
+      return;
+    }
     
     if (stateManager && runtimeState) {
-      // FAZ-4-4P: Use new z-index based actions for move up/down
       let action;
       
       switch (direction) {
         case 'forward':
-          // Move Down button calls 'forward' = should decrement zIndex (send down)
-          // But 'forward' in zOrder means move towards end (higher zIndex)
-          // So we need to swap: 'forward' -> decrement (moveElementZDown)
-          action = createMoveElementZDownAction(elementId, runtimeState);
+          // Move Up button calls 'forward' = should move element up (toward front)
+          // 'forward' in zOrder means move towards end (front/top position)
+          action = createMoveElementZUpAction(elementId, runtimeState);
           break;
         case 'backward':
-          // Move Up button calls 'backward' = should increment zIndex (bring up)
-          // But 'backward' in zOrder means move towards beginning (lower zIndex)
-          // So we need to swap: 'backward' -> increment (moveElementZUp)
-          action = createMoveElementZUpAction(elementId, runtimeState);
+          // Move Down button calls 'backward' = should move element down (toward back)
+          // 'backward' in zOrder means move towards beginning (back/bottom position)
+          action = createMoveElementZDownAction(elementId, runtimeState);
           break;
         case 'front':
           // Legacy: Use zOrder array manipulation for bring to front
@@ -190,10 +181,8 @@ export default function OverlaySettingsComponent({
         stateManager.dispatch(action);
       }
     }
-    // FAZ-4 FINAL: Runtime always enabled - no legacy fallback
   }, [activePresetId, stateManager, runtimeState]);
   
-  // FAZ-4 FINAL: Wrapper for setSelectedElementId that also updates runtime state
   const handleSelectionChange = useCallback((elementId: string | null) => {
     // Always call parent setter for UI backward compatibility
     setSelectedElementId(elementId);
@@ -230,8 +219,6 @@ export default function OverlaySettingsComponent({
     }
   }, [stateManager, runtimeState, setSelectedElementId]);
   
-  // FAZ-3B-2: Derive selectedElementId from runtime state if new runtime is active
-  // This ensures UI stays in sync with runtime state
   const effectiveSelectedElementId = useMemo(() => {
     if (runtimeState) {
       // Get single selected ID from runtime state (UI only supports single selection for now)
@@ -255,7 +242,7 @@ export default function OverlaySettingsComponent({
   const floatingButtonRef = useRef<HTMLButtonElement>(null);
 
   // State for Remove Confirmation Modal
-  const [removeModalState, setRemoveModalState] = useState<{ isOpen: boolean; elementId: string | null; elementType: 'metric' | 'text' | 'divider' | null }>({
+  const [removeModalState, setRemoveModalState] = useState<{ isOpen: boolean; elementId: string | null; elementType: 'metric' | 'text' | 'divider' | 'clock' | 'date' | null }>({
     isOpen: false,
     elementId: null,
     elementType: null,
@@ -289,11 +276,10 @@ export default function OverlaySettingsComponent({
       return next;
     });
   };
-
-  // FAZ-10: Listen for Delete key event from ConfigPreview
+  
   useEffect(() => {
     const handleDeleteElement = (e: Event) => {
-      const customEvent = e as CustomEvent<{ elementId: string; elementType: 'metric' | 'text' | 'divider' }>;
+      const customEvent = e as CustomEvent<{ elementId: string; elementType: 'metric' | 'text' | 'divider' | 'clock' | 'date' }>;
       const { elementId, elementType } = customEvent.detail;
       
       // Open remove confirmation modal
@@ -370,7 +356,7 @@ export default function OverlaySettingsComponent({
 
   // Handle outside click and ESC key to close menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+      const handleClickOutside = (event: MouseEvent) => {
       if (
         floatingMenuRef.current &&
         floatingButtonRef.current &&
@@ -399,40 +385,37 @@ export default function OverlaySettingsComponent({
   }, [isFloatingMenuOpen]);
 
   // Helper: Get metric option labels with i18n
-  const getMetricOptions = () => [
-    { value: 'cpuTemp', label: t('metricCpuTemp', lang) },
-    { value: 'cpuLoad', label: t('metricCpuLoad', lang) },
-    { value: 'cpuClock', label: t('metricCpuClock', lang) },
-    { value: 'liquidTemp', label: t('metricLiquidTemp', lang) },
-    { value: 'gpuTemp', label: t('metricGpuTemp', lang) },
-    { value: 'gpuLoad', label: t('metricGpuLoad', lang) },
-    { value: 'gpuClock', label: t('metricGpuClock', lang) },
+  const getMetricOptions = (): Array<{ value: OverlayMetricKey; label: string }> => [
+    { value: 'cpuTemp' as OverlayMetricKey, label: t('metricCpuTemp') },
+    { value: 'cpuLoad' as OverlayMetricKey, label: t('metricCpuLoad') },
+    { value: 'cpuClock' as OverlayMetricKey, label: t('metricCpuClock') },
+    { value: 'liquidTemp' as OverlayMetricKey, label: t('metricLiquidTemp') },
+    { value: 'gpuTemp' as OverlayMetricKey, label: t('metricGpuTemp') },
+    { value: 'gpuLoad' as OverlayMetricKey, label: t('metricGpuLoad') },
+    { value: 'gpuClock' as OverlayMetricKey, label: t('metricGpuClock') },
   ];
 
   // Handler: Open overlay export modal
   const handleExportOverlay = () => {
     // CRITICAL: activePresetId must be valid
     if (!activePresetId) {
-      alert('Please select a preset first.');
+      alert(t('alertSelectPresetFirst'));
       return;
     }
     
-    // FAZ-4 FINAL: Get elements from runtime state
     if (stateManager && runtimeState) {
       const safeElements = Array.from(runtimeState.elements.values());
       
       if (safeElements.length === 0) {
-        alert('No overlay elements to export. Add some elements first.');
+        alert(t('alertNoElementsToExport'));
         return;
       }
       
       // Open export name modal
       setIsOverlayExportModalOpen(true);
     } else {
-      if (IS_DEV) {
-        console.warn('[OverlaySettings] Export called but vNext not available');
-      }
-      alert('No overlay elements to export. Add some elements first.');
+      // vNext not available
+      alert(t('alertNoElementsToExport'));
     }
   };
 
@@ -443,24 +426,20 @@ export default function OverlaySettingsComponent({
     }
     
     try {
-      // FAZ-4 FINAL: Get elements from runtime state
       if (stateManager && runtimeState) {
         const safeElements = Array.from(runtimeState.elements.values());
         
         if (safeElements.length === 0) {
-          alert('No overlay elements to export. Add some elements first.');
+          alert(t('alertNoElementsToExport'));
           return;
         }
         
         await exportOverlayPreset(safeElements, presetName);
       } else {
-        if (IS_DEV) {
-          console.warn('[OverlaySettings] Export confirm called but vNext not available');
-        }
-        alert('No overlay elements to export. Add some elements first.');
+        alert(t('alertNoElementsToExport'));
       }
     } catch (error) {
-      const errorMessage = t('overlayExportError', lang);
+      const errorMessage = t('overlayExportError');
       alert(errorMessage);
     }
   };
@@ -485,8 +464,8 @@ export default function OverlaySettingsComponent({
           fileInputRef.current.value = '';
         }
         // Show error notification
-        const errorMessage = t('overlayImportError', lang)
-          .replace('{error}', result.error || 'Unknown error');
+        const errorMessage = t('overlayImportError')
+          .replace('{error}', result.error || t('unknownError'));
         alert(errorMessage);
         return;
       }
@@ -500,8 +479,8 @@ export default function OverlaySettingsComponent({
         fileInputRef.current.value = '';
       }
       // Show error notification
-      const errorMessage = t('overlayImportError', lang)
-        .replace('{error}', error instanceof Error ? error.message : 'Unknown error');
+        const errorMessage = t('overlayImportError')
+        .replace('{error}', error instanceof Error ? error.message : t('unknownError'));
       alert(errorMessage);
     }
   };
@@ -512,7 +491,7 @@ export default function OverlaySettingsComponent({
   const handleImportOverlay = async (elements: OverlayElement[], mode: 'replace' | 'append') => {
     // CRITICAL: activePresetId must be valid for per-preset runtime state
     if (!activePresetId) {
-      alert(t('overlayImportError', lang).replace('{error}', 'No active preset selected. Please select a preset first.'));
+      alert(t('alertNoActivePreset'));
       return;
     }
     
@@ -527,7 +506,6 @@ export default function OverlaySettingsComponent({
     }
 
     if (mode === 'replace') {
-      // FAZ-4 FINAL: Use runtime system
       if (stateManager && runtimeState) {
         // Replace all elements using vNext
         const currentElementIds = Array.from(runtimeState.elements.keys());
@@ -542,28 +520,27 @@ export default function OverlaySettingsComponent({
         const addBatch = createBatchAction(addActions);
         stateManager.dispatch(addBatch);
       } else {
-        if (IS_DEV) {
-          console.warn('[OverlaySettings] Replace called but vNext not available');
-        }
       }
     } else {
       // Append: runtimeOverlay[activePresetId] = [...current, ...imported]
       // Normalize zIndex before appending
       const normalizedElements = normalizeZIndexForAppend([], safeElements);
       
-      // FAZ-4 FINAL: Use runtime system
       if (stateManager && runtimeState) {
         // Check limit using vNext state
         const currentCount = runtimeState.elements.size;
         if (currentCount + normalizedElements.length > MAX_OVERLAY_ELEMENTS) {
-          const message = t('overlayMaxElementsWarning', lang)
+          const message = t('overlayMaxElementsWarning')
             .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
             .replace('{count}', String(normalizedElements.length));
-          alert(message + `\n\nCannot append overlay elements. Current runtime count is ${currentCount}/${MAX_OVERLAY_ELEMENTS}. Adding ${normalizedElements.length} elements would exceed the limit of ${MAX_OVERLAY_ELEMENTS}.`);
-          return; // Import iptal, runtime değişmedi
+          const appendError = t('alertCannotAppendOverlayElements')
+            .replace('{currentCount}', String(currentCount))
+            .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
+            .replace('{count}', String(normalizedElements.length));
+          alert(message + '\n\n' + appendError);
+          return;
         }
         
-        // FAZ-4-4N: Resolve ID conflicts before appending
         // Get existing element IDs from current state
         const existingElementIds = new Set(runtimeState.elements.keys());
         
@@ -578,14 +555,8 @@ export default function OverlaySettingsComponent({
           stateManager.dispatch(action);
         });
       } else {
-        if (IS_DEV) {
-          console.warn('[OverlaySettings] Append called but vNext not available');
-        }
       }
     }
-
-    // Force re-render only if using old system (new system uses subscribe callback)
-    // FAZ-4 FINAL: Runtime always enabled - no fallback needed
 
     // Reset state
     setImportedElements([]);
@@ -597,7 +568,7 @@ export default function OverlaySettingsComponent({
   // Handler: Open Clear All confirmation modal
   const handleClearAllClick = () => {
     if (!activePresetId) {
-      alert('Please select a preset first.');
+      alert(t('alertSelectPresetFirst'));
       return;
     }
     setIsClearAllModalOpen(true);
@@ -609,7 +580,6 @@ export default function OverlaySettingsComponent({
       return;
     }
     
-    // FAZ-4 FINAL: Use runtime system
     if (stateManager && runtimeState) {
       // Create batch remove actions for all elements
       const elementIds = Array.from(runtimeState.elements.keys());
@@ -619,9 +589,6 @@ export default function OverlaySettingsComponent({
         stateManager.dispatch(batchAction);
       }
     } else {
-      if (IS_DEV) {
-        console.warn('[OverlaySettings] ClearAll called but vNext not available');
-      }
     }
   };
 
@@ -629,7 +596,7 @@ export default function OverlaySettingsComponent({
   const handleOverlayPresetSelect = (templateId: string) => {
     // CRITICAL: activePresetId must be valid for per-preset runtime state
     if (!activePresetId) {
-      alert(t('overlayImportError', lang).replace('{error}', 'No active preset selected. Please select a preset first.'));
+      alert(t('alertNoActivePreset'));
       return;
     }
     
@@ -638,17 +605,16 @@ export default function OverlaySettingsComponent({
       const templateElements = getTemplateElements(templateId);
       
       if (templateElements.length === 0) {
-        alert(t('overlayImportError', lang).replace('{error}', `Template ${templateId} is empty.`));
+        alert(t('alertTemplateEmpty').replace('{templateId}', templateId));
         return;
       }
       
       // Store in importedElements state
       setImportedElements(templateElements);
       
-      // Open import modal (FAZ 1 modal - Replace/Append)
       setIsImportModalOpen(true);
     } catch (error) {
-      alert(t('overlayImportError', lang).replace('{error}', error instanceof Error ? error.message : 'Unknown error'));
+      alert(t('overlayImportError').replace('{error}', error instanceof Error ? error.message : t('unknownError')));
     }
   };
 
@@ -657,14 +623,14 @@ export default function OverlaySettingsComponent({
       <div className="panel" style={{ position: 'relative' }}>
         {/* Header with Mode Switch */}
         <div className="panel-header">
-          <h3>{effectiveMode === 'custom' ? t('overlaySettingsTitle', lang) : t('overlayTitle', lang)}</h3>
+          <h3>{effectiveMode === 'custom' ? t('overlaySettingsTitle') : t('overlayTitle')}</h3>
           <div className="overlay-toggle-compact">
-            <span>{effectiveMode === 'custom' ? t('overlayStatusActive', lang) : t('overlayStatusOff', lang)}</span>
+            <span>{effectiveMode === 'custom' ? t('overlayStatusActive') : t('overlayStatusOff')}</span>
             <label className="switch">
               <input
                 type="checkbox"
                 checked={effectiveMode === 'custom'}
-                aria-label={effectiveMode === 'custom' ? t('overlayStatusActive', lang) : t('overlayStatusOff', lang)}
+                aria-label={effectiveMode === 'custom' ? t('overlayStatusActive') : t('overlayStatusOff')}
                 onChange={(e) => {
                   const newMode = e.target.checked ? 'custom' : 'none';
                   
@@ -699,9 +665,8 @@ export default function OverlaySettingsComponent({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
               <div style={{ flex: 1 }}>
                 <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
-                  {t('overlayOptionsDescription', lang)}
+                  {t('overlayOptionsDescription')}
                 </p>
-                {/* FAZ-4-POST-FIX-Z-ORDER-AND-TOOLTIP: Tooltips moved outside <p> to fix DOM nesting */}
                 {safeElements.map(el => (
                   <Tooltip key={`delete-tooltip-${el.id}`} id={`delete-element-${el.id}`} />
                 ))}
@@ -710,8 +675,8 @@ export default function OverlaySettingsComponent({
                 <button
                   ref={floatingButtonRef}
                   onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-                  aria-label={t('addElement', lang) || 'Add Element'}
-                  title={t('addElement', lang) || 'Add Element'}
+                  aria-label={t('addElement')}
+                  title={t('addElement')}
                   style={{
                     width: '32px',
                     height: '32px',
@@ -742,10 +707,10 @@ export default function OverlaySettingsComponent({
                 </button>
                 <button
                   onClick={() => setIsClearAllModalOpen(true)}
-                  aria-label={t('clearAllOverlayElements', lang) || 'Clear All Overlay Elements'}
-                  title={t('clearAllOverlayElements', lang) || 'Clear All Overlay Elements'}
+                  aria-label={t('clearAllOverlayElements')}
+                  title={t('clearAllOverlayElements')}
                   data-tooltip-id="clear-all-elements-tooltip"
-                  data-tooltip-content={t('clearAllOverlayElements', lang)}
+                  data-tooltip-content={t('clearAllOverlayElements')}
                   style={{
                     width: '32px',
                     height: '32px',
@@ -778,8 +743,8 @@ export default function OverlaySettingsComponent({
           ) : (
             <p style={{ margin: 0, color: '#a0a0a0', fontSize: '12px', lineHeight: '1.5' }}>
               {effectiveMode === 'none' 
-                ? t('overlayActivateFirst', lang) + t('overlayOptionsDescription', lang)
-                : t('overlayOptionsDescription', lang)}
+                ? t('overlayActivateFirst') + t('overlayOptionsDescription')
+                : t('overlayOptionsDescription')}
             </p>
           )}
         </div>
@@ -809,19 +774,19 @@ export default function OverlaySettingsComponent({
                   zIndex: 1000,
                 }}
               >
-                {/* Add Reading */}
+                {/* Add Metric */}
                 <button
                   onClick={() => {
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      alert('Please select a preset first.');
+                      alert(t('alertSelectPresetFirst'));
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
+                      alert(t('overlayMaxElementsWarning').replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
                     
@@ -841,18 +806,10 @@ export default function OverlaySettingsComponent({
                       } as MetricElementData,
                     });
                     
-                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
                     if (stateManager) {
                       const action = createAddElementAction(newElement);
                       stateManager.dispatch(action);
-                      // FAZ-4-4C: Dev logging for add operation
-                      if (IS_DEV) {
-                        console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
-                      }
                     } else {
-                      if (IS_DEV) {
-                        console.warn('[OverlaySettings] Add metric called but vNext not available');
-                      }
                     }
                     setIsFloatingMenuOpen(false);
                   }}
@@ -886,7 +843,7 @@ export default function OverlaySettingsComponent({
                   <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <BarChart3 size={16} />
                   </div>
-                  <span>{t('addReading', lang)}</span>
+                  <span>{t('addMetric')}</span>
                 </button>
 
                 {/* Add Text */}
@@ -895,13 +852,13 @@ export default function OverlaySettingsComponent({
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      alert('Please select a preset first.');
+                      alert(t('alertSelectPresetFirst'));
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
+                      alert(t('overlayMaxElementsWarning').replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
                     
@@ -912,24 +869,16 @@ export default function OverlaySettingsComponent({
                       y: 0,
                       zIndex: safeElements.length,
                       data: {
-                        text: 'Text',
+                        text: t('text'),
                         textColor: 'rgba(255, 255, 255, 1)',
                         textSize: 45,
                       } as TextElementData,
                     });
                     
-                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
                     if (stateManager) {
                       const action = createAddElementAction(newElement);
                       stateManager.dispatch(action);
-                      // FAZ-4-4C: Dev logging for add operation
-                      if (IS_DEV) {
-                        console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
-                      }
                     } else {
-                      if (IS_DEV) {
-                        console.warn('[OverlaySettings] Add text called but vNext not available');
-                      }
                     }
                     setIsFloatingMenuOpen(false);
                   }}
@@ -963,7 +912,7 @@ export default function OverlaySettingsComponent({
                   <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Type size={16} />
                   </div>
-                  <span>{t('addText', lang)}</span>
+                  <span>{t('addText')}</span>
                 </button>
 
                 {/* Add Divider */}
@@ -972,13 +921,13 @@ export default function OverlaySettingsComponent({
                     // ARCHITECT MODE: Manual Add → runtime overlay Map
                     // CRITICAL: activePresetId must be valid
                     if (!activePresetId) {
-                      alert('Please select a preset first.');
+                      alert(t('alertSelectPresetFirst'));
                       return;
                     }
                     
                     // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
                     if (!canAddElement(activePresetId, 1)) {
-                      alert(t('overlayMaxElementsWarning', lang).replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
+                      alert(t('overlayMaxElementsWarning').replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
                       return;
                     }
                     
@@ -995,18 +944,10 @@ export default function OverlaySettingsComponent({
                       } as DividerElementData,
                     });
                     
-                    // FAZ-3B-1: Use new runtime system if feature flag is enabled
                     if (stateManager) {
                       const action = createAddElementAction(newElement);
                       stateManager.dispatch(action);
-                      // FAZ-4-4C: Dev logging for add operation
-                      if (IS_DEV) {
-                        console.debug('[OverlayRuntime] Added element', { id: newElement.id, type: newElement.type });
-                      }
                     } else {
-                      if (IS_DEV) {
-                        console.warn('[OverlaySettings] Add divider called but vNext not available');
-                      }
                     }
                     setIsFloatingMenuOpen(false);
                   }}
@@ -1040,7 +981,125 @@ export default function OverlaySettingsComponent({
                   <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Minus size={16} />
                   </div>
-                  <span>{t('addDivider', lang)}</span>
+                  <span>{t('addDivider')}</span>
+                </button>
+
+                {/* Add Clock */}
+                <button
+                  onClick={() => {
+                    // ARCHITECT MODE: Manual Add → runtime overlay Map
+                    // CRITICAL: activePresetId must be valid
+                    if (!activePresetId) {
+                      alert(t('alertSelectPresetFirst'));
+                      return;
+                    }
+                    
+                    // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
+                    if (!canAddElement(activePresetId, 1)) {
+                      alert(t('overlayMaxElementsWarning').replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
+                      return;
+                    }
+                    
+                    // 1) Create new element (helper function)
+                    const newElement = defaultClockElement(0, 0, safeElements.length);
+                    
+                    if (stateManager) {
+                      const action = createAddElementAction(newElement);
+                      stateManager.dispatch(action);
+                    } else {
+                    }
+                    setIsFloatingMenuOpen(false);
+                  }}
+                  disabled={!canAddElement(activePresetId, 1)}
+                  style={{
+                    height: '34px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: clockCount >= MAX_OVERLAY_ELEMENTS || totalCount >= MAX_OVERLAY_ELEMENTS ? '#a0a0a0' : '#f2f2f2',
+                    cursor: clockCount >= MAX_OVERLAY_ELEMENTS || totalCount >= MAX_OVERLAY_ELEMENTS ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '0 12px',
+                    transition: 'background 0.15s ease',
+                  }}
+                    onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                      if (canAddElement(activePresetId, 1)) {
+                        e.currentTarget.style.background = '#3a3a3a';
+                      }
+                    }}
+                    onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                      if (canAddElement(activePresetId, 1)) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
+                >
+                  <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Clock size={16} />
+                  </div>
+                  <span>{t('addDigitalClock')}</span>
+                </button>
+
+                {/* Add Date */}
+                <button
+                  onClick={() => {
+                    // ARCHITECT MODE: Manual Add → runtime overlay Map
+                    // CRITICAL: activePresetId must be valid
+                    if (!activePresetId) {
+                      alert(t('alertSelectPresetFirst'));
+                      return;
+                    }
+                    
+                    // GLOBAL HARD LIMIT CHECK: Can we add 1 more element? (ARCHITECT MODE: runtime-only)
+                    if (!canAddElement(activePresetId, 1)) {
+                      alert(t('overlayMaxElementsWarning').replace('{max}', String(MAX_OVERLAY_ELEMENTS)).replace('{count}', '1'));
+                      return;
+                    }
+                    
+                    // 1) Create new element (helper function)
+                    const newElement = defaultDateElement(0, 0, safeElements.length);
+                    
+                    if (stateManager) {
+                      const action = createAddElementAction(newElement);
+                      stateManager.dispatch(action);
+                    } else {
+                    }
+                    setIsFloatingMenuOpen(false);
+                  }}
+                  disabled={!canAddElement(activePresetId, 1)}
+                  style={{
+                    height: '34px',
+                    background: 'transparent',
+                    border: 'none',
+                    color: dateCount >= MAX_OVERLAY_ELEMENTS || totalCount >= MAX_OVERLAY_ELEMENTS ? '#a0a0a0' : '#f2f2f2',
+                    cursor: dateCount >= MAX_OVERLAY_ELEMENTS || totalCount >= MAX_OVERLAY_ELEMENTS ? 'not-allowed' : 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 400,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    gap: '10px',
+                    padding: '0 12px',
+                    transition: 'background 0.15s ease',
+                  }}
+                    onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                      if (canAddElement(activePresetId, 1)) {
+                        e.currentTarget.style.background = '#3a3a3a';
+                      }
+                    }}
+                    onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                      if (canAddElement(activePresetId, 1)) {
+                        e.currentTarget.style.background = 'transparent';
+                      }
+                    }}
+                >
+                  <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Calendar size={16} />
+                  </div>
+                  <span>{t('addDate')}</span>
                 </button>
 
                 {/* Divider */}
@@ -1081,7 +1140,7 @@ export default function OverlaySettingsComponent({
                   <div style={{ width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Layout size={16} />
                   </div>
-                  <span>{t('overlayPresetsButton', lang)}</span>
+                  <span>{t('overlayPresetsButton')}</span>
                 </button>
               </div>
             )}
@@ -1104,12 +1163,12 @@ export default function OverlaySettingsComponent({
                 gap: '16px',
                 position: 'relative',
               }}>
-                <p style={{ margin: 0 }}>{t('noElements', lang)}</p>
+                <p style={{ margin: 0 }}>{t('noElements')}</p>
                 <button
                   ref={floatingButtonRef}
                   onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-                  aria-label={t('addElement', lang) || 'Add Element'}
-                  title={t('addElement', lang) || 'Add Element'}
+                  aria-label={t('addElement')}
+                  title={t('addElement')}
                   style={{
                     width: '32px',
                     height: '32px',
@@ -1142,956 +1201,181 @@ export default function OverlaySettingsComponent({
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {safeElements
                   .map((element, index) => ({ element, index }))
-                  .sort((a, b) => (a.element.zIndex ?? a.index) - (b.element.zIndex ?? b.index))
+                  .sort((a, b) => (b.element.zIndex ?? b.index) - (a.element.zIndex ?? a.index))
                   .map(({ element }) => {
-                    const sortedElements = [...safeElements].sort((a, b) => (a.zIndex ?? safeElements.indexOf(a)) - (b.zIndex ?? safeElements.indexOf(b)));
+                    const sortedElements = [...safeElements].sort((a, b) => (b.zIndex ?? safeElements.indexOf(b)) - (a.zIndex ?? safeElements.indexOf(a)));
                     const unifiedIndex = sortedElements.findIndex(el => el.id === element.id);
+                    const zOrderIndex = runtimeState ? runtimeState.zOrder.indexOf(element.id) : -1;
 
                     if (element.type === 'metric') {
-                      const data = element.data as MetricElementData;
                       const metricIndex = metricElements.findIndex(el => el.id === element.id);
                       
-                      const readingLabels = [
-                        t('firstReading', lang),
-                        t('secondReading', lang),
-                        t('thirdReading', lang),
-                        t('fourthReading', lang),
-                        t('fifthReading', lang),
-                        t('sixthReading', lang),
-                        t('seventhReading', lang),
-                        t('eighthReading', lang),
+                      const metricLabels = [
+                        t('firstMetric'),
+                        t('secondMetric'),
+                        t('thirdMetric'),
+                        t('fourthMetric'),
+                        t('fifthMetric'),
+                        t('sixthMetric'),
+                        t('seventhMetric'),
+                        t('eighthMetric'),
                       ];
 
                       const isCollapsed = collapsedElements.has(element.id);
                       const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
-                        <div 
-                          key={element.id} 
-                          className={isSelected ? 'overlay-element-item selected' : 'overlay-element-item'}
-                          onClick={() => setSelectedElementId(element.id)}
-                          style={{ 
-                            padding: '8px',
-                            background: '#242424',
-                            borderRadius: '6px',
-                            border: '1px solid rgba(255, 255, 255, 0.04)',
-                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.6)',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          {/* Compact Element Header */}
-                          <div
-                            onClick={() => handleSelectionChange(element.id)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              height: '36px',
-                              marginBottom: isCollapsed ? '0' : '8px',
-                              paddingBottom: isCollapsed ? '0' : '8px',
-                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
-                              background: '#262626',
-                              borderRadius: '4px',
-                              padding: '0 4px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCollapse(element.id);
-                                }}
-                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  color: '#a0a0a0',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  padding: '2px',
-                                  transition: 'transform 0.15s ease',
-                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-                                }}
-                              >
-                                <ChevronDown size={14} />
-                              </button>
-                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
-                                {readingLabels[metricIndex] || `${metricIndex + 1}${metricIndex === 0 ? 'st' : metricIndex === 1 ? 'nd' : metricIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {/* Remove Button - Outline Style with Red Icon */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.stopPropagation();
-                                  setRemoveModalState({
-                                    isOpen: true,
-                                    elementId: element.id,
-                                    elementType: element.type,
-                                  });
-                                }}
-                                data-tooltip-id={`delete-element-${element.id}`}
-                                data-tooltip-content={t('deleteElement', lang)}
-                                aria-label={t('deleteElement', lang)}
-                                title={t('deleteElement', lang)}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: 'transparent',
-                                  border: '1px solid #3a3a3a',
-                                  color: '#ff6b6b',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#ff6b6b';
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#3a3a3a';
-                                  e.currentTarget.style.background = 'transparent';
-                                }}
-                              >
-                                <X size={12} />
-                              </button>
-                              {/* Move Down Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    handleZOrderChange(element.id, 'forward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === sortedElements.length - 1}
-                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-down-tooltip"
-                                data-tooltip-content={t('moveReadingDown', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronDown size={12} />
-                              </button>
-                              {/* Move Up Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex > 0) {
-                                    handleZOrderChange(element.id, 'backward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === 0}
-                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-up-tooltip"
-                                data-tooltip-content={t('moveReadingUp', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronUp size={12} />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Compact 2-Column Element Settings */}
-                          {!isCollapsed && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              {/* Sensor with Color on the right */}
-                              <div className="setting-row">
-                                <label 
-                                  style={{ fontSize: '11px', cursor: 'help' }}
-                                  data-tooltip-id={`sensor-tooltip-${element.id}`}
-                                  data-tooltip-content={t('tooltipSensor', lang)}
-                                >
-                                  {t('sensor', lang) || t('reading', lang)}
-                                </label>
-                                <Tooltip id={`sensor-tooltip-${element.id}`} />
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flex: 1 }}>
-                                  <select
-                                    className="url-input"
-                                    value={data.metric}
-                                    onChange={(e) => {
-                                      if (!activePresetId) return;
-                                      const newMetric = e.target.value as OverlayMetricKey;
-                                      updateElement(element.id, (el) => ({
-                                        ...el,
-                                        data: { ...(el.data as MetricElementData), metric: newMetric }
-                                      }));
-                                    }}
-                                    aria-label={t('sensor', lang) || t('reading', lang)}
-                                    style={{ width: '134px' }}
-                                  >
-                                    {getMetricOptions().map(opt => (
-                                      <option key={opt.value} value={opt.value}>
-                                        {opt.label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                  <div data-tooltip-id={`color-tooltip-${element.id}`} data-tooltip-content={t('tooltipColor', lang)}>
-                                    <ColorPicker
-                                      value={data.numberColor || '#ffffff'}
-                                      onChange={(color) => {
-                                        if (!activePresetId) return;
-                                        updateElement(element.id, (el) => ({
-                                          ...el,
-                                          data: { ...(el.data as MetricElementData), numberColor: color }
-                                        }));
-                                      }}
-                                    />
-                                  </div>
-                                  <Tooltip id={`color-tooltip-${element.id}`} />
-                                </div>
-                              </div>
-
-                              {/* 2-Column Grid for other fields */}
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                {/* Row 1: Size | Angle */}
-                              <OverlayField
-                                type="number"
-                                label={t('size', lang)}
-                                value={data.numberSize}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    data: { ...(el.data as MetricElementData), numberSize: value }
-                                  }));
-                                }}
-                                step={1}
-                                labelTooltipId={`size-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipSize', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('angle', lang)}
-                                value={element.angle ?? 0}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    angle: value
-                                  }));
-                                }}
-                                step={1}
-                                min={0}
-                                max={360}
-                                labelTooltipId={`angle-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipAngle', lang)}
-                              />
-
-                              {/* Row 2: X Off | Y Off */}
-                              <OverlayField
-                                type="number"
-                                label={t('customXOffset', lang)}
-                                value={element.x}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    x: value
-                                  }));
-                                }}
-                                step={1}
-                                labelTooltipId={`xoffset-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipXOffset', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('customYOffset', lang)}
-                                value={element.y}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    y: value
-                                  }));
-                                }}
-                                step={1}
-                                labelTooltipId={`yoffset-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipYOffset', lang)}
-                              />
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <MetricElementInspector
+                          key={element.id}
+                          element={element as OverlayElement & { type: 'metric'; data: MetricElementData }}
+                          metricIndex={metricIndex}
+                          isSelected={isSelected}
+                          isCollapsed={isCollapsed}
+                          unifiedIndex={unifiedIndex}
+                          totalElements={sortedElements.length}
+                          activePresetId={activePresetId}
+                          lang={lang}
+                          metricLabels={metricLabels}
+                          metricOptions={getMetricOptions()}
+                          onToggleCollapse={() => toggleCollapse(element.id)}
+                          onSelect={() => handleSelectionChange(element.id)}
+                          onRemove={() => setRemoveModalState({ isOpen: true, elementId: element.id, elementType: 'metric' })}
+                          onMoveUp={() => handleZOrderChange(element.id, 'forward')}
+                          onMoveDown={() => handleZOrderChange(element.id, 'backward')}
+                          onUpdateElement={(updater) => updateElement(element.id, updater)}
+                        />
                       );
                     } else if (element.type === 'text') {
-                      const data = element.data as TextElementData;
                       const textIndex = textElements.findIndex(el => el.id === element.id);
                       
                       const textLabels = [
-                        t('firstText', lang),
-                        t('secondText', lang),
-                        t('thirdText', lang),
-                        t('fourthText', lang),
+                        t('firstText'),
+                        t('secondText'),
+                        t('thirdText'),
+                        t('fourthText'),
                       ];
-
-                      // Sanitize text input - remove HTML tags and dangerous characters
-                      const sanitizeText = (input: string): string => {
-                        let sanitized = input.replace(/<[^>]*>/g, '');
-                        sanitized = sanitized.replace(/javascript:/gi, '');
-                        sanitized = sanitized.replace(/on\w+\s*=/gi, '');
-                        sanitized = sanitized.substring(0, 120);
-                        return sanitized;
-                      };
 
                       const isCollapsed = collapsedElements.has(element.id);
                       const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
-                        <div 
-                          key={element.id} 
-                          className={isSelected ? 'overlay-element-item selected' : 'overlay-element-item'}
-                          onClick={() => setSelectedElementId(element.id)}
-                          style={{ 
-                            padding: '8px',
-                            background: '#242424',
-                            borderRadius: '6px',
-                            border: '1px solid rgba(255, 255, 255, 0.04)',
-                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.6)',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          {/* Compact Element Header */}
-                          <div
-                            onClick={() => handleSelectionChange(element.id)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              height: '36px',
-                              marginBottom: isCollapsed ? '0' : '8px',
-                              paddingBottom: isCollapsed ? '0' : '8px',
-                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
-                              background: '#262626',
-                              borderRadius: '4px',
-                              padding: '0 4px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCollapse(element.id);
-                                }}
-                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  color: '#a0a0a0',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  padding: '2px',
-                                  transition: 'transform 0.15s ease',
-                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-                                }}
-                              >
-                                <ChevronDown size={14} />
-                              </button>
-                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
-                                {textLabels[textIndex] || `${textIndex + 1}${textIndex === 0 ? 'st' : textIndex === 1 ? 'nd' : textIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {/* Remove Button - Outline Style with Red Icon */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.stopPropagation();
-                                  setRemoveModalState({
-                                    isOpen: true,
-                                    elementId: element.id,
-                                    elementType: element.type,
-                                  });
-                                }}
-                                data-tooltip-id={`delete-element-${element.id}`}
-                                data-tooltip-content={t('deleteElement', lang)}
-                                aria-label={t('deleteElement', lang)}
-                                title={t('deleteElement', lang)}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: 'transparent',
-                                  border: '1px solid #3a3a3a',
-                                  color: '#ff6b6b',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#ff6b6b';
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#3a3a3a';
-                                  e.currentTarget.style.background = 'transparent';
-                                }}
-                              >
-                                <X size={12} />
-                              </button>
-                              {/* Move Down Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    handleZOrderChange(element.id, 'forward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === sortedElements.length - 1}
-                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-text-down-tooltip"
-                                data-tooltip-content={t('moveTextDown', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronDown size={12} />
-                              </button>
-                              {/* Move Up Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex > 0) {
-                                    handleZOrderChange(element.id, 'backward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === 0}
-                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-text-up-tooltip"
-                                data-tooltip-content={t('moveTextUp', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronUp size={12} />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Compact 2-Column Element Settings */}
-                          {!isCollapsed && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                              {/* Combined Text + Color Input */}
-                              <div className="setting-row">
-                                <label 
-                                  htmlFor={`text-input-${element.id}`} 
-                                  style={{ fontSize: '11px', cursor: 'help' }}
-                                  data-tooltip-id={`text-tooltip-${element.id}`}
-                                  data-tooltip-content={t('tooltipText', lang)}
-                                >
-                                  {t('text', lang)}
-                                </label>
-                                <Tooltip id={`text-tooltip-${element.id}`} />
-                                <CombinedTextColorInput
-                                  id={`text-input-${element.id}`}
-                                  text={data.text}
-                                  onTextChange={(text) => {
-                                    if (!activePresetId) return;
-                                    const sanitized = sanitizeText(text);
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      data: { ...(el.data as TextElementData), text: sanitized }
-                                    }));
-                                  }}
-                                  color={data.textColor || '#ffffff'}
-                                  onColorChange={(color) => {
-                                    if (!activePresetId) return;
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      data: { ...(el.data as TextElementData), textColor: color }
-                                    }));
-                                  }}
-                                  placeholder={t('textInputPlaceholder', lang)}
-                                  maxLength={120}
-                                  sanitizeText={sanitizeText}
-                                  colorTooltipContent={t('tooltipColor', lang)}
-                                />
-                              </div>
-
-                              {/* 2-Column Grid for other fields */}
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                                {/* Row 1: Size | Angle */}
-                                <OverlayField
-                                  type="number"
-                                  label={t('size', lang)}
-                                  value={data.textSize}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      data: { ...(el.data as TextElementData), textSize: Math.max(6, value) }
-                                    }));
-                                  }}
-                                  step={1}
-                                  min={6}
-                                  labelTooltipId={`text-size-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipSize', lang)}
-                                />
-                                <OverlayField
-                                  type="number"
-                                  label={t('angle', lang)}
-                                  value={element.angle ?? 0}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      angle: value
-                                    }));
-                                  }}
-                                  step={1}
-                                  min={0}
-                                  max={360}
-                                  labelTooltipId={`text-angle-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipAngle', lang)}
-                                />
-
-                                {/* Row 2: X Off | Y Off */}
-                                <OverlayField
-                                  type="number"
-                                  label={t('customXOffset', lang)}
-                                  value={element.x}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      x: value
-                                    }));
-                                  }}
-                                step={1}
-                                labelTooltipId={`text-xoffset-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipXOffset', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('customYOffset', lang)}
-                                value={element.y}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    y: value
-                                  }));
-                                }}
-                                  step={1}
-                                  labelTooltipId={`text-yoffset-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipYOffset', lang)}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <TextElementInspector
+                          key={element.id}
+                          element={element as OverlayElement & { type: 'text'; data: TextElementData }}
+                          textIndex={textIndex}
+                          isSelected={isSelected}
+                          isCollapsed={isCollapsed}
+                          unifiedIndex={unifiedIndex}
+                          totalElements={sortedElements.length}
+                          activePresetId={activePresetId}
+                          lang={lang}
+                          textLabels={textLabels}
+                          onToggleCollapse={() => toggleCollapse(element.id)}
+                          onSelect={() => handleSelectionChange(element.id)}
+                          onRemove={() => setRemoveModalState({ isOpen: true, elementId: element.id, elementType: 'text' })}
+                          onMoveUp={() => handleZOrderChange(element.id, 'forward')}
+                          onMoveDown={() => handleZOrderChange(element.id, 'backward')}
+                          onUpdateElement={(updater) => updateElement(element.id, updater)}
+                        />
                       );
                     } else if (element.type === 'divider') {
-                      const data = element.data as DividerElementData;
                       const dividerIndex = dividerElements.findIndex(el => el.id === element.id);
                       
                       const dividerLabels = [
-                        t('firstDivider', lang),
-                        t('secondDivider', lang),
-                        t('thirdDivider', lang),
-                        t('fourthDivider', lang),
+                        t('firstDivider'),
+                        t('secondDivider'),
+                        t('thirdDivider'),
+                        t('fourthDivider'),
                       ];
 
                       const isCollapsed = collapsedElements.has(element.id);
                       const isSelected = effectiveSelectedElementId === element.id;
                       
                       return (
-                        <div 
-                          key={element.id} 
-                          className={isSelected ? 'overlay-element-item selected' : 'overlay-element-item'}
-                          onClick={() => setSelectedElementId(element.id)}
-                          style={{ 
-                            padding: '8px',
-                            background: '#242424',
-                            borderRadius: '6px',
-                            border: '1px solid rgba(255, 255, 255, 0.04)',
-                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.6)',
-                            transition: 'all 0.2s ease',
-                          }}
-                        >
-                          {/* Compact Element Header */}
-                          <div
-                            onClick={() => handleSelectionChange(element.id)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              height: '36px',
-                              marginBottom: isCollapsed ? '0' : '8px',
-                              paddingBottom: isCollapsed ? '0' : '8px',
-                              borderBottom: isCollapsed ? 'none' : '1px solid rgba(255, 255, 255, 0.04)',
-                              background: '#262626',
-                              borderRadius: '4px',
-                              padding: '0 4px',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCollapse(element.id);
-                                }}
-                                aria-label={isCollapsed ? t('expand', lang) || 'Expand' : t('collapse', lang) || 'Collapse'}
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  color: '#a0a0a0',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  padding: '2px',
-                                  transition: 'transform 0.15s ease',
-                                  transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
-                                }}
-                              >
-                                <ChevronDown size={14} />
-                              </button>
-                              <span style={{ color: '#f2f2f2', fontSize: '13px', fontWeight: 600 }}>
-                                {dividerLabels[dividerIndex] || `${dividerIndex + 1}${dividerIndex === 0 ? 'st' : dividerIndex === 1 ? 'nd' : dividerIndex === 2 ? 'rd' : 'th'} ${t('divider', lang)}`}
-                              </span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              {/* Remove Button - Outline Style with Red Icon */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.stopPropagation();
-                                  setRemoveModalState({
-                                    isOpen: true,
-                                    elementId: element.id,
-                                    elementType: element.type,
-                                  });
-                                }}
-                                data-tooltip-id={`delete-element-${element.id}`}
-                                data-tooltip-content={t('deleteElement', lang)}
-                                aria-label={t('deleteElement', lang)}
-                                title={t('deleteElement', lang)}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: 'transparent',
-                                  border: '1px solid #3a3a3a',
-                                  color: '#ff6b6b',
-                                  borderRadius: '4px',
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#ff6b6b';
-                                  e.currentTarget.style.background = '#3a1f1f';
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.currentTarget.style.borderColor = '#3a3a3a';
-                                  e.currentTarget.style.background = 'transparent';
-                                }}
-                              >
-                                <X size={12} />
-                              </button>
-                              {/* Move Down Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    handleZOrderChange(element.id, 'forward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === sortedElements.length - 1}
-                                aria-label={t('moveReadingDown', lang) || t('moveTextDown', lang) || t('moveDividerDown', lang) || 'Move Down'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === sortedElements.length - 1 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === sortedElements.length - 1 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === sortedElements.length - 1 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-divider-down-tooltip"
-                                data-tooltip-content={t('moveDividerDown', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex < sortedElements.length - 1) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronDown size={12} />
-                              </button>
-                              {/* Move Up Button - Icon Only */}
-                              <button
-                                onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  if (unifiedIndex > 0) {
-                                    handleZOrderChange(element.id, 'backward');
-                                  }
-                                }}
-                                disabled={unifiedIndex === 0}
-                                aria-label={t('moveReadingUp', lang) || 'Move Up'}
-                                style={{
-                                  width: '28px',
-                                  height: '28px',
-                                  background: unifiedIndex === 0 ? '#252525' : '#2c2c2c',
-                                  border: '1px solid #3a3a3a',
-                                  color: unifiedIndex === 0 ? '#a0a0a0' : '#f2f2f2',
-                                  borderRadius: '4px',
-                                  cursor: unifiedIndex === 0 ? 'not-allowed' : 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  transition: 'all 0.15s ease',
-                                  padding: '0',
-                                }}
-                                data-tooltip-id="move-divider-up-tooltip"
-                                data-tooltip-content={t('moveDividerUp', lang)}
-                                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#3a3a3a';
-                                    e.currentTarget.style.borderColor = '#8a2be2';
-                                  }
-                                }}
-                                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
-                                  if (unifiedIndex > 0) {
-                                    e.currentTarget.style.background = '#2c2c2c';
-                                    e.currentTarget.style.borderColor = '#3a3a3a';
-                                  }
-                                }}
-                              >
-                                <ChevronUp size={12} />
-                              </button>
-                            </div>
-                          </div>
+                        <DividerElementInspector
+                          key={element.id}
+                          element={element as OverlayElement & { type: 'divider'; data: DividerElementData }}
+                          dividerIndex={dividerIndex}
+                          isSelected={isSelected}
+                          isCollapsed={isCollapsed}
+                          unifiedIndex={unifiedIndex}
+                          totalElements={sortedElements.length}
+                          activePresetId={activePresetId}
+                          lang={lang}
+                          dividerLabels={dividerLabels}
+                          onToggleCollapse={() => toggleCollapse(element.id)}
+                          onSelect={() => handleSelectionChange(element.id)}
+                          onRemove={() => setRemoveModalState({ isOpen: true, elementId: element.id, elementType: 'divider' })}
+                          onMoveUp={() => handleZOrderChange(element.id, 'forward')}
+                          onMoveDown={() => handleZOrderChange(element.id, 'backward')}
+                          onUpdateElement={(updater) => updateElement(element.id, updater)}
+                        />
+                      );
+                    } else if (element.type === 'clock') {
+                      const clockIndex = clockElements.findIndex(el => el.id === element.id);
+                      
+                      const clockLabels = [
+                        t('firstClock'),
+                        t('secondClock'),
+                        t('thirdClock'),
+                        t('fourthClock'),
+                      ];
 
-                          {/* Compact 2-Column Element Settings */}
-                          {!isCollapsed && (
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                              {/* Row 1: Color | Width */}
-                              <OverlayField
-                                type="color"
-                                label={t('color', lang)}
-                                value={data.color}
-                                onChange={(color) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    data: { ...(el.data as DividerElementData), color }
-                                  }));
-                                }}
-                                labelTooltipId={`divider-color-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipColor', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('thickness', lang) || 'Width'}
-                                value={data.width}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    data: { ...(el.data as DividerElementData), width: Math.max(1, Math.min(400, value)) }
-                                  }));
-                                }}
-                                step={1}
-                                min={1}
-                                max={400}
-                                labelTooltipId={`thickness-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipThickness', lang)}
-                              />
+                      const isCollapsed = collapsedElements.has(element.id);
+                      const isSelected = effectiveSelectedElementId === element.id;
+                      
+                      return (
+                        <ClockElementInspector
+                          key={element.id}
+                          element={element as OverlayElement & { type: 'clock'; data: ClockElementData }}
+                          clockIndex={clockIndex}
+                          isSelected={isSelected}
+                          isCollapsed={isCollapsed}
+                          unifiedIndex={unifiedIndex}
+                          totalElements={sortedElements.length}
+                          activePresetId={activePresetId}
+                          lang={lang}
+                          clockLabels={clockLabels}
+                          onToggleCollapse={() => toggleCollapse(element.id)}
+                          onSelect={() => handleSelectionChange(element.id)}
+                          onRemove={() => setRemoveModalState({ isOpen: true, elementId: element.id, elementType: 'clock' })}
+                          onMoveUp={() => handleZOrderChange(element.id, 'forward')}
+                          onMoveDown={() => handleZOrderChange(element.id, 'backward')}
+                          onUpdateElement={(updater) => updateElement(element.id, updater)}
+                        />
+                      );
+                    } else if (element.type === 'date') {
+                      const dateIndex = dateElements.findIndex(el => el.id === element.id);
+                      
+                      const dateLabels = [
+                        t('firstDate'),
+                        t('secondDate'),
+                        t('thirdDate'),
+                        t('fourthDate'),
+                      ];
 
-                              {/* Row 2: Height | Angle */}
-                              <OverlayField
-                                type="number"
-                                label={t('dividerLength', lang) || 'Length'}
-                                value={data.height}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    data: { ...(el.data as DividerElementData), height: Math.max(10, Math.min(640, value)) }
-                                  }));
-                                }}
-                                step={1}
-                                min={10}
-                                max={640}
-                                labelTooltipId={`divider-length-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipDividerLength', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('angle', lang)}
-                                value={element.angle ?? 0}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    angle: value
-                                  }));
-                                }}
-                                  step={1}
-                                  min={0}
-                                  max={360}
-                                  labelTooltipId={`divider-angle-tooltip-${element.id}`}
-                                  labelTooltipContent={t('tooltipAngle', lang)}
-                                />
-
-                                {/* Row 3: X Off | Y Off */}
-                                <OverlayField
-                                  type="number"
-                                  label={t('customXOffset', lang)}
-                                  value={element.x}
-                                  onChange={(value) => {
-                                    if (!activePresetId) return;
-                                    updateElement(element.id, (el) => ({
-                                      ...el,
-                                      x: value
-                                    }));
-                                  }}
-                                step={1}
-                                labelTooltipId={`divider-xoffset-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipXOffset', lang)}
-                              />
-                              <OverlayField
-                                type="number"
-                                label={t('customYOffset', lang)}
-                                value={element.y}
-                                onChange={(value) => {
-                                  if (!activePresetId) return;
-                                  updateElement(element.id, (el) => ({
-                                    ...el,
-                                    y: value
-                                  }));
-                                }}
-                                step={1}
-                                labelTooltipId={`divider-yoffset-tooltip-${element.id}`}
-                                labelTooltipContent={t('tooltipYOffset', lang)}
-                              />
-                            </div>
-                          )}
-                        </div>
+                      const isCollapsed = collapsedElements.has(element.id);
+                      const isSelected = effectiveSelectedElementId === element.id;
+                      
+                      return (
+                        <DateElementInspector
+                          key={element.id}
+                          element={element as OverlayElement & { type: 'date'; data: DateElementData }}
+                          dateIndex={dateIndex}
+                          isSelected={isSelected}
+                          isCollapsed={isCollapsed}
+                          unifiedIndex={unifiedIndex}
+                          totalElements={sortedElements.length}
+                          activePresetId={activePresetId}
+                          lang={lang}
+                          dateLabels={dateLabels}
+                          onToggleCollapse={() => toggleCollapse(element.id)}
+                          onSelect={() => handleSelectionChange(element.id)}
+                          onRemove={() => setRemoveModalState({ isOpen: true, elementId: element.id, elementType: 'date' })}
+                          onMoveUp={() => handleZOrderChange(element.id, 'forward')}
+                          onMoveDown={() => handleZOrderChange(element.id, 'backward')}
+                          onUpdateElement={(updater) => updateElement(element.id, updater)}
+                        />
                       );
                     }
                     return null;
@@ -2152,7 +1436,7 @@ export default function OverlaySettingsComponent({
                       }
                     }}
                   >
-                    {t('overlayExportButton', lang)}
+                    {t('overlayExportButton')}
                   </button>
                   <button
                     onClick={() => fileInputRef.current?.click()}
@@ -2177,11 +1461,10 @@ export default function OverlaySettingsComponent({
                       e.currentTarget.style.borderColor = '#3a3a3a';
                     }}
                   >
-                    {t('overlayImportButton', lang)}
+                    {t('overlayImportButton')}
                   </button>
                 </div>
                 {/* Clear Runtime Elements Button */}
-                {/* FAZ-4-3 HOTFIX: Legacy getElementCountForPreset removed - using vNext state */}
                 {runtimeState && runtimeState.elements.size > 0 && (
                   <button
                     onClick={handleClearAllClick}
@@ -2206,7 +1489,7 @@ export default function OverlaySettingsComponent({
                       e.currentTarget.style.borderColor = '#3a3a3a';
                     }}
                   >
-                    {t('clearAllOverlayElements', lang) || 'Clear All Overlay Elements'}
+                    {t('clearAllOverlayElements')}
                   </button>
                 )}
                 {/* Element Count Indicator */}
@@ -2238,7 +1521,7 @@ export default function OverlaySettingsComponent({
                   lineHeight: '1.5',
                   textAlign: 'center',
                 }}>
-                  {t('overlayFooterDescription', lang)}
+                  {t('overlayFooterDescription')}
                 </p>
               </div>
             )}
@@ -2275,18 +1558,12 @@ export default function OverlaySettingsComponent({
             if (removeModalState.elementId) {
                 // ARCHITECT MODE: Remove element from runtime, NOT from settings
               if (activePresetId && removeModalState.elementId) {
-                // FAZ-3B-1: Use new runtime system if feature flag is enabled
                 if (stateManager && runtimeState) {
                   const action = createRemoveElementAction(removeModalState.elementId, runtimeState);
                   stateManager.dispatch(action);
-                  // FAZ-4-4C: Dev logging for remove operation
                   if (IS_DEV) {
-                    // FAZ-4 FINAL: Element removal logging removed (production cleanup)
                   }
                 } else {
-                  if (IS_DEV) {
-                    console.warn('[OverlaySettings] Remove element called but vNext not available');
-                  }
                 }
               }
             }

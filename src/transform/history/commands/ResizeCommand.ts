@@ -7,7 +7,8 @@
  */
 
 import type { Command } from '../ActionHistory';
-import type { OverlayElement, MetricElementData, TextElementData } from '../../../types/overlay';
+import type { OverlayElement } from '../../../types/overlay';
+import { isMetricElementData, isTextElementData } from '../../../types/overlay';
 
 /**
  * Resize command implementation.
@@ -41,19 +42,19 @@ export class ResizeCommand implements Command {
    * Updates element size based on element type.
    */
   private updateElementSize(element: OverlayElement, size: number): OverlayElement {
-    if (element.type === 'metric') {
+    if (element.type === 'metric' && isMetricElementData(element.data)) {
       return {
         ...element,
         data: {
-          ...(element.data as MetricElementData),
+          ...element.data,
           numberSize: size,
         },
       };
-    } else if (element.type === 'text') {
+    } else if (element.type === 'text' && isTextElementData(element.data)) {
       return {
         ...element,
         data: {
-          ...(element.data as TextElementData),
+          ...element.data,
           textSize: size,
         },
       };

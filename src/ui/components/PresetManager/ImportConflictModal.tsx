@@ -7,8 +7,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import './PresetManager.css';
 
 export interface ImportConflictModalProps {
@@ -28,11 +28,11 @@ export default function ImportConflictModal({
   presetName,
   lang,
 }: ImportConflictModalProps) {
+  const t = useI18n();
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Enter') {
-      // FAZ-10: ENTER triggers primary action (Duplicate)
       e.preventDefault();
       onDuplicate();
     }
@@ -63,12 +63,12 @@ export default function ImportConflictModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t('presetConflictTitle', lang)}</h3>
+                <h3>{t('presetConflictTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -76,7 +76,7 @@ export default function ImportConflictModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t('presetConflictMessage', lang).replace('{name}', presetName)}
+                {t('presetConflictMessage').replace('{name}', presetName)}
               </p>
             </div>
 
@@ -86,21 +86,21 @@ export default function ImportConflictModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('cancel', lang)}
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-warning"
                 onClick={onOverwrite}
               >
-                {t('presetOverwrite', lang)}
+                {t('presetOverwrite')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-primary"
                 onClick={onDuplicate}
               >
-                {t('presetCreateDuplicate', lang)}
+                {t('presetCreateDuplicate')}
               </button>
             </div>
           </motion.div>

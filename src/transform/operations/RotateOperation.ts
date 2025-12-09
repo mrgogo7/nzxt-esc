@@ -1,6 +1,20 @@
 /**
  * RotateOperation.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Handles element rotation operations with angle snapping
+ * - All calculations use LCD coordinate system (canonical)
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Rotation math (angle calculations, snap thresholds) MUST remain identical
+ * - Coordinate system conversion MUST NOT change
+ * - Angle normalization logic MUST remain identical
+ * 
  * Rotate operation for TransformEngine v1.
  * 
  * This module handles element rotation with proper coordinate system handling.

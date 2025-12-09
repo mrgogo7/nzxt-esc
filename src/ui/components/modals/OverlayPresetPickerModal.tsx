@@ -7,8 +7,8 @@
 import React, { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Layout } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import { OVERLAY_TEMPLATES } from '../../../overlayPreset/templates';
 import '../PresetManager/PresetManager.css';
 
@@ -38,6 +38,7 @@ export default function OverlayPresetPickerModal({
   onSelect,
   lang,
 }: OverlayPresetPickerModalProps) {
+  const t = useI18n();
   // Dynamically generate template list from OVERLAY_TEMPLATES
   const templates = useMemo(() => {
     return Object.keys(OVERLAY_TEMPLATES).map(templateId => ({
@@ -93,12 +94,12 @@ export default function OverlayPresetPickerModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <Layout size={20} className="preset-conflict-icon" />
-                <h3>{t('overlayPresetPickerTitle', lang)}</h3>
+                <h3>{t('overlayPresetPickerTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -146,7 +147,7 @@ export default function OverlayPresetPickerModal({
                       fontWeight: 500,
                       textAlign: 'center',
                     }}>
-                      {t(template.labelKey, lang)}
+                      {t(template.labelKey)}
                     </span>
                   </button>
                 ))}
@@ -159,7 +160,7 @@ export default function OverlayPresetPickerModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('cancel', lang)}
+                {t('cancel')}
               </button>
             </div>
           </motion.div>

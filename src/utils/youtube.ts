@@ -151,7 +151,7 @@ export function buildYouTubeEmbedUrl(videoId: string): string {
   // Loop: Enable infinite loop
   params.set('loop', '1');
   
-  // Playlist: Required hack for loop to work with single video
+  // Playlist: Required for loop to work with single video
   // Must be set to the same video ID
   params.set('playlist', videoId);
   

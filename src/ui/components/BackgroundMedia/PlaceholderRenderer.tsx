@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
 import { getBaseAlign } from '../../../utils/positioning';
 import { lcdToPreview } from '../../../utils/positioning';
+import { useI18n } from '@/i18n/useI18n';
 
 /**
  * Placeholder Renderer Component for YouTube in Preview Mode
@@ -41,6 +42,7 @@ export default function PlaceholderRenderer({
   fit,
   offsetScale,
 }: PlaceholderRendererProps) {
+  const t = useI18n();
   // YouTube standard aspect ratio (16:9)
   const youtubeAspectRatio = 16 / 9;
 
@@ -142,7 +144,7 @@ export default function PlaceholderRenderer({
   return (
     <div className="yt-placeholder-wrapper" style={wrapperStyle}>
       <div className="yt-placeholder-box" style={placeholderStyle}>
-        Preview disabled for YouTube
+        {t('previewDisabledForYouTube')}
       </div>
     </div>
   );

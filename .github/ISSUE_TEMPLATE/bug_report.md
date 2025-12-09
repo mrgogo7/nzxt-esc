@@ -34,7 +34,7 @@ If applicable, add screenshots or videos to help explain your problem.
 - **Browser**: [e.g. Chrome 120, Firefox 121]
 - **NZXT CAM Version**: [e.g. 4.56.1]
 - **Operating System**: [e.g. Windows 11, macOS 14, Linux]
-- **NZXT-ESC Version**: [e.g. 5.11.15]
+- **NZXT-ESC Version**: [e.g. 5.12 (Build 08)]
 - **Kraken Elite Model**: [e.g. Z73, Z63]
 
 ## 📝 Console Errors

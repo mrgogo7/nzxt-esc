@@ -128,7 +128,7 @@ export function importPresetToRuntimeState(
     }
     
     // Validate element type
-    if (!['metric', 'text', 'divider'].includes(element.type)) {
+    if (!['metric', 'text', 'divider', 'clock', 'date'].includes(element.type)) {
       warnings.push({
         code: 'INVALID_ELEMENT_TYPE',
         message: `Skipping element with invalid type: ${element.type}`,

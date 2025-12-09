@@ -55,7 +55,7 @@ export default defineConfig({
   },
   // TypeScript and ESBuild
   esbuild: {
-    target: 'es2015',
+    target: 'es2020', // Updated for BigInt support (required for xxhash64 implementation)
   },
   // Public directory
   publicDir: 'public',

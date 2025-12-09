@@ -11,8 +11,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Check, ChevronDown } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import type { AppSettings } from '../../../constants/defaults';
 import { 
   getPresets, 
@@ -20,7 +20,6 @@ import {
   type StoredPreset 
 } from '../../../preset/storage';
 import { isFavorite } from '../../../preset/storage';
-// FAZ-4-3: Legacy loadPreset deleted - using applyPresetToRuntimeAndSettings instead
 import { applyPresetToRuntimeAndSettings } from '../../utils/applyPreset';
 
 export interface PresetManagerButtonProps {
@@ -40,6 +39,7 @@ export default function PresetManagerButton({
   settings,
   activePresetId,
 }: PresetManagerButtonProps) {
+  const t = useI18n();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGlowing, setIsGlowing] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,7 +83,6 @@ export default function PresetManagerButton({
     // Overlay mode: preset dosyasından gelmeli, yoksa mevcut mode korunmalı
     // Note: preservedOverlayMode is handled by applyPresetToRuntimeAndSettings
 
-    // FAZ-4-3: Legacy loadPreset removed - use applyPresetToRuntimeAndSettings instead
     // Step 1: Set active preset ID (storage + event dispatch)
     setActivePresetIdStorage(preset.id);
     
@@ -120,7 +119,7 @@ export default function PresetManagerButton({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        title={t('presetManager', lang)}
+        title={t('presetManager')}
         style={{
           boxShadow: isGlowing 
             ? '0 0 20px rgba(138, 43, 226, 0.6), 0 0 40px rgba(138, 43, 226, 0.4)' 
@@ -131,7 +130,7 @@ export default function PresetManagerButton({
           gap: '6px',
         }}
       >
-        <span>{t('presetManager', lang)}</span>
+        <span>{t('presetManager')}</span>
         {favoritePresets.length > 0 && (
           <div
             onClick={handleChevronClick}
@@ -232,7 +231,7 @@ export default function PresetManagerButton({
                         flexShrink: 0,
                       }}>
                         <Check size={12} />
-                        {t('activeLabel', lang)}
+                        {t('activeLabel')}
                       </span>
                     )}
                   </div>
@@ -260,7 +259,7 @@ export default function PresetManagerButton({
                 e.currentTarget.style.color = '#9CA3AF';
               }}
             >
-              {t('openPresetManager', lang)}
+              {t('openPresetManager')}
             </div>
           </motion.div>
         )}

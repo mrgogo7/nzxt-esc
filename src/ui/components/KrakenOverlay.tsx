@@ -42,7 +42,7 @@ function isKrakenView(): boolean {
  * - Reads media URL + settings from hooks (real-time updates)
  * - Subscribes to runtime overlay changes
  * - Mirrors the LCD transform logic (scale, offset, align, fit)
- * - Registers window.nzxt.v1.onMonitoringDataUpdate for real monitoring data
+ * - Uses safeNZXT wrapper for monitoring data (spec-compliant)
  * - Does NOT require any props (safe for ?kraken=1 entry)
  * 
  * Initial hydration - loads preset into runtime state on first mount.

@@ -1,6 +1,20 @@
 /**
  * Runtime — PART 4: Runtime Integration & State Management
  * 
+ * Runtime Merge Overview (High-Level)
+ * - Handles state serialization/deserialization for sync pipeline
+ * - Ensures state consistency and validation
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Serialization/deserialization logic MUST remain identical
+ * - State validation rules MUST NOT change
+ * - Consistency guarantees MUST remain identical
+ * 
  * Main runtime integration functions for initializing, managing, and validating
  * the unified OverlayRuntimeState.
  * 
@@ -15,7 +29,7 @@
 import type { OverlayElement, Overlay } from '../../types/overlay';
 import type { PresetFile } from '../../preset/schema';
 import type { OverlayRuntimeState, StateMetadata, HistoryState, TransactionState } from './types';
-import type { ActionData, TransformActionData, BatchActionData } from './actions';
+import type { ActionData, TransformActionData, BatchActionData, ActionType } from './actions';
 import * as elementStore from './elementStore';
 import * as selection from './selection';
 import * as zOrder from './zOrder';
@@ -81,10 +95,10 @@ function sanitizeActionData(data: ActionData): SerializableActionData {
       // Convert Map<string, OverlayElement> to plain object
       oldStates: transformData.oldStates instanceof Map
         ? Object.fromEntries(transformData.oldStates)
-        : (transformData.oldStates as any),
+        : (transformData.oldStates as Record<string, OverlayElement>),
       newStates: transformData.newStates instanceof Map
         ? Object.fromEntries(transformData.newStates)
-        : (transformData.newStates as any),
+        : (transformData.newStates as Record<string, OverlayElement>),
     };
   }
   
@@ -454,27 +468,27 @@ export function deserializeState(
   const historyState: HistoryState = {
     past: serialized.history.past.map(action => ({
       id: action.id,
-      type: action.type as any,
+      type: action.type as ActionType,
       timestamp: action.timestamp,
-      data: action.data as any,
+      data: action.data as ActionData,
       // Stub functions (actions can't be executed/undone after deserialization)
       execute: (state: OverlayRuntimeState) => state,
       undo: (state: OverlayRuntimeState) => state,
     })),
     present: serialized.history.present ? {
       id: serialized.history.present.id,
-      type: serialized.history.present.type as any,
+      type: serialized.history.present.type as ActionType,
       timestamp: serialized.history.present.timestamp,
-      data: serialized.history.present.data as any,
+      data: serialized.history.present.data as ActionData,
       // Stub functions
       execute: (state: OverlayRuntimeState) => state,
       undo: (state: OverlayRuntimeState) => state,
     } : null,
     future: serialized.history.future.map(action => ({
       id: action.id,
-      type: action.type as any,
+      type: action.type as ActionType,
       timestamp: action.timestamp,
-      data: action.data as any,
+      data: action.data as ActionData,
       // Stub functions
       execute: (state: OverlayRuntimeState) => state,
       undo: (state: OverlayRuntimeState) => state,
@@ -487,9 +501,9 @@ export function deserializeState(
     active: serialized.transactions.active,
     batch: serialized.transactions.batch ? serialized.transactions.batch.map(action => ({
       id: action.id,
-      type: action.type as any,
+      type: action.type as ActionType,
       timestamp: action.timestamp,
-      data: action.data as any,
+      data: action.data as ActionData,
       // Stub functions
       execute: (state: OverlayRuntimeState) => state,
       undo: (state: OverlayRuntimeState) => state,

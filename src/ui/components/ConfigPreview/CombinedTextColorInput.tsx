@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import ColorPicker from '../ColorPicker';
+import TabbedColorPicker from '../TabbedColorPicker';
 import { Tooltip } from 'react-tooltip';
 
 interface CombinedTextColorInputProps {
@@ -7,6 +7,10 @@ interface CombinedTextColorInputProps {
   onTextChange: (text: string) => void;
   color: string;
   onColorChange: (color: string) => void;
+  outlineColor?: string;
+  onOutlineColorChange?: (color: string | undefined) => void;
+  outlineThickness?: number;
+  onOutlineThicknessChange?: (thickness: number) => void;
   placeholder?: string;
   maxLength?: number;
   id?: string;
@@ -16,7 +20,7 @@ interface CombinedTextColorInputProps {
 
 /**
  * Combined text input with inline color picker.
- * Displays a color preview box on the left and text input on the right.
+ * Displays text input on the left and color preview box on the right.
  * Used in text elements for a more compact and integrated UI.
  */
 export default function CombinedTextColorInput({
@@ -24,6 +28,10 @@ export default function CombinedTextColorInput({
   onTextChange,
   color,
   onColorChange,
+  outlineColor,
+  onOutlineColorChange,
+  outlineThickness,
+  onOutlineThicknessChange,
   placeholder,
   maxLength = 120,
   id,
@@ -49,7 +57,7 @@ export default function CombinedTextColorInput({
         background: '#2c2c2c',
         border: '1px solid #3a3a3a',
         borderRadius: '6px',
-        padding: '6px 10px',
+        padding: '6px 0px 6px 10px',
         height: '20px',
         transition: 'all 0.15s ease',
         boxShadow: 'none',
@@ -65,24 +73,6 @@ export default function CombinedTextColorInput({
         }
       }}
     >
-      {/* Color picker with custom trigger styling */}
-      <div
-        style={{
-          flexShrink: 0,
-          display: 'flex',
-          alignItems: 'center',
-        }}
-        className="combined-text-color-picker-wrapper"
-        data-tooltip-id={colorTooltipContent ? `text-color-tooltip-${id}` : undefined}
-        data-tooltip-content={colorTooltipContent}
-      >
-        <ColorPicker
-          value={color || '#ffffff'}
-          onChange={onColorChange}
-        />
-        {colorTooltipContent && <Tooltip id={`text-color-tooltip-${id}`} />}
-      </div>
-
       {/* Text input */}
       <input
         ref={inputRef}
@@ -120,6 +110,28 @@ export default function CombinedTextColorInput({
           }
         }}
       />
+      
+      {/* Color picker with custom trigger styling */}
+      <div
+        style={{
+          flexShrink: 0,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+        className="combined-text-color-picker-wrapper"
+        data-tooltip-id={colorTooltipContent ? `text-color-tooltip-${id}` : undefined}
+        data-tooltip-content={colorTooltipContent}
+      >
+        <TabbedColorPicker
+          textColor={color || '#ffffff'}
+          outlineColor={outlineColor}
+          outlineThickness={outlineThickness}
+          onTextColorChange={onColorChange}
+          onOutlineColorChange={onOutlineColorChange}
+          onOutlineThicknessChange={onOutlineThicknessChange}
+        />
+        {colorTooltipContent && <Tooltip id={`text-color-tooltip-${id}`} />}
+      </div>
     </div>
   );
 }

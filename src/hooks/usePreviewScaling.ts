@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { calculateOffsetScale } from '../utils/positioning';
 import { NZXT_DEFAULTS } from '../constants/nzxt';
+import { safeNZXT } from '../nzxt/safeNZXT';
 
 /**
  * Hook for calculating preview scaling factors.
@@ -26,11 +27,14 @@ import { NZXT_DEFAULTS } from '../constants/nzxt';
  */
 export function usePreviewScaling(previewSize: number = 200) {
   // Get LCD resolution from NZXT API or use default
-  // In NZXT CAM, window.nzxt.v1.width provides actual LCD width
+  // In NZXT CAM, API provides actual LCD width
   // In browser, use default 640px (NZXT Kraken Elite standard)
-  const lcdResolution = typeof window !== 'undefined' && window.nzxt?.v1?.width 
-    ? window.nzxt.v1.width 
-    : NZXT_DEFAULTS.LCD_WIDTH;
+  const lcdDimensions = safeNZXT.getLCDDimensions({
+    width: NZXT_DEFAULTS.LCD_WIDTH,
+    height: NZXT_DEFAULTS.LCD_HEIGHT,
+    shape: NZXT_DEFAULTS.LCD_SHAPE,
+  });
+  const lcdResolution = lcdDimensions.width;
 
   // CRITICAL: This formula converts preview pixels to LCD pixels
   // Used for drag positioning in ConfigPreview

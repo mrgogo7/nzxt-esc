@@ -275,6 +275,6 @@ export function resizeDividerElement(
  * Checks if an element can be resized.
  */
 export function canResizeElement(element: OverlayElement): boolean {
-  return element.type === 'metric' || element.type === 'text' || element.type === 'divider';
+  return element.type === 'metric' || element.type === 'text' || element.type === 'divider' || element.type === 'clock' || element.type === 'date';
 }
 

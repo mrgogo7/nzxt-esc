@@ -9,7 +9,7 @@
  */
 
 import type { PresetFile } from './schema';
-import type { Lang } from '../i18n';
+import type { Lang } from '@/i18n';
 import { CURRENT_SCHEMA_VERSION } from './constants';
 import { importPresetPipeline, type ImportResult } from './importPipeline';
 import type { AppSettings } from '../constants/defaults';

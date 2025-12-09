@@ -7,8 +7,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 export interface OverlayExportNameModalProps {
@@ -26,6 +26,7 @@ export default function OverlayExportNameModal({
   lang,
   initialName = '',
 }: OverlayExportNameModalProps) {
+  const t = useI18n();
   const [name, setName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -81,11 +82,11 @@ export default function OverlayExportNameModal({
             tabIndex={-1}
           >
             <div className="preset-modal-header">
-              <h3>{t('overlayExportTitle', lang) || 'Export Overlay Preset'}</h3>
+              <h3>{t('overlayExportTitle')}</h3>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang) || 'Close'}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -94,7 +95,7 @@ export default function OverlayExportNameModal({
             <form onSubmit={handleSubmit}>
               <div className="preset-modal-content">
                 <label htmlFor="overlay-export-name-input" className="preset-modal-label">
-                  {t('overlayExportNameLabel', lang) || 'Preset Name'}
+                  {t('overlayExportNameLabel')}
                 </label>
                 <input
                   id="overlay-export-name-input"
@@ -103,7 +104,7 @@ export default function OverlayExportNameModal({
                   className="preset-modal-input"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder={t('overlayExportNamePlaceholder', lang) || 'Enter preset name'}
+                  placeholder={t('overlayExportNamePlaceholder')}
                   maxLength={50}
                   autoFocus
                 />
@@ -115,14 +116,14 @@ export default function OverlayExportNameModal({
                   className="preset-modal-button preset-modal-button-secondary"
                   onClick={onClose}
                 >
-                  {t('cancel', lang) || 'Cancel'}
+                  {t('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="preset-modal-button preset-modal-button-primary"
                   disabled={!name.trim()}
                 >
-                  {t('export', lang) || 'Export'}
+                  {t('export')}
                 </button>
               </div>
             </form>

@@ -5,7 +5,7 @@
  * Provides user-friendly error messages with i18n support.
  */
 
-import type { Lang } from '../i18n';
+import type { Lang } from '@/i18n';
 
 /**
  * Error codes for preset operations.

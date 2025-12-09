@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import '../styles/ConfigPreview.css';
-import { LANG_KEY, Lang, t, getInitialLang } from '../../i18n';
+import { LANG_KEY, Lang, getInitialLang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import { Tooltip } from 'react-tooltip';
 import { DEFAULT_SETTINGS, type AppSettings } from '../../constants/defaults';
 import { useConfig } from '../../hooks/useConfig';
@@ -17,7 +18,7 @@ import { useUndoRedo } from '../../transform/hooks/useUndoRedo';
 import { useOverlayStateManager } from '@/state/overlay/useOverlayStateManager';
 import { devError } from '../../debug/dev';
 import { getElementsInZOrder } from '@/state/overlay/selectors';
-import { getSingleSelectedId } from './ConfigPreview/helpers/selectionHelpers';
+import { getSingleSelectedId, getSelectedIds } from './ConfigPreview/helpers/selectionHelpers';
 import { hasRealMonitoring } from '../../environment';
 import { lcdToPreview, getBaseAlign } from '../../utils/positioning';
 import { isVideoUrl } from '../../utils/media';
@@ -42,6 +43,7 @@ export interface ConfigPreviewProps {
 }
 
 export default function ConfigPreview({ activePresetId, overlayConfig: _overlayConfigProp }: ConfigPreviewProps) {
+  const t = useI18n();
   const [lang, setLang] = useState<Lang>(getInitialLang());
   const { settings, setSettings } = useConfig();
   const { mediaUrl } = useMediaUrl();
@@ -183,15 +185,23 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
   // Always derive selectedElementId from runtime state (canonical source)
   const effectiveSelectedElementId = useMemo(() => {
     if (runtimeState) {
-      // Get single selected ID from runtime state
+      // Get single selected ID from runtime state (for transform operations)
       return getSingleSelectedId(runtimeState);
     }
     // Fallback to drag handler's local state only if no runtime state
     return dragHandlerSelectedId;
   }, [runtimeState, dragHandlerSelectedId]);
   
-  // Use effective selected ID throughout component
+  // Use effective selected ID throughout component (for backward compatibility)
   const selectedElementId = effectiveSelectedElementId;
+  
+  // Get all selected IDs for multi-select visual feedback
+  const selectedIds = useMemo(() => {
+    if (runtimeState) {
+      return getSelectedIds(runtimeState);
+    }
+    return selectedElementId ? [selectedElementId] : [];
+  }, [runtimeState, selectedElementId]);
 
   // Resize handlers
   const { resizingElementId, handleResizeMouseDown } = useResizeHandlers(
@@ -340,7 +350,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
             isDragging={isDragging}
             onMouseDown={handleBackgroundMouseDown}
             onScaleChange={adjustScale}
-            previewTitle={t('previewTitle', lang)}
+            previewTitle={t('previewTitle')}
             offsetScale={offsetScale}
             isLocalLoading={settings.sourceType === 'local' && localMedia.isLoading}
             isLocalMissing={settings.sourceType === 'local' && localMedia.isMissing}
@@ -351,7 +361,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
             settings={settings}
             setSettings={setSettings}
             lang={lang}
-            t={t}
             resetField={resetField}
             mediaUrl={mediaUrl}
           />
@@ -360,7 +369,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
 
       {/* Overlay Section */}
       <div className="section-group">
-        <h2 className="section-title">{t('overlaySectionTitle', lang)}</h2>
+        <h2 className="section-title">{t('overlaySectionTitle')}</h2>
         <div className="section-content">
           {/* Overlay Preview */}
           <OverlayPreview
@@ -372,6 +381,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
             overlayAdjY={overlayAdjY}
             draggingElementId={draggingElementId}
             selectedElementId={selectedElementId}
+            selectedIds={selectedIds}
             onElementMouseDown={handleElementMouseDown}
             activeGuides={activeGuides}
             resizingElementId={resizingElementId}
@@ -380,7 +390,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
             onRotationMouseDown={handleRotationMouseDown}
             isRealDataReceived={isRealDataReceived}
             lang={lang}
-            t={t}
             settings={settings}
             mediaUrl={effectiveMediaUrl}
             isVideo={isVideo}
@@ -397,7 +406,6 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
             settings={settings}
             setSettings={setSettings}
             lang={lang}
-            t={t}
             selectedElementId={selectedElementId}
             setSelectedElementId={setSelectedElementId}
             activePresetId={activePresetId}
@@ -415,7 +423,7 @@ export default function ConfigPreview({ activePresetId, overlayConfig: _overlayC
       <Tooltip id="fit-fill-tooltip" />
       <Tooltip id="move-up-tooltip" />
       <Tooltip id="move-down-tooltip" />
-      <Tooltip id="remove-reading-tooltip" />
+      <Tooltip id="remove-metric-tooltip" />
       <Tooltip id="move-text-up-tooltip" />
       <Tooltip id="move-text-down-tooltip" />
       <Tooltip id="remove-text-tooltip" />

@@ -4,8 +4,9 @@ import Config from "./ui/Config";
 import KrakenOverlay from "./ui/components/KrakenOverlay";
 import { isNZXTCAM } from "./environment";
 import { initAntiCache } from "./utils/useAntiCache";
-// Legacy: Initialize dev toggle shortcut (now a no-op, kept for compatibility)
 import { initializeDevToggleShortcut } from "./utils/featureFlags";
+import { I18nProvider } from "./i18n/I18nProvider";
+import { safeNZXT } from "./nzxt/safeNZXT";
 
 /**
  * Main entry point for index.html.
@@ -14,11 +15,9 @@ import { initializeDevToggleShortcut } from "./utils/featureFlags";
  * Uses centralized environment detection module.
  */
 
-// Initialize anti-cache system before rendering
 initAntiCache();
-
-// Legacy: Initialize dev toggle shortcut (now a no-op since runtime is always enabled)
 initializeDevToggleShortcut();
+safeNZXT.init();
 
 const rootElement = document.getElementById("root");
 
@@ -32,6 +31,8 @@ const isKraken = isNZXTCAM();
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    {isKraken ? <KrakenOverlay /> : <Config />}
+    <I18nProvider>
+      {isKraken ? <KrakenOverlay /> : <Config />}
+    </I18nProvider>
   </React.StrictMode>
 );

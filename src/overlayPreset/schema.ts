@@ -164,10 +164,10 @@ export function validateOverlayPresetFile(
       });
     }
     
-    if (!element.type || !['metric', 'text', 'divider'].includes(element.type)) {
+    if (!element.type || !['metric', 'text', 'divider', 'clock', 'date'].includes(element.type)) {
       errors.push({
         field: `${prefix}.type`,
-        message: 'Element type must be one of: metric, text, divider',
+        message: 'Element type must be one of: metric, text, divider, clock',
       });
     }
     
@@ -287,6 +287,52 @@ export function validateOverlayPresetFile(
         errors.push({
           field: `${prefix}.data.color`,
           message: 'Divider color must be a string',
+        });
+      }
+    } else if (element.type === 'clock') {
+      // Clock element validation
+      if (typeof data.format !== 'string' || !['HH:mm', 'HH:mm:ss'].includes(data.format)) {
+        errors.push({
+          field: `${prefix}.data.format`,
+          message: 'Clock format must be "HH:mm" or "HH:mm:ss"',
+        });
+      }
+      if (typeof data.mode !== 'string' || !['24h', '12h'].includes(data.mode)) {
+        errors.push({
+          field: `${prefix}.data.mode`,
+          message: 'Clock mode must be "24h" or "12h"',
+        });
+      }
+      if (typeof data.fontSize !== 'number' || data.fontSize < 6) {
+        errors.push({
+          field: `${prefix}.data.fontSize`,
+          message: 'Clock font size must be at least 6',
+        });
+      }
+      if (typeof data.color !== 'string') {
+        errors.push({
+          field: `${prefix}.data.color`,
+          message: 'Clock color must be a string',
+        });
+      }
+    } else if (element.type === 'date') {
+      // Date element validation
+      if (typeof data.format !== 'string') {
+        errors.push({
+          field: `${prefix}.data.format`,
+          message: 'Date format must be a string',
+        });
+      }
+      if (typeof data.fontSize !== 'number' || data.fontSize < 6) {
+        errors.push({
+          field: `${prefix}.data.fontSize`,
+          message: 'Date font size must be at least 6',
+        });
+      }
+      if (typeof data.color !== 'string') {
+        errors.push({
+          field: `${prefix}.data.color`,
+          message: 'Date color must be a string',
         });
       }
     }

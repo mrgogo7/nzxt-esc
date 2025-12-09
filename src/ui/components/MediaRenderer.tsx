@@ -7,7 +7,8 @@ import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
 import type { LocalMediaKind } from '../../hooks/useLocalMedia';
-import { t, getInitialLang, type Lang } from '../../i18n';
+import { getInitialLang, type Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 
 interface MediaRendererProps {
   url: string;
@@ -39,6 +40,7 @@ export default function MediaRenderer({
   sourceType,
   localKind,
 }: MediaRendererProps) {
+  const t = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [lang] = useState<Lang>(getInitialLang());
   const isLocalVideo = sourceType === 'local' && localKind === 'video';
@@ -188,7 +190,7 @@ export default function MediaRenderer({
   return (
     <img
       src={url}
-      alt={t('mediaAltGeneric', lang)}
+      alt={t('mediaAltGeneric')}
       className={className}
       style={mediaStyle}
     />

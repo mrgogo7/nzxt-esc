@@ -7,8 +7,8 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import type { Lang } from '../../../i18n';
-import { t } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import '../PresetManager/PresetManager.css';
 
 export interface ResetConfirmModalProps {
@@ -26,6 +26,7 @@ export default function ResetConfirmModal({
   presetName,
   lang,
 }: ResetConfirmModalProps) {
+  const t = useI18n();
   // Handle ESC key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -70,12 +71,12 @@ export default function ResetConfirmModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <AlertTriangle size={20} className="preset-conflict-icon" />
-                <h3>{t('resetConfirmTitle', lang)}</h3>
+                <h3>{t('resetConfirmTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -83,7 +84,7 @@ export default function ResetConfirmModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t('resetConfirmDescription', lang).replace('{name}', presetName)}
+                {t('resetConfirmDescription').replace('{name}', presetName)}
               </p>
             </div>
 
@@ -92,13 +93,13 @@ export default function ResetConfirmModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('resetCancelButton', lang)}
+                {t('resetCancelButton')}
               </button>
               <button
                 className="preset-modal-button preset-modal-button-primary"
                 onClick={handleConfirm}
               >
-                {t('resetConfirmButton', lang)}
+                {t('resetConfirmButton')}
               </button>
             </div>
           </motion.div>

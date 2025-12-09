@@ -8,7 +8,7 @@
  */
 
 import type { AppSettings } from '../constants/defaults';
-import type { Lang } from '../i18n';
+import type { Lang } from '@/i18n';
 
 /**
  * Complete storage schema.

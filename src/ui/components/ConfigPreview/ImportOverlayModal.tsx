@@ -8,9 +8,9 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Upload } from 'lucide-react';
 import type { OverlayElement } from '../../../types/overlay';
-import type { Lang } from '../../../i18n';
+import type { Lang } from '@/i18n';
 import type { AppSettings } from '../../../constants/defaults';
-import { t } from '../../../i18n';
+import { useI18n } from '@/i18n/useI18n';
 import { MAX_OVERLAY_ELEMENTS, canAddElements, getTotalElementCount } from '../../../utils/overlaySettingsHelpers';
 import '../PresetManager/PresetManager.css';
 
@@ -35,13 +35,13 @@ export default function ImportOverlayModal({
   settings,
   lang,
 }: ImportOverlayModalProps) {
+  const t = useI18n();
   // Handle ESC and ENTER keys
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
       } else if (e.key === 'Enter' && isOpen) {
-        // FAZ-10: ENTER triggers primary action (Replace)
         e.preventDefault();
         handleReplace();
       }
@@ -63,7 +63,7 @@ export default function ImportOverlayModal({
     // Truncate to MAX_OVERLAY_ELEMENTS if needed
     const truncatedElements = importedElements.slice(0, MAX_OVERLAY_ELEMENTS);
     if (truncatedElements.length < importedElements.length) {
-      const message = t('overlayMaxElementsWarning', lang)
+      const message = t('overlayMaxElementsWarning')
         .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
         .replace('{count}', String(importedElements.length - truncatedElements.length));
       alert(message);
@@ -85,7 +85,7 @@ export default function ImportOverlayModal({
     // Use deprecated canAddElements for backward compatibility (it uses runtime count internally)
     if (!canAddElements(settings, currentElementCount, importedElements.length)) {
       const availableSlots = MAX_OVERLAY_ELEMENTS - currentTotal;
-      const message = t('overlayMaxElementsWarning', lang)
+      const message = t('overlayMaxElementsWarning')
         .replace('{max}', String(MAX_OVERLAY_ELEMENTS))
         .replace('{count}', String(importedElements.length - availableSlots));
       alert(message);
@@ -121,12 +121,12 @@ export default function ImportOverlayModal({
             <div className="preset-modal-header">
               <div className="preset-conflict-header-content">
                 <Upload size={20} className="preset-conflict-icon" />
-                <h3>{t('overlayImportModalTitle', lang)}</h3>
+                <h3>{t('overlayImportModalTitle')}</h3>
               </div>
               <button
                 className="preset-modal-close"
                 onClick={onClose}
-                aria-label={t('close', lang)}
+                aria-label={t('close')}
               >
                 <X size={18} />
               </button>
@@ -134,7 +134,7 @@ export default function ImportOverlayModal({
 
             <div className="preset-modal-content">
               <p className="preset-conflict-message">
-                {t('overlayImportModalDescription', lang)}
+                {t('overlayImportModalDescription')}
               </p>
             </div>
 
@@ -144,21 +144,21 @@ export default function ImportOverlayModal({
                 className="preset-modal-button preset-modal-button-secondary"
                 onClick={onClose}
               >
-                {t('cancel', lang)}
+                {t('cancel')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-primary"
                 onClick={handleReplace}
               >
-                {t('overlayImportReplace', lang)}
+                {t('overlayImportReplace')}
               </button>
               <button
                 type="button"
                 className="preset-modal-button preset-modal-button-primary"
                 onClick={handleAppend}
               >
-                {t('overlayImportAppend', lang)}
+                {t('overlayImportAppend')}
               </button>
             </div>
           </motion.div>

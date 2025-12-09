@@ -5,15 +5,70 @@
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { LCD_FRAME_MS } from '../overlay/helpers/renderLoop';
+
+/**
+ * Rotation smoothing threshold in degrees.
+ * 
+ * Small angle changes below this threshold are filtered to reduce jitter.
+ * Must be subtle (0.5-1.0°) to not block intentional small rotations.
+ */
+const ROTATION_SMOOTHING_THRESHOLD_DEG = 0.75;
 import { rotateElement, type RotateOperationConfig } from '../transform/operations/RotateOperation';
 import type { AppSettings } from '../constants/defaults';
 import type { OverlayStateManager } from '../state/overlay/stateManager';
 import type { OverlayRuntimeState } from '../state/overlay/types';
-import { createTransformAction } from '../state/overlay/actions';
+import { createTransformAction, createTransformActionWithV2 } from '../state/overlay/actions';
 import { getElement as getElementFromStore } from '../state/overlay/elementStore';
 import { shouldUseFaz3BRuntime } from '../utils/featureFlags';
 import { IS_DEV } from '../utils/env';
 import { devWarn, devDebug } from '../debug/dev';
+import { computeGroupBoundingBox, type ElementBoundingBox } from '../ui/helpers/groupBoundingBox';
+import { calculateElementDimensions } from '../transform/engine/BoundingBox';
+import type { OverlayElement } from '../types/overlay';
+import type { GroupBoundingBox } from '../ui/helpers/groupBoundingBox';
+import { rotatePoint, normalizeAngle } from '../transform/helpers/rotationHelpers';
+
+/**
+ * Helper function to dispatch unified transform action for a group of elements.
+ * 
+ * @param afterArray - Array of elements after transformation
+ * @param options - Options including useV2, opType, and groupBBox
+ */
+function updateElementGroup(
+  afterArray: OverlayElement[],
+  options: {
+    useV2: boolean;
+    opType: 'move' | 'rotate' | 'resize';
+    groupBBox: GroupBoundingBox | null;
+  },
+  current: OverlayRuntimeState,
+  stateManager: OverlayStateManager
+) {
+  const beforeMap = new Map<string, OverlayElement>();
+  const afterMap = new Map<string, OverlayElement>();
+
+  afterArray.forEach(el => {
+    const beforeEl = getElementFromStore(current.elements, el.id);
+    if (beforeEl) {
+      beforeMap.set(el.id, beforeEl);
+      afterMap.set(el.id, el);
+    }
+  });
+
+  if (beforeMap.size === 0 || afterMap.size === 0) {
+    return;
+  }
+
+  const action = createTransformActionWithV2(
+    Array.from(beforeMap.keys()),
+    beforeMap,
+    afterMap,
+    { includeV2Meta: options.useV2 }
+  );
+
+  stateManager.dispatch(action);
+}
 
 /**
  * Hook for managing element rotation.
@@ -39,6 +94,18 @@ export function useRotationHandlers(
     elementId: string;
     initialAngle: number;
   } | null>(null);
+  
+  /**
+   * Last applied rotation angle (for smoothing calculation).
+   * 
+   * Tracks the last angle where a rotation update was actually applied.
+   * Used to filter out jittery small angle changes.
+   */
+  const lastAppliedAngleRef = useRef<number | null>(null);
+  
+  const lastTransformDispatchTime = useRef<number>(0);
+  
+  const MULTI_SELECT_TRANSFORM_EXPERIMENT = true;
 
   const handleRotationMouseDown = useCallback((
     elementId: string,
@@ -54,7 +121,7 @@ export function useRotationHandlers(
       return;
     }
     
-    // FAZ-3B-3: Get element from new runtime or old runtime
+    // Get element from new runtime or old runtime
     const useNewRuntime = shouldUseFaz3BRuntime();
     let element;
     if (useNewRuntime && runtimeState) {
@@ -68,7 +135,6 @@ export function useRotationHandlers(
     
     if (!element) return;
     
-    // FAZ-3B-3: Start transaction for new runtime system
     if (useNewRuntime && stateManager) {
       stateManager.startTransaction();
       if (IS_DEV) {
@@ -101,6 +167,8 @@ export function useRotationHandlers(
       elementId,
       initialAngle: currentElementAngle,
     };
+    
+    lastAppliedAngleRef.current = currentElementAngle;
   }, [activePresetId, stateManager, runtimeState]);
 
   const handleRotationMouseMove = useCallback((e: MouseEvent) => {
@@ -116,7 +184,7 @@ export function useRotationHandlers(
       return;
     }
     
-    // FAZ-3B-3: Get element from new runtime or old runtime
+    // Get element from new runtime or old runtime
     const useNewRuntime = shouldUseFaz3BRuntime();
     let element;
     if (useNewRuntime && runtimeState) {
@@ -129,8 +197,121 @@ export function useRotationHandlers(
     }
     
     if (element) {
+      const selectedIds = runtimeState ? Array.from(runtimeState.selection.selectedIds) : [];
+      const elementId = rotationStart.current!.elementId;
+      const isMulti = MULTI_SELECT_TRANSFORM_EXPERIMENT && selectedIds.length > 1 && selectedIds.includes(elementId);
       
-      // Use new RotateOperation (Bug #7 fix)
+      if (isMulti && runtimeState && stateManager) {
+        // Build per-element bounding boxes (UI layer)
+        const beforeElements: OverlayElement[] = [];
+        const elementBoxes: ElementBoundingBox[] = [];
+        
+        for (const selectedId of selectedIds) {
+          const selectedElement = getElementFromStore(runtimeState.elements, selectedId);
+          if (!selectedElement) continue;
+          
+          beforeElements.push(selectedElement);
+          
+          const dimensions = calculateElementDimensions(selectedElement);
+          elementBoxes.push({
+            id: selectedElement.id,
+            x: selectedElement.x - dimensions.width / 2, // Convert center to top-left
+            y: selectedElement.y - dimensions.height / 2,
+            width: dimensions.width,
+            height: dimensions.height,
+          });
+        }
+        
+        // Compute group bounding box
+        const groupBBox = computeGroupBoundingBox(elementBoxes);
+        if (!groupBBox) {
+          // Fallback to single-element behavior if group box computation fails
+          // Fall through to single-element logic below
+        } else {
+          try {
+            // Compute rotation for the primary element (the one being rotated) to get angle delta
+            const primaryElement = element;
+            const rotateConfig: RotateOperationConfig = {
+              offsetScale: _offsetScale,
+              previewRect,
+              startMousePos: {
+                x: rotationStart.current.startX,
+                y: rotationStart.current.startY,
+              },
+              initialAngle: rotationStart.current.initialAngle,
+              elementCenter: {
+                x: groupBBox.centerX,
+                y: groupBBox.centerY,
+              },
+            };
+            
+            // Compute angle delta from primary element rotation (around group center)
+            const primaryResult = rotateElement(
+              primaryElement,
+              { x: e.clientX, y: e.clientY },
+              rotateConfig
+            );
+            
+            // Calculate angle delta
+            const startAngle = rotationStart.current.initialAngle;
+            const currentComputedAngle = primaryResult.angle;
+            let angleDelta = currentComputedAngle - startAngle;
+            // Normalize angle delta to [-180, 180] range
+            if (angleDelta > 180) angleDelta -= 360;
+            if (angleDelta < -180) angleDelta += 360;
+            
+            if (lastAppliedAngleRef.current !== null) {
+              const angleDeltaAbs = Math.abs(angleDelta);
+              const normalizedDelta = Math.min(angleDeltaAbs, 360 - angleDeltaAbs);
+              if (normalizedDelta < ROTATION_SMOOTHING_THRESHOLD_DEG) {
+                // Skip this jittery update
+                return;
+              }
+            }
+            
+            // Build after elements array with rotated positions and angles
+            const after = beforeElements.map(el => {
+              const dx = el.x - groupBBox.centerX;
+              const dy = el.y - groupBBox.centerY;
+              
+              // Rotate point around group center
+              const rotated = rotatePoint(dx, dy, angleDelta);
+              
+              return {
+                ...el,
+                angle: normalizeAngle((el.angle ?? 0) + angleDelta),
+                x: groupBBox.centerX + rotated.x,
+                y: groupBBox.centerY + rotated.y,
+              };
+            });
+            
+            const now = performance.now();
+            const timeSinceLastDispatch = now - lastTransformDispatchTime.current;
+            
+            if (timeSinceLastDispatch >= LCD_FRAME_MS) {
+            // Dispatch unified transform action
+            updateElementGroup(after, {
+              useV2: true,
+              opType: 'rotate',
+              groupBBox,
+            }, runtimeState, stateManager);
+              
+              lastTransformDispatchTime.current = now;
+            }
+            
+            // Update last applied angle after successful rotation
+            lastAppliedAngleRef.current = primaryResult.angle;
+            return; // Multi-select handled, don't fall through to single-element logic
+          } catch (err) {
+            // Safety guard: fallback to single-element behavior on error
+            if (IS_DEV) {
+              devWarn('useRotationHandlers', 'Multi-select rotate failed, falling back to single-element', err);
+            }
+            // Fall through to single-element logic below
+          }
+        }
+      }
+      
       const rotateConfig: RotateOperationConfig = {
         offsetScale: _offsetScale,
         previewRect,
@@ -151,12 +332,28 @@ export function useRotationHandlers(
         rotateConfig
       );
       
-      // FAZ-3B-3: Use new runtime system if feature flag is enabled
+      if (lastAppliedAngleRef.current !== null) {
+        const rawAngle = result.angle;
+        const angleDelta = Math.abs(rawAngle - lastAppliedAngleRef.current);
+        
+        // Handle wrap-around (e.g., 359° to 1° = 2° delta, not 358°)
+        const normalizedDelta = Math.min(angleDelta, 360 - angleDelta);
+        
+        if (normalizedDelta < ROTATION_SMOOTHING_THRESHOLD_DEG) {
+          // Skip this jittery update - do not dispatch rotation action
+          return;
+        }
+      }
+      
       if (useNewRuntime && stateManager && runtimeState) {
         // Get current element state from runtime
         const currentElement = getElementFromStore(runtimeState.elements, element.id);
         if (!currentElement) return;
         
+        const now = performance.now();
+        const timeSinceLastDispatch = now - lastTransformDispatchTime.current;
+        
+        if (timeSinceLastDispatch >= LCD_FRAME_MS) {
         // Create transform action and dispatch (will be batched in transaction)
         const oldStates = new Map<string, typeof currentElement>();
         const newStates = new Map<string, typeof result.element>;
@@ -165,43 +362,50 @@ export function useRotationHandlers(
         
         const action = createTransformAction([element.id], oldStates, newStates);
         stateManager.dispatch(action); // This adds to transaction if active
+          
+          lastTransformDispatchTime.current = now;
+        }
       } else {
         if (IS_DEV) {
           devWarn('useRotationHandlers', 'updateElementInRuntime called but vNext not available');
         }
       }
+      
+      lastAppliedAngleRef.current = result.angle;
     }
   }, [_offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
-  const handleRotationMouseUp = useCallback(() => {
-    // FAZ-3B-3: Commit transaction for new runtime system
+  const handleRotationMouseUp = useCallback((e?: MouseEvent) => {
     const useNewRuntime = shouldUseFaz3BRuntime();
     if (useNewRuntime && stateManager) {
-      // Commit transaction (batches all actions from this rotate into single undo/redo entry)
       stateManager.commitTransaction();
-      // FAZ-4-4C: Dev logging for rotation transaction commit
       if (IS_DEV) {
         devDebug('OverlayRuntime', 'Rotation transaction committed');
       }
     }
     
-    // FAZ-4-POST-FIX-TRANSFORM-COMPLETE-RESTORE: Call simple complete callback
     if (onRotateCompleteSimple) {
       onRotateCompleteSimple();
     }
     
     setRotatingElementId(null);
     rotationStart.current = null;
+    
+    lastAppliedAngleRef.current = null;
+    
+    lastTransformDispatchTime.current = 0;
   }, [onRotateComplete, onRotateCompleteSimple, activePresetId, stateManager]);
 
   // Event listeners for rotation
   useEffect(() => {
     if (rotatingElementId) {
+      // Wrap mouseup handler to pass event for color picker detection
+      const wrappedMouseUp = (e: MouseEvent) => handleRotationMouseUp(e);
       window.addEventListener('mousemove', handleRotationMouseMove);
-      window.addEventListener('mouseup', handleRotationMouseUp);
+      window.addEventListener('mouseup', wrappedMouseUp);
       return () => {
         window.removeEventListener('mousemove', handleRotationMouseMove);
-        window.removeEventListener('mouseup', handleRotationMouseUp);
+        window.removeEventListener('mouseup', wrappedMouseUp);
       };
     }
   }, [rotatingElementId, handleRotationMouseMove, handleRotationMouseUp]);

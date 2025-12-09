@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { HexColorPicker, RgbaColorPicker, HexColorInput } from 'react-colorful';
 import type { RgbaColor } from 'react-colorful';
 import { Copy, ClipboardPaste } from 'lucide-react';
-import { t, getInitialLang } from '../../i18n';
+import { getInitialLang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import { Tooltip } from 'react-tooltip';
 import { motion, AnimatePresence } from 'framer-motion';
 import 'react-tooltip/dist/react-tooltip.css';
@@ -31,6 +32,7 @@ export default function ColorPicker({
   enableAlpha = true,
   popupPosition = 'auto'
 }: ColorPickerProps) {
+  const t = useI18n();
   const [isOpen, setIsOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -39,7 +41,6 @@ export default function ColorPicker({
   const [isSelecting, setIsSelecting] = useState(false);
   const [isUserTyping, setIsUserTyping] = useState(false);
   const inputFocusedRef = useRef(false);
-  const lang = getInitialLang();
 
   // Parse color value to RGBA object or hex string
   const parseColor = (color: string): RgbaColor | string => {
@@ -290,7 +291,7 @@ export default function ColorPicker({
       try {
         await navigator.clipboard.writeText(colorInput);
       } catch (err) {
-        console.error('Failed to copy:', err);
+        // Failed to copy
       }
     };
 
@@ -303,7 +304,7 @@ export default function ColorPicker({
           handleInputChange(text);
         }
       } catch (err) {
-        console.error('Failed to paste:', err);
+        // Failed to paste
       }
     };
 
@@ -329,7 +330,7 @@ export default function ColorPicker({
               onClick={handleCopy}
               onMouseDown={(e) => e.stopPropagation()}
               data-tooltip-id="color-picker-copy-tooltip"
-              data-tooltip-content={t('copy', lang)}
+              data-tooltip-content={t('copy')}
             >
               <Copy size={14} />
             </button>
@@ -340,7 +341,7 @@ export default function ColorPicker({
               onClick={handlePaste}
               onMouseDown={(e) => e.stopPropagation()}
               data-tooltip-id="color-picker-paste-tooltip"
-              data-tooltip-content={t('paste', lang)}
+              data-tooltip-content={t('paste')}
             >
               <ClipboardPaste size={14} />
             </button>

@@ -1,6 +1,20 @@
 /**
  * MoveOperation.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Handles element movement (translation) operations
+ * - Supports rotated elements with correct coordinate transformation
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Move math (coordinate conversion) MUST remain identical
+ * - Screen → LCD delta conversion formula MUST NOT change
+ * - Element positioning logic MUST remain identical
+ * 
  * Move operation for TransformEngine v1.
  * 
  * This module handles element movement (translation) with proper support

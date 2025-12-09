@@ -1,22 +1,32 @@
 import UnifiedOverlayRenderer from '../UnifiedOverlayRenderer';
 import type { Overlay, OverlayMetrics } from '../../../types/overlay';
-import type { Lang, t as tFunction } from '../../../i18n';
+import type { Lang } from '@/i18n';
+import { useI18n } from '@/i18n/useI18n';
 import type { AppSettings } from '../../../constants/defaults';
 import { lcdToPreview } from '../../../utils/positioning';
+import { screenToLcd } from '../../../transform/engine/CoordinateSystem';
 import type { AlignmentGuide } from '../../../utils/snapping';
 import { canResizeElement } from '../../../utils/resize';
 import { RotateCw } from 'lucide-react';
 import BackgroundMediaRenderer from './BackgroundMediaRenderer';
 import { 
   calculateAABB,
+  isPointInRotatedBoundingBox,
+  calculateElementDimensions,
 } from '../../../transform/engine/BoundingBox';
 import { 
-  calculateHandlePositions,
-  getAllResizeHandlePositions,
   type ResizeHandle,
 } from '../../../transform/engine/HandlePositioning';
 import '../../styles/TransformHandles.css';
 import '../../styles/BoundingBox.css';
+
+/**
+ * Hitbox v2 Phase 1 constants.
+ * 
+ * Consistent padding and minimum size for all element types to improve clickability.
+ */
+const HITBOX_PADDING_PX = 6;     // Consistent padding for ALL element types (preview pixels)
+const MIN_HIT_AREA_PX = 16;      // Minimum clickable area (preview pixels)
 
 interface OverlayPreviewProps {
   overlayConfig: Overlay;
@@ -27,6 +37,7 @@ interface OverlayPreviewProps {
   overlayAdjY: number;
   draggingElementId: string | null;
   selectedElementId: string | null;
+  selectedIds?: string[];
   onElementMouseDown: (elementId: string, e: React.MouseEvent) => void;
   activeGuides: AlignmentGuide[];
   resizingElementId: string | null;
@@ -35,7 +46,6 @@ interface OverlayPreviewProps {
   onRotationMouseDown: (elementId: string, centerX: number, centerY: number, e: React.MouseEvent) => void;
   isRealDataReceived: boolean;
   lang: Lang;
-  t: typeof tFunction;
   settings: AppSettings;
   mediaUrl: string | null;
   isVideo: boolean;
@@ -64,6 +74,7 @@ export default function OverlayPreview({
   overlayAdjY,
   draggingElementId,
   selectedElementId,
+  selectedIds: selectedIdsProp,
   onElementMouseDown,
   activeGuides,
   resizingElementId,
@@ -72,7 +83,6 @@ export default function OverlayPreview({
   onRotationMouseDown,
   isRealDataReceived,
   lang,
-  t,
   settings,
   mediaUrl,
   isVideo,
@@ -82,6 +92,7 @@ export default function OverlayPreview({
   overlayBackgroundOpacity,
   setOverlayBackgroundOpacity,
 }: OverlayPreviewProps) {
+  const t = useI18n();
   return (
     <div className="preview-column">
       {overlayConfig.mode !== 'none' ? (
@@ -96,10 +107,10 @@ export default function OverlayPreview({
             position: 'relative'
           }}>
             <div className="preview-title" style={{ margin: 0, position: 'relative', left: 'auto' }}>
-              {t('overlayPreviewTitle', lang)}
+              {t('overlayPreviewTitle')}
             </div>
             <div className="overlay-toggle-compact">
-              <span>Show Background</span>
+              <span>{t('showBackground')}</span>
               <label className="switch">
                 <input
                   type="checkbox"
@@ -122,7 +133,7 @@ export default function OverlayPreview({
           }}>
             {showBackgroundInOverlayPreview && (
               <div className="setting-row" style={{ margin: 0, width: '100%' }}>
-                <label style={{ fontSize: '12px', color: '#a0a0a0', whiteSpace: 'nowrap' }}>Background Opacity</label>
+                <label style={{ fontSize: '12px', color: '#a0a0a0', whiteSpace: 'nowrap' }}>{t('backgroundOpacity')}</label>
                 <input
                   type="range"
                   min="0"
@@ -235,12 +246,14 @@ export default function OverlayPreview({
                 transform: `translate(${overlayAdjX}px, ${overlayAdjY}px)`,
                 pointerEvents: 'none',
                 zIndex: 1,
+                opacity: 1,
               }}
             >
               <UnifiedOverlayRenderer
                 overlay={overlayConfig}
                 metrics={metrics}
                 scale={overlayPreviewScale}
+                isTransformActive={!!(draggingElementId || resizingElementId || rotatingElementId)}
               />
             </div>
             
@@ -251,7 +264,10 @@ export default function OverlayPreview({
                   const elementX = lcdToPreview(element.x, offsetScale);
                   const elementY = lcdToPreview(element.y, offsetScale);
                   const isDraggingThis = draggingElementId === element.id;
-                  const isSelected = selectedElementId === element.id;
+                  // Support multi-select visual feedback
+                  // Use selectedIds if provided, otherwise fallback to selectedElementId for backward compatibility
+                  const selectedIds = selectedIdsProp ?? (selectedElementId ? [selectedElementId] : []);
+                  const isSelected = selectedIds.includes(element.id);
                   const isResizingThis = resizingElementId === element.id;
                   const isRotatingThis = rotatingElementId === element.id;
                   const canResize = canResizeElement(element);
@@ -271,49 +287,64 @@ export default function OverlayPreview({
                     height: lcdToPreview(aabb.height, offsetScale),
                   };
                   
-                  // Get handle positions from HandlePositioning system (only when selected)
-                  // WHY: Handle positions are expensive to calculate, so we only do it for selected elements.
-                  const handlePositions = isSelected ? calculateHandlePositions(element) : null;
-                  
                   // Calculate hit area based on AABB (for selection)
                   // WHY: AABB is used for hit detection (Figma-style). This ensures consistent
                   // selection behavior regardless of element rotation.
                   // 
-                  // For divider elements, add selection padding in preview for better UX
-                  // (similar to Figma's handling of thin strokes)
-                  // This padding only affects preview selection, not actual element size or LCD rendering
-                  const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
-                  const hitAreaWidth = aabbAtPosition.width + (SELECTION_PADDING * 2);
-                  const hitAreaHeight = aabbAtPosition.height + (SELECTION_PADDING * 2);
+                  // Apply consistent padding to all element types and enforce minimum clickable area
+                  const paddedWidth = aabbAtPosition.width + (HITBOX_PADDING_PX * 2);
+                  const paddedHeight = aabbAtPosition.height + (HITBOX_PADDING_PX * 2);
+                  const hitAreaWidth = Math.max(paddedWidth, MIN_HIT_AREA_PX);
+                  const hitAreaHeight = Math.max(paddedHeight, MIN_HIT_AREA_PX);
                   
                   // Get element label (same as OverlaySettings)
                   const getElementLabel = (): string => {
                     if (element.type === 'metric') {
                       const metricElements = overlayConfig.elements.filter(el => el.type === 'metric');
                       const metricIndex = metricElements.findIndex(el => el.id === element.id);
-                      const readingLabels = [
-                        t('firstReading', lang),
-                        t('secondReading', lang),
-                        t('thirdReading', lang),
-                        t('fourthReading', lang),
-                        t('fifthReading', lang),
-                        t('sixthReading', lang),
-                        t('seventhReading', lang),
-                        t('eighthReading', lang),
+                      const metricLabels = [
+                        t('firstMetric'),
+                        t('secondMetric'),
+                        t('thirdMetric'),
+                        t('fourthMetric'),
+                        t('fifthMetric'),
+                        t('sixthMetric'),
+                        t('seventhMetric'),
+                        t('eighthMetric'),
                       ];
-                      return readingLabels[metricIndex] || `${metricIndex + 1}${metricIndex === 0 ? 'st' : metricIndex === 1 ? 'nd' : metricIndex === 2 ? 'rd' : 'th'} ${t('reading', lang)}`;
+                      return metricLabels[metricIndex] || `${metricIndex + 1}${metricIndex === 0 ? 'st' : metricIndex === 1 ? 'nd' : metricIndex === 2 ? 'rd' : 'th'} ${t('metric')}`;
                     } else if (element.type === 'text') {
                       const textElements = overlayConfig.elements.filter(el => el.type === 'text');
                       const textIndex = textElements.findIndex(el => el.id === element.id);
                       const textLabels = [
-                        t('firstText', lang),
-                        t('secondText', lang),
-                        t('thirdText', lang),
-                        t('fourthText', lang),
+                        t('firstText'),
+                        t('secondText'),
+                        t('thirdText'),
+                        t('fourthText'),
                       ];
-                      return textLabels[textIndex] || `${textIndex + 1}${textIndex === 0 ? 'st' : textIndex === 1 ? 'nd' : textIndex === 2 ? 'rd' : 'th'} ${t('text', lang)}`;
+                      return textLabels[textIndex] || `${textIndex + 1}${textIndex === 0 ? 'st' : textIndex === 1 ? 'nd' : textIndex === 2 ? 'rd' : 'th'} ${t('text')}`;
                     } else if (element.type === 'divider') {
-                      return t('divider', lang) || 'Divider';
+                      return t('divider');
+                    } else if (element.type === 'clock') {
+                      const clockElements = overlayConfig.elements.filter(el => el.type === 'clock');
+                      const clockIndex = clockElements.findIndex(el => el.id === element.id);
+                      const clockLabels = [
+                        t('firstClock'),
+                        t('secondClock'),
+                        t('thirdClock'),
+                        t('fourthClock'),
+                      ];
+                      return clockLabels[clockIndex] || `${clockIndex + 1}${clockIndex === 0 ? 'st' : clockIndex === 1 ? 'nd' : clockIndex === 2 ? 'rd' : 'th'} ${t('clock')}`;
+                    } else if (element.type === 'date') {
+                      const dateElements = overlayConfig.elements.filter(el => el.type === 'date');
+                      const dateIndex = dateElements.findIndex(el => el.id === element.id);
+                      const dateLabels = [
+                        t('firstDate'),
+                        t('secondDate'),
+                        t('thirdDate'),
+                        t('fourthDate'),
+                      ];
+                      return dateLabels[dateIndex] || `${dateIndex + 1}${dateIndex === 0 ? 'st' : dateIndex === 1 ? 'nd' : dateIndex === 2 ? 'rd' : 'th'} ${t('date')}`;
                     }
                     return element.type;
                   };
@@ -321,22 +352,56 @@ export default function OverlayPreview({
                   return (
                     <div key={element.id}>
                       {/* Element hit area - using AABB (Figma-style) */}
-                      {/* For divider, apply selection padding for better UX */}
+                      {/* Hitbox v2 Phase 1 — consistent padding for all element types */}
                       {(() => {
-                        const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
-                        const hitAreaLeft = aabbAtPosition.left - SELECTION_PADDING;
-                        const hitAreaTop = aabbAtPosition.top - SELECTION_PADDING;
+                        const hitAreaLeft = aabbAtPosition.left - HITBOX_PADDING_PX;
+                        const hitAreaTop = aabbAtPosition.top - HITBOX_PADDING_PX;
                         
                         return (
                           <div
                             data-element-id={element.id}
                             onMouseDown={(e) => {
+                              // Hitbox v2 Phase 2 — rotation-aware hit test
+                              // For rotated elements, verify click is actually inside rotated shape
+                              const elementAngle = element.angle ?? 0;
+                              if (elementAngle !== 0) {
+                                // Get preview container for coordinate conversion
+                                const previewContainer = document.querySelector('.overlay-preview');
+                                if (previewContainer) {
+                                  const previewRect = previewContainer.getBoundingClientRect();
+                                  
+                                  // Convert mouse position to LCD coordinates
+                                  const clickPointLcd = screenToLcd(
+                                    e.clientX,
+                                    e.clientY,
+                                    previewRect,
+                                    offsetScale
+                                  );
+                                  
+                                  // Test if click is inside rotated bounding box
+                                  // Note: isPointInRotatedBoundingBox uses actual element dimensions
+                                  // Padding is already applied to hit area div size, but for accuracy
+                                  // we test against the actual rotated shape
+                                  const isInsideRotatedShape = isPointInRotatedBoundingBox(
+                                    clickPointLcd,
+                                    element
+                                  );
+                                  
+                                  // If click is outside rotated shape, don't select
+                                  if (!isInsideRotatedShape) {
+                                    e.stopPropagation();
+                                    return;
+                                  }
+                                }
+                              }
+                              
+                              // Normal selection (non-rotated or inside rotated shape)
                               onElementMouseDown(element.id, e);
                             }}
                             style={{
                               position: 'absolute',
                               // Use AABB for hit area (axis-aligned, not rotated)
-                              // Apply padding for divider elements to make selection easier
+                              // Hitbox v2 Phase 1 — consistent padding + minimum size applied
                               left: `calc(50% + ${hitAreaLeft}px)`,
                               top: `calc(50% + ${hitAreaTop}px)`,
                               width: `${hitAreaWidth}px`,
@@ -350,168 +415,172 @@ export default function OverlayPreview({
                         );
                       })()}
                       
-                      {/* AABB Bounding Box (Modern Framer-style) - shown when selected */}
-                      {/* Resizing state for opacity feedback */}
-                      {/* For divider, apply selection padding for better visibility */}
+                      {/* Transform Overlay Container - Figma-style: bounding box + handles in unified transform */}
+                      {/* Uses same transform as UnifiedOverlayRenderer for perfect alignment */}
                       {isSelected && (() => {
-                        const SELECTION_PADDING = element.type === 'divider' ? 8 : 0; // Preview pixels (increased for better UX)
-                        const outlineLeft = aabbAtPosition.left - SELECTION_PADDING;
-                        const outlineTop = aabbAtPosition.top - SELECTION_PADDING;
-                        const outlineWidth = aabbAtPosition.width + (SELECTION_PADDING * 2);
-                        const outlineHeight = aabbAtPosition.height + (SELECTION_PADDING * 2);
+                        // Get element rotation angle (default to 0 if not set)
+                        const elementAngle = element.angle ?? 0;
+                        
+                        // Use same transform as UnifiedOverlayRenderer
+                        // Transform: translate(calc(-50% + element.x * scale), calc(-50% + element.y * scale)) rotate(angle)
+                        // This ensures bounding box and handles move/rotate exactly with element
+                        const elementTransform = elementAngle !== 0
+                          ? `translate(calc(-50% + ${element.x * overlayPreviewScale}px), calc(-50% + ${element.y * overlayPreviewScale}px)) rotate(${elementAngle}deg)`
+                          : `translate(calc(-50% + ${element.x * overlayPreviewScale}px), calc(-50% + ${element.y * overlayPreviewScale}px))`;
+                        
+                        // Calculate bounding box dimensions using element's actual dimensions
+                        const elementDimensions = calculateElementDimensions(element);
+                        const elementWidth = lcdToPreview(elementDimensions.width, offsetScale);
+                        const elementHeight = lcdToPreview(elementDimensions.height, offsetScale);
+                        
+                        // Add padding for visual feedback
+                        const outlineWidth = Math.max(elementWidth + (HITBOX_PADDING_PX * 2), MIN_HIT_AREA_PX);
+                        const outlineHeight = Math.max(elementHeight + (HITBOX_PADDING_PX * 2), MIN_HIT_AREA_PX);
+                        
+                        // Local corner positions (relative to element center, no rotation - parent container rotates)
+                        // These are in preview coordinates (already scaled)
+                        const halfWidth = outlineWidth / 2;
+                        const halfHeight = outlineHeight / 2;
+                        const localCorners = {
+                          nw: { x: -halfWidth, y: -halfHeight }, // top-left
+                          ne: { x: halfWidth, y: -halfHeight },  // top-right
+                          sw: { x: -halfWidth, y: halfHeight },  // bottom-left
+                          se: { x: halfWidth, y: halfHeight },    // bottom-right
+                        };
+                        
+                        // Handle size (for centering handles on corners)
+                        const HANDLE_SIZE = 8; // Preview pixels
+                        const HANDLE_HALF = HANDLE_SIZE / 2;
                         
                         return (
                           <div
-                            className={`bounding-box ${isDraggingThis ? 'dragging' : ''} ${isResizingThis ? 'resizing' : ''}`}
-                            style={{
-                              left: `calc(50% + ${outlineLeft}px)`,
-                              top: `calc(50% + ${outlineTop}px)`,
-                              width: `${outlineWidth}px`,
-                              height: `${outlineHeight}px`,
-                              zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 150,
-                            }}
-                          />
-                        );
-                      })()}
-                      
-                      {/* Element label - shown when selected */}
-                      {isSelected && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            // Label positioned at AABB top-left corner
-                            left: `calc(50% + ${aabbAtPosition.left}px)`,
-                            top: `calc(50% + ${aabbAtPosition.top}px)`,
-                            pointerEvents: 'none',
-                            zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 300,
-                            transform: 'translate(-7px, calc(-100% - 5px))',
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontSize: '10px',
-                              color: 'rgba(255, 255, 255, 0.5)',
-                              fontFamily: 'system-ui, -apple-system, sans-serif',
-                              fontWeight: 500,
-                              whiteSpace: 'nowrap',
-                              userSelect: 'none',
-                            }}
-                          >
-                            {getElementLabel()}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Rotation handle - positioned at top-right (Figma-style) */}
-                      {/* Rotation handle pushed outside bounding box at top-right */}
-                      {isSelected && handlePositions && (() => {
-                        // Check if this handle is currently being rotated
-                        const isActive = rotatingElementId === element.id;
-                        
-                        // Position rotation handle at top-right corner of bounding box
-                        // Calculate top-right corner position in preview coordinates
-                        const topRightX = aabbAtPosition.right;
-                        const topRightY = aabbAtPosition.top;
-                        
-                        // Calculate direction from element center to top-right corner
-                        const dx = topRightX - elementX;
-                        const dy = topRightY - elementY;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        // Normalize direction vector
-                        const normX = distance > 0 ? dx / distance : 1;
-                        const normY = distance > 0 ? dy / distance : -1;
-                        
-                        // Add offset to push handle outside bounding box
-                        // Rotation handle size is 24px (12px radius), we need at least 12px + spacing
-                        const additionalOffset = 14; // Preview pixels - pushes handle outside bounding box
-                        const offsetX = normX * additionalOffset;
-                        const offsetY = normY * additionalOffset;
-                        
-                        // Final position: top-right corner + offset
-                        const finalX = topRightX + offsetX;
-                        const finalY = topRightY + offsetY;
-                        
-                        // Calculate rotation angle for handle (perpendicular to direction from center to top-right)
-                        // For top-right, angle should be approximately 45 degrees (adjusted for element rotation)
-                        const handleAngle = handlePositions.rotationHandle.angle;
-                        
-                        return (
-                          <div
-                            onMouseDown={(e) => {
-                              e.stopPropagation();
-                              // Element center in LCD coordinates
-                              onRotationMouseDown(element.id, element.x, element.y, e);
-                            }}
-                            className="rotation-handle-wrapper"
+                            key={`transform-overlay-${element.id}`}
                             style={{
                               position: 'absolute',
-                              // Position at top-right corner with offset
-                              left: `calc(50% + ${finalX}px)`,
-                              top: `calc(50% + ${finalY}px)`,
-                              transform: `translate(-50%, -50%) rotate(${handleAngle}deg)`,
-                              cursor: rotatingElementId === element.id ? 'grabbing' : 'grab',
-                              pointerEvents: 'auto',
-                              zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 250,
+                              left: '50%',  // Preview circle center (same as UnifiedOverlayRenderer)
+                              top: '50%',   // Preview circle center (same as UnifiedOverlayRenderer)
+                              transform: elementTransform, // Same transform as element
+                              transformOrigin: 'center center', // Rotate around center (same as element)
+                              pointerEvents: 'none', // Container doesn't capture events, children do
+                              zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 150,
                             }}
                           >
-                            {/* Figma-style rotation handle with CSS classes */}
-                            {/* Rotating state for enhanced visibility */}
-                            <div className={`rotation-handle ${isActive ? 'active' : ''} ${isRotatingThis ? 'rotating' : ''}`}>
-                              {/* Icon wrapper with counter-rotation to keep icon upright */}
+                            {/* Bounding Box - centered on element, rotates with element */}
+                            <div
+                              className={`bounding-box ${isDraggingThis ? 'dragging' : ''} ${isResizingThis ? 'resizing' : ''}`}
+                              style={{
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                width: `${outlineWidth}px`,
+                                height: `${outlineHeight}px`,
+                                transform: 'translate(-50%, -50%)', // Center the box on element center
+                                transformOrigin: 'center center',
+                                pointerEvents: 'none',
+                              }}
+                            />
+                            
+                            {/* Resize handles - positioned relative to corners (no rotation matrix, parent rotates) */}
+                            {canResize && (
+                              <>
+                                {(['nw', 'ne', 'sw', 'se'] as const).map((handle) => {
+                                  const isActive = resizingElementId === element.id;
+                                  const corner = localCorners[handle];
+                                  
+                                  return (
+                                    <div
+                                      key={handle}
+                                      onMouseDown={(e) => {
+                                        e.stopPropagation();
+                                        onResizeMouseDown(element.id, handle, e);
+                                      }}
+                                      className="resize-handle-wrapper"
+                                      style={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        top: '50%',
+                                        // Position handle at corner, centered on corner point
+                                        transform: `translate(calc(-50% + ${corner.x}px), calc(-50% + ${corner.y}px)) translate(-${HANDLE_HALF}px, -${HANDLE_HALF}px)`,
+                                        pointerEvents: 'auto',
+                                        cursor: `${handle}-resize`,
+                                      }}
+                                    >
+                                      <div
+                                        className={`resize-handle resize-handle--${handle} ${isActive ? 'active' : ''} ${isResizingThis ? 'resizing' : ''}`}
+                                      />
+                                    </div>
+                                  );
+                                })}
+                              </>
+                            )}
+                            
+                            {/* Rotation handle - positioned relative to top-right corner + offset */}
+                            {(() => {
+                              const isActive = rotatingElementId === element.id;
+                              const topRightCorner = localCorners.ne;
+                              
+                              // Offset from top-right corner (20px right, -20px up) in preview coordinates
+                              const offsetX = 20;
+                              const offsetY = -20;
+                              
+                              return (
+                                <div
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    onRotationMouseDown(element.id, element.x, element.y, e);
+                                  }}
+                                  className="rotation-handle-wrapper"
+                                  style={{
+                                    position: 'absolute',
+                                    left: '50%',
+                                    top: '50%',
+                                    // Position at top-right corner + offset, centered on handle
+                                    transform: `translate(calc(-50% + ${topRightCorner.x + offsetX}px), calc(-50% + ${topRightCorner.y + offsetY}px)) translate(-${HANDLE_HALF}px, -${HANDLE_HALF}px)`,
+                                    cursor: rotatingElementId === element.id ? 'grabbing' : 'grab',
+                                    pointerEvents: 'auto',
+                                  }}
+                                >
+                                  <div className={`rotation-handle ${isActive ? 'active' : ''} ${isRotatingThis ? 'rotating' : ''}`}>
+                                    <div
+                                      className="rotation-handle__icon"
+                                      style={{
+                                        // Counter-rotate icon to keep it upright (parent container already rotates)
+                                        transform: `rotate(${-elementAngle}deg)`,
+                                      }}
+                                    >
+                                      <RotateCw size={14} strokeWidth={2} color="rgba(0, 200, 255, 1)" />
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                            
+                            {/* Element label - positioned relative to bounding box */}
+                            <div
+                              style={{
+                                position: 'absolute',
+                                left: '50%',
+                                top: '50%',
+                                transform: `translate(calc(-50% + ${-outlineWidth / 2 - 7}px), calc(-50% - ${outlineHeight / 2 + 5}px))`,
+                                pointerEvents: 'none',
+                              }}
+                            >
                               <div
-                                className="rotation-handle__icon"
                                 style={{
-                                  transform: `rotate(${-handleAngle}deg)`,
+                                  fontSize: '10px',
+                                  color: 'rgba(255, 255, 255, 0.5)',
+                                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                                  fontWeight: 500,
+                                  whiteSpace: 'nowrap',
+                                  userSelect: 'none',
                                 }}
                               >
-                                <RotateCw size={14} strokeWidth={2} color="rgba(0, 200, 255, 1)" />
+                                {getElementLabel()}
                               </div>
                             </div>
                           </div>
                         );
                       })()}
-                      
-                      {/* Resize handles - all 8 handles (Figma-style) */}
-                      {isSelected && canResize && handlePositions && (
-                        <>
-                          {/* All 8 resize handles: 4 corners + 4 edges */}
-                          {getAllResizeHandlePositions(element).map(([handle, handlePos]) => {
-                            // Convert LCD coordinates to preview coordinates
-                            const handleX = lcdToPreview(handlePos.x, offsetScale);
-                            const handleY = lcdToPreview(handlePos.y, offsetScale);
-                            
-                            // Check if this handle is currently being resized
-                            const isActive = resizingElementId === element.id;
-                            
-                            return (
-                              <div
-                                key={handle}
-                                onMouseDown={(e) => {
-                                  e.stopPropagation();
-                                  onResizeMouseDown(element.id, handle, e);
-                                }}
-                                className="resize-handle-wrapper"
-                                style={{
-                                  position: 'absolute',
-                                  left: `calc(50% + ${handleX}px)`,
-                                  top: `calc(50% + ${handleY}px)`,
-                                  transform: `translate(-50%, -50%) rotate(${handlePos.angle}deg)`,
-                                  pointerEvents: 'auto',
-                                  zIndex: (element.zIndex !== undefined ? element.zIndex : 0) + 200,
-                                  cursor: `${handle}-resize`,
-                                }}
-                              >
-                                {/* Figma-style handle with CSS classes */}
-                                {/* Resizing state for opacity feedback */}
-                                <div
-                                  className={`resize-handle resize-handle--${handle} ${isActive ? 'active' : ''} ${isResizingThis ? 'resizing' : ''}`}
-                                />
-                              </div>
-                            );
-                          })}
-                        </>
-                      )}
                     </div>
                   );
                 })}
@@ -535,13 +604,13 @@ export default function OverlayPreview({
                 maxWidth: '200px',
               }}
             >
-              {t('mockDataWarning', lang)}
+              {t('mockDataWarning')}
             </div>
           )}
         </>
       ) : (
         <div className="preview-title" style={{ opacity: 0.5 }}>
-          {t('overlayPreviewTitle', lang)} - {t('overlayMode', lang)}: None
+          {t('overlayPreviewTitle')} - {t('overlayMode')}: None
         </div>
       )}
     </div>

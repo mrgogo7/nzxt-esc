@@ -1,6 +1,20 @@
 /**
  * HandlePositioning.ts
  * 
+ * Transform Engine Overview (High-Level)
+ * - Calculates resize and rotation handle positions
+ * - Uses AABB (axis-aligned bounding box) for handle placement
+ * - Behavior is locked (Frozen Zone) after FAZ-6
+ * 
+ * FROZEN ZONE — DO NOT MODIFY LOGIC
+ * 
+ * This subsystem is behavior-locked after FAZ-6.
+ * Only documentation and type-level improvements allowed.
+ * 
+ * - Handle position calculations MUST remain identical
+ * - AABB-based positioning logic MUST NOT change
+ * - Handle offset and rotation handle logic MUST remain identical
+ * 
  * Handle positioning utilities for TransformEngine v1.
  * 
  * This module calculates the positions of resize and rotation handles

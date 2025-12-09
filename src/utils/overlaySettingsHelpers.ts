@@ -1,5 +1,5 @@
 import type { AppSettings } from '../constants/defaults';
-import type { Overlay, OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../types/overlay';
+import type { Overlay, OverlayElement, MetricElementData, TextElementData, DividerElementData, ClockElementData, DateElementData } from '../types/overlay';
 import {
   bringToFront,
   sendToBack,
@@ -18,9 +18,9 @@ import { generateElementId } from '../overlayPreset/utils';
 import { IS_DEV } from '../utils/env';
 
 // ============================================================================
-// LEGACY HELPERS (FAZ-4-3: DELETED)
+// LEGACY HELPERS (DELETED)
 // ============================================================================
-// FAZ-4-3: The following legacy functions were deleted:
+// The following legacy functions were deleted:
 // - updateOverlayField
 // - resetOverlayFieldValue
 // - updateOverlayFields
@@ -33,9 +33,9 @@ import { IS_DEV } from '../utils/env';
 // ============================================================================
 
 /**
- * NOTE (FAZ-4-2):
+ * NOTE:
  * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
- * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (OverlayState vNext).
  * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
  * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
  *
@@ -75,9 +75,9 @@ export function updateOverlayElement(
 }
 
 /**
- * NOTE (FAZ-4-2):
+ * NOTE:
  * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
- * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (OverlayState vNext).
  * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
  * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
  *
@@ -129,9 +129,9 @@ export function updateMetricElementData(
 }
 
 /**
- * NOTE (FAZ-4-2):
+ * NOTE:
  * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
- * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (OverlayState vNext).
  * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
  * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
  *
@@ -180,9 +180,9 @@ export function updateTextElementData(
 }
 
 /**
- * NOTE (FAZ-4-2):
+ * NOTE:
  * - Bu helper halen settings.overlay.elements üzerinde çalışıyor.
- * - ARCHITECT MODE'da settings.overlay.elements canonical değil (FAZ-3A / OverlayState vNext).
+ * - ARCHITECT MODE'da settings.overlay.elements canonical değil (OverlayState vNext).
  * - Davranışı değiştirmemek için faz-4-2'de sadece işaretlendi.
  * - Gelecek fazlarda OverlayStateManager tabanlı hale getirilmeli.
  *
@@ -233,7 +233,62 @@ export function updateDividerElementData(
   };
 }
 
-// FAZ-4-3: addOverlayElement deleted - use OverlayStateManager.dispatch(createAddElementAction(...)) instead
+// addOverlayElement deleted - use OverlayStateManager.dispatch(createAddElementAction(...)) instead
+
+/**
+ * Creates a default clock element with proper defaults.
+ * 
+ * @param x - X position (default: 0)
+ * @param y - Y position (default: 0)
+ * @param zIndex - Z index (default: 0)
+ * @returns New clock element with default values
+ */
+export function defaultClockElement(x: number = 0, y: number = 0, zIndex: number = 0): OverlayElement {
+  const id = generateElementId();
+  
+  return {
+    id,
+    type: 'clock',
+    x,
+    y,
+    zIndex,
+    data: {
+      format: "HH:mm",
+      mode: "24h",
+      fontSize: 45, // Same default as text element
+      color: "rgba(255, 255, 255, 1)", // Same default as text element
+      outlineColor: undefined,
+      outlineThickness: 0,
+    } as ClockElementData,
+  };
+}
+
+/**
+ * Creates a default date element with proper defaults.
+ * 
+ * @param x - X position (default: 0)
+ * @param y - Y position (default: 0)
+ * @param zIndex - Z index (default: 0)
+ * @returns New date element with default values
+ */
+export function defaultDateElement(x: number = 0, y: number = 0, zIndex: number = 0): OverlayElement {
+  const id = generateElementId();
+  
+  return {
+    id,
+    type: 'date',
+    x,
+    y,
+    zIndex,
+    data: {
+      format: "DD.MM.YYYY", // Default format
+      fontSize: 45, // Same default as text element
+      color: "rgba(255, 255, 255, 1)", // Same default as text element
+      outlineColor: undefined,
+      outlineThickness: 0,
+    } as DateElementData,
+  };
+}
 
 /**
  * Creates a new overlay element with proper defaults and ID generation.
@@ -250,6 +305,18 @@ export function createOverlayElementForAdd(
   overlayConfig: Overlay,
   partial: Partial<OverlayElement> & { type: OverlayElement['type']; data: OverlayElement['data'] }
 ): OverlayElement {
+  // Handle clock type with defaultClockElement
+  if (partial.type === 'clock') {
+    const currentCount = Array.isArray(overlayConfig.elements) ? overlayConfig.elements.length : 0;
+    return defaultClockElement(partial.x ?? 0, partial.y ?? 0, partial.zIndex ?? currentCount);
+  }
+  
+  // Handle date type with defaultDateElement
+  if (partial.type === 'date') {
+    const currentCount = Array.isArray(overlayConfig.elements) ? overlayConfig.elements.length : 0;
+    return defaultDateElement(partial.x ?? 0, partial.y ?? 0, partial.zIndex ?? currentCount);
+  }
+  
   // Get current runtime count for zIndex calculation (from overlayConfig which comes from runtime)
   const currentCount = Array.isArray(overlayConfig.elements) ? overlayConfig.elements.length : 0;
   
@@ -292,7 +359,7 @@ export function removeOverlayElement(
   };
 }
 
-// FAZ-4-3: reorderOverlayElements deleted - use OverlayStateManager.dispatch(createZOrderAction(...)) instead
+// reorderOverlayElements deleted - use OverlayStateManager.dispatch(createZOrderAction(...)) instead
 
 /**
  * Updates the position of an overlay element.
@@ -536,7 +603,7 @@ export const MAX_OVERLAY_ELEMENTS = 20;
  * Get total element count from runtime overlay only.
  * ARCHITECT MODE: Only runtime overlay elements are counted (preset elements are ignored).
  * 
- * FAZ-4-3: Migrated to vNext - uses OverlayStateManager
+ * Migrated to vNext - uses OverlayStateManager
  * 
  * @param activePresetId - Active preset ID (null for default/fallback)
  * @returns Total element count from runtime overlay
@@ -559,7 +626,7 @@ export function getTotalElementCount(activePresetId: string | null): number {
  * Checks if adding a single element would exceed the maximum limit.
  * ARCHITECT MODE: Only runtime overlay elements are counted.
  * 
- * FAZ-4-3: Migrated to vNext - uses OverlayStateManager
+ * Migrated to vNext - uses OverlayStateManager
  * 
  * @param activePresetId - Active preset ID (null for default/fallback)
  * @param additionalCount - Number of elements to add (default: 1)
@@ -667,7 +734,7 @@ export function clearAllOverlayElements(settings: AppSettings): AppSettings {
 /**
  * Resolve ID conflicts for overlay elements during append import.
  * 
- * FAZ-4-4N: If element ID already exists in current state, clone element with new unique ID.
+ * If element ID already exists in current state, clone element with new unique ID.
  * 
  * @param element - Element to check/resolve
  * @param existingElementIds - Set of existing element IDs in current state
@@ -682,14 +749,11 @@ export function resolveElementIdConflict(
     return element;
   }
   
-  // FAZ-4-4N: ID conflict detected - clone element with new unique ID
+  // ID conflict detected - clone element with new unique ID
   const newId = generateElementId();
   
   if (IS_DEV) {
-    console.debug(`[Import][Append] ID conflict detected → cloning element with newId=${newId}`, {
-      originalId: element.id,
-      elementType: element.type,
-    });
+    // ID conflict detected → cloning element
   }
   
   // Clone element with new ID

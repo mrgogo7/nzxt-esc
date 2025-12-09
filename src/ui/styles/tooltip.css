@@ -11,6 +11,7 @@
   z-index: 10000 !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: pre-line !important; /* Support multiline tooltip content */
 }
 
 .react-tooltip-arrow {

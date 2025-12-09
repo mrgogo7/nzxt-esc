@@ -1,9 +1,9 @@
 /**
- * Transform Request Helpers — FAZ-3B-3: Transform API Integration
+ * Transform Request Helpers
  * 
  * Helper functions to create TransformRequest objects from UI events.
  * These helpers convert UI interactions (mouse events, handles) into
- * TransformRequest format compatible with FAZ-3A Transform API.
+ * TransformRequest format.
  * 
  * Design Principles:
  * - UI → LCD coordinate conversion happens here
@@ -15,10 +15,7 @@ import type { OverlayElement } from '../../../../types/overlay';
 import type { ResizeHandle } from '../../../../transform/engine/HandlePositioning';
 
 /**
- * Transform request types (conceptual, based on FAZ-3A design).
- * 
- * Note: This is a simplified version for FAZ-3B-3 integration.
- * Full Transform API implementation will be in FAZ-3B-4.
+ * Transform request types.
  */
 export interface MoveRequest {
   type: 'move';
@@ -99,7 +96,6 @@ export function createResizeRequest(
   
   // Note: For now, we pass delta directly. Actual resize logic
   // will calculate width/height changes based on handle.
-  // This is a simplified version - full implementation in FAZ-3B-4.
   return {
     type: 'resize',
     elementIds,

@@ -17,7 +17,6 @@
  * This prevents infinite loops between preset save and overlay config updates.
  */
 
-// FAZ-4-3: Legacy useRuntimeOverlayElements deleted - using vNext instead
 import { useEffect, useRef } from 'react';
 import type { AppSettings } from '../constants/defaults';
 import { createPresetFromState } from '../preset';
@@ -73,7 +72,7 @@ export function useAtomicPresetSync({
   activePresetId,
   presetName,
 }: UseAtomicPresetSyncOptions): void {
-  // FAZ-4-3: Legacy useRuntimeOverlayElements deleted - get elements from vNext state
+  // Get elements from vNext state
   const stateManagerHook = activePresetId
     ? useOverlayStateManager(activePresetId)
     : null;
@@ -126,9 +125,6 @@ export function useAtomicPresetSync({
 
     // Check if autosave is disabled (during preset apply)
     if (window.__disableAutosave) {
-      if (isDebugMode()) {
-        console.log('[useAtomicPresetSync] Autosave skipped (settings path) - __disableAutosave is true');
-      }
       return;
     }
 
@@ -173,9 +169,6 @@ export function useAtomicPresetSync({
 
     // Check if autosave is disabled (during preset apply)
     if (window.__disableAutosave) {
-      if (isDebugMode()) {
-        console.log('[useAtomicPresetSync] Autosave skipped (settings path) - __disableAutosave is true');
-      }
       return;
     }
 
@@ -224,13 +217,14 @@ export function useAtomicPresetSync({
    * Reads current state and writes to preset storage.
    * Saves ALL fields: settings, mediaUrl, overlay (mode + elements).
    * 
+   * CRITICAL: In dev mode, if color picker is open, freeze autosave to prevent re-renders.
+   * 
    * @param reason - What triggered the autosave ('settings' or 'overlay')
    */
   function performAutosave(reason: 'settings' | 'overlay') {
-    // FAZ 9: Strict check for autosave disabled (during preset apply/initial load)
+    // Strict check for autosave disabled (during preset apply/initial load)
     if (window.__disableAutosave === true) {
       if (isDebugMode()) {
-        console.log(`[useAtomicPresetSync] Autosave SKIPPED (${reason} path) - __disableAutosave is true`);
       }
       return;
     }
@@ -279,16 +273,9 @@ export function useAtomicPresetSync({
     // Use existing preset name or provided name
     const nameToUse = presetName || activePreset.name;
 
-    // DEBUG: Log autosave
-    if (isDebugMode()) {
-      console.log(`[useAtomicPresetSync] Autosave ${reason} - preset:`, activePresetId, 
-        'settings changed:', currentSettingsKey !== lastSavedSettingsKeyRef.current,
-        'media changed:', currentMediaUrl !== lastSavedMediaUrlRef.current,
-        'elements changed:', currentElementsKey !== lastSavedElementsKeyRef.current,
-        'elements count:', runtimeElements.length);
-    }
+    // Autosave performed
     
-    // FAZ 9: Pass runtime elements directly, don't include in settings
+    // Pass runtime elements directly, don't include in settings
     const newPresetFile = createPresetFromState(
       settings, // Use original settings (without overlay.elements)
       mediaUrl,

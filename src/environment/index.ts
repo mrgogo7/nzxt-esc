@@ -54,14 +54,14 @@ export function detectEnvironment(): Environment {
   const isNZXT = searchParams.get("kraken") === "1";
   
   // Check NZXT API availability
-  const hasNzxtAPI = typeof window !== 'undefined' && !!window.nzxt?.v1;
+  const hasNzxtAPI = typeof window !== 'undefined' && !!(window as any).nzxt?.v1;
   const hasMonitoringCallback = hasNzxtAPI && 
-    typeof window.nzxt?.v1?.onMonitoringDataUpdate === 'function';
+    typeof (window as any).nzxt?.v1?.onMonitoringDataUpdate === 'function';
   
   // Get LCD dimensions from NZXT API or use defaults
-  const lcdWidth = window.nzxt?.v1?.width || NZXT_DEFAULTS.LCD_WIDTH;
-  const lcdHeight = window.nzxt?.v1?.height || NZXT_DEFAULTS.LCD_HEIGHT;
-  const lcdShape = window.nzxt?.v1?.shape || NZXT_DEFAULTS.LCD_SHAPE;
+  const lcdWidth = (window as any).nzxt?.v1?.width || NZXT_DEFAULTS.LCD_WIDTH;
+  const lcdHeight = (window as any).nzxt?.v1?.height || NZXT_DEFAULTS.LCD_HEIGHT;
+  const lcdShape = (window as any).nzxt?.v1?.shape || NZXT_DEFAULTS.LCD_SHAPE;
   
   return {
     type: isNZXT ? "nzxt-cam" : "browser",
@@ -109,4 +109,3 @@ export function getLCDDimensions(): { width: number; height: number } {
     height: env.lcdHeight,
   };
 }
-

@@ -19,7 +19,7 @@ export function setMediaUrl(url: string) {
   try {
     localStorage.setItem(KEY, url)
   } catch (e) {
-    console.warn('[NZXT] localStorage write failed:', e)
+    // localStorage write failed
   }
 
   // CAM requires secure cookie attributes to allow cross-process sharing.
@@ -54,7 +54,7 @@ export function getMediaUrl(): string {
     // Check if key exists (even if value is empty string)
     if (v !== null) return v
   } catch (e) {
-    console.warn('[NZXT] localStorage read failed:', e)
+    // localStorage read failed
   }
 
   // Cookie regex: match media_url=value (including empty string)
