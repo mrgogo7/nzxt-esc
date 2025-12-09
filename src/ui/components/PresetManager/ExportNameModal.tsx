@@ -23,7 +23,6 @@ export default function ExportNameModal({
   isOpen,
   onClose,
   onConfirm,
-  lang,
   initialName = '',
 }: ExportNameModalProps) {
   const t = useI18n();

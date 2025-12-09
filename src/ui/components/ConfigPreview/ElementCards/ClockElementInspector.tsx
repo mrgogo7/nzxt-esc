@@ -37,7 +37,6 @@ export function ClockElementInspector({
   unifiedIndex,
   totalElements,
   activePresetId,
-  lang,
   clockLabels,
   onToggleCollapse,
   onSelect,

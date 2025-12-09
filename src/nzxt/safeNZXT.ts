@@ -65,6 +65,7 @@ function getNZXTAPI(): NZXTAPI | null {
  * Stored monitoring callback reference for cleanup
  */
 let currentMonitoringHandler: ((data: any) => void) | null = null;
+void currentMonitoringHandler; // Keep for API stability - used for cleanup tracking
 let currentMonitoringCleanup: (() => void) | null = null;
 let isInitialized = false;
 let retryTimeoutId: ReturnType<typeof setTimeout> | null = null;

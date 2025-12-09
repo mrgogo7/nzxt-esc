@@ -94,6 +94,7 @@ function UnifiedOverlayRenderer({
   scale = 1,
   isTransformActive = false,
 }: UnifiedOverlayRendererProps) {
+  void isTransformActive; // Keep prop for API stability
   // DEFENSIVE: Ensure overlay.elements is always an array
   const safeElements = Array.isArray(overlay.elements) ? overlay.elements : [];
   

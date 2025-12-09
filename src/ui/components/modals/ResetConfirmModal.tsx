@@ -24,7 +24,6 @@ export default function ResetConfirmModal({
   onClose,
   onConfirm,
   presetName,
-  lang,
 }: ResetConfirmModalProps) {
   const t = useI18n();
   // Handle ESC key

@@ -40,7 +40,6 @@ export default function PresetList({
   onRename,
   onDuplicate,
   onDelete,
-  lang,
 }: PresetListProps) {
   const t = useI18n();
   const [renamingId, setRenamingId] = useState<string | null>(null);

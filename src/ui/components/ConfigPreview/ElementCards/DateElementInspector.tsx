@@ -37,7 +37,6 @@ export function DateElementInspector({
   unifiedIndex,
   totalElements,
   activePresetId,
-  lang,
   dateLabels,
   onToggleCollapse,
   onSelect,

@@ -37,7 +37,6 @@ export function DividerElementInspector({
   unifiedIndex,
   totalElements,
   activePresetId,
-  lang,
   dividerLabels,
   onToggleCollapse,
   onSelect,

@@ -11,7 +11,7 @@
  * - Replay-safe actions
  */
 
-import type { OverlayElement, MetricElementData, TextElementData, DividerElementData } from '../../types/overlay';
+import type { OverlayElement, MetricElementData, TextElementData, DividerElementData, ClockElementData, DateElementData } from '../../types/overlay';
 import type { OverlayRuntimeState } from './types';
 import * as elementStore from './elementStore';
 import * as selection from './selection';
@@ -69,8 +69,8 @@ export interface UpdateElementActionData {
  */
 export interface UpdateElementDataActionData {
   elementId: string;
-  oldData: MetricElementData | TextElementData | DividerElementData;
-  newData: MetricElementData | TextElementData | DividerElementData;
+  oldData: MetricElementData | TextElementData | DividerElementData | ClockElementData | DateElementData;
+  newData: MetricElementData | TextElementData | DividerElementData | ClockElementData | DateElementData;
 }
 
 /**
@@ -516,8 +516,8 @@ export function createUpdateElementAction(
  */
 export function createUpdateElementDataAction(
   elementId: string,
-  oldData: MetricElementData | TextElementData | DividerElementData,
-  newData: MetricElementData | TextElementData | DividerElementData,
+  oldData: MetricElementData | TextElementData | DividerElementData | ClockElementData | DateElementData,
+  newData: MetricElementData | TextElementData | DividerElementData | ClockElementData | DateElementData,
   state: OverlayRuntimeState
 ): Action {
   const currentElement = elementStore.getElement(state.elements, elementId);

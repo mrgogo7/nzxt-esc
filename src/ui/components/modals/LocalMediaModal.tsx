@@ -18,7 +18,6 @@ export default function LocalMediaModal({
   isOpen,
   onClose,
   onSelectFile,
-  lang,
 }: LocalMediaModalProps) {
   const t = useI18n();
   const fileInputRef = useRef<HTMLInputElement | null>(null);

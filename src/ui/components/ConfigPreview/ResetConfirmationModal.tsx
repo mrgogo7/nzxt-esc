@@ -25,7 +25,6 @@ export default function ResetConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
-  lang,
   titleKey = 'resetElementsConfirmTitle',
   descriptionKey = 'resetElementsConfirm',
   confirmButtonKey = 'reset',

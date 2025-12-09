@@ -501,6 +501,7 @@ export function useResizeHandlers(
   }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleResizeMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     // Commit transaction for new runtime system
     const useNewRuntime = shouldUseFaz3BRuntime();
     if (useNewRuntime && stateManager) {

@@ -38,7 +38,6 @@ export function MetricElementInspector({
   unifiedIndex,
   totalElements,
   activePresetId,
-  lang,
   metricLabels,
   metricOptions,
   onToggleCollapse,

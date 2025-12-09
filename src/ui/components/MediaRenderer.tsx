@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import { isVideoUrl, getMediaType } from '../../utils/media';
 import { getObjectPosition } from '../../utils/positioning';
 import { extractYouTubeVideoId, buildYouTubeEmbedUrl } from '../../utils/youtube';
@@ -7,7 +7,6 @@ import YouTubeRenderer from './BackgroundMedia/YouTubeRenderer';
 import type { AppSettings } from '../../constants/defaults';
 import type { CSSProperties } from 'react';
 import type { LocalMediaKind } from '../../hooks/useLocalMedia';
-import { getInitialLang, type Lang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
 
 interface MediaRendererProps {
@@ -42,7 +41,6 @@ export default function MediaRenderer({
 }: MediaRendererProps) {
   const t = useI18n();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [lang] = useState<Lang>(getInitialLang());
   const isLocalVideo = sourceType === 'local' && localKind === 'video';
   const isVideo = isLocalVideo || isVideoUrl(url);
   const objectPosition = getObjectPosition(settings.align, settings.x, settings.y);

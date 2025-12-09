@@ -127,7 +127,7 @@ export default function CombinedTextColorInput({
           outlineColor={outlineColor}
           outlineThickness={outlineThickness}
           onTextColorChange={onColorChange}
-          onOutlineColorChange={onOutlineColorChange}
+          onOutlineColorChange={onOutlineColorChange ?? (() => {})}
           onOutlineThicknessChange={onOutlineThicknessChange}
         />
         {colorTooltipContent && <Tooltip id={`text-color-tooltip-${id}`} />}

@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
 import BackgroundMediaRenderer from './BackgroundMediaRenderer';
-import { getInitialLang, type Lang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
 
 interface BackgroundPreviewProps {
@@ -41,7 +40,6 @@ export default function BackgroundPreview({
   isLocalMissing = false,
 }: BackgroundPreviewProps) {
   const t = useI18n();
-  const [lang] = useState<Lang>(getInitialLang());
   const [showScaleLabel, setShowScaleLabel] = useState(false);
   const [showOffsetLabel, setShowOffsetLabel] = useState(false);
 

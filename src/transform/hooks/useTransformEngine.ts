@@ -217,6 +217,7 @@ export function useTransformEngine(
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
   const handleElementMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     setState(prev => ({ ...prev, draggingElementId: null }));
     moveStart.current = null;
   }, []);
@@ -281,6 +282,7 @@ export function useTransformEngine(
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
   const handleResizeMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     setState(prev => ({ ...prev, resizingElementId: null }));
     resizeStart.current = null;
   }, []);
@@ -334,6 +336,7 @@ export function useTransformEngine(
   }, [getElement, getPreviewRect, config.offsetScale, updateElement]);
   
   const handleRotationMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     setState(prev => ({ ...prev, rotatingElementId: null }));
     rotateStart.current = null;
   }, []);

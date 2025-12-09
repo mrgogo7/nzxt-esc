@@ -113,7 +113,7 @@ export default function DateElementRenderer({
   scale = 1,
 }: DateElementRendererProps) {
   const [now, setNow] = useState(Date.now());
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [currentLang, setCurrentLang] = useState<string>(getInitialLang());
 
   useEffect(() => {

@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { AppSettings } from '../../../constants/defaults';
 import { getBaseAlign } from '../../../utils/positioning';
-import { getInitialLang, type Lang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
 
 /**

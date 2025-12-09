@@ -376,6 +376,7 @@ export function useRotationHandlers(
   }, [_offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleRotationMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     const useNewRuntime = shouldUseFaz3BRuntime();
     if (useNewRuntime && stateManager) {
       stateManager.commitTransaction();

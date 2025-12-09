@@ -36,7 +36,6 @@ export default function OverlayPresetPickerModal({
   isOpen,
   onClose,
   onSelect,
-  lang,
 }: OverlayPresetPickerModalProps) {
   const t = useI18n();
   // Dynamically generate template list from OVERLAY_TEMPLATES

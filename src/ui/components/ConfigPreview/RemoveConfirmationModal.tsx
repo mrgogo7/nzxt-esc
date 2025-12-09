@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
 import type { Lang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
+import type { OverlayElementType } from '@/types/overlay';
 import '../PresetManager/PresetManager.css';
 
 export interface RemoveConfirmationModalProps {
@@ -16,16 +17,16 @@ export interface RemoveConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
   lang: Lang;
-  elementType: 'metric' | 'text' | 'divider';
+  elementType: OverlayElementType;
 }
 
 export default function RemoveConfirmationModal({
   isOpen,
   onClose,
   onConfirm,
-  lang,
   elementType,
 }: RemoveConfirmationModalProps) {
+  void elementType; // Keep prop for API stability
   const t = useI18n();
   const handleConfirm = useCallback(() => {
     onConfirm();
@@ -40,16 +41,6 @@ export default function RemoveConfirmationModal({
       handleConfirm();
     }
   }, [onClose, handleConfirm]);
-
-  const getElementTypeLabel = () => {
-    if (elementType === 'metric') {
-      return t('metric');
-    } else if (elementType === 'text') {
-      return t('text');
-    } else {
-      return t('divider');
-    }
-  };
 
   return (
     <AnimatePresence>

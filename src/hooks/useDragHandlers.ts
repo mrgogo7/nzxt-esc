@@ -150,6 +150,7 @@ export function useDragHandlers(
   }, [offsetScale, setSettings, settingsRef]);
 
   const handleBackgroundMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     setIsDragging(false);
     dragStart.current = null;
   }, []);
@@ -419,6 +420,7 @@ export function useDragHandlers(
   }, [offsetScale, setSettings, settingsRef, activePresetId, stateManager, runtimeState]);
 
   const handleElementMouseUp = useCallback((e?: MouseEvent) => {
+    void e; // Keep parameter for API stability
     if (pendingTransformRef.current && stateManager && runtimeState) {
       const { element, newElement } = pendingTransformRef.current;
       const oldStates = new Map<string, typeof element>();

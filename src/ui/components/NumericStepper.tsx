@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState, useCallback, KeyboardEvent } from 'react';
-import { getInitialLang, type Lang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
 import '../styles/NumericStepper.css';
 
@@ -38,7 +37,6 @@ export default function NumericStepper({
   const inputRef = useRef<HTMLInputElement>(null);
   const [displayValue, setDisplayValue] = useState<string>(String(value ?? ''));
   const [isEditing, setIsEditing] = useState(false);
-  const [lang] = useState<Lang>(getInitialLang());
 
   // Determine if this is an integer field (step >= 1 or undefined)
   const isIntegerField = !step || step >= 1;

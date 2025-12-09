@@ -1206,6 +1206,7 @@ export default function OverlaySettingsComponent({
                     const sortedElements = [...safeElements].sort((a, b) => (b.zIndex ?? safeElements.indexOf(b)) - (a.zIndex ?? safeElements.indexOf(a)));
                     const unifiedIndex = sortedElements.findIndex(el => el.id === element.id);
                     const zOrderIndex = runtimeState ? runtimeState.zOrder.indexOf(element.id) : -1;
+                    void zOrderIndex; // Keep for future use
 
                     if (element.type === 'metric') {
                       const metricIndex = metricElements.findIndex(el => el.id === element.id);

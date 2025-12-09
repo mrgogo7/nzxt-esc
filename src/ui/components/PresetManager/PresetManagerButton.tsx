@@ -32,7 +32,6 @@ export interface PresetManagerButtonProps {
 }
 
 export default function PresetManagerButton({
-  lang,
   onOpenManager,
   setSettings,
   setMediaUrl,

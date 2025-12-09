@@ -23,7 +23,6 @@ export default function OverlayExportNameModal({
   isOpen,
   onClose,
   onConfirm,
-  lang,
   initialName = '',
 }: OverlayExportNameModalProps) {
   const t = useI18n();

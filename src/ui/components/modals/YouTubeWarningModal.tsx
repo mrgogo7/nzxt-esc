@@ -20,7 +20,6 @@ export interface YouTubeWarningModalProps {
 export default function YouTubeWarningModal({
   isOpen,
   onClose,
-  lang,
 }: YouTubeWarningModalProps) {
   const t = useI18n();
   // Handle ESC key

@@ -33,7 +33,6 @@ interface BackgroundSettingsProps {
 export default function BackgroundSettings({
   settings,
   setSettings,
-  lang,
   resetField,
   mediaUrl,
 }: BackgroundSettingsProps) {

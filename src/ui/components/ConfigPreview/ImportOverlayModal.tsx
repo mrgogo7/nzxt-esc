@@ -33,7 +33,6 @@ export default function ImportOverlayModal({
   currentElementCount,
   activePresetId,
   settings,
-  lang,
 }: ImportOverlayModalProps) {
   const t = useI18n();
   // Handle ESC and ENTER keys

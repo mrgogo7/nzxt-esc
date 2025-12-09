@@ -32,7 +32,6 @@ import {
   DEFAULT_PRESET_FILE 
 } from '../preset/storage';
 import { applyPresetToRuntimeAndSettings } from './utils/applyPreset';
-import { APP_VERSION } from '../version';
 import AppDevBadge from './components/AppDevBadge';
 import { devMode } from '../debug/devToggle';
 import { IS_DEV, devLog } from '../debug/dev';

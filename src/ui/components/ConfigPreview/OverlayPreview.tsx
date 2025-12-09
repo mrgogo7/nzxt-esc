@@ -82,7 +82,6 @@ export default function OverlayPreview({
   rotatingElementId,
   onRotationMouseDown,
   isRealDataReceived,
-  lang,
   settings,
   mediaUrl,
   isVideo,

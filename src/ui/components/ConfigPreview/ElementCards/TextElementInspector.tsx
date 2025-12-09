@@ -37,7 +37,6 @@ export function TextElementInspector({
   unifiedIndex,
   totalElements,
   activePresetId,
-  lang,
   textLabels,
   onToggleCollapse,
   onSelect,

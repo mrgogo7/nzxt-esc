@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { HexColorPicker, RgbaColorPicker, HexColorInput } from 'react-colorful';
 import type { RgbaColor } from 'react-colorful';
 import { Copy, ClipboardPaste } from 'lucide-react';
-import { getInitialLang } from '@/i18n';
 import { useI18n } from '@/i18n/useI18n';
 import { Tooltip } from 'react-tooltip';
 import { motion, AnimatePresence } from 'framer-motion';

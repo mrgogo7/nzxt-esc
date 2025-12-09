@@ -26,7 +26,6 @@ export default function ImportConflictModal({
   onOverwrite,
   onDuplicate,
   presetName,
-  lang,
 }: ImportConflictModalProps) {
   const t = useI18n();
   const handleKeyDown = (e: React.KeyboardEvent) => {
