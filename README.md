@@ -1,12 +1,13 @@
 # NZXT Elite Screen Customizer (NZXT-ESC) v5.12 (Build 08)
 
-A modern, browser-based media and overlay editor for NZXT Kraken Elite LCD screens.
+NZXT-ESC is the most advanced custom LCD screen editor for NZXT Kraken Elite coolers.
+Design fully personalized LCD layouts with MP4/GIF backgrounds, custom metrics, text, dividers, clocks, dates, Pinterest/YouTube media, and more — all synced live inside NZXT CAM via Web Integration.
 
-Create custom animated backgrounds, metric overlays, text layers, divider lines, and fully personalized layouts — all synchronized live inside NZXT CAM.
+Built for creators, enthusiasts, and PC modders who demand complete control.
 
 Free for personal use only — commercial use is strictly prohibited.
 
-### 🌐 Available Languages
+### 🌐 Read This Documentation in Your Language
 
 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
 
@@ -148,42 +149,84 @@ NZXT-ESC **enables all of these**.
 
 #### 2. FULL ELEMENT-BASED OVERLAY ENGINE
 
-Legacy Single/Dual/Triple modes were removed entirely.
+You can freely add and customize:
 
-You can now freely add:
+Metric — Display CPU/GPU/VRM/RAM values live from NZXT CAM.
 
-- Metric elements
-- Text elements
-- Divider elements
+Text — Labels, titles, custom lines with outline, rotation, and full styling.
 
-Each element supports:
+Divider — Visual separators with adjustable thickness, length, and angle.
 
-- X/Y position
-- Rotation
-- Scale
-- Color & opacity
-- Selection highlight
+Clock — Digital time with 12h/24h modes, custom formatting, outline, rotation, and full transform support.
+
+Date — Fully customizable date formats (DD.MM.YYYY, MMM DD, YYYY-MM-DD, etc.), outline, rotation, transform support.
+
+Every element supports:
+
+✔ Rotation
+✔ Resizing
+✔ Outline color & thickness
+✔ Drag positioning
+✔ X/Y offsets
+✔ Z-order control
 
 **Overlay Preset System**
 
 Quickly apply pre-configured layouts using the template picker modal. Choose from Single, Dual, Triple, or Quadruple InfoGraphic templates, each with optimized positioning and styling. Templates can be imported with Replace (overwrites existing elements) or Append (adds to existing elements) modes. When appending, zIndex values are automatically normalized to prevent rendering conflicts. The system supports up to 20 overlay elements per configuration.
 
-#### 3. REAL-TIME LCD SYNCHRONIZATION
+#### 3. Using the Editor (Configure Button)
 
-- Updates ~100ms throttle for stability
-- No manual refresh needed
-- LCD screen updates instantly as you edit
+Inside the Editor:
 
-#### 4. ADVANCED MEDIA ENGINE
+🕑 Clock Element
 
-The media engine supports:
+A fully customizable digital time overlay supporting:
 
-- MP4 video (full playback in LCD)
-- GIF animations
-- PNG / JPG images
-- Local Media Files (IndexedDB): Full-resolution images & videos loaded directly from your computer
-- **Pinterest URLs → auto-resolved to direct media**
-- **YouTube URLs (LCD playback)**
+12h / 24h formats
+
+Real-time updates
+
+Rotation, resizing, outline
+
+Full transform engine support
+
+Works exactly like Metric and Text elements
+
+📅 Date Element
+
+A flexible date overlay with:
+
+Custom format input (DD.MM.YYYY, MMM DD, YYYY-MM-DD, etc.)
+
+Automatic multilingual month/day names
+
+Rotation, outline, transform support
+
+Same workflow as other visual elements
+
+🎛 Background Media
+
+Choose MP4 / GIF / PNG / JPG / YouTube / Pinterest or local media.
+
+🎨 Theme & color controls
+
+Full color picker with outline + alpha + stepper support.
+
+✨ Layout interactions
+
+Drag, resize, rotate, delete, duplicate, reorder.
+
+#### 4. Media Engine
+
+Supports: MP4, GIF, PNG, JPEG
+
+Pinterest boards
+
+YouTube videos (with safe warning modal)
+
+Local browser files
+
+Automatically downscales heavy content to prevent Kraken LCD overload.
 
 
 ##### **🆕 Local Media Support (NEW)**
@@ -228,7 +271,17 @@ Fit modes:
 
 This makes NZXT-ESC the first full YouTube-capable LCD editor for NZXT CAM.
 
-#### 5. PRESET SYSTEM (EARLY ACCESS)
+#### 5. Preset Manager
+
+Create unlimited presets
+
+Export or import presets
+
+Append or overwrite existing layouts
+
+Automatic conflict resolution
+
+Multi-tab preset synchronization
 
 Available actions:
 
@@ -331,6 +384,28 @@ npm run preview
 
 ---
 ### 🕛 VERSION HISTORY
+
+#### 🆕 v5.12 — New Elements + Stability Upgrade
+
+Added Clock Element
+
+Added Date Element
+
+Added full digit/format parsing engine
+
+Added multilingual month/day rendering
+
+Added full i18n parity for all 8 languages
+
+Added tooltip multiline support
+
+Fixed bounding box calculations for new elements
+
+Fixed resize/rotate parity with Text/Metric
+
+Completed TypeScript strict-mode cleanup (TS6133 compliance)
+
+Performance improvements & bug fixes
 
 #### 5.11.261 — Local Media Support + Editor Improvements (NEW)
 
