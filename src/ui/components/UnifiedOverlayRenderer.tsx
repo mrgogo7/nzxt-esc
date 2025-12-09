@@ -76,6 +76,15 @@ function createElementCacheKey(elements: Array<{ id: string; type: string; x: nu
         height: el.data?.height,
         color: el.data?.color,
       });
+    } else if (el.type === 'clock') {
+      return JSON.stringify({
+        ...base,
+        format: el.data?.format,
+        mode: el.data?.mode,
+        fontSize: el.data?.fontSize,
+        color: el.data?.color,
+        font: el.data?.font || 'default', // Include font in cache key
+      });
     }
     return JSON.stringify(base);
   });

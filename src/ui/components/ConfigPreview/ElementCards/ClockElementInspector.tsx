@@ -220,8 +220,33 @@ export function ClockElementInspector({
             </div>
           </div>
           
-          {/* Row 2: Color | Size */}
+          {/* Row 2: Font | Color */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div className="setting-row">
+              <label 
+                data-tooltip-id={`clock-font-tooltip-${element.id}`}
+                data-tooltip-content={t('tooltipClockFont')}
+                style={{ cursor: 'help' }}
+              >
+                {t('font')}
+              </label>
+              <Tooltip id={`clock-font-tooltip-${element.id}`} />
+              <select
+                className="url-input"
+                style={{ flex: 1 }}
+                value={data.font || 'default'}
+                onChange={(e) => {
+                  if (!activePresetId) return;
+                  onUpdateElement((el) => ({
+                    ...el,
+                    data: { ...(el.data as ClockElementData), font: e.target.value as "default" | "digital" }
+                  }));
+                }}
+              >
+                <option value="default">{t('fontDefault')}</option>
+                <option value="digital">{t('fontDigitalClock')}</option>
+              </select>
+            </div>
             <div className="setting-row">
               <label>{t('color')}</label>
               <TabbedColorPicker
@@ -251,6 +276,27 @@ export function ClockElementInspector({
                 }}
               />
             </div>
+          </div>
+          
+          {/* Row 3: Angle | Size */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <OverlayField
+              type="number"
+              label={t('angle')}
+              value={element.angle ?? 0}
+              onChange={(value) => {
+                if (!activePresetId) return;
+                onUpdateElement((el) => ({
+                  ...el,
+                  angle: value
+                }));
+              }}
+              step={1}
+              min={0}
+              max={360}
+              labelTooltipId={`clock-angle-tooltip-${element.id}`}
+              labelTooltipContent={t('tooltipAngle')}
+            />
             <OverlayField
               type="number"
               label={t('size')}
@@ -269,7 +315,7 @@ export function ClockElementInspector({
             />
           </div>
           
-          {/* Row 3: X Offset | Y Offset */}
+          {/* Row 4: X Offset | Y Offset */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
             <OverlayField
               type="number"

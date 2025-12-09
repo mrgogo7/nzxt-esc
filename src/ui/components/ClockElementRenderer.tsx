@@ -61,23 +61,47 @@ export default function ClockElementRenderer({
     (data.outlineThickness ?? 0) > 0;
   const outlineThickness = hasOutline ? (data.outlineThickness ?? 0) * scale : 0;
   
+  // Determine font family based on font selection
+  const fontFamily = data.font === 'digital' ? 'digital-clock-font' : 'nzxt-extrabold';
+  
+  // Calculate fixed container width to prevent text width flicker
+  // This matches the calculation in BoundingBox.ts to ensure consistency
+  // Maximum possible length: "12:59:59 PM" (11 chars) or "23:59:59" (8 chars)
+  let clockLength = 5; // Minimum: "HH:mm" = 5 chars
+  if (data.format === 'HH:mm:ss') {
+    clockLength = 8; // "HH:mm:ss" = 8 chars
+  }
+  if (data.mode === '12h') {
+    clockLength += 4; // Add " AM" or " PM" = 4 chars
+  }
+  // Use exact same formula as BoundingBox.ts
+  const fontSize = data.fontSize * scale;
+  const containerWidth = Math.max(fontSize * clockLength * 0.6, fontSize * 2);
+  
   return (
     <div
-      className={styles.textElement}
       style={{
-        fontSize: `${data.fontSize * scale}px`,
-        color: data.color,
-        fontFamily: 'nzxt-extrabold',
-        whiteSpace: 'nowrap',
-        userSelect: 'none',
-        ...(hasOutline && {
-          WebkitTextStroke: `${outlineThickness}px ${data.outlineColor}`,
-          textStroke: `${outlineThickness}px ${data.outlineColor}`,
-          paintOrder: 'stroke fill',
-        }),
+        width: `${containerWidth}px`,
+        textAlign: 'left',
       }}
     >
-      {formattedTime}
+      <div
+        className={styles.textElement}
+        style={{
+          fontSize: `${fontSize}px`,
+          color: data.color,
+          fontFamily,
+          whiteSpace: 'nowrap',
+          userSelect: 'none',
+          ...(hasOutline && {
+            WebkitTextStroke: `${outlineThickness}px ${data.outlineColor}`,
+            textStroke: `${outlineThickness}px ${data.outlineColor}`,
+            paintOrder: 'stroke fill',
+          }),
+        }}
+      >
+        {formattedTime}
+      </div>
     </div>
   );
 }
