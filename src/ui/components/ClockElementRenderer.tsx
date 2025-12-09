@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { OverlayElement, ClockElementData } from '../../types/overlay';
 import styles from '../styles/UnifiedOverlay.module.css';
+import { measureClockTextWidth } from '../../utils/textMeasurement';
 
 interface ClockElementRendererProps {
   element: OverlayElement;
@@ -62,21 +63,27 @@ export default function ClockElementRenderer({
   const outlineThickness = hasOutline ? (data.outlineThickness ?? 0) * scale : 0;
   
   // Determine font family based on font selection
-  const fontFamily = data.font === 'digital' ? 'digital-clock-font' : 'nzxt-extrabold';
+  let fontFamily = 'nzxt-extrabold'; // default
+  if (data.font === 'digital') {
+    fontFamily = 'digital-clock-font';
+  } else if (data.font === 'digit') {
+    fontFamily = 'digit-font';
+  } else if (data.font === 'digital-font') {
+    fontFamily = 'digital-font';
+  }
   
   // Calculate fixed container width to prevent text width flicker
   // This matches the calculation in BoundingBox.ts to ensure consistency
-  // Maximum possible length: "12:59:59 PM" (11 chars) or "23:59:59" (8 chars)
-  let clockLength = 5; // Minimum: "HH:mm" = 5 chars
-  if (data.format === 'HH:mm:ss') {
-    clockLength = 8; // "HH:mm:ss" = 8 chars
-  }
-  if (data.mode === '12h') {
-    clockLength += 4; // Add " AM" or " PM" = 4 chars
-  }
-  // Use exact same formula as BoundingBox.ts
+  // Uses real text measurement for accurate width
   const fontSize = data.fontSize * scale;
-  const containerWidth = Math.max(fontSize * clockLength * 0.6, fontSize * 2);
+  const format = data.format || 'HH:mm';
+  const mode = data.mode || '24h';
+  const font = data.font || 'default';
+  
+  // Measure at LCD scale (fontSize, not fontSize * scale), then convert to preview scale
+  // This ensures container width matches bounding box width calculation
+  const lcdWidth = measureClockTextWidth(font, data.fontSize, format, mode, data.outlineThickness || 0);
+  const containerWidth = lcdWidth * scale;
   
   return (
     <div

@@ -239,12 +239,14 @@ export function ClockElementInspector({
                   if (!activePresetId) return;
                   onUpdateElement((el) => ({
                     ...el,
-                    data: { ...(el.data as ClockElementData), font: e.target.value as "default" | "digital" }
+                    data: { ...(el.data as ClockElementData), font: e.target.value as "default" | "digital" | "digit" | "digital-font" }
                   }));
                 }}
               >
                 <option value="default">{t('fontDefault')}</option>
                 <option value="digital">{t('fontDigitalClock')}</option>
+                <option value="digit">Digit Font</option>
+                <option value="digital-font">Digital Font</option>
               </select>
             </div>
             <div className="setting-row">

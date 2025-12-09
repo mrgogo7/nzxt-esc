@@ -170,7 +170,7 @@ export interface ClockElementData {
   mode: "24h" | "12h";
   fontSize: number;
   color: string;
-  font?: "default" | "digital"; // Font selection: "default" = NZXT Default, "digital" = Digital Clock Font (default: "default")
+  font?: "default" | "digital" | "digit" | "digital-font"; // Font selection: "default" = NZXT Default, "digital" = Digital Clock Font, "digit" = Digit Font, "digital-font" = Digital Font (default: "default")
   outlineColor?: string; // Optional outline color (transparent or undefined = no outline)
   outlineThickness?: number; // Optional outline thickness in pixels (default: 0)
 }
