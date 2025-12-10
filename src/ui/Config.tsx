@@ -345,7 +345,7 @@ export default function Config() {
       // Local mode but user typed a URL → validate and switch to remote mode
       if (isValidRemoteMediaUrl(trimmedUrl)) {
         // Delete IndexedDB local media record
-        const presetId = settings.localMediaId || activePresetId || getActivePresetId();
+        const presetId = activePresetId || getActivePresetId();
         if (presetId) {
           deleteLocalMedia(presetId).catch(() => {
             // Silently handle deletion errors
@@ -357,7 +357,6 @@ export default function Config() {
           ...settings,
           sourceType: 'remote',
           localFileName: undefined,
-          localMediaId: undefined,
         });
 
         // Continue with remote URL processing below (will set mediaUrl and transform settings)
@@ -385,7 +384,6 @@ export default function Config() {
         ...settings,
         sourceType: 'remote',
         localFileName: undefined,
-        localMediaId: undefined,
         scale: 1,
         x: 0,
         y: 0,
@@ -425,7 +423,6 @@ export default function Config() {
             ...settings,
             sourceType: 'remote',
             localFileName: undefined,
-            localMediaId: undefined,
             scale: 1,
             x: 0,
             y: 0,
@@ -457,7 +454,6 @@ export default function Config() {
         ...settings,
         sourceType: 'remote',
         localFileName: undefined,
-        localMediaId: undefined,
         scale: 1,
         x: 0,
         y: 0,
@@ -470,7 +466,7 @@ export default function Config() {
   const handleClear = () => {
     // Local mode: delete local media record and reset to remote/empty
     if (settings.sourceType === 'local') {
-      const presetId = settings.localMediaId || activePresetId || getActivePresetId();
+      const presetId = activePresetId || getActivePresetId();
       if (presetId) {
         // Fire and forget deletion; errors will surface via local media hook if needed
         deleteLocalMedia(presetId).catch(() => {
@@ -482,7 +478,6 @@ export default function Config() {
         ...settings,
         sourceType: 'remote',
         localFileName: undefined,
-        localMediaId: undefined,
       });
       setMediaUrl('');
       setUrlInput('');
@@ -544,7 +539,6 @@ export default function Config() {
       ...settings,
       sourceType: 'local',
       localFileName: file.name,
-      localMediaId: presetId,
     });
     
     setMediaUrl('');

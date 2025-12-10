@@ -83,16 +83,34 @@ export function useSettingsSync(
     // Don't save on initial load or before user interaction
     if (!hasLoadedRef.current || !hasInteractedRef.current) return;
 
+    // Skip save if autosave is disabled (during preset apply)
+    if (typeof window !== 'undefined' && window.__disableAutosave) return;
+
     // Throttle: Only save if 100ms has passed since last save
     const now = Date.now();
     if (now - lastSync.current < 100) return;
     lastSync.current = now;
 
+    // Background settings are preset-specific; do not persist
+    const {
+      scale,
+      x,
+      y,
+      fit,
+      align,
+      loop,
+      autoplay,
+      mute,
+      resolution,
+      backgroundColor,
+      ...settingsWithoutBackgroundFields
+    } = settings;
+
     // Save settings with URL for backward compatibility
     // Note: URL is also stored separately in storage.ts (media_url key)
     // But we include it here for legacy config format compatibility
     const save: AppSettings & { url?: string } = {
-      ...settings,
+      ...settingsWithoutBackgroundFields,
       url: mediaUrl || undefined, // Include URL in config for backward compatibility
     };
 
