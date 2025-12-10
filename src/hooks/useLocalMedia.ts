@@ -130,7 +130,7 @@ export function useLocalMedia({ settings, activePresetId }: UseLocalMediaParams)
     return () => {
       cancelled = true;
     };
-  }, [settings.sourceType, settings.localMediaId, activePresetId]);
+  }, [settings.sourceType, settings.localMediaId, settings.localFileName, activePresetId]);
 
   // Cleanup on unmount
   useEffect(() => {
