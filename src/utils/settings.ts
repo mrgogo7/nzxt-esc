@@ -8,30 +8,12 @@ import { DEFAULT_OVERLAY } from '../types/overlay';
  * @returns Complete settings object with defaults applied
  */
 export function mergeSettings(saved: any): AppSettings {
-  // Safely ignore localMediaId if present in saved settings (legacy field, no longer used)
-  const { localMediaId, ...savedWithoutLocalMediaId } = saved || {};
-  
-  // Background settings are preset-specific; ignore them from localStorage merge
-  const {
-    scale,
-    x,
-    y,
-    fit,
-    align,
-    loop,
-    autoplay,
-    mute,
-    resolution,
-    backgroundColor,
-    ...savedWithoutBackgroundFields
-  } = savedWithoutLocalMediaId || {};
-  
   return {
     ...DEFAULT_SETTINGS,
-    ...savedWithoutBackgroundFields,
+    ...saved,
     overlay: {
       ...DEFAULT_OVERLAY,
-      ...(savedWithoutBackgroundFields?.overlay || {}),
+      ...(saved?.overlay || {}),
     },
   };
 }

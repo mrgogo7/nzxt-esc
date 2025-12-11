@@ -22,7 +22,7 @@ interface UseLocalMediaParams {
  *
  * Responsibilities:
  * - Only active when settings.sourceType === 'local'.
- * - Reads blob from IndexedDB using activePresetId as the key.
+ * - Reads blob from IndexedDB using settings.localMediaId (or activePresetId as fallback).
  * - Creates and manages a blob URL, revoking old URLs to avoid leaks.
  * - Protects against race conditions when source or preset changes rapidly.
  *
@@ -55,7 +55,9 @@ export function useLocalMedia({ settings, activePresetId }: UseLocalMediaParams)
       return;
     }
 
-    if (!activePresetId) {
+    const mediaId = settings.localMediaId || activePresetId;
+
+    if (!mediaId) {
       // Local mode but we don't have an identifier yet – treat as missing
       setBlobUrl(null);
       setIsLoading(false);
@@ -76,7 +78,7 @@ export function useLocalMedia({ settings, activePresetId }: UseLocalMediaParams)
 
     (async () => {
       try {
-        const record = await getLocalMedia(activePresetId);
+        const record = await getLocalMedia(mediaId);
 
         // Ignore if this request is stale
         if (cancelled || currentRequestId !== requestIdRef.current) return;
@@ -129,10 +131,14 @@ export function useLocalMedia({ settings, activePresetId }: UseLocalMediaParams)
       cancelled = true;
     };
 <<<<<<< HEAD
+<<<<<<< HEAD
   }, [settings.sourceType, settings.localFileName, activePresetId]);
 =======
   }, [settings.sourceType, settings.localMediaId, activePresetId]);
 >>>>>>> parent of 2b04aa5 (Repeated Local Media Select Fix)
+=======
+  }, [settings.sourceType, settings.localMediaId, settings.localFileName, activePresetId]);
+>>>>>>> parent of bd81320 (Preset Problems Fix (1))
 
   // Cleanup on unmount
   useEffect(() => {

@@ -37,6 +37,15 @@ export interface AppSettings {
    * - Binary data is NEVER stored here.
    */
   localFileName?: string;
+  /**
+   * Local media ID used for IndexedDB lookups.
+   *
+   * - Typically this will be set to the presetId so that each preset
+   *   owns at most one local media record.
+   * - This value is NOT exported into .nzxt-esc-preset files; it is
+   *   used only at runtime and in local storage.
+   */
+  localMediaId?: string;
 }
 
 /**

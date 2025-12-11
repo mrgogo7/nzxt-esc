@@ -62,22 +62,7 @@ export function useConfig() {
     const merged = { ...settings, ...newSettings };
     setSettingsState(merged);
     
-    // Background settings are preset-specific; do not persist
-    const {
-      scale,
-      x,
-      y,
-      fit,
-      align,
-      loop,
-      autoplay,
-      mute,
-      resolution,
-      backgroundColor,
-      ...configWithoutBackgroundFields
-    } = merged;
-    
-    const configJson = JSON.stringify(configWithoutBackgroundFields);
+    const configJson = JSON.stringify(merged);
     localStorage.setItem(STORAGE_KEYS.CONFIG, configJson);
     localStorage.setItem(STORAGE_KEYS.CONFIG_COMPAT, configJson);
     

@@ -118,11 +118,11 @@
   align-items: center;
 }
 .url-input {
-  width: 100%;
+  width: 70%;
   background: #2c2c2c;
   border: 1px solid #3a3a3a;
   color: #f2f2f2;
-  padding: 7px 18px 8px 10px;
+  padding: 5px 18px 5px 10px;
   border-radius: 6px;
 }
 .url-input:hover {
