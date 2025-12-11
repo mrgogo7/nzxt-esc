@@ -11,20 +11,6 @@
   font-weight: normal;
   font-style: normal;
 }
-
-@font-face {
-  font-family: "digit-font";
-  src: url("./fonts/DigitFont.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "digital-font";
-  src: url("./fonts/DigitalFont.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-}
 /* ==== Page scaffold ==== */
 .config-page {
   max-width: 710px;     /* <-- limit total width */

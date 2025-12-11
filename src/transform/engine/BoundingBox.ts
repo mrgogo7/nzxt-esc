@@ -28,7 +28,6 @@
 
 import type { OverlayElement } from '../../types/overlay';
 import { isMetricElementData, isTextElementData, isDividerElementData, isClockElementData, isDateElementData } from '../../types/overlay';
-import { measureClockTextWidth } from '../../utils/textMeasurement';
 
 /**
  * Element dimensions in LCD coordinates.
@@ -88,20 +87,19 @@ export function calculateElementDimensions(element: OverlayElement): ElementDime
     };
   } else if (element.type === 'clock' && isClockElementData(element.data)) {
     const fontSize = element.data.fontSize || 45;
-    const format = element.data.format || 'HH:mm';
-    const mode = element.data.mode || '24h';
-    const font = element.data.font || 'default';
-    const outlineThickness = element.data.outlineThickness || 0;
-    
-    // Use real text measurement for accurate bounding box width
-    // This measures the actual rendered width using Canvas API, accounting for:
-    // - Font-specific character widths
-    // - Format and mode (determines maximum text length)
-    // - Outline thickness (adds to width)
-    const measuredWidth = measureClockTextWidth(font, fontSize, format, mode, outlineThickness);
-    
+    // Clock behaves like text - calculate actual text length based on format and mode
+    // Use the same calculation logic as text element
+    // Maximum possible length: "12:59:59 PM" (11 chars) or "23:59:59" (8 chars)
+    let clockLength = 5; // Minimum: "HH:mm" = 5 chars
+    if (element.data.format === 'HH:mm:ss') {
+      clockLength = 8; // "HH:mm:ss" = 8 chars
+    }
+    if (element.data.mode === '12h') {
+      clockLength += 4; // Add " AM" or " PM" = 4 chars
+    }
+    // Use exact same formula as text element
     return {
-      width: measuredWidth,
+      width: Math.max(fontSize * clockLength * 0.6, fontSize * 2),
       height: fontSize * 1.2,
     };
   } else if (element.type === 'date' && isDateElementData(element.data)) {
