@@ -533,14 +533,12 @@ export default function Config() {
     // Save binary to IndexedDB (silent overwrite)
     await saveLocalMedia(file, presetId);
 
-    // Update settings to local mode with new file name
-    // The useLocalMedia hook will detect localFileName change and reload from IndexedDB
+    // Switch to local source mode and clear remote URL
     setSettings({
       ...settings,
       sourceType: 'local',
       localFileName: file.name,
     });
-    
     setMediaUrl('');
     // Show file name in input for user visibility (read-only indicator) with i18n
     const indicatorText = t('localFileIndicator').replace('{fileName}', file.name);

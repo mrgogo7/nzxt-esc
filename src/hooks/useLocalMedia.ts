@@ -128,7 +128,11 @@ export function useLocalMedia({ settings, activePresetId }: UseLocalMediaParams)
     return () => {
       cancelled = true;
     };
+<<<<<<< HEAD
   }, [settings.sourceType, settings.localFileName, activePresetId]);
+=======
+  }, [settings.sourceType, settings.localMediaId, activePresetId]);
+>>>>>>> parent of 2b04aa5 (Repeated Local Media Select Fix)
 
   // Cleanup on unmount
   useEffect(() => {
