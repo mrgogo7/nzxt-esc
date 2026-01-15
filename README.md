@@ -7,11 +7,6 @@ Built for creators, enthusiasts, and PC modders who demand complete control.
 
 Free for personal use only commercial use is strictly prohibited.
 
-> I’m actually not a software developer.
-This project came together in about 20 days, and along the way I learned a lot — and made plenty of mistakes too.
-Right now, I’m rewriting it from scratch with everything I’ve learned so far.
-I’ll be back with a much bigger and cleaner update soon 🚀
-
 ### 🌐 Read This Documentation in Your Language
 
 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
