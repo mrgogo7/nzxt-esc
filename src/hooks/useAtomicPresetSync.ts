@@ -275,12 +275,13 @@ export function useAtomicPresetSync({
 
     // Autosave performed
     
-    // Pass runtime elements directly, don't include in settings
+    // Pass runtime elements and zOrder directly, don't include in settings
     const newPresetFile = createPresetFromState(
       settings, // Use original settings (without overlay.elements)
       mediaUrl,
       nameToUse,
-      runtimeElements // Pass runtime elements separately
+      runtimeElements, // Pass runtime elements separately
+      runtimeState?.zOrder // Pass runtime zOrder separately
     );
 
     // Update preset using atomic merge

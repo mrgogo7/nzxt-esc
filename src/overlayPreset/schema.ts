@@ -26,6 +26,11 @@ export interface OverlayPresetFile {
   appVersion: string;
   /** Array of overlay elements */
   elements: OverlayElement[];
+  /**
+   * Canonical z-order array (element IDs in render order).
+   * Back-to-front order: Last element in array is rendered on top.
+   */
+  zOrder?: string[];
   /** Metadata */
   meta: {
     /** Preset name (user-friendly identifier) */
@@ -55,6 +60,9 @@ export function isOverlayPresetFile(obj: unknown): obj is OverlayPresetFile {
   const meta = file.meta as Record<string, unknown>;
   if (typeof meta.name !== 'string') return false;
   if (typeof meta.createdAt !== 'string') return false;
+
+  // Optional zOrder structure
+  if (file.zOrder !== undefined && !Array.isArray(file.zOrder)) return false;
   
   // Elements array validation (basic check - detailed validation in import)
   if (file.elements.length === 0) return true; // Empty array is valid
@@ -132,6 +140,27 @@ export function validateOverlayPresetFile(
       message: 'Created timestamp is required',
     });
   }
+
+    // zOrder validation (optional)
+    if (file.zOrder !== undefined) {
+      if (!Array.isArray(file.zOrder)) {
+        errors.push({
+          field: 'zOrder',
+          message: 'zOrder must be an array',
+        });
+      } else {
+        // Check for duplicates in zOrder
+        const seen = new Set<string>();
+        file.zOrder.forEach((id, i) => {
+          if (typeof id !== 'string') {
+            errors.push({ field: `zOrder[${i}]`, message: 'zOrder elements must be strings' });
+          } else if (seen.has(id)) {
+            errors.push({ field: `zOrder[${i}]`, message: `Duplicate ID in zOrder: ${id}` });
+          }
+          seen.add(id);
+        });
+      }
+    }
   
   // Elements validation
   // DEFENSIVE: Ensure elements is always an array

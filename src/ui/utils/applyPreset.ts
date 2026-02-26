@@ -58,17 +58,18 @@ export function applyPresetToRuntimeAndSettings(
     // Continue with settings/mediaUrl handling even if import fails
   }
   
-  // Step 3: WAIT 10ms (micro delay to ensure runtime is seeded)
+  // Step 3: WAIT 10ms (micro delay to ensure runtime state is fully seeded before settings update)
+  // This helps prevent race conditions during heavy state transitions
   setTimeout(() => {
-    // Derive effective background source (v2)
-    const bg: any = preset.preset.background;
-    const rawSource = bg?.source;
+    // Derive effective background source (v2/v3 support)
+    const background = preset.preset.background;
+    const rawSource = background.source;
     const sanitizedSource =
       rawSource !== undefined
         ? sanitizeBackgroundSource(rawSource)
         : null;
     const effectiveSource =
-      sanitizedSource ?? deriveBackgroundSourceFromUrl(bg?.url);
+      sanitizedSource ?? deriveBackgroundSourceFromUrl(background.url);
 
     // Map background source → AppSettings + mediaUrl
     let mediaUrl: string;
@@ -80,13 +81,13 @@ export function applyPresetToRuntimeAndSettings(
       sourceType = 'local';
       localFileName = effectiveSource.localFileName;
     } else {
-      mediaUrl = (bg?.url as string) || '';
+      mediaUrl = background.url || '';
       sourceType = 'remote';
       localFileName = undefined;
     }
 
     // Step 4: Load settings from preset (background settings, overlay mode, etc.)
-    // CRITICAL: settings.overlay should ONLY contain mode, NEVER elements
+    // CRITICAL: settings.overlay should ONLY contain mode, NEVER elements (elements are in runtime state)
     const overlayModeFromPreset = preset.preset.overlay?.mode;
     const preservedOverlayMode = overlayModeFromPreset || 'none';
     

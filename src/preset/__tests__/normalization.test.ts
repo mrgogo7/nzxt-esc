@@ -123,7 +123,7 @@ export function testFixInvalidEnums() {
  */
 export function testNoChangesForValidValues() {
   const validPreset: PresetFile = {
-    schemaVersion: 1,
+    schemaVersion: 3,
     exportedAt: '2024-01-01T00:00:00.000Z',
     appVersion: '0.0.1',
     presetName: 'Test Preset',
@@ -145,6 +145,7 @@ export function testNoChangesForValidValues() {
     overlay: {
       mode: 'none',
       elements: [],
+      zOrder: [],
     },
   };
 
@@ -164,6 +165,47 @@ export function testNoChangesForValidValues() {
 }
 
 /**
+ * Test case: Normalize zOrder
+ */
+export function testZOrderNormalization() {
+  const missingZOrderPreset: any = {
+    schemaVersion: 3,
+    exportedAt: '2024-01-01T00:00:00.000Z',
+    appVersion: '3.0.0',
+    presetName: 'Test Preset',
+    background: {
+      url: '',
+      settings: { scale: 1, x: 0, y: 0, fit: 'cover', align: 'center', loop: true, autoplay: true, mute: true, resolution: '640x640', backgroundColor: '#000000' },
+    },
+    overlay: {
+      mode: 'custom',
+      elements: [
+        { id: 'el-1', type: 'text', text: 'One' },
+        { id: 'el-2', type: 'text', text: 'Two' },
+      ],
+      // zOrder is missing!
+    },
+  };
+
+  const result = normalizePresetFile(missingZOrderPreset);
+
+  if (!result.normalized.overlay.zOrder || result.normalized.overlay.zOrder.length !== 2) {
+    throw new Error('Should have normalized zOrder');
+  }
+
+  if (result.normalized.overlay.zOrder[0] !== 'el-1' || result.normalized.overlay.zOrder[1] !== 'el-2') {
+    throw new Error('zOrder elements should match element IDs');
+  }
+
+  const change = result.changes.find(c => c.field === 'overlay.zOrder');
+  if (!change) {
+    throw new Error('Should have change record for zOrder');
+  }
+
+  console.log('✅ testZOrderNormalization: PASSED');
+}
+
+/**
  * Run all normalization tests
  */
 export function runNormalizationTests() {
@@ -173,6 +215,7 @@ export function runNormalizationTests() {
     testClampValues();
     testFixInvalidEnums();
     testNoChangesForValidValues();
+    testZOrderNormalization();
     
     console.log('\n✅ All normalization tests passed!');
   } catch (error) {

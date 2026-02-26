@@ -30,8 +30,22 @@ export async function testRoundTrip() {
   const mediaUrl = 'https://example.com/test-video.mp4';
   const presetName = 'Round Trip Test';
 
+  // Elements to test z-order and state persistence
+  const testElements = [
+    { id: 'el-1', type: 'text' as const, text: 'Hello', x: 10, y: 10, size: 20 },
+    { id: 'el-2', type: 'image' as const, url: 'https://example.com/img.png', x: 50, y: 50, size: 100 },
+  ];
+  const testZOrder = ['el-2', 'el-1']; // Non-standard order to test stability
+
   // Step 1: Create preset from state
-  const exportedPreset = createPresetFromState(originalSettings, mediaUrl, presetName);
+  // We mock the state elements and z-order by passing them as arguments
+  const exportedPreset = createPresetFromState(
+    { ...originalSettings, overlay: { mode: 'custom' } } as AppSettings,
+    mediaUrl,
+    presetName,
+    testElements,
+    testZOrder
+  );
 
   // Step 2: Simulate import (create a File-like object)
   // In a real test, we would create an actual File object
@@ -98,6 +112,28 @@ export async function testRoundTrip() {
   // Check media URL
   if (importResult.mediaUrl !== mediaUrl) {
     throw new Error(`Media URL mismatch: ${importResult.mediaUrl} !== ${mediaUrl}`);
+  }
+
+  // Check Overlay (extracted from settings or preset)
+  const importedOverlay = importResult.settings?.overlay;
+  if (!importedOverlay) {
+    throw new Error('Imported overlay should not be null');
+  }
+
+  if (importedOverlay.mode !== 'custom') {
+    throw new Error(`Overlay mode mismatch: ${importedOverlay.mode} !== custom`);
+  }
+
+  if (importedOverlay.elements.length !== 2) {
+    throw new Error(`Elements length mismatch: ${importedOverlay.elements.length} !== 2`);
+  }
+
+  if (!importedOverlay.zOrder || importedOverlay.zOrder.length !== 2) {
+    throw new Error('Imported zOrder mismatch or missing');
+  }
+
+  if (importedOverlay.zOrder[0] !== 'el-2' || importedOverlay.zOrder[1] !== 'el-1') {
+    throw new Error('zOrder sequence not preserved during round-trip');
   }
 
   console.log('✅ testRoundTrip: PASSED');

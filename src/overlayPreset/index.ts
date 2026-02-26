@@ -24,6 +24,8 @@ export interface OverlayPresetImportResult {
   success: boolean;
   /** Imported elements (if successful) */
   elements?: OverlayElement[];
+  /** Canonical z-order (if available) */
+  zOrder?: string[];
   /** Validation result */
   validation?: OverlayPresetValidationResult;
   /** Error message (if failed) */
@@ -43,7 +45,8 @@ import { APP_VERSION } from '../version';
 export async function exportOverlayPreset(
   elements: OverlayElement[],
   presetName: string,
-  filename?: string
+  filename?: string,
+  zOrder?: string[]
 ): Promise<void> {
   try {
     const now = new Date().toISOString();
@@ -55,6 +58,7 @@ export async function exportOverlayPreset(
       format: 'overlay-preset',
       appVersion,
       elements: [...elements], // Copy array to avoid mutations
+      zOrder: zOrder,
       meta: {
         name: presetName,
         createdAt: now,
@@ -170,10 +174,11 @@ export async function importOverlayPreset(
       finalElements = finalElements.slice(0, MAX_OVERLAY_ELEMENTS);
     }
     
-    // Step 6: Return elements
+    // Step 6: Return elements and zOrder
     return {
       success: true,
       elements: finalElements,
+      zOrder: parsed.zOrder,
       validation,
     };
     

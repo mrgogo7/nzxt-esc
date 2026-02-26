@@ -9,17 +9,12 @@
  * This is the version that all exported presets will use.
  * Increment this when making breaking changes to the preset format.
  * 
- * FAZ-3C: v3 introduces canonical z-order support.
- * However, we keep v2 as CURRENT until v3 is fully tested and validated.
+ * Version History:
+ * - v1: Added presetName field, standardized structure.
+ * - v2: Added background.source media source model.
+ * - v3: Added canonical z-order (overlay.zOrder) and unified runtime state.
  */
-export const CURRENT_SCHEMA_VERSION = 2;
-
-/**
- * Next schema version (v3) - used when FAZ-3C feature flag is enabled.
- * 
- * FAZ-3C: v3 introduces canonical z-order in overlay.zOrder field.
- */
-export const NEXT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 3;
 
 /**
  * Minimum supported schema version.
@@ -35,7 +30,7 @@ export const SCHEMA_VERSION_HISTORY: Record<number, string> = {
   0: 'Initial version (no schemaVersion field) - Legacy format',
   1: 'Added presetName field, standardized structure',
   2: 'Added background.source media source model (remote/youtube/pinterest/local)',
-  // Future versions will be added here as they are introduced
+  3: 'Added canonical z-order (overlay.zOrder) and unified runtime state',
 };
 
 /**

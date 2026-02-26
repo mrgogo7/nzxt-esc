@@ -49,31 +49,35 @@ export function mergePresetFields(
     merged.misc = newPart.misc;
   }
 
-  // Overlay: FAZ 7 FIX v2 - Save mode AND elements from runtime
+  // Overlay: FAZ 7 FIX v2 - Save mode, elements, AND zOrder from runtime
   // CRITICAL: Overlay elements come from runtime overlay Map and MUST be saved to preset for persistence
   if (newPart.overlay) {
     // FAZ 7 FIX v2: Use elements from newPart.overlay.elements (which comes from runtime via useAtomicPresetSync)
     const newElements = Array.isArray(newPart.overlay.elements) ? newPart.overlay.elements : [];
+    const newZOrder = Array.isArray(newPart.overlay.zOrder) ? newPart.overlay.zOrder : [];
     
     merged.overlay = {
       mode: newPart.overlay.mode ?? oldPreset.overlay?.mode ?? 'none',
       elements: newElements, // FAZ 7 FIX v2: Save runtime elements to preset (NEVER override with [])
+      zOrder: newZOrder, // Save runtime zOrder to preset
     };
     
     // DEBUG: Log overlay merge (dev-only)
     if (typeof window !== 'undefined' && (window as any).__NZXT_ESC_DEBUG_RUNTIME === true) {
-      console.log('[atomicMerge] Overlay merge - mode:', merged.overlay.mode, 'elements count:', newElements.length, 'elements:', newElements);
+      console.log('[atomicMerge] Overlay merge - mode:', merged.overlay.mode, 'elements count:', newElements.length, 'zOrder count:', newZOrder.length);
     }
   } else {
-    // DEFENSIVE: Preserve existing overlay elements from oldPreset (FAZ 7 FIX v2)
+    // DEFENSIVE: Preserve existing overlay elements and zOrder from oldPreset (FAZ 7 FIX v2)
     if (!merged.overlay) {
       merged.overlay = {
         mode: oldPreset.overlay?.mode ?? 'none',
         elements: Array.isArray(oldPreset.overlay?.elements) ? oldPreset.overlay.elements : [],
+        zOrder: Array.isArray(oldPreset.overlay?.zOrder) ? oldPreset.overlay.zOrder : [],
       };
     } else {
       // Preserve existing elements if not being updated (FAZ 7 FIX v2)
       merged.overlay.elements = Array.isArray(merged.overlay.elements) ? merged.overlay.elements : (Array.isArray(oldPreset.overlay?.elements) ? oldPreset.overlay.elements : []);
+      merged.overlay.zOrder = Array.isArray(merged.overlay.zOrder) ? merged.overlay.zOrder : (Array.isArray(oldPreset.overlay?.zOrder) ? oldPreset.overlay.zOrder : []);
     }
   }
 

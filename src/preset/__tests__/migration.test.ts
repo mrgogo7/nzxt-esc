@@ -41,8 +41,8 @@ export function testMigrate0To1() {
   const migrated = migratePreset(v0File);
 
   // Assertions
-  if (migrated.schemaVersion !== 1) {
-    throw new Error(`Expected schemaVersion 1, got ${migrated.schemaVersion}`);
+  if (migrated.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+    throw new Error(`Expected schemaVersion ${CURRENT_SCHEMA_VERSION}, got ${migrated.schemaVersion}`);
   }
 
   if (!migrated.presetName) {
@@ -54,6 +54,107 @@ export function testMigrate0To1() {
   }
 
   console.log('✅ testMigrate0To1: PASSED');
+}
+
+/**
+ * Test case: Migrate version 1 to version 2
+ */
+export function testMigrate1To2() {
+  const v1File = {
+    schemaVersion: 1,
+    exportedAt: '2024-01-01T00:00:00.000Z',
+    appVersion: '1.0.0',
+    presetName: 'V1 Test',
+    background: {
+      url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      settings: {
+        scale: 1.0,
+        x: 0,
+        y: 0,
+        fit: 'cover',
+        align: 'center',
+        loop: true,
+        autoplay: true,
+        mute: true,
+        resolution: '640x640',
+        backgroundColor: '#000000',
+      },
+    },
+    overlay: {
+      mode: 'none',
+      elements: [],
+    },
+  };
+
+  const migrated = migratePreset(v1File);
+
+  // Assertions
+  if (migrated.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+    throw new Error(`Expected schemaVersion ${CURRENT_SCHEMA_VERSION}, got ${migrated.schemaVersion}`);
+  }
+
+  const bg = migrated.background as any;
+  if (!bg.source || bg.source.type !== 'youtube' || bg.source.url !== v1File.background.url) {
+    throw new Error('Should derive YouTube source from URL in v2 migration');
+  }
+
+  console.log('✅ testMigrate1To2: PASSED');
+}
+
+/**
+ * Test case: Migrate version 2 to version 3
+ */
+export function testMigrate2To3() {
+  const v2File = {
+    schemaVersion: 2,
+    exportedAt: '2024-01-01T00:00:00.000Z',
+    appVersion: '2.0.0',
+    presetName: 'V2 Test',
+    background: {
+      url: 'https://example.com/image.png',
+      source: { type: 'remote', url: 'https://example.com/image.png' },
+      settings: {
+        scale: 1.0,
+        x: 0,
+        y: 0,
+        fit: 'cover',
+        align: 'center',
+        loop: true,
+        autoplay: true,
+        mute: true,
+        resolution: '640x640',
+        backgroundColor: '#000000',
+      },
+    },
+    overlay: {
+      mode: 'custom',
+      elements: [
+        { id: 'el-1', type: 'text', text: 'One' },
+        { id: 'el-2', type: 'text', text: 'Two' },
+      ],
+    },
+  };
+
+  const migrated = migratePreset(v2File);
+
+  // Assertions
+  if (migrated.schemaVersion !== 3) {
+    throw new Error(`Expected schemaVersion 3, got ${migrated.schemaVersion}`);
+  }
+
+  if (!migrated.overlay.zOrder || !Array.isArray(migrated.overlay.zOrder)) {
+    throw new Error('Should have zOrder array in v3 migration');
+  }
+
+  if (migrated.overlay.zOrder.length !== 2) {
+    throw new Error(`Expected zOrder length 2, got ${migrated.overlay.zOrder.length}`);
+  }
+
+  if (migrated.overlay.zOrder[0] !== 'el-1' || migrated.overlay.zOrder[1] !== 'el-2') {
+    throw new Error('zOrder elements should match element IDs and order');
+  }
+
+  console.log('✅ testMigrate2To3: PASSED');
 }
 
 /**
@@ -151,6 +252,8 @@ export function runMigrationTests() {
   
   try {
     testMigrate0To1();
+    testMigrate1To2();
+    testMigrate2To3();
     testMissingFields();
     testIdempotentMigration();
     testVersionDetection();

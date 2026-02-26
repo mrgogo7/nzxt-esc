@@ -17,8 +17,9 @@ import '../PresetManager/PresetManager.css';
 export interface ImportOverlayModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (elements: OverlayElement[], mode: 'replace' | 'append') => void;
+  onImport: (elements: OverlayElement[], mode: 'replace' | 'append', zOrder?: string[]) => void;
   importedElements: OverlayElement[];
+  importedZOrder?: string[];
   currentElementCount: number;
   activePresetId: string | null;
   settings: AppSettings;
@@ -30,6 +31,7 @@ export default function ImportOverlayModal({
   onClose,
   onImport,
   importedElements,
+  importedZOrder,
   currentElementCount,
   activePresetId,
   settings,
@@ -68,7 +70,7 @@ export default function ImportOverlayModal({
       alert(message);
     }
     
-    onImport(truncatedElements, 'replace');
+    onImport(truncatedElements, 'replace', importedZOrder);
     onClose();
   };
 

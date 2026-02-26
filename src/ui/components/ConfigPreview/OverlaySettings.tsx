@@ -251,6 +251,7 @@ export default function OverlaySettingsComponent({
   // State for Import Overlay Modal
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [importedElements, setImportedElements] = useState<OverlayElement[]>([]);
+  const [importedZOrder, setImportedZOrder] = useState<string[] | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // State for Overlay Preset Picker Modal
@@ -434,7 +435,7 @@ export default function OverlaySettingsComponent({
           return;
         }
         
-        await exportOverlayPreset(safeElements, presetName);
+        await exportOverlayPreset(safeElements, presetName, undefined, runtimeState.zOrder);
       } else {
         alert(t('alertNoElementsToExport'));
       }
@@ -472,6 +473,7 @@ export default function OverlaySettingsComponent({
 
       // Store imported elements and open modal
       setImportedElements(result.elements);
+      setImportedZOrder(result.zOrder);
       setIsImportModalOpen(true);
     } catch (error) {
       // Reset input on any error
@@ -488,7 +490,7 @@ export default function OverlaySettingsComponent({
   // Handler: Apply imported elements (Replace or Append)
   // IMPORTANT: This writes to runtime state, NOT to settings.overlay.elements
   // GLOBAL HARD LIMIT: Enforces total (preset manual + runtime imported) <= 20
-  const handleImportOverlay = async (elements: OverlayElement[], mode: 'replace' | 'append') => {
+  const handleImportOverlay = async (elements: OverlayElement[], mode: 'replace' | 'append', zOrder?: string[]) => {
     // CRITICAL: activePresetId must be valid for per-preset runtime state
     if (!activePresetId) {
       alert(t('alertNoActivePreset'));
@@ -519,7 +521,12 @@ export default function OverlaySettingsComponent({
         const addActions = safeElements.map(element => createAddElementAction(element));
         const addBatch = createBatchAction(addActions);
         stateManager.dispatch(addBatch);
-      } else {
+
+        // If zOrder provided, apply it (otherwise addElement handles it)
+        if (zOrder && Array.isArray(zOrder)) {
+          const currentZOrder = runtimeState.zOrder;
+          stateManager.dispatch(createZOrderAction(currentZOrder, zOrder));
+        }
       }
     } else {
       // Append: runtimeOverlay[activePresetId] = [...current, ...imported]
@@ -1580,12 +1587,14 @@ export default function OverlaySettingsComponent({
         onClose={() => {
           setIsImportModalOpen(false);
           setImportedElements([]);
+          setImportedZOrder(undefined);
           if (fileInputRef.current) {
             fileInputRef.current.value = '';
           }
         }}
         onImport={handleImportOverlay}
         importedElements={importedElements}
+        importedZOrder={importedZOrder}
         currentElementCount={runtimeState ? runtimeState.elements.size : 0}
         activePresetId={activePresetId}
         settings={settings}

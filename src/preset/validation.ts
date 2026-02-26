@@ -105,6 +105,43 @@ function validateRequiredFields(file: PresetFile, errors: ValidationIssue[]): vo
       severity: 'error',
     });
   }
+
+  // Validate zOrder for version 3+ presets
+  if (file.schemaVersion >= 3) {
+    if (!Array.isArray(file.overlay.zOrder)) {
+      errors.push({
+        field: 'overlay.zOrder',
+        message: 'Overlay zOrder must be an array for version 3+ presets',
+        severity: 'error',
+      });
+    } else {
+      // Check if zOrder elements exist in elements array
+      const elementIds = new Set(
+        file.overlay.elements
+          .map((el: any) => el?.id)
+          .filter((id) => typeof id === 'string')
+      );
+
+      for (const id of file.overlay.zOrder) {
+        if (!elementIds.has(id)) {
+          errors.push({
+            field: 'overlay.zOrder',
+            message: `zOrder contains unknown element ID: "${id}"`,
+            severity: 'error',
+          });
+        }
+      }
+
+      // Check for elements missing from zOrder
+      if (file.overlay.zOrder.length !== elementIds.size) {
+        warnings.push({
+          field: 'overlay.zOrder',
+          message: 'Some overlay elements are missing from zOrder. They will be appended during normalization.',
+          severity: 'warning',
+        });
+      }
+    }
+  }
 }
 
 /**

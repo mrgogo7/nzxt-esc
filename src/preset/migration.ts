@@ -29,10 +29,7 @@ export type MigrationFunction = (file: any) => PresetFile;
 const MIGRATION_REGISTRY: Record<number, MigrationFunction> = {
   0: migrate0To1,
   1: migrate1To2,
-  // Future migrations:
-  // 2: migrate2To3,
-  // 3: migrate3To4,
-  // etc.
+  2: migrate2To3,
 };
 
 /**
@@ -267,6 +264,42 @@ function migrate1To2(file: PresetFile): PresetFile {
   (bg as any).source = effectiveSource;
 
   return result;
+}
+
+/**
+ * Migrates from version 2 to version 3.
+ *
+ * Changes in v3:
+ * - Added canonical z-order (overlay.zOrder)
+ * - Ensures element array and z-order are in sync
+ */
+function migrate2To3(file: PresetFile): PresetFile {
+  const overlay = file.overlay;
+  const elements = Array.isArray(overlay?.elements) ? overlay.elements : [];
+
+  // Build canonical z-order from element array order
+  const zOrder: string[] = [];
+  const seenIds = new Set<string>();
+
+  for (const element of elements) {
+    if (element && typeof element.id === 'string' && element.id && !seenIds.has(element.id)) {
+      zOrder.push(element.id);
+      seenIds.add(element.id);
+    }
+  }
+
+  // Create migrated overlay with zOrder
+  const migratedOverlay: Overlay = {
+    mode: overlay?.mode === 'custom' ? 'custom' : 'none',
+    elements: elements,
+    zOrder: zOrder,
+  };
+
+  return {
+    ...file,
+    schemaVersion: 3,
+    overlay: migratedOverlay,
+  };
 }
 
 /**

@@ -109,6 +109,11 @@ export function isPresetFile(obj: unknown): obj is PresetFile {
   const ov = file.overlay as Record<string, unknown>;
   if (typeof ov.mode !== 'string') return false;
   if (!Array.isArray(ov.elements)) return false;
+
+  // zOrder is required for v3+
+  if (file.schemaVersion >= 3) {
+    if (!Array.isArray(ov.zOrder)) return false;
+  }
   
   return true;
 }

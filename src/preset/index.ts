@@ -44,12 +44,13 @@ export function createPresetFromState(
   settings: AppSettings,
   mediaUrl: string,
   presetName: string,
-  overlayElements?: Array<any> // OverlayElement[] but avoiding circular import
+  overlayElements?: Array<any>, // OverlayElement[] but avoiding circular import
+  zOrder?: string[]
 ): PresetFile {
   const now = new Date().toISOString();
   const appVersion = APP_VERSION;
 
-  // CRITICAL: overlay.elements should come from runtime/storage, NOT from settings
+  // CRITICAL: overlay elements and zOrder should come from runtime/storage, NOT from settings
   // settings.overlay.elements should always be empty/undefined
   const elements = Array.isArray(overlayElements) ? overlayElements : [];
 
@@ -111,7 +112,8 @@ export function createPresetFromState(
     },
     overlay: {
       mode: settings.overlay?.mode || 'none',
-      elements: elements, // FAZ 9: Always use provided elements, never from settings
+      elements: elements,
+      zOrder: zOrder || elements.map(el => el.id), // Use provided zOrder or default to elements array order
     },
     misc: miscOrUndefined,
   };
@@ -137,37 +139,29 @@ export async function exportPreset(
   activePresetId?: string | null
 ): Promise<void> {
   try {
-    const useNewRuntime = shouldUseFaz3BRuntime();
-    let preset: PresetFile | null = null;
+    let preset: PresetFile;
     
-    // FAZ-3C: Use vNext export system when feature flag is enabled
-    if (useNewRuntime && activePresetId) {
-      try {
-        // Get StateManager instance (cached or created)
-        const { getStateManagerForPreset } = await import('../state/overlay/useOverlayStateManager');
-        const stateManager = getStateManagerForPreset(activePresetId);
-        const runtimeState = stateManager.getState();
-        
-        // Export runtime state to v3 preset
-        const exportedPreset = exportRuntimeStateToPreset(runtimeState, presetName);
-        
-        // Merge background settings from current settings (background is not part of runtime state)
-        const backgroundFromSettings = createPresetFromState(settings, mediaUrl, presetName);
-        preset = {
-          ...exportedPreset,
-          background: backgroundFromSettings.background,
-          misc: backgroundFromSettings.misc,
-        };
-      } catch (error) {
-        // Fallback to old system if vNext export fails
-        console.warn('[PresetExport] vNext export failed, falling back to old system:', error);
-        preset = null; // Force old system path
-      }
-    }
-    
-    // FAZ-4-3: Legacy path removed - vNext is required
-    if (!preset) {
-      throw new Error('Preset export failed: vNext export is required');
+    // Unified export logic: always read from runtime state if available
+    if (activePresetId) {
+      // Get StateManager instance (cached or created)
+      const { getStateManagerForPreset } = await import('../state/overlay/useOverlayStateManager');
+      const stateManager = getStateManagerForPreset(activePresetId);
+      const runtimeState = stateManager.getState();
+
+      const { getElementsInZOrder } = await import('../state/overlay/selectors');
+      const runtimeElements = getElementsInZOrder(runtimeState.elements, runtimeState.zOrder);
+
+      // Create v3 preset using unified logic
+      preset = createPresetFromState(
+        settings,
+        mediaUrl,
+        presetName,
+        runtimeElements,
+        runtimeState.zOrder
+      );
+    } else {
+      // Fallback: use settings directly (should rarely happen in current architecture)
+      preset = createPresetFromState(settings, mediaUrl, presetName);
     }
     
     const json = JSON.stringify(preset, null, 2);

@@ -201,6 +201,50 @@ function normalizeOverlay(
       newValue: newElements,
     });
   }
+
+  // Normalize zOrder
+  if (!Array.isArray(overlay.zOrder)) {
+    const oldZOrder = overlay.zOrder;
+    const newZOrder = overlay.elements
+      .map((el: any) => el?.id)
+      .filter((id) => typeof id === 'string');
+    overlay.zOrder = newZOrder;
+    changes.push({
+      field: 'overlay.zOrder',
+      oldValue: oldZOrder,
+      newValue: newZOrder,
+    });
+  } else {
+    // Check if zOrder and elements are in sync
+    const elementIds = overlay.elements
+      .map((el: any) => el?.id)
+      .filter((id) => typeof id === 'string');
+    const zOrderSet = new Set(overlay.zOrder);
+
+    let changed = false;
+    const workingZOrder = [...overlay.zOrder];
+
+    // Add missing elements to zOrder (append to top)
+    for (const id of elementIds) {
+      if (!zOrderSet.has(id)) {
+        workingZOrder.push(id);
+        changed = true;
+      }
+    }
+
+    // Remove dead elements from zOrder
+    const finalZOrder = workingZOrder.filter((id) => elementIds.includes(id));
+
+    if (finalZOrder.length !== overlay.zOrder.length || changed) {
+      const oldZOrder = [...overlay.zOrder];
+      overlay.zOrder = finalZOrder;
+      changes.push({
+        field: 'overlay.zOrder',
+        oldValue: oldZOrder,
+        newValue: finalZOrder,
+      });
+    }
+  }
 }
 
 /**
