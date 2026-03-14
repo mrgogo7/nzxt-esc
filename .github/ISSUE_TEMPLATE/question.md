@@ -1,9 +1,10 @@
 ---
 name: Question
 about: Ask a question about NZXT-ESC
-title: '[QUESTION] '
+title: "[QUESTION] "
 labels: question
 assignees: ''
+
 ---
 
 ## ❓ Question
@@ -43,4 +44,3 @@ Add any other information that might help answer your question.
 - [ ] I have read the README
 - [ ] I have searched existing issues and discussions
 - [ ] I have provided relevant context
-

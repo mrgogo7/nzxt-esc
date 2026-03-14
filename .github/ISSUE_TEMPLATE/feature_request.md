@@ -1,9 +1,10 @@
 ---
 name: Feature Request
 about: Suggest an idea for NZXT-ESC
-title: '[FEATURE] '
+title: "[FEATURE] "
 labels: enhancement
 assignees: ''
+
 ---
 
 ## 💡 Feature Description
@@ -53,4 +54,3 @@ Add any other context, examples, or information about the feature request here.
 - [ ] I have searched existing issues to ensure this feature hasn't been requested
 - [ ] I have considered alternative solutions
 - [ ] I have provided clear use case and benefits
-

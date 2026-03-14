@@ -1,9 +1,10 @@
 ---
 name: Bug Report
 about: Create a report to help us improve NZXT-ESC
-title: '[BUG] '
+title: "[BUG] "
 labels: bug
 assignees: ''
+
 ---
 
 ## 🐛 Bug Description
@@ -55,4 +56,3 @@ Add any other context about the problem here.
 - [ ] I have tested in the latest version
 - [ ] I have included all relevant environment information
 - [ ] I have included steps to reproduce the bug
-
