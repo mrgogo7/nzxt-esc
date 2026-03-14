@@ -7,6 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <title>NZXT Elite Screen Customizer</title>
+
     <script>
       // Redirect old URLs to new URLs
       if (window.location.pathname.includes('/nzxt-web-integration-amc')) {
@@ -14,7 +15,15 @@
         window.location.replace(newPath + window.location.search + window.location.hash);
       }
     </script>
+
+    <!-- Cloudflare Web Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "b34a7628ace24997ade21615c61f1470"}'>
+    </script>
+    <!-- End Cloudflare Web Analytics -->
+
   </head>
+
   <body style="margin:0;background:#000;">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
