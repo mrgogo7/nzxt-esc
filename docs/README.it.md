@@ -59,6 +59,10 @@ NZXT-ESC funziona DENTRO NZXT CAM utilizzando la funzionalità "Web Integration"
    ```text
    https://mrgogo7.github.io/nzxt-esc/
    ```
+      or Beta Version Now Available
+   ```text
+   https://nzxt-esc.pages.dev/
+   ```
 6. Premi "Carica".
 7. Dopo il caricamento, apri la scheda "Custom Web Integration".
 
