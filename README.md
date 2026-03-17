@@ -79,6 +79,12 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
    ```text
    https://mrgogo7.github.io/nzxt-esc/
    ```
+
+   or Beta Version Now Available
+   ```text
+   https://nzxt-esc.pages.dev/
+   ```
+   
 7. Press "Apply".
 8. Then press: Add as Card
 9. A new Web Integration card called "My Web Integration" will appear.
