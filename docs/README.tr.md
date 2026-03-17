@@ -59,6 +59,10 @@ NZXT-ESC, "Web Integration" özelliğini kullanarak NZXT CAM İÇİNDE çalış�
    ```text
    https://mrgogo7.github.io/nzxt-esc/
    ```
+   or Beta Version Now Available
+   ```text
+   https://nzxt-esc.pages.dev/
+   ```
 6. "Yükle"ye basın.
 7. Yüklemeden sonra, "Custom Web Integration" kartını açın.
 
