@@ -56,7 +56,7 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 1. Copy this into your browser's address bar:
    ```text
-   nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-esc/
+   nzxt-cam://action/load-web-integration?url=https://nzxt-esc.pages.dev/
    ```
 2. Press Enter.
 3. Your browser will display a question: "Open nzxt-cam link with NZXT CAM?" → Approve / Allow
