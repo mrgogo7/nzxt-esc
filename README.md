@@ -73,6 +73,10 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 #### METHOD 2 — MANUAL INSTALLATION (INSIDE NZXT CAM)
 
+<img width="832" height="486" alt="resim" src="https://github.com/user-attachments/assets/40ddafa3-77b9-4320-b50a-9df137cfd4e7" />
+<img width="904" height="513" alt="resim" src="https://github.com/user-attachments/assets/445b8470-219a-45b2-b4e4-b10ba034ee99" />
+
+
 1. Open NZXT CAM.
 2. Go to: Lighting → Kraken Elite V2 → LCD Display
 3. Change the display mode to: Web Integration
