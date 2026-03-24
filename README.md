@@ -26,6 +26,9 @@ Free for personal use only commercial use is strictly prohibited.
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif" width="400"/>
 </p>
 
+BetaScreenShot:
+<img width="770" height="530" alt="resim" src="https://github.com/user-attachments/assets/b1718a6a-af30-4a71-9f66-fb4d2c83719b" />
+
 ---
 ## 📋 CONTENTS
 
