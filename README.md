@@ -99,11 +99,11 @@ NZXT CAM assigns the default name "My Web Integration". To rename:
 2. Press "Edit".
 3. Change the fields to: Title:
    ```text
-   Elite Screen Customizer
+   NZXT-ESC - NZXT Kraken Elite Screen Customizer
    ```
    Description:
    ```text
-   NZXT Elite Screen Customizer (NZXT-ESC)
+   NZXT Kraken Elite Screen Customizer (NZXT-ESC)
    ```
 This helps distinguish the integration from others.
 
