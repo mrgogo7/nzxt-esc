@@ -1,11 +1,10 @@
-# NZXT-ESC (NZXT Elite Screen Customizer) v6.03 (Build 24)
+# NZXT-ESC - NZXT Kraken Elite Screen Customizer v6.03.26)
 
-NZXT-ESC is the most advanced custom LCD screen editor for NZXT Kraken Elite coolers.
-Design fully personalized LCD layouts with MP4/GIF backgrounds, custom metrics, text, dividers, clocks, dates, Pinterest/YouTube media, and more all synced live inside NZXT CAM via Web Integration.
+NZXT-ESC is an advanced NZXT Kraken Elite LCD screen customizer and editor that lets you fully customize your Kraken Elite display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
 
-Built for creators, enthusiasts, and PC modders who demand complete control.
+Create fully personalized LCD layouts using text, shapes, clocks, dates, arc, linear and dynamic media sources like YouTube and Pinterest — all with real-time preview and seamless NZXT CAM Web Integration support.
 
-Free for personal use only commercial use is strictly prohibited.
+Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Elite LCD customization.
 
 ### 🌐 Read This Documentation in Your Language
 
