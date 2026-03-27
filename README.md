@@ -1,4 +1,4 @@
-# NZXT-ESC - NZXT Kraken Elite Screen Customizer v6.03.26)
+# NZXT-ESC - NZXT Kraken Elite Screen Customizer (v6.03.26)
 
 NZXT-ESC is an advanced NZXT Kraken Elite LCD screen customizer and editor that lets you fully customize your Kraken Elite display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
 
@@ -6,13 +6,8 @@ Create fully personalized LCD layouts using text, shapes, clocks, dates, arc, li
 
 Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Elite LCD customization.
 
-### 🌐 Read This Documentation in Your Language
-
-🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
-
-  <a href="./docs/">
-    <img src="https://img.shields.io/badge/docs-multi--language-blue?style=for-the-badge&logo=google-translate" alt="Multi-language documentation">
-  </a>
+###### 🌐 Read This Documentation in Your Language
+##### 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
 
 ![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
 
