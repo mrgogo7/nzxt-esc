@@ -131,6 +131,8 @@ No external URL or config.html is required anymore.
 
 NZXT-ESC is not a theme pack — it is a **full, design-oriented layout editor** built specifically for the Kraken Elite LCD.
 
+<img width="843" height="537" alt="resim" src="https://github.com/user-attachments/assets/e169a611-f331-4bb6-94a5-c093fb8ee7a3" />
+
 It offers complete creative freedom far beyond what NZXT CAM supports natively.
 
 NZXT CAM **does not** allow:
