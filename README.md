@@ -1,10 +1,10 @@
-# NZXT-ESC - NZXT Kraken Elite Screen Customizer (v6.03.26)
+# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.03.26)
 
-NZXT-ESC is an advanced NZXT Kraken Elite LCD screen customizer and editor that lets you fully customize your Kraken Elite display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
+NZXT-ESC is an advanced NZXT Kraken LCD screen customizer and editor that lets you fully customize your Kraken display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
 
 Create fully personalized LCD layouts using text, shapes, clocks, dates, arc, linear and dynamic media sources like YouTube and Pinterest — all with real-time preview and seamless NZXT CAM Web Integration support.
 
-Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Elite LCD customization.
+Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken LCD customization.
 
 ###### 🌐 Read This Documentation in Your Language
 ##### 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
@@ -99,11 +99,11 @@ NZXT CAM assigns the default name "My Web Integration". To rename:
 2. Press "Edit".
 3. Change the fields to: Title:
    ```text
-   NZXT-ESC - NZXT Kraken Elite Screen Customizer
+   NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor
    ```
    Description:
    ```text
-   NZXT Kraken Elite Screen Customizer (NZXT-ESC)
+   NZXT Kraken Enhanced Screen Customization Editor (NZXT-ESC)
    ```
 This helps distinguish the integration from others.
 
@@ -122,7 +122,7 @@ Inside the editor you can:
 - Use overlay preset templates (Single, Dual, Triple, Quadruple InfoGraphic layouts)
 - Import overlay presets with Replace or Append options
 - Quickly switch between favorite presets via the Quick Favorites dropdown
-- Preview all changes in real time on your Kraken Elite LCD
+- Preview all changes in real time on your NZXT Kraken LCD
 
 No external URL or config.html is required anymore.
 
@@ -561,6 +561,16 @@ NZXT-ESC is a hobby and community-driven project intended only for personal use.
 <details>
 <summary><strong>📁 Full SEO Keyword Index (Click to Expand)</strong></summary>
 
-**nzxt-esc, nzxt esc, NZXT elite screen customizer, nzxt pinterest, nzxt youtube, nzxt youtube overlay, nzxt overlay, nzxt custom overlay, nzxt web integration, nzxt best web integration, nzxt kraken elite lcd editor, nzxt cam customization, nzxt web integration custom, nzxt animated lcd background, mp4 lcd background nzxt, youtube kraken elite lcd, nzxt gif overlay, nzxt overlay editor, custom lcd screen nzxt, nzxt cam alternatives, nzxt cam limitations, kraken elite custom display, nzxt lcd text editor, nzxt lcd metrics overlay, nzxt lcd mods, nzxt pinterest background, nzxt lcd media engine, nzxt-esc project, nzxt cam modding, nzxt kraken elite youtube support, custom nzxt layouts, nzxt cam web integration presets, nzxt overlay templates, nzxt custom ui editor, nzxt lcd graphics editor, nzxt real-time lcd sync, kraken elite advanced customization, nzxt cam mp4 support, nzxt cam gif support, nzxt cam youtube embed, nzxt cam background editor**
+NZXT-ESC (Enhanced Screen Customization) is a powerful NZXT Kraken LCD editor and overlay engine built on NZXT CAM Web Integration.
+
+Customize your LCD with full support for animated backgrounds (MP4, GIF), YouTube and Pinterest media, real-time sensor overlays, text editors, and advanced layout tools.
+
+NZXT-ESC goes beyond default NZXT CAM limitations by enabling custom overlays, overlay templates, custom UI editor features, and real-time LCD sync.
+
+Create advanced custom layouts, metrics overlays, and animated LCD screens with support for YouTube embeds, Pinterest backgrounds, and media engine capabilities.
+
+Whether you're looking for NZXT CAM alternatives, Kraken Elite custom display tools, LCD mods, or advanced customization options, NZXT-ESC delivers the best web integration experience for NZXT devices.
+
+**nzxt-esc, nzxt esc, NZXT elite screen customizer, nzxt pinterest, nzxt youtube, nzxt youtube overlay, nzxt overlay, nzxt custom overlay, nzxt web integration, nzxt best web integration, nzxt kraken elite lcd editor, nzxt cam customization, nzxt web integration custom, nzxt animated lcd background, mp4 lcd background nzxt, youtube kraken elite lcd, nzxt gif overlay, nzxt overlay editor, custom lcd screen nzxt, nzxt cam alternatives, nzxt cam limitations, kraken elite custom display, nzxt lcd text editor, nzxt lcd metrics overlay, nzxt lcd mods, nzxt pinterest background, nzxt lcd media engine, nzxt-esc project, nzxt cam modding, nzxt kraken elite youtube support, custom nzxt layouts, nzxt cam web integration presets, nzxt overlay templates, nzxt custom ui editor, nzxt lcd graphics editor, nzxt real-time lcd sync, kraken elite advanced customization, nzxt cam mp4 support, nzxt cam gif support, nzxt cam youtube embed, nzxt cam background editor, nzxt kraken lcd customization, nzxt lcd customization tool, kraken lcd editor, nzxt lcd overlay editor, nzxt screen editor, nzxt lcd layout editor, nzxt kraken screen customization, nzxt lcd overlay tool, nzxt kraken display editor, nzxt lcd custom layouts, nzxt kraken gif background, nzxt kraken mp4 background, nzxt lcd youtube integration, nzxt lcd pinterest integration, nzxt lcd overlay creator, nzxt kraken overlay editor, nzxt lcd animation support, nzxt lcd video background, nzxt kraken screen editor, nzxt lcd customization editor, nzxt cam overlay customization, nzxt lcd widget editor, nzxt kraken custom ui, nzxt lcd skin editor, nzxt lcd personalization tool**
 
 </details>
