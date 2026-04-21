@@ -1,4 +1,4 @@
-# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.03.26)
+# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.04.17)
 
 NZXT-ESC is an advanced NZXT Kraken LCD screen customizer and editor that lets you fully customize your Kraken display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
 
