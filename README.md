@@ -12,6 +12,10 @@ Perfect for PC enthusiasts, streamers, and modders who want to push the limits o
 ![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
 
 <p align="center">
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo1.gif" width="400"/>
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo2.gif" width="400"/>
+</p>
+<p align="center">
   <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png" width="400"/>
   <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png" width="400"/>
 </p>
