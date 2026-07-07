@@ -16,10 +16,6 @@ Perfect for PC enthusiasts, streamers, and modders who want to push the limits o
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo2.gif" width="400"/>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png" width="400"/>
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png" width="400"/>
-</p>
-<p align="center">
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif" width="400"/>
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif" width="400"/>
 </p>
