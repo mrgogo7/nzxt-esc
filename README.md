@@ -1,10 +1,12 @@
-# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.04.17)
+# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.07.18)
 
-NZXT-ESC is an advanced NZXT Kraken LCD screen customizer and editor that lets you fully customize your Kraken display with GIFs, videos (MP4), images (JPG), and real-time CPU/GPU monitoring overlays.
+NZXT CAM's Web Integration is powerful, but its built-in layout editor is heavily limited. NZXT-ESC unlocks unlimited customization for NZXT CAM, replacing fixed layouts with a complete drag-and-drop custom layout editor. Create fully editable Kraken layouts using any sensor, font, icon, clock, image, GIF, video, background, or overlay, then see every change update live through NZXT CAM Web Integration.
 
-Create fully personalized LCD layouts using text, shapes, clocks, dates, arc, linear and dynamic media sources like YouTube and Pinterest — all with real-time preview and seamless NZXT CAM Web Integration support.
+No installation. No account. Everything runs entirely in your browser and syncs directly to your device through NZXT CAM.
 
-Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken LCD customization.
+Create fully personalized Kraken Display Screen layouts using text, shapes, clocks, dates, arc, linear and dynamic media sources like YouTube and Pinterest all with real-time preview and seamless NZXT CAM Web Integration support.
+
+Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Display Screen customization.
 
 ###### 🌐 Read This Documentation in Your Language
 ##### 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
@@ -72,7 +74,7 @@ NZXT-ESC works INSIDE NZXT CAM using the "Web Integration" feature. There are tw
 
 
 1. Open NZXT CAM.
-2. Go to: Lighting → Kraken Elite V2 → LCD Display
+2. Go to: Lighting → Kraken → LCD Display
 3. Change the display mode to: Web Integration
 4. Find the card named: Custom Web Integration
 5. Click "Settings".
@@ -122,14 +124,14 @@ Inside the editor you can:
 - Use overlay preset templates (Single, Dual, Triple, Quadruple InfoGraphic layouts)
 - Import overlay presets with Replace or Append options
 - Quickly switch between favorite presets via the Quick Favorites dropdown
-- Preview all changes in real time on your NZXT Kraken LCD
+- Preview all changes in real time on your NZXT Kraken Display Screen LCD 
 
 No external URL or config.html is required anymore.
 
 ---
 ### 💡 WHAT MAKES NZXT-ESC SPECIAL?
 
-NZXT-ESC is not a theme pack — it is a **full, design-oriented layout editor** built specifically for the Kraken Elite LCD.
+NZXT-ESC is not a theme pack — it is a **full, design-oriented layout editor** built specifically for the Kraken Display Screen LCD.
 
 <img width="843" height="537" alt="resim" src="https://github.com/user-attachments/assets/e169a611-f331-4bb6-94a5-c093fb8ee7a3" />
 
@@ -235,7 +237,7 @@ YouTube videos (with safe warning modal)
 
 Local browser files
 
-Automatically downscales heavy content to prevent Kraken LCD overload.
+Automatically downscales heavy content to prevent Kraken Display Screen LCD overload.
 
 
 ##### **🆕 Local Media Support (NEW)**
