@@ -19,7 +19,7 @@ sound-reactive visuals — rendered live through **NZXT CAM Web Integration**.
 
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/nzxt-esc-editor.png"
        alt="NZXT-ESC drag-and-drop NZXT Kraken LCD layout editor"
-       width="100%" />
+       width="80%" />
 
 > [!NOTE]
 > **NZXT-ESC is an independent community project.** It is not affiliated with,
