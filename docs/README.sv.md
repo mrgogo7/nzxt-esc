@@ -22,6 +22,10 @@ Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensorö
 > [!NOTE]
 > **NZXT-ESC är ett oberoende communityprojekt.** Det är inte anslutet till, sponsrat av eller godkänt av NZXT.
 
+Om NZXT-ESC förbättrade din setup kan du stödja den fortsatta utvecklingen:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Anpassa NZXT Kraken LCD utan fasta layouter
 
 NZXT-ESC gör NZXT Kraken-skärmen till en friformsyta. Bygg en egen LCD-skärm genom att placera varje sensor, grafik, klocka, bild eller medieelement exakt där du vill ha det. Ändra storlek, rotera, ordna om, byt namn, lås och formge elementen medan resultatet uppdateras live via NZXT CAM.
@@ -307,12 +311,8 @@ Se [LICENSE för fullständiga villkor](../LICENSE).
 - **Felrapporter och idéer:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Kompanjonapp:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Om NZXT-ESC förbättrade din setup kan du stödja den fortsatta utvecklingen:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Byggt av **Gökhan AKGÜL (mRGogo)** — drivs av kaffe och tveksamma sovscheman.
-
-</div>
+Byggt av **Gökhan AKGÜL (mRGogo)** drivs av kaffe och tveksamma sovscheman.
