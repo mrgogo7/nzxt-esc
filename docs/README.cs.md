@@ -22,6 +22,10 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 > [!NOTE]
 > **NZXT-ESC je nezávislý komunitní projekt.** Není propojen, sponzorován ani podporován společností NZXT.
 
+Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Přizpůsobení LCD NZXT Kraken bez pevných rozvržení
 
 NZXT-ESC mění displej NZXT Kraken na volné návrhové plátno. Vytvořte vlastní LCD obrazovku umístěním každého senzoru, grafiky, hodin, obrázku nebo mediálního prvku přesně tam, kam chcete. Měňte velikost, otáčejte, řaďte, přejmenovávejte, zamykejte a stylujte prvky a sledujte živou aktualizaci výsledku přes NZXT CAM.
@@ -307,12 +311,8 @@ NZXT-ESC je vydán pod **licencí pro osobní použití**.
 - **Chyby a nápady:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Doprovodná aplikace:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Vytvořil **Gökhan AKGÜL (mRGogo)** — poháněno kávou a pochybným spánkovým režimem.
-
-</div>
+Vytvořil **Gökhan AKGÜL (mRGogo)** poháněno kávou a pochybným spánkovým režimem.
