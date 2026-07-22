@@ -4,7 +4,7 @@
 
 Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays,
 custom fonts, images, GIFs, MP4 video, clocks, graphs, Now Playing data, and
-sound-reactive visuals — rendered live through **NZXT CAM Web Integration**.
+sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
@@ -19,7 +19,7 @@ sound-reactive visuals — rendered live through **NZXT CAM Web Integration**.
 
   <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/nzxt-esc-editor.png"
        alt="NZXT-ESC drag-and-drop NZXT Kraken LCD layout editor"
-       width="80%" />
+       width="70%" />
 
 > [!NOTE]
 > **NZXT-ESC is an independent community project.** It is not affiliated with,
@@ -47,7 +47,7 @@ Windows companion app.
 2. Allow your browser to open NZXT CAM.
 3. Confirm **Load Web Integration**.
 4. Open the new Web Integration card and select **Configure**.
-5. Create your layout — changes are synchronized with the Kraken display.
+5. Create your layout changes are synchronized with the Kraken display.
 
 <details>
 <summary><strong>Manual setup inside NZXT CAM</strong></summary>
@@ -166,9 +166,9 @@ NZXT-ESC through a local WebSocket connection.
 
 Use it to add:
 
-- **Album Cover** — current artwork with sizing, border, and corner controls
-- **Now Playing Text** — title, artist, or album with long-text scrolling
-- **Audio Visualizer** — customizable real-time spectrum and waveform visuals
+- **Album Cover** current artwork with sizing, border, and corner controls
+- **Now Playing Text** title, artist, or album with long-text scrolling
+- **Audio Visualizer** customizable real-time spectrum and waveform visuals
 
 It is not limited to Spotify. The companion app reads supported Windows media
 sessions and system audio output from browsers, media players, and other apps.
@@ -338,7 +338,7 @@ If NZXT-ESC improved your setup, you can support its continued development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Built by **Gökhan AKGÜL (mRGogo)** — powered by coffee and questionable sleep
+Built by **Gökhan AKGÜL (mRGogo)** powered by coffee and questionable sleep
 schedules.
 
 </div>
