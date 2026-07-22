@@ -22,6 +22,10 @@ Crea diseños LCD totalmente editables para NZXT Kraken con capas de sensores de
 > [!NOTE]
 > **NZXT-ESC es un proyecto comunitario independiente.** No está afiliado, patrocinado ni respaldado por NZXT.
 
+Si NZXT-ESC mejoró tu configuración, puedes apoyar su desarrollo continuo:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Personalización del LCD de NZXT Kraken sin diseños fijos
 
 NZXT-ESC convierte la pantalla NZXT Kraken en un lienzo de formato libre. Crea una pantalla LCD personalizada colocando cada sensor, gráfico, reloj, imagen o elemento multimedia exactamente donde quieras. Cambia el tamaño, gira, reordena, renombra, bloquea y aplica estilos a los elementos mientras ves el resultado actualizarse en tiempo real mediante NZXT CAM.
@@ -307,12 +311,8 @@ Consulta [LICENSE para conocer las condiciones completas](../LICENSE).
 - **Errores e ideas:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Aplicación complementaria:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Si NZXT-ESC mejoró tu configuración, puedes apoyar su desarrollo continuo:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 Creado por **Gökhan AKGÜL (mRGogo)**, impulsado por café y horarios de sueño cuestionables.
-
-</div>
