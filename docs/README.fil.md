@@ -22,6 +22,10 @@ Gumawa ng ganap na nae-edit na NZXT Kraken LCD layouts gamit ang drag-and-drop s
 > [!NOTE]
 > **Ang NZXT-ESC ay isang independent community project.** Hindi ito affiliated, sponsored, o endorsed ng NZXT.
 
+Kung napaganda ng NZXT-ESC ang setup mo, maaari mong suportahan ang patuloy nitong development:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## NZXT Kraken LCD customization nang walang fixed layouts
 
 Ginagawang free-form canvas ng NZXT-ESC ang NZXT Kraken display. Bumuo ng custom LCD screen sa pamamagitan ng paglalagay ng bawat sensor, graphic, orasan, larawan, o media element sa eksaktong posisyong gusto mo. I-resize, i-rotate, ayusin ang order, palitan ang pangalan, i-lock, at i-style ang mga element habang nakikita mong live na nag-a-update ang resulta sa NZXT CAM.
@@ -307,12 +311,8 @@ Tingnan ang [LICENSE para sa kumpletong terms](../LICENSE).
 - **Bug reports at ideas:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Companion app:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Kung napaganda ng NZXT-ESC ang setup mo, maaari mong suportahan ang patuloy nitong development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Ginawa ni **Gökhan AKGÜL (mRGogo)** — pinapagana ng kape at kaduda-dudang sleep schedule.
-
-</div>
+Ginawa ni **Gökhan AKGÜL (mRGogo)** pinapagana ng kape at kaduda-dudang sleep schedule.
