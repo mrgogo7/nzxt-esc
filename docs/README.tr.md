@@ -22,6 +22,10 @@ Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP
 > [!NOTE]
 > **NZXT-ESC bağımsız bir topluluk projesidir.** NZXT ile bağlantılı değildir; NZXT tarafından desteklenmez, sponsor olunmaz veya onaylanmaz.
 
+NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Sabit düzenler olmadan NZXT Kraken LCD özelleştirmesi
 
 NZXT-ESC, NZXT Kraken ekranını serbest biçimli bir tasarım alanına dönüştürür. Her sensörü, grafiği, saati, görseli veya medya öğesini tam istediğiniz noktaya yerleştirerek özel bir LCD ekran oluşturun. Öğeleri yeniden boyutlandırın, döndürün, sıralayın, yeniden adlandırın, kilitleyin ve biçimlendirin; sonucu NZXT CAM üzerinden anında izleyin.
@@ -307,12 +311,8 @@ Tüm koşullar için [LICENSE dosyasına bakın](../LICENSE).
 - **Hata bildirimleri ve fikirler:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Yardımcı uygulama:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-**Gökhan AKGÜL (mRGogo)** tarafından geliştirildi — kahve ve tartışmalı uyku düzenleriyle destekleniyor.
-
-</div>
+**Gökhan AKGÜL (mRGogo)** tarafından geliştirildi kahve ve tartışmalı uyku düzenleriyle destekleniyor.
