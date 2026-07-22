@@ -1,4 +1,4 @@
-# NZXT-ESC - NZXT Kraken Enhanced Screen Customization Editor (v6.07.18)
+# Official repository for NZXT-ESC - the Enhanced Screen Customization Editor for NZXT Kraken displays.**
 
 NZXT CAM's Web Integration is powerful, but its built-in layout editor is heavily limited. NZXT-ESC unlocks unlimited customization for NZXT CAM, replacing fixed layouts with a complete drag-and-drop custom layout editor. Create fully editable Kraken layouts using any sensor, font, icon, clock, image, GIF, video, background, or overlay, then see every change update live through NZXT CAM Web Integration.
 
@@ -7,6 +7,11 @@ No installation. No account. Everything runs entirely in your browser and syncs 
 Create fully personalized Kraken Display Screen layouts using text, shapes, clocks, dates, arc, linear and dynamic media sources like YouTube and Pinterest all with real-time preview and seamless NZXT CAM Web Integration support.
 
 Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Display Screen customization.
+
+
+
+Official website: https://nzxt-esc.pages.dev  
+Official source code: https://github.com/mrgogo7/nzxt-esc
 
 ###### 🌐 Read This Documentation in Your Language
 ##### 🇬🇧 English • [🇹🇷 Türkçe](docs/README.tr.md) • [🇩🇪 Deutsch](docs/README.de.md) • [🇪🇸 Español](docs/README.es.md) • [🇧🇷 Português-BR](docs/README.pt-BR.md) • [🇫🇷 Français](docs/README.fr.md) • [🇮🇹 Italiano](docs/README.it.md) • [🇯🇵 日本語](docs/README.ja.md)
