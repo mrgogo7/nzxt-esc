@@ -385,6 +385,8 @@ No personally identifiable information (PII), NZXT CAM sensor data, or user-crea
 
 Analytics and other optional cookies are only enabled with your consent where required. Cookie preferences can be changed at any time through the website.
 
+Development builds do not require production analytics services. Analytics integrations are only included in the deployed website.
+
 ---
 
 ### 📜 LICENSE
