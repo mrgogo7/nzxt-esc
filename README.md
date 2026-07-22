@@ -22,6 +22,10 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 > [!NOTE]
 > **NZXT-ESC is an independent community project.** It is not affiliated with, sponsored by, or endorsed by NZXT.
 
+If NZXT-ESC improved your setup, you can support its continued development:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## NZXT Kraken LCD customization without fixed layouts
 
 NZXT-ESC turns the NZXT Kraken display into a free-form canvas. Build a custom LCD screen by placing each sensor, graphic, clock, image, or media element exactly where you want it. Resize, rotate, reorder, rename, lock, and style elements while watching the result update live through NZXT CAM.
@@ -305,9 +309,6 @@ See [LICENSE for the complete terms](LICENSE).
 - **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **Bug reports and ideas:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **Companion app:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
-
-<div align="center">
 
 If NZXT-ESC improved your setup, you can support its continued development:
 
