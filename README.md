@@ -372,6 +372,23 @@ Support: [GitHub Sponsors](https://github.com/sponsors/mrgogo7) • [Patreon](ht
 Issues: https://github.com/mrgogo7/nzxt-esc/issues
 
 ---
+
+# Privacy
+
+NZXT-ESC respects your privacy.
+
+The project uses Google Tag Manager (GTM) to manage analytics services and feature integrations.
+
+Anonymous usage analytics help us understand which features are used most often, identify usability issues, and improve future releases.
+
+No personally identifiable information (PII), sensor data, preset content, or user-created layouts are collected.
+
+Optional analytics cookies are only enabled after consent where required.
+
+You can change your cookie preferences at any time from the website.
+
+---
+
 ### 📜 LICENSE
 
 Personal Use License
