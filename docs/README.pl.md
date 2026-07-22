@@ -22,6 +22,10 @@ Twórz w pełni edytowalne układy LCD NZXT Kraken z nakładkami czujników prze
 > [!NOTE]
 > **NZXT-ESC jest niezależnym projektem społecznościowym.** Nie jest powiązany, sponsorowany ani oficjalnie wspierany przez NZXT.
 
+Jeśli NZXT-ESC ulepszył Twoją konfigurację, możesz wesprzeć dalszy rozwój projektu:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Personalizacja LCD NZXT Kraken bez stałych układów
 
 NZXT-ESC zmienia ekran NZXT Kraken w swobodne płótno projektowe. Zbuduj własny ekran LCD, umieszczając każdy czujnik, grafikę, zegar, obraz lub element multimedialny dokładnie tam, gdzie chcesz. Zmieniaj rozmiar, obracaj, porządkuj, nazywaj, blokuj i stylizuj elementy, obserwując aktualizację wyniku na żywo przez NZXT CAM.
@@ -98,7 +102,7 @@ Główny edytor **nie wymaga konta** ani **oddzielnej instalacji po stronie uży
 | **Animowane tła** | Używaj kolorów, gradientów, lokalnych obrazów, GIF-ów, filmów MP4, bezpośrednich adresów multimediów, YouTube i Pinterest. |
 | **Integracja Now Playing** | Wyświetlaj okładki albumów, informacje o utworach i wizualizacje reagujące na dźwięk z lokalnego klienta Windows. |
 | **Explore i Library** | Importuj presety społeczności, edytuj każdy element, porządkuj ulubione i zarządzaj własną lokalną kolekcją. |
-| **Lokalne przechowywanie danych** | Presety używają LocalStorage, lokalne multimedia — IndexedDB, a dane pozostają na urządzeniu. |
+| **Lokalne przechowywanie danych** | Presety używają LocalStorage, lokalne multimedia IndexedDB, a dane pozostają na urządzeniu. |
 | **Wielojęzyczny edytor** | Korzystaj z interfejsu w 18 obsługiwanych językach. |
 
 ### Elementy nakładki
@@ -307,12 +311,8 @@ Pełne warunki znajdują się w [LICENSE](../LICENSE).
 - **Błędy i pomysły:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Aplikacja towarzysząca:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Jeśli NZXT-ESC ulepszył Twoją konfigurację, możesz wesprzeć dalszy rozwój projektu:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Stworzone przez **Gökhan AKGÜL (mRGogo)** — napędzane kawą i wątpliwym harmonogramem snu.
-
-</div>
+Stworzone przez **Gökhan AKGÜL (mRGogo)** napędzane kawą i wątpliwym harmonogramem snu.
