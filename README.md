@@ -25,6 +25,10 @@ sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
 > **NZXT-ESC is an independent community project.** It is not affiliated with,
 > sponsored by, or endorsed by NZXT.
 
+If NZXT-ESC improved your setup, you can support its continued development:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## NZXT Kraken LCD customization without fixed layouts
 
 NZXT-ESC turns the NZXT Kraken display into a free-form canvas. Build a custom
@@ -329,15 +333,9 @@ See [LICENSE](LICENSE) for the complete terms.
 - **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **Bug reports and ideas:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **Companion app:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
-
-<div align="center">
 
 If NZXT-ESC improved your setup, you can support its continued development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Built by **Gökhan AKGÜL (mRGogo)** powered by coffee and questionable sleep
-schedules.
-
-</div>
+Built by **Gökhan AKGÜL (mRGogo)** powered by coffee and questionable sleep schedules.
