@@ -22,6 +22,10 @@
 > [!NOTE]
 > **NZXT-ESC एक स्वतंत्र सामुदायिक परियोजना है।** यह NZXT से संबद्ध, प्रायोजित या अनुमोदित नहीं है।
 
+यदि NZXT-ESC ने आपके सेटअप को बेहतर बनाया है, तो आप इसके निरंतर विकास का समर्थन कर सकते हैं:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## निश्चित लेआउट के बिना NZXT Kraken LCD कस्टमाइज़ेशन
 
 NZXT-ESC, NZXT Kraken डिस्प्ले को एक मुक्त डिज़ाइन कैनवास में बदल देता है। हर सेंसर, ग्राफ़िक, घड़ी, चित्र या मीडिया तत्व को ठीक अपनी पसंद की जगह रखकर कस्टम LCD स्क्रीन बनाएँ। तत्वों का आकार बदलें, घुमाएँ, क्रम बदलें, नाम बदलें, लॉक करें और स्टाइल करें, जबकि परिणाम NZXT CAM के माध्यम से लाइव अपडेट होता रहे।
@@ -307,12 +311,8 @@ NZXT-ESC को **व्यक्तिगत उपयोग लाइसें
 - **बग रिपोर्ट और विचार:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **सहायक ऐप:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 यदि NZXT-ESC ने आपके सेटअप को बेहतर बनाया है, तो आप इसके निरंतर विकास का समर्थन कर सकते हैं:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 **Gökhan AKGÜL (mRGogo)** द्वारा निर्मित — कॉफ़ी और संदिग्ध नींद के समय से संचालित।
-
-</div>
