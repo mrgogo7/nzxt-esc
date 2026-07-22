@@ -1,482 +1,318 @@
-> ⚠️ This document is an automatically translated version of the main English README.
-> Technical terms, code blocks, filenames, and project terminology are intentionally kept in their original form.
+# NZXT-ESC
 
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.12 (Build 08)
+### NZXT Kraken AIO için Gelişmiş Ekran Özelleştirme Düzen Editörü
 
-NZXT Kraken Elite LCD ekranları için modern, tarayıcı tabanlı medya ve overlay editörü.
+Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP4 videolar, saatler, grafikler, Şimdi Çalıyor verileri ve sese duyarlı görsellerle tamamen düzenlenebilir NZXT Kraken LCD tasarımları oluşturun; sonuçları **NZXT CAM Web Integration** üzerinden canlı görüntüleyin.
 
-Özel animasyonlu arka planlar, metrik overlay'leri, metin katmanları, ayırıcı çizgiler ve tamamen kişiselleştirilmiş düzenler oluşturun — hepsi NZXT CAM içinde canlı olarak senkronize edilir.
+[![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![Languages](https://img.shields.io/badge/languages-18-22c55e?style=flat-square)](#languages)
+[![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-Yalnızca kişisel kullanım için ücretsiz — ticari kullanım kesinlikle yasaktır.
+[NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+· [Web Editörünü Aç](https://nzxt-esc.pages.dev/)
+· [Özellikler](#features)
+· [Hızlı Başlangıç](#quick-start)
+· [SSS](#faq)
 
-![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/nzxt-esc-editor.png"
+       alt="NZXT-ESC sürükle-bırak NZXT Kraken LCD düzen editörü"
+       width="70%" />
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png" width="400"/>
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png" width="400"/>
-</p>
-<p align="center">
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif" width="400"/>
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif" width="400"/>
-</p>
+> [!NOTE]
+> **NZXT-ESC bağımsız bir topluluk projesidir.** NZXT ile bağlantılı değildir; NZXT tarafından desteklenmez, sponsor olunmaz veya onaylanmaz.
 
----
-## 📋 İÇİNDEKİLER
+## Sabit düzenler olmadan NZXT Kraken LCD özelleştirmesi
 
-- [🚀 Hızlı Başlangıç](#-hızlı-başlangıç)
-  - [Yöntem 1 — Doğrudan Başlatma (Önerilen)](#yöntem-1--doğrudan-başlatma-önerilen)
-  - [Yöntem 2 — Manuel Kurulum (NZXT CAM İçinde)](#yöntem-2--manuel-kurulum-nzxt-cam-içinde)
-  - [Önerilen: Entegrasyon Kartını Yeniden Adlandırma](#önerilen-entegrasyon-kartını-yeniden-adlandırma)
-- [🎛 Editörü Kullanma (Yapılandır Butonu)](#-editörü-kullanma-yapılandır-butonu)
-- [💡 NZXT-ESC'yi Özel Kılan Nedir?](#-nzxt-escyi-özel-kılan-nedir)
-  - [1. Tasarım Odaklı Düzenleme Deneyimi](#1-tasarım-odaklı-düzenleme-deneyimi)
-  - [2. Tam Eleman Tabanlı Overlay Motoru](#2-tam-eleman-tabanlı-overlay-motoru)
-  - [3. Gerçek Zamanlı LCD Senkronizasyonu](#3-gerçek-zamanlı-lcd-senkronizasyonu)
-  - [4. Gelişmiş Medya Motoru](#4-gelişmiş-medya-motoru)
-  - [5. Preset Sistemi (Erken Erişim)](#5-preset-sistemi-erken-erişim)
-- [🌍 Desteklenen Diller](#-desteklenen-diller)
-- [🧪 Teknik Detaylar](#-teknik-detaylar)
-- [🔧 Geliştirici Bilgileri](#-geliştirici-bilgileri)
-- [🕛 Sürüm Geçmişi](#-sürüm-geçmişi)
-- [🔗 Bağlantılar](#-bağlantılar)
-- [📜 Lisans](#-lisans)
+NZXT-ESC, NZXT Kraken ekranını serbest biçimli bir tasarım alanına dönüştürür. Her sensörü, grafiği, saati, görseli veya medya öğesini tam istediğiniz noktaya yerleştirerek özel bir LCD ekran oluşturun. Öğeleri yeniden boyutlandırın, döndürün, sıralayın, yeniden adlandırın, kilitleyin ve biçimlendirin; sonucu NZXT CAM üzerinden anında izleyin.
 
----
-### 🚀 HIZLI BAŞLANGIÇ
+Ana editör için **hesap gerekmez** ve **son kullanıcıya yönelik ayrı bir kurulum yoktur**. Preset’ler ve yerel medya tarayıcı depolamasında kalır. İsteğe bağlı müzik katmanları, yerel [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket) Windows yardımcı uygulamasını kullanır.
 
-NZXT-ESC, "Web Integration" özelliğini kullanarak NZXT CAM İÇİNDE çalışır. Kurmanın iki yolu vardır:
+<a id="quick-start"></a>
+## Hızlı Başlangıç
 
-#### YÖNTEM 1 — DOĞRUDAN BAŞLATMA (ÖNERİLEN)
+### Doğrudan NZXT CAM’de açın
 
-1. Bunu tarayıcınızın adres çubuğuna kopyalayın:
-   ```text
-   nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-esc/
-   ```
-2. Enter'a basın.
-3. Tarayıcınız bir soru gösterecek: "nzxt-cam bağlantısını NZXT CAM ile aç?" → Onayla / İzin Ver
-4. NZXT CAM otomatik olarak başlatılacaktır.
-5. Bir onay penceresi göreceksiniz: Web Integration Yükle? Aşağıdaki web entegrasyonunu yüklemek istediğinizden emin misiniz?
-   ```text
-   https://mrgogo7.github.io/nzxt-esc/
-   ```
-   or Beta Version Now Available
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+
+1. **Open NZXT-ESC in NZXT CAM** düğmesine tıklayın.
+2. Tarayıcınızın NZXT CAM’i açmasına izin verin.
+3. **Load Web Integration** onayını verin.
+4. Yeni Web Integration kartını açın ve **Configure** seçeneğini seçin.
+5. Tasarımınızı oluşturun; değişiklikler Kraken ekranıyla eşzamanlanır.
+
+<details>
+<summary><strong>NZXT CAM içinde manuel kurulum</strong></summary>
+
+1. **NZXT CAM** uygulamasını açın.
+2. **Lighting → Kraken → LCD Display** bölümüne gidin.
+3. **Web Integration** seçeneğini seçin.
+4. **Custom Web Integration** ayarlarını açın.
+5. Şu adresi girin:
+
    ```text
    https://nzxt-esc.pages.dev/
    ```
-6. "Yükle"ye basın.
-7. Yüklemeden sonra, "Custom Web Integration" kartını açın.
 
-#### YÖNTEM 2 — MANUEL KURULUM (NZXT CAM İÇİNDE)
-
-1. NZXT CAM'i açın.
-2. Şuraya gidin: Lighting → Kraken Elite V2 → LCD Display
-3. Görüntü modunu şuna değiştirin: Web Integration
-4. Şu adlı kartı bulun: Custom Web Integration
-5. "Settings"e tıklayın.
-6. URL'yi girin:
-   ```text
-   https://mrgogo7.github.io/nzxt-esc/
-   ```
-7. "Apply"e basın.
-8. Ardından basın: Add as Card
-9. "My Web Integration" adlı yeni bir Web Integration kartı görünecektir.
-10. "My Web Integration"ı seçin.
-11. NZXT-ESC editörünü açmak için "Configure"a basın.
-
-#### ÖNERİLEN: ENTEGRASYON KARTINI YENİDEN ADLANDIRMA
-
-NZXT CAM varsayılan olarak "My Web Integration" adını atar. Yeniden adlandırmak için:
-1. "My Web Integration"ı seçin.
-2. "Edit"e basın.
-3. Alanları şu şekilde değiştirin: Title:
-   ```text
-   Elite Screen Customizer
-   ```
-   Description:
-   ```text
-   NZXT Elite Screen Customizer (NZXT-ESC)
-   ```
-Bu, entegrasyonu diğerlerinden ayırt etmeye yardımcı olur.
-
----
-### 🎛 EDITÖRÜ KULLANMA (YAPILANDIR BUTONU)
-
-Tüm düzenleme işlemleri NZXT CAM İÇİNDE "Configure" butonu aracılığıyla gerçekleştirilir.
-
-Editör içinde şunları yapabilirsiniz:
-
-- Metrik, metin ve ayırıcı elemanlar ekleyin / kaldırın (overlay başına 20 elemana kadar)
-- Konum, rotasyon, ölçek, opaklık ve renk ayarlayın
-- MP4 / GIF / PNG / JPG arka plan medyası seçin
-- IndexedDB aracılığıyla tarayıcıda saklanan Local Media dosyalarını kullanın
-- Preset'leri yönetin (Import, Export, Duplicate, Delete, Rename, Apply)
-- Overlay preset şablonlarını kullanın (Single, Dual, Triple, Quadruple InfoGraphic düzenleri)
-- Replace veya Append seçenekleriyle overlay preset'lerini içe aktarın
-- Quick Favorites açılır menüsü aracılığıyla favori preset'ler arasında hızlıca geçiş yapın
-- Tüm değişiklikleri Kraken Elite LCD'nizde gerçek zamanlı olarak önizleyin
-
-Artık harici URL veya config.html gerekmez.
-
----
-### 💡 NZXT-ESC'Yİ ÖZEL KILAN NEDİR?
-
-NZXT-ESC bir tema paketi değildir — Kraken Elite LCD için özel olarak oluşturulmuş **tam, tasarım odaklı bir düzen editörüdür**.
-
-NZXT CAM'in yerel olarak desteklediğinin çok ötesinde tam yaratıcı özgürlük sunar.
-
-NZXT CAM **şunlara izin vermez**:
-- Serbest eleman konumlandırma  
-- Eleman ölçeklendirme veya rotasyon  
-- Özel metin overlay'leri  
-- Şeffaf renkler  
-- MP4 arka planlar  
-- YouTube arka planlar  
-- Pinterest URL'leri  
-- Karışık medya + overlay kombinasyonları  
-
-NZXT-ESC **bunların hepsini mümkün kılar**.
-
-#### 1. TASARIM ODAKLI DÜZENLEME DENEYİMİ
-
-- Serbest sürükle-bırak yerleştirme
-- Eleman başına rotasyon ve ölçeklendirme
-- Dairesel LCD önizlemesi etrafında transform tutamaçları
-- Ok tuşu ile mikro ayarlamalar
-- Minimal ve dikkat dağıtmayan arayüz
-- Gerçek donanımla eşleşen doğru dairesel önizleme
-
-#### 2. TAM ELEMAN TABANLI OVERLAY MOTORU
-
-Eski Single/Dual/Triple modları tamamen kaldırıldı.
-
-Artık özgürce ekleyebilirsiniz:
-
-- Metrik elemanlar
-- Metin elemanlar
-- Ayırıcı elemanlar
-
-Her eleman şunları destekler:
-
-- X/Y konumu
-- Rotasyon
-- Ölçek
-- Renk ve opaklık
-- Seçim vurgusu
-
-**Overlay Preset Sistemi**
-
-Şablon seçici modalını kullanarak önceden yapılandırılmış düzenleri hızlıca uygulayın. Single, Dual, Triple veya Quadruple InfoGraphic şablonlarından seçim yapın, her biri optimize edilmiş konumlandırma ve stil ile. Şablonlar Replace (mevcut elemanların üzerine yazar) veya Append (mevcut elemanlara ekler) modlarıyla içe aktarılabilir. Ekleme yapılırken, zIndex değerleri render çakışmalarını önlemek için otomatik olarak normalize edilir. Sistem, yapılandırma başına 20 overlay elemanına kadar destekler.
-
-#### 3. GERÇEK ZAMANLI LCD SENKRONİZASYONU
-
-- Kararlılık için ~100ms throttle ile güncellemeler
-- Manuel yenileme gerekmez
-- Düzenlerken LCD ekran anında güncellenir
-
-#### 4. GELİŞMİŞ MEDYA MOTORU
-
-Medya motoru şunları destekler:
-
-- MP4 video (LCD'de tam oynatma)
-- GIF animasyonları
-- PNG / JPG görüntüleri
-- Local Media Dosyaları (IndexedDB): Bilgisayarınızdan doğrudan yüklenen tam çözünürlüklü görüntüler ve videolar
-- **Pinterest URL'leri → doğrudan medyaya otomatik çözümlenir**
-- **YouTube URL'leri (LCD oynatma)**
-
-
-##### **🆕 Local Media Desteği (YENİ)**
-
-NZXT-ESC artık **yerel görüntüleri veya videoları** doğrudan editöre yüklemek için yerleşik bir sistem içerir.  
-Dosyalar güvenli bir şekilde **IndexedDB**'de saklanır ve cihazınızdan asla ayrılmaz.
-
-Desteklenen dosya türleri:
-- JPG / PNG / GIF  
-- MP4 video  
-- Maksimum boyut: **150 MB**
-
-Temel özellikler:
-- Tamamen çevrimdışı kullanım — harici hosting gerekmez  
-- Rotasyon, ölçek, fit/align ve tüm transform araçlarıyla çalışır  
-- Uzaktan medya ile aynı gerçek zamanlı LCD senkronizasyonu  
-- Her preset bir yerel medya referansı içerebilir  
-- Yerel medya dışa aktarılan preset dosyalarının **içinde yer almaz**  
-- İçe aktarma sırasında, yerel medya kullanan preset'ler bir uyarı gösterecek ve yeniden seçime izin verecektir
-
-Bu sistem, editörün transform motoruyla %100 uyumlu kalırken gerçek çevrimdışı, gizlilik dostu arka planları mümkün kılar.
-
-
-**YouTube Entegrasyonu Öne Çıkanları:**
-
-- YouTube videoları **gerçek LCD'de oynar** (otomatik oynatma/sessiz/döngü desteklenir)
-- Editörün Önizlemesi, gömülü oynatıcı kısıtlamaları nedeniyle YouTube videolarını oynatamaz  
-- Bunun yerine, **kırmızı sürüklenebilir bir placeholder** gösterilir  
-- Kullanıcılar şunları yapabilir:
-  - YouTube videosunun konumunu ayarlayabilir  
-  - Videoyu ölçeklendirebilir  
-  - Align/fit ayarlarını uygulayabilir  
-  - Üzerine herhangi bir overlay elemanı yerleştirebilir  
-- LCD her zaman gerçek zamanlı olarak nihai sonucu yansıtır  
-- Tüm standart arka plan araçları YouTube ile sorunsuz çalışır
-
-Fit modları:
-
-- **Cover** — tüm ekranı doldurur  
-- **Contain** — tam en-boy oranını korur  
-- **Fill** — sığdırmak için uzatır (isteğe bağlı)  
-
-Bu, NZXT-ESC'yi NZXT CAM için ilk tam YouTube destekli LCD editörü yapar.
-
-#### 5. PRESET SİSTEMİ (ERKEN ERİŞİM)
-
-Mevcut işlemler:
-
-- Import
-- Export
-- Delete
-- Duplicate
-- Rename
-- Apply
-
-Preset'ler tam düzeni JSON olarak saklar.
-
-**Overlay Preset Import/Export**
-
-Overlay eleman yapılandırmalarınızı yedekleme veya paylaşma için `.nzxt-esc-overlay-preset` dosyaları olarak dışa aktarın. Doğrulama ve hata işleme ile overlay preset'lerini içe aktarın. İçe aktarırken, mevcut elemanların üzerine yazmak için Replace modunu veya mevcut olanları korurken yeni elemanlar eklemek için Append modunu seçin. İçe aktarma sistemi, şablon elemanları için otomatik ID oluşturma ve eklenen içerik için zIndex normalleştirmesi içerir.
-
-**Quick Favorites Dropdown**
-
-Preset Manager butonunun üzerine gelindiğinde, en fazla 10 favori preset'i (★ ile işaretli) listeleyen kompakt bir açılır menü görünür. Her giriş, preset adını, favori durumunu ve şu anda uygulanan preset için bir "aktif" göstergesini gösterir. Bir öğe seçildiğinde, tam yöneticiyle aynı atomic merge ve autosave mantığını kullanarak o preset hemen uygulanır. Açılır menü, pürüzsüz fade-in/fade-out animasyonları içerir ve tam Preset Manager arayüzünü açmak için doğrudan bir bağlantı içerir. Bu, küçük bir tercih edilen preset seti arasında sık sık geçiş yapan kullanıcılar için son derece hızlı bir iş akışı sağlar.
-
-##### **Local Media & Presets**
-- Dışa aktarılan preset dosyaları yerel medya ikili dosyasını **içermez**  
-- Daha önce yerel medya kullanan bir preset'i içe aktarmak, rehberli bir uyarı gösterir  
-- Kullanıcılar yeni **Browse** modalı aracılığıyla dosyayı yeniden seçebilir  
-- Tüm mevcut preset işlevleri (Apply, Duplicate, Rename, Delete) yerel medya referanslarını tam olarak destekler  
-- Preset'ler arasında geçiş yapmak, IndexedDB'den uygun yerel medyayı otomatik olarak yükler (varsa)
-
----
-### 🌍 DESTEKLENEN DİLLER
-
-NZXT-ESC, yerelleştirilmiş bir kullanıcı deneyimi için birden fazla dili destekler. Editör başlığındaki dil seçiciyi kullanarak diller arasında geçiş yapın.
-
-| Language | Code | File |
-|----------|------|------|
-| 🇬🇧 English | `en` | [i18n.ts](./src/i18n.ts) |
-| 🇹🇷 Turkish | `tr` | [i18n.ts](./src/i18n.ts) |
-| 🇪🇸 Spanish | `es` | [i18n.ts](./src/i18n.ts) |
-| 🇩🇪 German | `de` | [i18n.ts](./src/i18n.ts) |
-| 🇧🇷 Portuguese (BR) | `pt-BR` | [i18n.ts](./src/i18n.ts) |
-| 🇫🇷 French | `fr` | [i18n.ts](./src/i18n.ts) |
-| 🇮🇹 Italian | `it` | [i18n.ts](./src/i18n.ts) |
-| 🇯🇵 Japanese | `ja` | [i18n.ts](./src/i18n.ts) |
-
-Tüm çeviriler kolay yönetim ve güncellemeler için tek bir TypeScript dosyasında tutulur.
-
----
-### 🧪 TEKNİK DETAYLAR
-
-- React 18
-- TypeScript
-- Vite bundler
-- LocalStorage sync + event broadcasting
-- Dairesel LCD farkında render motoru
-- AABB + rotasyon transform matematiği
-- Şablon tabanlı eleman oluşturma ile overlay preset sistemi
-- Otomatik ID atama ve zIndex normalleştirme
-- Çok dilli UI desteği (English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese)
-
----
-### 🔧 GELİŞTİRİCİ BİLGİLERİ
-
-Klonlama ve Kurulum:
-
-```bash
-git clone https://github.com/mrgogo7/nzxt-esc
-cd nzxt-esc
-npm install
-```
-
-Geliştirme Sunucusunu Başlat:
-
-```bash
-npm run dev
-```
-
-NZXT CAM testi için LAN'da aç:
-
-```bash
-npm run dev -- --host
-```
-
-Derleme:
-
-```bash
-npm run build
-```
-
-Derlemeyi önizle:
-
-```bash
-npm run preview
-```
-
-**Contributing:**
-
-- Büyük değişikliklere başlamadan önce bir Issue açın
-- PR'ları küçük ve odaklı tutun
-- Net commit mesajları kullanın
-- Proje yapısını takip edin
-
----
-### 🕛 SÜRÜM GEÇMİŞİ
-
-#### 5.11.261 — Local Media Desteği + Editör İyileştirmeleri (YENİ)
-
-**Yayın Tarihi:** 2025-11-26
-
-##### 🆕 YENİ ÖZELLİKLER
-- **Local Media Arka Planları (IndexedDB)**
-  - Bilgisayarınızdan doğrudan JPG, PNG, GIF veya MP4 içe aktarın  
-  - Dosyalar IndexedDB aracılığıyla güvenli bir şekilde saklanır  
-  - Çevrimdışı çalışır  
-  - Tüm fit/scale/align transform modlarıyla uyumludur  
-  - Kraken LCD'ye gerçek zamanlı olarak tam senkronize edilir  
-  - URL alanı çok dilli formatta `Local: filename.ext` gösterir  
-
-##### 💡 Preset Sistemi İyileştirmeleri
-- Yerel medya içeren preset'leri dışa aktarmak bir uyarı tetikler (medya dahil değil)  
-- Bu tür preset'leri içe aktarmak bir yeniden seçim mesajı gösterir  
-- Preset geçişi, varsa yerel medyayı otomatik olarak yükler  
-
-##### 🖥 UI İYİLEŞTİRMELERİ
-- Yerel medya seçmek için yeni Browse modalı  
-- Tüm yerel medya mesajları için tam çok dilli destek  
-- Yeni buton ikonu + güncellenmiş stil  
-
-##### 🧩 KARARLILIK İYİLEŞTİRMELERİ
-- Geliştirilmiş medya çözümleme pipeline'ı  
-- Sızıntıları önlemek için Blob iptali + temizlik  
-- Daha iyi hata işleme ve i18n kapsamı  
-
-#### 5.11.26 — Kraken LCD Gerçek Zamanlı Senkronizasyon Yenilemesi & Overlay Kararlılık İyileştirmeleri
-
-**Ek Not:**  
-- Yeni placeholder tabanlı Önizleme sistemi kullanılarak tam konumlandırma/ölçek hizalaması ile **YouTube arka plan desteği** (LCD oynatma) tanıtıldı.  
-- Birleşik transform matematiği, orantılı Önizleme ↔ LCD hizalamasını sağlar.
-
-#### 5.11.241 — Kraken LCD Gerçek Zamanlı Senkronizasyon Yenilemesi & Overlay Kararlılık İyileştirmeleri
-
-**Yayın Tarihi:** 2025-11-24
-
-##### 🔧 Büyük Sistem İyileştirmeleri
-
-- **Kraken LCD Gerçek Zamanlı Senkronizasyon Yenilemesi**  
-  Gerçek zamanlı LCD senkronizasyonu yeni tanıtılmadı, ancak tüm dahili sistem yeniden inşa edildi. Önceki uygulama, preset yeniden yükleme döngülerine dayanıyordu ve gecikmelere, kaçırılan güncellemelere ve geri dönüş davranışlarına neden oluyordu. Yeni BroadcastChannel tabanlı çapraz sekme senkronizasyon mimarisi, kararlı, düşük gecikmeli, kare senkronize güncelleme akışı sağlar.
-
-##### 🛠 İyileştirmeler
-
-- **Overlay render güvenilirliği iyileştirmeleri**  
-  Runtime overlay durumu boş olduğunda, sistem artık saklanan preset overlay verilerine güvenli bir şekilde geri döner.
-
-- **Arka plan/medya kararlılık yükseltmesi**  
-  Girdi değişikliklerinde transform geri dönüşü kaldırıldı.
-
-- **KrakenOverlay görüntüleyici optimizasyonu**  
-  Artık preset'leri yeniden yüklemez; anında güncellemeler için doğrudan runtime değişikliklerini dinler.
-
-##### 🐞 Hata Düzeltmeleri
-
-- Gecikmeli LCD güncellemeleri düzeltildi (önceden yalnızca sürükleme sonunda güncelleniyordu).
-
-- Yenilemeden sonra Kraken görünümünde eksik overlay'ler düzeltildi.
-
-- Overlay preset'leri eklerken yinelenen React key uyarıları düzeltildi.
-
-- Ayarlamalar sırasında medya/arka plan ayarlarının geri dönmesi düzeltildi.
-
-##### ⚙ Mimari Değişiklikler
-
-- Sekmeler arası iletişim için özel bir `runtimeBroadcast.ts` modülü tanıtıldı.
-
-- Yayın döngüleri olmadan güvenli runtime güncellemeleri için `setElementsForPresetSilent()` eklendi.
-
-- `useOverlayConfig()` krakenMode + storage geri dönüşünü düzgün şekilde işleyecek şekilde güncellendi.
-
-- Tüm overlay güncelleme kaynakları tek bir runtime odaklı pipeline'a birleştirildi.
-
-##### 📁 Geliştirici Notları
-
-- BroadcastChannel desteklenmiyorsa zarif bir şekilde geri döner.
-
-- Runtime güncellemeleri mutasyon sorunlarını önlemek için senkronizasyondan önce derinlemesine klonlanır.
-
-- Bu sürüm, eski senkronizasyon mimarisini modern, kararlı, gerçek zamanlı bir pipeline ile değiştirir.
-
-#### v5.11.24
-
-- Overlay & Preset Manager Kalite Yükseltme Paketi
-- Yeni Overlay Export Modal: Export artık temiz bir modal kullanarak bir dosya adı ister (ENTER tuşunu destekler)
-- Yeni Preset Butonu: Varsayılan değerlerle tamamen yeni boş bir preset anında oluşturur
-- Geliştirilmiş Preset Manager UI: Preset işlem butonları yeniden sıralandı: Delete → Favorite → Duplicate → Rename → Apply
-- Geliştirilmiş Overlay Yönetimi:
-  - "Clear All Overlay Elements" artık bir onay modalı kullanır
-  - Delete tuşu seçili elemanı kaldırır (onay modalı ile)
-  - Tüm silme butonları için tooltip desteği eklendi
-- Global Modal Kullanılabilirlik Yükseltmeleri: Tüm modallar artık ENTER tuşu ile onaylamayı destekler
-- Overlay Preset Append için ID Çakışması Düzeltmesi: Ekleme sırasında eleman ID'lerini yeniden oluşturarak yinelenen React key sorunu tamamen çözüldü
-- Genel Kararlılık İyileştirmeleri: Runtime mimarisi korundu, autosave kurallarına uyuldu ve tüm FAZ-9 kısıtlamaları geçerli kaldı
-
-#### v5.11.23
-
-- Şablon seçici modalı ile overlay preset sistemi
-- Single, Dual, Triple ve Quadruple InfoGraphic şablonları
-- Replace ve Append modları ile overlay preset import/export
-- Eleman limiti overlay başına 20'ye çıkarıldı
-- Eklenen şablonlar için otomatik zIndex normalleştirme
-- Şablon tanımlarından dinamik şablon listesi oluşturma
-- Import/export işlemleri için geliştirilmiş hata bildirimleri
-- Görünüm alanı farkında menü konumlandırma iyileştirmeleri
-
-#### v5.11.21
-
-- Eleman tabanlı düzen motoru
-- Rotasyon ve ölçek transform sistemi
-- Seçim vurgusu
-- Ok tuşu hareketi
-- Eski modlar kaldırıldı
-- Tam preset yöneticisi (Import/Export/Duplicate/Delete/Rename/Apply)
-- Anında preset geçişi için Quick Favorites açılır menüsü
-- UX ve kararlılık iyileştirmeleri
-
-Eski sürümler için GitHub Releases'a bakın.
-
----
-### 🔗 BAĞLANTILAR
-
-Repository: https://github.com/mrgogo7/nzxt-esc/
-
-Support: [GitHub Sponsors](https://github.com/sponsors/mrgogo7) • [Patreon](https://www.patreon.com/mRGogo7) • [Buy Me a Coffee](https://www.buymeacoffee.com/mrgogo)
-
-Issues:
-
-https://github.com/mrgogo7/nzxt-esc/issues
-
----
-### 📜 LİSANS
-
-Kişisel Kullanım Lisansı
-
-**İzin Verilen:** Kişisel kullanım • Kişisel değişiklikler • Kredi ile yeniden dağıtım
-
-**İzin Verilmeyen:** Ticari kullanım • Herhangi bir şekilde satış, paketleme, kiralama veya para kazanma
-
-NZXT-ESC yalnızca kişisel kullanım için tasarlanmış bir hobi ve topluluk odaklı projedir.
-
-<details>
-<summary><strong>📁 Tam SEO Anahtar Kelime Dizini (Genişletmek için Tıklayın)</strong></summary>
-
-**nzxt kraken elite lcd editor, nzxt cam customization, nzxt web integration custom, nzxt animated lcd background, mp4 lcd background nzxt, youtube kraken elite lcd, nzxt gif overlay, nzxt overlay editor, custom lcd screen nzxt, nzxt cam alternatives, nzxt cam limitations, kraken elite custom display, nzxt lcd text editor, nzxt lcd metrics overlay, nzxt lcd mods, nzxt pinterest background, nzxt lcd media engine, nzxt-esc project, nzxt cam modding, nzxt kraken elite youtube support, custom nzxt layouts, nzxt cam web integration presets, nzxt overlay templates, nzxt custom ui editor, nzxt lcd graphics editor, nzxt real-time lcd sync, kraken elite advanced customization, nzxt cam mp4 support, nzxt cam gif support, nzxt cam youtube embed, nzxt cam background editor**
+6. Önce **Apply**, ardından **Add as Card** seçeneğini seçin.
+7. Yeni kartı açın ve **Configure** seçeneğini seçin.
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/40ddafa3-77b9-4320-b50a-9df137cfd4e7"
+       alt="NZXT CAM Web Integration kurulum ekranı"
+       width="48%" />
+  <img src="https://github.com/user-attachments/assets/445b8470-219a-45b2-b4e4-b10ba034ee99"
+       alt="NZXT-ESC uygulamasını NZXT CAM Web Integration kartı olarak ekleme"
+       width="48%" />
+</p>
 
 </details>
 
+## Çalışırken görün
+
+<p align="center">
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo1.gif"
+       alt="NZXT-ESC ile oluşturulmuş özel NZXT Kraken LCD preset’i"
+       width="48%" />
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo2.gif"
+       alt="NZXT-ESC içinde animasyonlu NZXT Kraken ekran düzeni"
+       width="48%" />
+</p>
+<p align="center">
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif"
+       alt="Kraken LCD üzerinde canlı NZXT CAM sensör katmanı"
+       width="48%" />
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif"
+       alt="NZXT CAM üzerinden çalışan özel animasyonlu Kraken LCD ekranı"
+       width="48%" />
+</p>
+
+<a id="features"></a>
+## Özellikler
+
+| Yetenek | Size ne sağlar? |
+|---|---|
+| **Serbest biçimli düzen editörü** | Her öğeyi sürükleyin, yeniden boyutlandırın, döndürün, katmanlayın, kilitleyin, yeniden adlandırın ve hassas biçimde konumlandırın. |
+| **Canlı NZXT CAM sensör verileri** | CPU, GPU, RAM, sıvı sıcaklığı, güç, frekans ve fan hızı için özel ekranlar oluşturun. |
+| **Gelişmiş grafikler** | Radyal, doğrusal, dairesel ve geçmiş sensör grafiklerini tek tasarımda birleştirin. |
+| **Animasyonlu arka planlar** | Renkler, degradeler, yerel görseller, GIF’ler, MP4 videolar, doğrudan medya URL’leri, YouTube ve Pinterest kaynaklarını kullanın. |
+| **Şimdi Çalıyor entegrasyonu** | Yerel Windows istemcisinden albüm kapağı, parça bilgileri ve sese duyarlı görseller gösterin. |
+| **Explore ve Library** | Topluluk preset’lerini içe aktarın, her bölümünü düzenleyin, favorileri yönetin ve kendi yerel preset koleksiyonunuzu oluşturun. |
+| **Önce yerel depolama** | Preset’ler LocalStorage kullanır; yerel medya IndexedDB’de tutulur ve cihazınızdan ayrılmaz. |
+| **Çok dilli editör** | Arayüzü desteklenen 18 dilde kullanın. |
+
+### Overlay öğeleri
+
+Güncel editör, overlay öğelerini dört anlaşılır kategoride gruplandırır:
+
+| İçerik | Veri | Zaman | Ses |
+|---|---|---|---|
+| Metin | Sensör | Dijital Saat | Albüm Kapağı |
+| Şekil | Radyal Grafik | Analog Saat | Şimdi Çalıyor Metni |
+| İkon | Doğrusal Grafik | Tarih | Ses Görselleştirici |
+| Çıkartma | Daire Grafik |  |  |
+| Görsel | Sensör Grafiği |  |  |
+
+Mümkün olan her yerde tüm öğeler aynı görsel çalışma akışını kullanır: öğeyi önizlemede veya katman listesinde seçin; ardından konumunu, boyutunu, dönüşünü, sırasını, stilini ve türe özel ayarlarını değiştirin.
+
+### Donanım izleme
+
+Kullanılabilir NZXT CAM izleme verileriyle canlı tasarımlar oluşturun:
+
+`CPU sıcaklığı` · `CPU yükü` · `CPU frekansı` · `CPU gücü` · `CPU fan hızı` · `GPU sıcaklığı` · `GPU yükü` · `GPU frekansı` · `GPU gücü` · `GPU fan hızı` · `RAM kullanımı` · `sıvı sıcaklığı`
+
+Çoklu GPU sistemleri etkin GPU’yu otomatik seçebilir veya belirli bir GPU kullanılabilir. NZXT CAM API erişilemediğinde tarayıcı editörü örnek değerler sağlar; böylece tasarımlar yine hazırlanabilir ve önizlenebilir.
+
+### Arka planlar ve medya
+
+Temel katman olarak düz bir renk veya degrade kullanın, ardından şu kaynaklardan medya ekleyin:
+
+- Yerel PNG, JPG, GIF, WebP veya MP4 dosyaları
+- Doğrudan görsel ve video URL’leri
+- YouTube videoları
+- Pinterest medya bağlantıları
+
+Arka plan medyası konumlandırılabilir, ölçeklenebilir, ekrana uydurulabilir ve herhangi bir overlay düzeniyle birleştirilebilir. Yerel dosyalar IndexedDB’de saklanır ve NZXT-ESC tarafından yüklenmez.
+
+### Preset’ler, Explore ve Library
+
+- Yerel Library içinde en fazla **20 özel preset** kaydedin ve düzenleyin.
+- Her preset’i en fazla **40 overlay öğesiyle** oluşturun.
+- Yedekleme veya paylaşım için düzenlenebilir preset dosyalarını içe ve dışa aktarın.
+- Topluluk tarafından hazırlanmış tasarımlara **Explore** üzerinden göz atın.
+- Bir Explore preset’ini Library’ye ekleyin, özelleştirin ve kendinize ait hale getirin.
+- Düzenleme ve Kraken görüntülemesini iki NZXT CAM görünümü arasında eşzamanlı tutun.
+
+## Şimdi Çalıyor ve Ses Görselleştirici
+
+İsteğe bağlı [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket) Windows istemcisi yerel olarak çalışır ve medya oturumu ile ses spektrumu verilerini yerel bir WebSocket bağlantısı üzerinden NZXT-ESC’ye gönderir.
+
+Şunları eklemek için kullanabilirsiniz:
+
+- **Albüm Kapağı** boyut, kenarlık ve köşe kontrolleriyle güncel kapak görseli
+- **Şimdi Çalıyor Metni** uzun metin kaydırma özelliğiyle parça adı, sanatçı veya albüm bilgisi
+- **Ses Görselleştirici** özelleştirilebilir gerçek zamanlı spektrum ve dalga biçimi görselleri
+
+Yalnızca Spotify ile sınırlı değildir. Yardımcı uygulama; tarayıcılar, medya oynatıcılar ve diğer uygulamalardaki desteklenen Windows medya oturumlarını ve sistem ses çıkışını okuyabilir.
+
+<a id="languages"></a>
+## Diller
+
+Editör şu anda şu dilleri desteklemektedir:
+
+`English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
+· `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
+· `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
+· `Filipino`
+
+**Çevrilmiş dokümantasyon:**
+[English](../README.md) ·
+[Türkçe](README.tr.md) ·
+[Español](README.es.md) ·
+[Deutsch](README.de.md) ·
+[Português-BR](README.pt-BR.md) ·
+[Français](README.fr.md) ·
+[Italiano](README.it.md) ·
+[日本語](README.ja.md) ·
+[ไทย](README.th.md) ·
+[Polski](README.pl.md) ·
+[Svenska](README.sv.md) ·
+[Nederlands](README.nl.md) ·
+[한국어](README.ko.md) ·
+[Русский](README.ru.md) ·
+[हिन्दी](README.hi.md) ·
+[Bahasa Indonesia](README.id.md) ·
+[Čeština](README.cs.md) ·
+[Filipino](README.fil.md)
+
+## Gizlilik ve yerel depolama
+
+NZXT-ESC, yerel tarayıcı depolaması temel alınarak tasarlanmıştır:
+
+- Preset yapılandırmaları **LocalStorage** içinde saklanır.
+- Yerel görseller ve videolar **IndexedDB** içinde saklanır.
+- NZXT CAM sensör değerleri ve kullanıcı tarafından oluşturulan preset’ler analitik sistemlerine gönderilmez.
+- Uygulama tarafından kişiyi tanımlayan bilgiler bilinçli olarak toplanmaz.
+
+Üretim sitesi, anonim ürün analitiği için **Google Tag Manager** ve **Google Analytics 4** kullanır. **CookieYes**, gerekli olduğu durumlarda kullanıcı onayını yönetir; isteğe bağlı analitik çerezleri kullanıcının izin tercihlerine göre etkinleştirilir. Geliştirme derlemeleri üretim analitik hizmetlerine ihtiyaç duymaz.
+
+## Geliştirme
+
+### Yerel olarak çalıştırma
+
+```bash
+npm install
+npm run dev
+```
+
+`http://localhost:5173` adresini açın. NZXT CAM kullanılamadığında editör örnek donanım verileri kullanır.
+
+```bash
+npm run build   # Tür denetimi yap ve üretim derlemesi oluştur
+npm test        # i18n kontrollerini ve Vitest test paketini çalıştır
+```
+
+### Mimari
+
+<details>
+<summary><strong>Proje yapısı ve tasarım ilkeleri</strong></summary>
+
+```text
+src/
+├─ core/       Preset, overlay, öğe ve arka plan alan sözleşmeleri
+├─ render/     Paylaşılan preset-to-render-model motoru
+├─ storage/    LocalStorage durumu, içe/dışa aktarma ve IndexedDB medyası
+├─ platform/   NZXT CAM ve yerel yardımcı uygulama adaptörleri
+├─ sync/       Editör/çalışma zamanı eşzamanlaması
+├─ i18n/       Tür güvenli yerel dil mesajları ve çeviri yardımcıları
+└─ ui/
+   ├─ config/  Sürükle-bırak yapılandırma editörü
+   ├─ kraken/  Hafif Kraken ekran çalışma zamanı
+   └─ shared/  Yeniden kullanılabilir arayüz bileşenleri
+```
+
+Editör önizlemesi ve Kraken çalışma zamanı aynı kanonik render hattını kullanır. Bu ortak motor, kullanıcının tasarladığı görünüm ile fiziksel ekranda görünen sonuç arasında düzen, stil ve dönüşüm davranışının tutarlı kalmasını sağlar.
+
+Preset verileri depolamadan önce normalize edilir, içe/dışa aktarma sürümlenir ve editör güncellemeleri `localStorage` yedek yöntemiyle birlikte `BroadcastChannel` üzerinden eşzamanlanır.
+
+</details>
+
+### Katkıda bulunma
+
+Katkılar ve odaklı pull request’ler memnuniyetle karşılanır. Mimari değişiklik yapmadan önce şunları okuyun:
+
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [Davranış Kuralları](../CODE_OF_CONDUCT.md)
+- [Güvenlik Politikası](../SECURITY.md)
+
+<a id="faq"></a>
+## Sık Sorulan Sorular
+
+<details>
+<summary><strong>NZXT-ESC’yi yüklemem gerekiyor mu?</strong></summary>
+
+Ana editör ayrı bir kurulum gerektirmez. NZXT CAM Web Integration üzerinden açabilirsiniz. Yalnızca isteğe bağlı müzik overlay’leri yerel NowPlaying.WebSocket Windows istemcisini gerektirir.
+
+</details>
+
+<details>
+<summary><strong>NZXT-ESC, NZXT CAM olmadan çalışır mı?</strong></summary>
+
+Editör normal bir tarayıcıda açılabilir ve tasarım için örnek sensör değerleri kullanır. Canlı donanım izleme ve Kraken ekranına görüntü aktarımı için NZXT CAM Web Integration gerekir.
+
+</details>
+
+<details>
+<summary><strong>Hangi NZXT Kraken modelleri destekleniyor?</strong></summary>
+
+NZXT-ESC, NZXT CAM Web Integration ekran modunu destekleyen NZXT Kraken cihazları için tasarlanmıştır. Kullanılabilir ekran boyutu ve şekli NZXT CAM API üzerinden belirlenir.
+
+</details>
+
+<details>
+<summary><strong>Preset’ler ve yerel medya nerede saklanır?</strong></summary>
+
+Preset’ler tarayıcının LocalStorage alanında, yerel görseller ve videolar ise IndexedDB’de saklanır. Başka bir tarayıcıya, Windows kurulumuna veya bilgisayara geçerken önemli preset’leri düzenli olarak dışa aktarın.
+
+</details>
+
+<details>
+<summary><strong>Şimdi Çalıyor özelliği Spotify gerektirir mi?</strong></summary>
+
+Hayır. NowPlaying.WebSocket desteklenen Windows medya oturumlarını ve sistem sesini kullanır; bu nedenle tarayıcılar ve diğer uyumlu medya uygulamalarıyla çalışabilir.
+
+</details>
+
+<details>
+<summary><strong>Topluluk preset’leri düzenlenebilir mi?</strong></summary>
+
+Evet. Explore üzerinden içe aktarılan preset’ler Library’ye eklendikten sonra tamamen düzenlenebilir.
+
+</details>
+
+<a id="license"></a>
+## Lisans
+
+NZXT-ESC, **Kişisel Kullanım Lisansı** ile yayımlanmaktadır.
+
+**İzin verilenler:** kişisel kullanım, kişisel değişiklikler ve özgün projeye açıkça atıf verilerek yeniden dağıtım.
+
+**Ticari kullanım:** satış, paketleme, kiralama, ücretli bir ürüne entegre etme veya diğer gelir getirici kullanımlar için proje sahibinden önceden yazılı izin alınması gerekir.
+Tüm koşullar için [LICENSE dosyasına bakın](../LICENSE).
+
+## Destek ve bağlantılar
+
+- **Web sitesi:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **En son sürüm:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
+- **Hata bildirimleri ve fikirler:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
+- **Yardımcı uygulama:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+<div align="center">
+
+NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
+**Gökhan AKGÜL (mRGogo)** tarafından geliştirildi — kahve ve tartışmalı uyku düzenleriyle destekleniyor.
+
+</div>

@@ -1,482 +1,318 @@
-> ⚠️ This document is an automatically translated version of the main English README.
-> Technical terms, code blocks, filenames, and project terminology are intentionally kept in their original form.
+# NZXT-ESC
 
-# NZXT Elite Screen Customizer (NZXT-ESC) v5.12 (Build 08)
+### NZXT Kraken AIO向け高度な画面カスタマイズ・レイアウトエディター
 
-NZXT Kraken Elite LCD画面用のモダンなブラウザベースのメディアおよびオーバーレイエディタ。
+ドラッグ＆ドロップ対応のセンサーオーバーレイ、カスタムフォント、画像、GIF、MP4動画、時計、グラフ、Now Playing情報、サウンド連動ビジュアルを使って、完全に編集可能なNZXT Kraken LCDレイアウトを作成し、**NZXT CAM Web Integration**経由でリアルタイム表示できます。
 
-カスタムアニメーション背景、メトリックオーバーレイ、テキストレイヤー、区切り線、完全にパーソナライズされたレイアウトを作成 — すべてNZXT CAM内でライブ同期されます。
+[![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![Languages](https://img.shields.io/badge/languages-18-22c55e?style=flat-square)](#languages)
+[![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-個人使用のみ無料 — 商用利用は厳禁です。
+[NZXT CAMで開く](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+· [Webエディターを開く](https://nzxt-esc.pages.dev/)
+· [機能](#features)
+· [クイックスタート](#quick-start)
+· [FAQ](#faq)
 
-![License](https://img.shields.io/badge/License-Personal%20Use%20Only-red) ![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-purple) ![React](https://img.shields.io/badge/React-18-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Vite](https://img.shields.io/badge/Vite-Bundler-purple) ![GitHub release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc)
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/nzxt-esc-editor.png"
+       alt="NZXT-ESCのドラッグ＆ドロップ式NZXT Kraken LCDレイアウトエディター"
+       width="70%" />
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview1.png" width="400"/>
-  <img src="https://raw.githubusercontent.com/mrgogo7/nzxt-esc/refs/heads/main/docs/Demo-Preview2.png" width="400"/>
-</p>
-<p align="center">
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif" width="400"/>
-  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif" width="400"/>
-</p>
+> [!NOTE]
+> **NZXT-ESCは独立したコミュニティプロジェクトです。** NZXTとの提携、スポンサー関係、公式承認はありません。
 
----
-## 📋 目次
+## 固定レイアウトに縛られないNZXT Kraken LCDカスタマイズ
 
-- [🚀 クイックスタート](#-クイックスタート)
-  - [方法1 — 直接起動（推奨）](#方法1--直接起動推奨)
-  - [方法2 — 手動インストール（NZXT CAM内）](#方法2--手動インストールnzxt-cam内)
-  - [推奨：統合カードの名前変更](#推奨統合カードの名前変更)
-- [🎛 エディタの使用（設定ボタン）](#-エディタの使用設定ボタン)
-- [💡 NZXT-ESCの特徴](#-nzxt-esの特徴)
-  - [1. デザイン指向の編集体験](#1-デザイン指向の編集体験)
-  - [2. 完全な要素ベースのオーバーレイエンジン](#2-完全な要素ベースのオーバーレイエンジン)
-  - [3. リアルタイムLCD同期](#3-リアルタイムlcd同期)
-  - [4. 高度なメディアエンジン](#4-高度なメディアエンジン)
-  - [5. プリセットシステム（早期アクセス）](#5-プリセットシステム早期アクセス)
-- [🌍 サポート言語](#-サポート言語)
-- [🧪 技術詳細](#-技術詳細)
-- [🔧 開発者情報](#-開発者情報)
-- [🕛 バージョン履歴](#-バージョン履歴)
-- [🔗 リンク](#-リンク)
-- [📜 ライセンス](#-ライセンス)
+NZXT-ESCはNZXT Krakenディスプレイを自由配置できるキャンバスに変えます。センサー、グラフィック、時計、画像、メディア要素を好きな位置に置いて、独自のLCD画面を作成できます。各要素のサイズ変更、回転、並べ替え、名称変更、ロック、スタイル調整を行いながら、NZXT CAMで結果をリアルタイムに確認できます。
 
----
-### 🚀 クイックスタート
+コアエディターには**アカウント登録も、エンドユーザー向けの個別インストールも不要**です。プリセットとローカルメディアはブラウザー内に保存されます。音楽関連のオプションオーバーレイでは、ローカルで動作するWindows用コンパニオンアプリ[NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)を使用します。
 
-NZXT-ESCは「Web Integration」機能を使用してNZXT CAM内で動作します。インストール方法は2つあります：
+<a id="quick-start"></a>
+## クイックスタート
 
-#### 方法1 — 直接起動（推奨）
+### NZXT CAMで直接開く
 
-1. これをブラウザのアドレスバーにコピーします：
-   ```text
-   nzxt-cam://action/load-web-integration?url=https://mrgogo7.github.io/nzxt-esc/
-   ```
-2. Enterキーを押します。
-3. ブラウザに質問が表示されます：「nzxt-camリンクをNZXT CAMで開きますか？」 → 承認 / 許可
-4. NZXT CAMが自動的に起動します。
-5. 確認ウィンドウが表示されます：Web Integrationを読み込みますか？次のWeb統合を読み込んでもよろしいですか？
-   ```text
-   https://mrgogo7.github.io/nzxt-esc/
-   ```
-      or Beta Version Now Available
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+
+1. **Open NZXT-ESC in NZXT CAM**をクリックします。
+2. ブラウザーからNZXT CAMを開くことを許可します。
+3. **Load Web Integration**を確認します。
+4. 新しいWeb Integrationカードを開き、**Configure**を選択します。
+5. レイアウトを作成します。変更内容はKrakenディスプレイに同期されます。
+
+<details>
+<summary><strong>NZXT CAM内で手動設定する</strong></summary>
+
+1. **NZXT CAM**を開きます。
+2. **Lighting → Kraken → LCD Display**へ移動します。
+3. **Web Integration**を選択します。
+4. **Custom Web Integration**の設定を開きます。
+5. 次のURLを入力します：
+
    ```text
    https://nzxt-esc.pages.dev/
    ```
-6. 「読み込む」を押します。
-7. 読み込み後、「Custom Web Integration」カードを開きます。
 
-#### 方法2 — 手動インストール（NZXT CAM内）
-
-1. NZXT CAMを開きます。
-2. 次に移動します：Lighting → Kraken Elite V2 → LCD Display
-3. 表示モードを次に変更します：Web Integration
-4. 次の名前のカードを見つけます：Custom Web Integration
-5. 「Settings」をクリックします。
-6. URLを入力します：
-   ```text
-   https://mrgogo7.github.io/nzxt-esc/
-   ```
-7. 「Apply」を押します。
-8. 次に押します：Add as Card
-9. 「My Web Integration」という名前の新しいWeb Integrationカードが表示されます。
-10. 「My Web Integration」を選択します。
-11. NZXT-ESCエディタを開くために「Configure」を押します。
-
-#### 推奨：統合カードの名前変更
-
-NZXT CAMはデフォルト名「My Web Integration」を割り当てます。名前を変更するには：
-1. 「My Web Integration」を選択します。
-2. 「Edit」を押します。
-3. フィールドを次に変更します：Title:
-   ```text
-   Elite Screen Customizer
-   ```
-   Description:
-   ```text
-   NZXT Elite Screen Customizer (NZXT-ESC)
-   ```
-これにより、統合を他のものと区別しやすくなります。
-
----
-### 🎛 エディタの使用（設定ボタン）
-
-すべての編集は「Configure」ボタンを通じてNZXT CAM内で実行されます。
-
-エディタ内で以下を実行できます：
-
-- メトリック、テキスト、区切り要素の追加 / 削除（オーバーレイあたり最大20要素）
-- 位置、回転、スケール、不透明度、色の調整
-- MP4 / GIF / PNG / JPG背景メディアの選択
-- IndexedDB経由でブラウザに保存されたLocal Mediaファイルの使用
-- プリセットの管理（Import, Export, Duplicate, Delete, Rename, Apply）
-- オーバーレイプリセットテンプレートの使用（Single, Dual, Triple, Quadruple InfoGraphicレイアウト）
-- ReplaceまたはAppendオプションでオーバーレイプリセットのインポート
-- Quick Favoritesドロップダウンでお気に入りプリセット間の迅速な切り替え
-- Kraken Elite LCD上でリアルタイムですべての変更をプレビュー
-
-外部URLやconfig.htmlは不要になりました。
-
----
-### 💡 NZXT-ESCの特徴
-
-NZXT-ESCはテーマパックではありません — Kraken Elite LCD専用に構築された**完全なデザイン指向のレイアウトエディタ**です。
-
-NZXT CAMがネイティブにサポートするものをはるかに超えた完全な創造的自由を提供します。
-
-NZXT CAMは**以下を許可しません**：
-- 自由な要素配置  
-- 要素のスケーリングまたは回転  
-- カスタムテキストオーバーレイ  
-- 透明色  
-- MP4背景  
-- YouTube背景  
-- Pinterest URL  
-- 混合メディア + オーバーレイの組み合わせ  
-
-NZXT-ESCは**これらすべてを可能にします**。
-
-#### 1. デザイン指向の編集体験
-
-- 自由なドラッグアンドドロップ配置
-- 要素ごとの回転とスケーリング
-- 円形LCDプレビュー周辺の変換ハンドル
-- 矢印キーによる微調整
-- 最小限で気が散らないインターフェース
-- 実際のハードウェアと一致する正確な円形プレビュー
-
-#### 2. 完全な要素ベースのオーバーレイエンジン
-
-レガシーSingle/Dual/Tripleモードは完全に削除されました。
-
-以下を自由に追加できます：
-
-- メトリック要素
-- テキスト要素
-- 区切り要素
-
-各要素は以下をサポートします：
-
-- X/Y位置
-- 回転
-- スケール
-- 色と不透明度
-- 選択ハイライト
-
-**オーバーレイプリセットシステム**
-
-テンプレート選択モーダルを使用して、事前設定されたレイアウトを迅速に適用します。Single、Dual、Triple、またはQuadruple InfoGraphicテンプレートから選択します。各テンプレートは最適化された配置とスタイリングを備えています。テンプレートはReplaceモード（既存の要素を上書き）またはAppendモード（既存の要素に追加）でインポートできます。追加時、zIndex値はレンダリングの競合を防ぐために自動的に正規化されます。システムは設定あたり最大20のオーバーレイ要素をサポートします。
-
-#### 3. リアルタイムLCD同期
-
-- 安定性のための~100msスロットルで更新
-- 手動更新は不要
-- 編集するとLCD画面が即座に更新されます
-
-#### 4. 高度なメディアエンジン
-
-メディアエンジンは以下をサポートします：
-
-- MP4ビデオ（LCDでの完全再生）
-- GIFアニメーション
-- PNG / JPG画像
-- Local Mediaファイル（IndexedDB）：コンピュータから直接読み込まれたフル解像度の画像とビデオ
-- **Pinterest URL → 直接メディアに自動解決**
-- **YouTube URL（LCD再生）**
-
-
-##### **🆕 Local Mediaサポート（新機能）**
-
-NZXT-ESCには、**ローカル画像またはビデオ**を直接エディタに読み込むための統合システムが含まれています。  
-ファイルは**IndexedDB**に安全に保存され、デバイスから離れることはありません。
-
-サポートされるファイルタイプ：
-- JPG / PNG / GIF  
-- MP4ビデオ  
-- 最大サイズ：**150 MB**
-
-主な機能：
-- 完全オフライン使用 — 外部ホスティング不要  
-- 回転、スケール、fit/align、およびすべての変換ツールで動作  
-- リモートメディアと同一のリアルタイムLCD同期  
-- 各プリセットは1つのローカルメディア参照を含むことができます  
-- ローカルメディアはエクスポートされたプリセットファイル内に**含まれません**  
-- インポート時、ローカルメディアを使用していたプリセットは警告を表示し、再選択を許可します
-
-このシステムにより、エディタの変換エンジンと100%互換性を保ちながら、真のオフライン、プライバシーに配慮した背景が可能になります。
-
-
-**YouTube統合のハイライト：**
-
-- YouTubeビデオは**実際のLCDで再生**されます（autoplay/mute/loopサポート）
-- エディタのプレビューは、埋め込みプレーヤーの制限によりYouTubeビデオを再生できません  
-- 代わりに、**赤いドラッグ可能なプレースホルダー**が表示されます  
-- ユーザーは以下を実行できます：
-  - YouTubeビデオの位置を設定  
-  - ビデオをスケーリング  
-  - align/fit設定を適用  
-  - 上に任意のオーバーレイ要素を配置  
-- LCDは常にリアルタイムで最終結果を反映します  
-- すべての標準背景ツールはYouTubeとシームレスに動作します
-
-フィットモード：
-
-- **Cover** — ディスプレイ全体を埋める  
-- **Contain** — 完全なアスペクト比を維持  
-- **Fill** — フィットするように伸縮（オプション）  
-
-これにより、NZXT-ESCはNZXT CAM用の最初の完全なYouTube対応LCDエディタになります。
-
-#### 5. プリセットシステム（早期アクセス）
-
-利用可能なアクション：
-
-- Import
-- Export
-- Delete
-- Duplicate
-- Rename
-- Apply
-
-プリセットは完全なレイアウトをJSONとして保存します。
-
-**オーバーレイプリセットのインポート/エクスポート**
-
-オーバーレイ要素設定を`.nzxt-esc-overlay-preset`ファイルとしてエクスポートして、バックアップまたは共有します。検証とエラー処理を備えたオーバーレイプリセットをインポートします。インポート時、既存の要素を上書きするにはReplaceモードを選択するか、現在の要素を保持しながら新しい要素を追加するにはAppendモードを選択します。インポートシステムには、テンプレート要素の自動ID生成と追加コンテンツのzIndex正規化が含まれます。
-
-**Quick Favoritesドロップダウン**
-
-Preset Managerボタンにマウスを合わせると、最大10個のお気に入りプリセット（★でマーク）をリストするコンパクトなドロップダウンが表示されます。各エントリには、プリセット名、お気に入りステータス、現在適用されているプリセットの「アクティブ」インジケーターが表示されます。アイテムを選択すると、完全なマネージャーと同じアトミックマージと自動保存ロジックを使用して、そのプリセットが即座に適用されます。ドロップダウンには、スムーズなフェードイン/フェードアウトアニメーションが含まれ、完全なPreset Managerインターフェースを開くための直接リンクが含まれています。これにより、少数の優先プリセット間で頻繁に切り替えるユーザー向けに、非常に高速なワークフローが提供されます。
-
-##### **Local Media & Presets**
-- エクスポートされたプリセットファイルにはローカルメディアバイナリが**含まれません**  
-- 以前にローカルメディアを使用していたプリセットをインポートすると、ガイド付き警告が表示されます  
-- ユーザーは新しい**Browse**モーダルを通じてファイルを再選択できます  
-- すべての既存のプリセット機能（Apply, Duplicate, Rename, Delete）はローカルメディア参照を完全にサポートします  
-- プリセットの切り替えは、IndexedDBから適切なローカルメディアを自動的に読み込みます（利用可能な場合）
-
----
-### 🌍 サポート言語
-
-NZXT-ESCは、ローカライズされたユーザー体験のために複数の言語をサポートします。エディタヘッダーの言語セレクターを使用して言語を切り替えます。
-
-| Language | Code | File |
-|----------|------|------|
-| 🇬🇧 English | `en` | [i18n.ts](./src/i18n.ts) |
-| 🇹🇷 Turkish | `tr` | [i18n.ts](./src/i18n.ts) |
-| 🇪🇸 Spanish | `es` | [i18n.ts](./src/i18n.ts) |
-| 🇩🇪 German | `de` | [i18n.ts](./src/i18n.ts) |
-| 🇧🇷 Portuguese (BR) | `pt-BR` | [i18n.ts](./src/i18n.ts) |
-| 🇫🇷 French | `fr` | [i18n.ts](./src/i18n.ts) |
-| 🇮🇹 Italian | `it` | [i18n.ts](./src/i18n.ts) |
-| 🇯🇵 Japanese | `ja` | [i18n.ts](./src/i18n.ts) |
-
-すべての翻訳は、簡単な管理と更新のために単一のTypeScriptファイルで維持されます。
-
----
-### 🧪 技術詳細
-
-- React 18
-- TypeScript
-- Vite bundler
-- LocalStorage同期 + イベントブロードキャスト
-- 円形LCD対応レンダーエンジン
-- AABB + 回転変換数学
-- テンプレートベースの要素生成を備えたオーバーレイプリセットシステム
-- 自動ID割り当てとzIndex正規化
-- 多言語UIサポート（English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese）
-
----
-### 🔧 開発者情報
-
-クローンとインストール：
-
-```bash
-git clone https://github.com/mrgogo7/nzxt-esc
-cd nzxt-esc
-npm install
-```
-
-開発サーバーの起動：
-
-```bash
-npm run dev
-```
-
-NZXT CAMテスト用にLANで公開：
-
-```bash
-npm run dev -- --host
-```
-
-ビルド：
-
-```bash
-npm run build
-```
-
-ビルドのプレビュー：
-
-```bash
-npm run preview
-```
-
-**Contributing:**
-
-- 大きな変更を開始する前にIssueを開く
-- PRを小さく集中させる
-- 明確なコミットメッセージを使用する
-- プロジェクト構造に従う
-
----
-### 🕛 バージョン履歴
-
-#### 5.11.261 — Local Mediaサポート + エディタ改善（新機能）
-
-**リリース日：** 2025-11-26
-
-##### 🆕 新機能
-- **Local Media背景（IndexedDB）**
-  - コンピュータから直接JPG、PNG、GIF、またはMP4をインポート  
-  - IndexedDB経由で安全に保存されたファイル  
-  - オフラインで動作  
-  - すべてのfit/scale/align変換モードと互換性あり  
-  - Kraken LCDとリアルタイムで完全同期  
-  - URLフィールドは多言語形式で`Local: filename.ext`を表示  
-
-##### 💡 プリセットシステムの改善
-- ローカルメディアを含むプリセットのエクスポートは警告をトリガーします（メディアは含まれません）  
-- そのようなプリセットのインポートは再選択メッセージを表示します  
-- プリセットの切り替えは、利用可能な場合、ローカルメディアを自動的に読み込みます  
-
-##### 🖥 UI改善
-- ローカルメディアを選択するための新しいBrowseモーダル  
-- すべてのローカルメディアメッセージの完全な多言語サポート  
-- 新しいボタンアイコン + 更新されたスタイリング  
-
-##### 🧩 安定性の改善
-- 改善されたメディア解決パイプライン  
-- リークを防ぐためのBlob取り消し + クリーンアップ  
-- より良いエラー処理とi18nカバレッジ  
-
-#### 5.11.26 — Kraken LCDリアルタイム同期の大幅改善とオーバーレイ安定性の改善
-
-**追加注記：**  
-- 新しいプレースホルダーベースのプレビューシステムを使用した完全な位置/スケール配置で**YouTube背景サポート**（LCD再生）が導入されました。  
-- 統一された変換数学により、比例プレビュー ↔ LCD配置が保証されます。
-
-#### 5.11.241 — Kraken LCDリアルタイム同期の大幅改善とオーバーレイ安定性の改善
-
-**リリース日：** 2025-11-24
-
-##### 🔧 主要なシステム改善
-
-- **Kraken LCDリアルタイム同期の大幅改善**  
-  リアルタイムLCD同期は新しく導入されたものではありませんが、内部システム全体が再構築されました。以前の実装はプリセット再読み込みサイクルに依存しており、遅延、更新の見逃し、スナップバック動作を引き起こしていました。新しいBroadcastChannelベースのクロスタブ同期アーキテクチャは、安定した、低遅延の、フレーム同期更新フローを提供します。
-
-##### 🛠 改善
-
-- **オーバーレイレンダリングの信頼性の改善**  
-  ランタイムオーバーレイ状態が空の場合、システムは保存されたプリセットオーバーレイデータに安全にフォールバックします。
-
-- **背景/メディアの安定性アップグレード**  
-  入力変更時の変換スナップバックが削除されました。
-
-- **KrakenOverlayビューアーの最適化**  
-  プリセットを再読み込みしなくなりました。即座の更新のためにランタイム変更を直接リッスンします。
-
-##### 🐞 バグ修正
-
-- 遅延したLCD更新が修正されました（以前はドラッグ終了後にのみ更新されていました）。
-
-- 更新後のKrakenビューで欠落していたオーバーレイが修正されました。
-
-- オーバーレイプリセットを追加する際の重複Reactキー警告が修正されました。
-
-- 調整中にメディア/背景設定が元に戻る問題が修正されました。
-
-##### ⚙ アーキテクチャの変更
-
-- タブ間通信用の専用`runtimeBroadcast.ts`モジュールが導入されました。
-
-- ブロードキャストループなしで安全なランタイム更新のための`setElementsForPresetSilent()`が追加されました。
-
-- `useOverlayConfig()`がkrakenMode + ストレージフォールバックを適切に処理するように更新されました。
-
-- すべてのオーバーレイ更新ソースが単一のランタイム駆動パイプラインに統一されました。
-
-##### 📁 開発者向け注記
-
-- BroadcastChannelはサポートされていない場合、適切にフォールバックします。
-
-- ランタイム更新は、変異の問題を防ぐために同期前に深くクローンされます。
-
-- このリリースは、古い同期アーキテクチャをモダンで安定したリアルタイムパイプラインに置き換えます。
-
-#### v5.11.24
-
-- オーバーレイ & プリセットマネージャーの品質向上パック
-- 新しいオーバーレイエクスポートモーダル：エクスポートはクリーンなモーダルを使用してファイル名を要求します（ENTERキーをサポート）
-- 新しいプリセットボタン：デフォルト値で完全に新しい空のプリセットを即座に作成
-- 改善されたプリセットマネージャーUI：プリセットアクションボタンの並び替え：Delete → Favorite → Duplicate → Rename → Apply
-- 改善されたオーバーレイ管理：
-  - 「Clear All Overlay Elements」は確認モーダルを使用します
-  - Deleteキーは選択された要素を削除します（確認モーダル付き）
-  - すべての削除ボタンにツールチップサポートが追加されました
-- グローバルモーダルの使いやすさの向上：すべてのモーダルがENTERキーによる確認をサポートします
-- オーバーレイプリセットAppendのID衝突修正：追加時に要素IDを再生成することで、重複Reactキーの問題が完全に解決されました
-- 一般的な安定性の改善：ランタイムアーキテクチャが保持され、自動保存ルールが尊重され、すべてのFAZ-9制約がそのまま残ります
-
-#### v5.11.23
-
-- テンプレート選択モーダルを備えたオーバーレイプリセットシステム
-- Single、Dual、Triple、Quadruple InfoGraphicテンプレート
-- ReplaceおよびAppendモードを備えたオーバーレイプリセットのインポート/エクスポート
-- 要素制限がオーバーレイあたり20に増加
-- 追加されたテンプレートの自動zIndex正規化
-- テンプレート定義からの動的テンプレートリスト生成
-- インポート/エクスポート操作のエラー通知の強化
-- ビューポート対応メニュー配置の改善
-
-#### v5.11.21
-
-- 要素ベースのレイアウトエンジン
-- 回転とスケール変換システム
-- 選択ハイライト
-- 矢印キー移動
-- レガシーモードの削除
-- 完全なプリセットマネージャー（Import/Export/Duplicate/Delete/Rename/Apply）
-- 即座のプリセット切り替え用のQuick Favoritesドロップダウン
-- UXと安定性の改善
-
-以前のバージョンについては、GitHub Releasesを参照してください。
-
----
-### 🔗 リンク
-
-Repository: https://github.com/mrgogo7/nzxt-esc/
-
-Support: [GitHub Sponsors](https://github.com/sponsors/mrgogo7) • [Patreon](https://www.patreon.com/mRGogo7) • [Buy Me a Coffee](https://www.buymeacoffee.com/mrgogo)
-
-Issues:
-
-https://github.com/mrgogo7/nzxt-esc/issues
-
----
-### 📜 ライセンス
-
-個人使用ライセンス
-
-**許可：** 個人使用 • 個人による変更 • クレジット付き再配布
-
-**禁止：** 商用利用 • あらゆる形式での販売、バンドル、レンタル、または収益化
-
-NZXT-ESCは、個人使用のみを目的とした趣味とコミュニティ主導のプロジェクトです。
-
-<details>
-<summary><strong>📁 完全なSEOキーワードインデックス（クリックして展開）</strong></summary>
-
-**nzxt kraken elite lcd editor, nzxt cam customization, nzxt web integration custom, nzxt animated lcd background, mp4 lcd background nzxt, youtube kraken elite lcd, nzxt gif overlay, nzxt overlay editor, custom lcd screen nzxt, nzxt cam alternatives, nzxt cam limitations, kraken elite custom display, nzxt lcd text editor, nzxt lcd metrics overlay, nzxt lcd mods, nzxt pinterest background, nzxt lcd media engine, nzxt-esc project, nzxt cam modding, nzxt kraken elite youtube support, custom nzxt layouts, nzxt cam web integration presets, nzxt overlay templates, nzxt custom ui editor, nzxt lcd graphics editor, nzxt real-time lcd sync, kraken elite advanced customization, nzxt cam mp4 support, nzxt cam gif support, nzxt cam youtube embed, nzxt cam background editor**
+6. **Apply**を選択し、続けて**Add as Card**を選択します。
+7. 新しいカードを開き、**Configure**を選択します。
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/40ddafa3-77b9-4320-b50a-9df137cfd4e7"
+       alt="NZXT CAM Web Integrationの設定画面"
+       width="48%" />
+  <img src="https://github.com/user-attachments/assets/445b8470-219a-45b2-b4e4-b10ba034ee99"
+       alt="NZXT-ESCをNZXT CAM Web Integrationカードとして追加"
+       width="48%" />
+</p>
 
 </details>
 
+## 動作イメージ
+
+<p align="center">
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo1.gif"
+       alt="NZXT-ESCで作成したカスタムNZXT Kraken LCDプリセット"
+       width="48%" />
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/newdemo2.gif"
+       alt="NZXT-ESCのアニメーション付きNZXT Krakenディスプレイレイアウト"
+       width="48%" />
+</p>
+<p align="center">
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live1.gif"
+       alt="Kraken LCDに表示されたNZXT CAMのリアルタイムセンサーオーバーレイ"
+       width="48%" />
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/demo-live2.gif"
+       alt="NZXT CAM経由で動作するカスタムアニメーションKraken LCD画面"
+       width="48%" />
+</p>
+
+<a id="features"></a>
+## 機能
+
+| 機能 | できること |
+|---|---|
+| **自由配置レイアウトエディター** | すべての要素をドラッグ、サイズ変更、回転、重ね順変更、ロック、名称変更、精密配置できます。 |
+| **NZXT CAMのリアルタイムセンサーデータ** | CPU、GPU、RAM、液温、消費電力、周波数、ファン速度のカスタム表示を作成できます。 |
+| **高度なグラフィック** | 放射状、直線、円形、履歴型のセンサーグラフを1つのレイアウトに組み合わせられます。 |
+| **アニメーション背景** | 色、グラデーション、ローカル画像、GIF、MP4動画、直接メディアURL、YouTube、Pinterestを利用できます。 |
+| **Now Playing連携** | ローカルWindowsクライアントからアルバムアート、曲情報、サウンド連動ビジュアルを表示できます。 |
+| **ExploreとLibrary** | コミュニティプリセットを読み込み、すべてを編集し、お気に入りを整理してローカルコレクションを管理できます。 |
+| **ローカル優先の保存** | プリセットはLocalStorage、ローカルメディアはIndexedDBを使用し、データは端末内に保持されます。 |
+| **多言語エディター** | 18の対応言語でインターフェースを利用できます。 |
+
+### オーバーレイ要素
+
+現在のエディターでは、オーバーレイ要素を4つの分かりやすいカテゴリに分類しています：
+
+| コンテンツ | データ | 時間 | オーディオ |
+|---|---|---|---|
+| テキスト | センサー | デジタル時計 | アルバムカバー |
+| 図形 | 放射状グラフ | アナログ時計 | Now Playingテキスト |
+| アイコン | 線形グラフ | 日付 | オーディオビジュアライザー |
+| ステッカー | 円形グラフ |  |  |
+| 画像 | センサーチャート |  |  |
+
+可能な限り、各要素は共通の操作フローを使用します。プレビューまたはレイヤー一覧で要素を選択し、位置、サイズ、回転、順序、スタイル、要素固有の設定を調整します。
+
+### ハードウェアモニタリング
+
+NZXT CAMで利用可能なモニタリングデータを使って、次のようなリアルタイムレイアウトを作成できます：
+
+`CPU温度` · `CPU使用率` · `CPU周波数` · `CPU消費電力` · `CPUファン速度` · `GPU温度` · `GPU使用率` · `GPU周波数` · `GPU消費電力` · `GPUファン速度` · `RAM使用率` · `液温`
+
+複数GPU環境では、使用中のGPUを自動選択するか、特定のGPUを指定できます。NZXT CAM APIが利用できない場合でも、ブラウザーエディターはモック値を表示するため、レイアウトの作成とプレビューを続けられます。
+
+### 背景とメディア
+
+単色またはグラデーションをベースにして、次のソースからメディアを追加できます：
+
+- ローカルのPNG、JPG、GIF、WebP、MP4ファイル
+- 画像・動画の直接URL
+- YouTube動画
+- Pinterestのメディアリンク
+
+背景メディアは位置、拡大縮小、フィット方法を調整し、任意のオーバーレイレイアウトと組み合わせられます。ローカルファイルはIndexedDBに保存され、NZXT-ESCからアップロードされることはありません。
+
+### プリセット、Explore、Library
+
+- ローカルLibraryに最大**20個のカスタムプリセット**を保存・整理できます。
+- 各プリセットには最大**40個のオーバーレイ要素**を配置できます。
+- 編集可能なプリセットファイルをバックアップや共有用にインポート・エクスポートできます。
+- **Explore**でコミュニティ作成のレイアウトを閲覧できます。
+- ExploreのプリセットをLibraryに追加し、自由に編集して自分だけのデザインにできます。
+- NZXT CAMの2つのビュー間で編集内容とKrakenレンダリングを同期できます。
+
+## Now Playingとオーディオビジュアライザー
+
+オプションのWindowsクライアント[NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)はローカルで動作し、メディアセッション情報とオーディオスペクトラムデータをローカルWebSocket接続でNZXT-ESCへ送信します。
+
+次の要素を追加できます：
+
+- **アルバムカバー** サイズ、枠線、角丸を調整できる現在のアートワーク
+- **Now Playingテキスト** 長い文字列のスクロールに対応した曲名、アーティスト名、アルバム名
+- **オーディオビジュアライザー** カスタマイズ可能なリアルタイムのスペクトラム／波形表示
+
+Spotify専用ではありません。コンパニオンアプリは、ブラウザー、メディアプレーヤー、その他のアプリから、対応するWindowsメディアセッションとシステム音声出力を取得します。
+
+<a id="languages"></a>
+## 対応言語
+
+現在、エディターは次の言語に対応しています：
+
+`English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
+· `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
+· `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
+· `Filipino`
+
+**翻訳済みドキュメント：**
+[English](../README.md) ·
+[Türkçe](README.tr.md) ·
+[Español](README.es.md) ·
+[Deutsch](README.de.md) ·
+[Português-BR](README.pt-BR.md) ·
+[Français](README.fr.md) ·
+[Italiano](README.it.md) ·
+[日本語](README.ja.md) ·
+[ไทย](README.th.md) ·
+[Polski](README.pl.md) ·
+[Svenska](README.sv.md) ·
+[Nederlands](README.nl.md) ·
+[한국어](README.ko.md) ·
+[Русский](README.ru.md) ·
+[हिन्दी](README.hi.md) ·
+[Bahasa Indonesia](README.id.md) ·
+[Čeština](README.cs.md) ·
+[Filipino](README.fil.md)
+
+## プライバシーとローカル保存
+
+NZXT-ESCはブラウザーのローカル保存を中心に設計されています：
+
+- プリセット設定は**LocalStorage**に保存されます。
+- ローカル画像と動画は**IndexedDB**に保存されます。
+- NZXT CAMのセンサー値やユーザー作成プリセットは分析サービスへ送信されません。
+- アプリは個人を特定できる情報を意図的に収集しません。
+
+本番サイトでは、匿名の製品分析に**Google Tag Manager**と**Google Analytics 4**を使用します。必要な地域では**CookieYes**が同意を管理し、任意の分析Cookieはユーザーの選択に応じて有効化されます。開発ビルドでは本番用分析サービスは必要ありません。
+
+## 開発
+
+### ローカルで実行
+
+```bash
+npm install
+npm run dev
+```
+
+`http://localhost:5173`を開きます。NZXT CAMが利用できない場合、エディターはモックのハードウェアデータを使用します。
+
+```bash
+npm run build   # 型チェックを行い本番ビルドを作成
+npm test        # i18nチェックとVitestテストスイートを実行
+```
+
+### アーキテクチャ
+
+<details>
+<summary><strong>プロジェクト構成と設計原則</strong></summary>
+
+```text
+src/
+├─ core/       プリセット、オーバーレイ、要素、背景のドメイン契約
+├─ render/     共有のプリセット→レンダーモデル変換エンジン
+├─ storage/    LocalStorage状態、インポート／エクスポート、IndexedDBメディア
+├─ platform/   NZXT CAMとローカルコンパニオンアプリのアダプター
+├─ sync/       エディター／ランタイム同期
+├─ i18n/       型付きロケールメッセージと翻訳ユーティリティ
+└─ ui/
+   ├─ config/  ドラッグ＆ドロップ設定エディター
+   ├─ kraken/  軽量なKrakenディスプレイランタイム
+   └─ shared/  再利用可能なUIコンポーネント
+```
+
+エディターのプレビューとKrakenランタイムは、同じ標準レンダリングパイプラインを使用します。この共有エンジンにより、ユーザーが設計した内容と実機ディスプレイに表示される内容のレイアウト、スタイル、変換動作が一致します。
+
+プリセットデータは保存前に正規化され、インポート／エクスポートはバージョン管理されます。エディターの更新は`BroadcastChannel`で同期され、利用できない場合は`localStorage`へフォールバックします。
+
+</details>
+
+### コントリビューション
+
+コントリビューションや目的を絞ったPull Requestを歓迎します。アーキテクチャを変更する前に、次の文書をお読みください：
+
+- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [行動規範](../CODE_OF_CONDUCT.md)
+- [セキュリティポリシー](../SECURITY.md)
+
+<a id="faq"></a>
+## よくある質問
+
+<details>
+<summary><strong>NZXT-ESCをインストールする必要がありますか？</strong></summary>
+
+コアエディターに個別インストールは不要です。NZXT CAM Web Integrationから開いてください。ローカルのNowPlaying.WebSocket Windowsクライアントが必要なのは、オプションの音楽オーバーレイのみです。
+
+</details>
+
+<details>
+<summary><strong>NZXT CAMなしでもNZXT-ESCは動作しますか？</strong></summary>
+
+エディターは通常のブラウザーで開くことができ、デザイン用にモックセンサー値を使用します。リアルタイムのハードウェア監視とKrakenディスプレイへの出力にはNZXT CAM Web Integrationが必要です。
+
+</details>
+
+<details>
+<summary><strong>どのNZXT Krakenモデルに対応していますか？</strong></summary>
+
+NZXT-ESCは、NZXT CAM Web Integration表示モードに対応するNZXT Krakenデバイス向けに設計されています。利用可能な画面サイズと形状はNZXT CAM APIから取得されます。
+
+</details>
+
+<details>
+<summary><strong>プリセットとローカルメディアはどこに保存されますか？</strong></summary>
+
+プリセットはブラウザーのLocalStorageに、ローカル画像と動画はIndexedDBに保存されます。ブラウザー、Windows環境、PCを変更する場合は、重要なプリセットを定期的にエクスポートしてください。
+
+</details>
+
+<details>
+<summary><strong>Now PlayingにはSpotifyが必要ですか？</strong></summary>
+
+いいえ。NowPlaying.WebSocketは対応するWindowsメディアセッションとシステム音声を利用するため、ブラウザーや他の対応メディアアプリでも動作します。
+
+</details>
+
+<details>
+<summary><strong>コミュニティプリセットは編集できますか？</strong></summary>
+
+はい。Exploreからインポートしたプリセットは、Libraryへ追加した後にすべて編集できます。
+
+</details>
+
+<a id="license"></a>
+## ライセンス
+
+NZXT-ESCは**個人利用ライセンス**の下で公開されています。
+
+**許可される利用:** 個人利用、個人的な改変、元プロジェクトへの明確なクレジットを付けた再配布。
+
+**商用利用:** 販売、バンドル、貸与、有料製品への統合、その他の収益化を伴う利用には、プロジェクト所有者による事前の書面許可が必要です。
+完全な条件は [LICENSEをご覧ください](../LICENSE).
+
+## サポートとリンク
+
+- **Webサイト:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **最新リリース:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
+- **不具合報告・アイデア:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
+- **コンパニオンアプリ:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+<div align="center">
+
+NZXT-ESCがあなたの環境をより良くしたなら、継続的な開発を支援できます：
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
+**Gökhan AKGÜL (mRGogo)**が開発 — コーヒーと疑わしい睡眠スケジュールで稼働中。
+
+</div>
