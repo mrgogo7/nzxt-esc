@@ -389,6 +389,14 @@ Development builds do not require production analytics services. Analytics integ
 
 ---
 
+### Services Used
+
+- **Google Tag Manager (GTM)** – Loads analytics and consent-related services.
+- **Google Analytics 4** – Anonymous website usage statistics.
+- **CookieYes** – Cookie consent management.
+
+---
+
 ### 📜 LICENSE
 
 Personal Use License
