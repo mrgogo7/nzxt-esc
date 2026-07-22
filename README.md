@@ -373,19 +373,17 @@ Issues: https://github.com/mrgogo7/nzxt-esc/issues
 
 ---
 
-# Privacy
+## Privacy & Analytics
 
 NZXT-ESC respects your privacy.
 
-The project uses Google Tag Manager (GTM) to manage analytics services and feature integrations.
+The production website uses Google Tag Manager (GTM) to manage analytics and consent services.
 
-Anonymous usage analytics help us understand which features are used most often, identify usability issues, and improve future releases.
+Anonymous analytics are collected to better understand feature usage, improve usability, and identify issues. Examples include page views, language selection, feature usage, gallery interactions, and import/export actions.
 
-No personally identifiable information (PII), sensor data, preset content, or user-created layouts are collected.
+No personally identifiable information (PII), NZXT CAM sensor data, or user-created presets are collected or transmitted.
 
-Optional analytics cookies are only enabled after consent where required.
-
-You can change your cookie preferences at any time from the website.
+Analytics and other optional cookies are only enabled with your consent where required. Cookie preferences can be changed at any time through the website.
 
 ---
 
