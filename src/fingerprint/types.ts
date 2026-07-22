@@ -7,8 +7,6 @@
  * - Fully implemented but NOT active
  * - Type definitions preserved for future activation
  * 
- * FAZ-6 / Task 2A: Design skeleton for Fingerprint v2 system.
- * 
  * This file contains type definitions ONLY for the Fingerprint v2 design stage.
  * - NO runtime logic
  * - NO behavior changes
@@ -28,7 +26,7 @@
  * This type represents an overlay element in a format suitable for fingerprinting.
  * It includes all properties that should contribute to the fingerprint hash.
  * 
- * Note: This is a design-time type. The actual structure may evolve during implementation.
+ * Note: This section may change in the future.
  */
 export interface HashableOverlayElement {
   /** Element unique identifier */
