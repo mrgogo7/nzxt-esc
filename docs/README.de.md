@@ -22,6 +22,10 @@ Erstelle vollständig bearbeitbare NZXT-Kraken-LCD-Layouts mit Drag-and-drop-Sen
 > [!NOTE]
 > **NZXT-ESC ist ein unabhängiges Community-Projekt.** Es ist weder mit NZXT verbunden noch von NZXT gesponsert oder empfohlen.
 
+Wenn NZXT-ESC dein Setup verbessert hat, kannst du die weitere Entwicklung unterstützen:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## NZXT-Kraken-LCD-Anpassung ohne feste Layouts
 
 NZXT-ESC verwandelt das NZXT-Kraken-Display in eine frei gestaltbare Arbeitsfläche. Erstelle einen eigenen LCD-Bildschirm, indem du jeden Sensor, jede Grafik, Uhr, jedes Bild oder Medienelement genau dort platzierst, wo du es möchtest. Ändere Größe und Drehung, sortiere, benenne um, sperre und gestalte Elemente, während das Ergebnis über NZXT CAM live aktualisiert wird.
@@ -307,12 +311,9 @@ Die vollständigen Bedingungen stehen in [LICENSE](../LICENSE).
 - **Fehlerberichte und Ideen:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Begleitanwendung:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Wenn NZXT-ESC dein Setup verbessert hat, kannst du die weitere Entwicklung unterstützen:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Erstellt von **Gökhan AKGÜL (mRGogo)** — angetrieben von Kaffee und fragwürdigen Schlafplänen.
+Erstellt von **Gökhan AKGÜL (mRGogo)** angetrieben von Kaffee und fragwürdigen Schlafplänen.
 
-</div>
