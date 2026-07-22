@@ -22,6 +22,10 @@ Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sens
 > [!NOTE]
 > **NZXT-ESC adalah proyek komunitas independen.** Proyek ini tidak berafiliasi, disponsori, atau didukung oleh NZXT.
 
+Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## Kustomisasi LCD NZXT Kraken tanpa tata letak tetap
 
 NZXT-ESC mengubah layar NZXT Kraken menjadi kanvas bebas. Bangun layar LCD kustom dengan menempatkan setiap sensor, grafik, jam, gambar, atau elemen media tepat di lokasi yang Anda inginkan. Ubah ukuran, putar, susun ulang, ganti nama, kunci, dan beri gaya pada elemen sambil melihat hasilnya diperbarui secara langsung melalui NZXT CAM.
@@ -307,12 +311,8 @@ Lihat [LICENSE untuk ketentuan lengkap](../LICENSE).
 - **Laporan bug dan ide:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Aplikasi pendamping:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Dibuat oleh **Gökhan AKGÜL (mRGogo)** — ditenagai kopi dan jadwal tidur yang meragukan.
-
-</div>
+Dibuat oleh **Gökhan AKGÜL (mRGogo)** ditenagai kopi dan jadwal tidur yang meragukan.
