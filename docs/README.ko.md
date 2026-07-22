@@ -22,6 +22,10 @@
 > [!NOTE]
 > **NZXT-ESC는 독립적인 커뮤니티 프로젝트입니다.** NZXT와 제휴되어 있지 않으며 NZXT의 후원 또는 보증을 받지 않습니다.
 
+NZXT-ESC가 설정을 더 좋게 만들었다면 지속적인 개발을 지원할 수 있습니다:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## 고정 레이아웃 없는 NZXT Kraken LCD 사용자 지정
 
 NZXT-ESC는 NZXT Kraken 디스플레이를 자유롭게 배치할 수 있는 캔버스로 바꿉니다. 센서, 그래픽, 시계, 이미지 또는 미디어 요소를 원하는 위치에 정확히 배치해 사용자 지정 LCD 화면을 만들 수 있습니다. 요소의 크기, 회전, 순서, 이름, 잠금 및 스타일을 조정하면서 NZXT CAM에서 결과가 실시간으로 업데이트되는 모습을 확인하세요.
@@ -307,12 +311,8 @@ NZXT-ESC는 **개인 사용 라이선스**로 배포됩니다.
 - **버그 신고 및 아이디어:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **보조 앱:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 NZXT-ESC가 설정을 더 좋게 만들었다면 지속적인 개발을 지원할 수 있습니다:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-**Gökhan AKGÜL (mRGogo)** 제작 — 커피와 의심스러운 수면 일정으로 구동됩니다.
-
-</div>
+**Gökhan AKGÜL (mRGogo)** 제작 커피와 의심스러운 수면 일정으로 구동됩니다.
