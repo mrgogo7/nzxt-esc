@@ -256,7 +256,6 @@ Contributions and focused pull requests are welcome. Before making architectural
 changes, read:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md)
-- [Architecture and AI development context](docs/ai-development-context.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security Policy](SECURITY.md)
 
