@@ -1,5 +1,3 @@
-<div align="center">
-
 # NZXT-ESC
 
 ### Enhanced Screen Customization Layout Editor for NZXT Kraken AIO
@@ -19,13 +17,9 @@ sound-reactive visuals — rendered live through **NZXT CAM Web Integration**.
 · [Quick Start](#quick-start)
 · [FAQ](#faq)
 
-</div>
-
-<p align="center">
-  <img src="docs/images/nzxt-esc-editor.png"
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/nzxt-esc-editor.png"
        alt="NZXT-ESC drag-and-drop NZXT Kraken LCD layout editor"
        width="100%" />
-</p>
 
 > [!NOTE]
 > **NZXT-ESC is an independent community project.** It is not affiliated with,
@@ -47,11 +41,7 @@ Windows companion app.
 
 ### Open directly in NZXT CAM
 
-<div align="center">
-
 [![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-
-</div>
 
 1. Click **Open NZXT-ESC in NZXT CAM**.
 2. Allow your browser to open NZXT CAM.
