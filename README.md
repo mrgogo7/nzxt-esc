@@ -8,8 +8,6 @@ Create fully personalized Kraken Display Screen layouts using text, shapes, cloc
 
 Perfect for PC enthusiasts, streamers, and modders who want to push the limits of Kraken Display Screen customization.
 
-
-
 Official website: https://nzxt-esc.pages.dev  
 Official source code: https://github.com/mrgogo7/nzxt-esc
 
@@ -355,39 +353,6 @@ All translations are maintained in a single TypeScript file for easy management 
 - Multi-language UI support (English, Turkish, Spanish, German, Portuguese, French, Italian, Japanese)
 
 ---
-### 🔧 DEVELOPER INFORMATION
-
-Clone and Install:
-
-```bash
-git clone https://github.com/mrgogo7/nzxt-esc
-cd nzxt-esc
-npm install
-```
-
-Start Dev Server:
-
-```bash
-npm run dev
-```
-
-Expose on LAN for NZXT CAM testing:
-
-```bash
-npm run dev -- --host
-```
-
-Build:
-
-```bash
-npm run build
-```
-
-Preview build:
-
-```bash
-npm run preview
-```
 
 **Contributing:**
 
@@ -397,160 +362,14 @@ npm run preview
 - Follow project structure
 
 ---
-### 🕛 VERSION HISTORY
 
-#### 🆕 v5.12 — New Elements + Stability Upgrade
-
-Added Clock Element
-
-Added Date Element
-
-Added full digit/format parsing engine
-
-Added multilingual month/day rendering
-
-Added full i18n parity for all 8 languages
-
-Added tooltip multiline support
-
-Fixed bounding box calculations for new elements
-
-Fixed resize/rotate parity with Text/Metric
-
-Completed TypeScript strict-mode cleanup (TS6133 compliance)
-
-Performance improvements & bug fixes
-
-#### 5.11.261 — Local Media Support + Editor Improvements (NEW)
-
-**Release Date:** 2025-11-26
-
-##### 🆕 NEW FEATURES
-- **Local Media Backgrounds (IndexedDB)**
-  - Import JPG, PNG, GIF, or MP4 directly from your computer  
-  - Files stored securely via IndexedDB  
-  - Works offline  
-  - Compatible with all fit/scale/align transform modes  
-  - Fully synchronized to the Kraken LCD in real-time  
-  - URL field shows `Local: filename.ext` in multilingual format  
-
-##### 💡 Preset System Enhancements
-- Exporting presets containing local media triggers a warning (media not included)  
-- Importing such presets displays a reselect message  
-- Preset switching automatically loads local media if available  
-
-##### 🖥 UI IMPROVEMENTS
-- New Browse modal for selecting local media  
-- Full multilingual support for all local media messages  
-- New button icon + updated styling  
-
-##### 🧩 STABILITY IMPROVEMENTS
-- Improved media resolution pipeline  
-- Blob revocation + cleanup to prevent leaks  
-- Better error handling & i18n coverage  
-
-#### 5.11.26 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
-
-**Additional Note:**  
-- Introduced **YouTube background support** (LCD playback) with full positioning/scale alignment using the new placeholder-based Preview system.  
-- Unified transform math ensures proportional Preview ↔ LCD alignment.
-
-#### 5.11.241 — Kraken LCD Real-Time Sync Overhaul & Overlay Stability Improvements
-
-**Release Date:** 2025-11-24
-
-##### 🔧 Major System Improvements
-
-- **Kraken LCD Real-Time Sync Overhaul**  
-  Real-time LCD synchronization wasn't newly introduced, but the entire internal system has been rebuilt. The previous implementation relied on preset reload cycles and caused delays, missed updates, and snap-back behaviors. The new BroadcastChannel-based cross-tab sync architecture provides a stable, low-latency, frame-synced update flow.
-
-##### 🛠 Improvements
-
-- **Overlay rendering reliability improvements**  
-  When the runtime overlay state is empty, the system now safely falls back to stored preset overlay data.
-
-- **Background/media stability upgrade**  
-  Removed transform snap-back on input changes.
-
-- **KrakenOverlay viewer optimization**  
-  No longer reloads presets; now listens directly to runtime changes for instant updates.
-
-##### 🐞 Bug Fixes
-
-- Fixed delayed LCD updates (previously updated only after drag end).
-
-- Fixed missing overlays in Kraken view after refresh.
-
-- Fixed duplicate React key warnings when appending overlay presets.
-
-- Fixed media/background settings reverting during adjustments.
-
-##### ⚙ Architecture Changes
-
-- Introduced a dedicated `runtimeBroadcast.ts` module for inter-tab communication.
-
-- Added `setElementsForPresetSilent()` for safe runtime updates without broadcast loops.
-
-- Updated `useOverlayConfig()` to properly handle krakenMode + storage fallback.
-
-- Unified all overlay update sources into a single runtime-driven pipeline.
-
-##### 📁 Developer Notes
-
-- BroadcastChannel falls back gracefully if unsupported.
-
-- Runtime updates are deeply cloned before sync to prevent mutation issues.
-
-- This release replaces the old sync architecture with a modern, stable, real-time pipeline.
-
-#### v5.11.24
-
-- Overlay & Preset Manager Quality Upgrade Pack
-- New Overlay Export Modal: Export now asks for a filename using a clean modal (supports ENTER key)
-- New Preset Button: Instantly creates a brand-new empty preset with default values
-- Improved Preset Manager UI: Reordered preset action buttons: Delete → Favorite → Duplicate → Rename → Apply
-- Improved Overlay Management:
-  - "Clear All Overlay Elements" now uses a confirmation modal
-  - Delete key removes selected element (with confirmation modal)
-  - Tooltip support added for all delete buttons
-- Global Modal Usability Upgrades: All modals now support confirming via ENTER key
-- ID Collision Fix for Overlay Preset Append: Fully resolved duplicate React key issue by regenerating element IDs on append
-- General Stability Improvements: Runtime architecture preserved, autosave rules respected, and all FAZ-9 constraints remain intact
-
-#### v5.11.23
-
-- Overlay preset system with template picker modal
-- Single, Dual, Triple, and Quadruple InfoGraphic templates
-- Overlay preset import/export with Replace and Append modes
-- Element limit increased to 20 per overlay
-- Automatic zIndex normalization for appended templates
-- Dynamic template list generation from template definitions
-- Enhanced error notifications for import/export operations
-- Viewport-aware menu positioning improvements
-
-#### v5.11.21
-
-- Element-based layout engine
-- Rotation & scale transform system
-- Selection highlight
-- Arrow-key movement
-- Legacy modes removed
-- Full preset manager (Import/Export/Duplicate/Delete/Rename/Apply)
-- Quick Favorites dropdown for instant preset switching
-- UX and stability improvements
-
-See GitHub Releases for older versions.
-
----
 ### 🔗 LINKS
 
-Repository: https://github.com/mrgogo7/nzxt-esc/
+Official Repository: https://github.com/mrgogo7/nzxt-esc/
 
 Support: [GitHub Sponsors](https://github.com/sponsors/mrgogo7) • [Patreon](https://www.patreon.com/mRGogo7) • [Buy Me a Coffee](https://www.buymeacoffee.com/mrgogo)
 
-Issues:
-
-https://github.com/mrgogo7/nzxt-esc/issues
+Issues: https://github.com/mrgogo7/nzxt-esc/issues
 
 ---
 ### 📜 LICENSE
