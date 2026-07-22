@@ -22,6 +22,10 @@ Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverl
 > [!NOTE]
 > **NZXT-ESC is een onafhankelijk communityproject.** Het is niet verbonden met, gesponsord door of goedgekeurd door NZXT.
 
+Als NZXT-ESC je setup heeft verbeterd, kun je de verdere ontwikkeling ondersteunen:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
+
 ## NZXT Kraken LCD aanpassen zonder vaste indelingen
 
 NZXT-ESC verandert het NZXT Kraken-display in een vrij canvas. Bouw een eigen LCD-scherm door elke sensor, grafiek, klok, afbeelding of media-element precies te plaatsen waar je wilt. Vergroot, verklein, roteer, herschik, hernoem, vergrendel en style elementen terwijl je het resultaat live via NZXT CAM ziet bijwerken.
@@ -307,12 +311,8 @@ Bekijk [LICENSE voor de volledige voorwaarden](../LICENSE).
 - **Bugmeldingen en ideeën:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
 - **Companionapp:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
 
-<div align="center">
-
 Als NZXT-ESC je setup heeft verbeterd, kun je de verdere ontwikkeling ondersteunen:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Gebouwd door **Gökhan AKGÜL (mRGogo)** — aangedreven door koffie en twijfelachtige slaapschema’s.
-
-</div>
+Gebouwd door **Gökhan AKGÜL (mRGogo)** aangedreven door koffie en twijfelachtige slaapschema’s.
