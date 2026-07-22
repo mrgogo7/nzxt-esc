@@ -314,6 +314,6 @@ If NZXT-ESC improved your setup, you can support its continued development:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Built by **Gökhan AKGÜL (mRGogo)** — powered by coffee and questionable sleep schedules.
+Built by **Gökhan AKGÜL (mRGogo)** powered by coffee and questionable sleep schedules.
 
 </div>
