@@ -198,7 +198,11 @@ NZXT-ESC is designed around local browser storage:
 - NZXT CAM sensor readings and user-created presets are not sent to analytics.
 - No personally identifiable information is intentionally collected by the app.
 
-The production website uses **Google Tag Manager** and **Google Analytics 4** for anonymous product analytics. **CookieYes** manages consent where required, and optional analytics cookies are enabled according to the user's consent choices. Development builds do not require production analytics services.
+The production website uses **Google Tag Manager** and **Google Analytics 4** for optional anonymous product analytics. **CookieYes** manages consent where required, and Google Analytics cookies are enabled according to the user's consent choices.
+
+The deployed website also uses **Cloudflare Web Analytics**, enabled through Cloudflare Pages and operating independently of Google Tag Manager. It provides privacy-first website traffic and performance analytics without using cookies or LocalStorage.
+
+Development builds do not require production analytics services.
 
 ## Development
 
