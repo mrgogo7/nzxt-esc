@@ -1,4 +1,4 @@
-# NZXT-ESC
+# NZXT-ESC - En iyi NZXT Web Integration
 
 ### NZXT Kraken AIO için Gelişmiş Ekran Özelleştirme Düzen Editörü
 
