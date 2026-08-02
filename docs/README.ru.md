@@ -1,4 +1,4 @@
-# NZXT-ESC - Лучшая веб-интеграция для NZXT
+# NZXT-ESC - Лучшая NZXT Web Integration
 
 ### Расширенный редактор макетов и настройки экрана для NZXT Kraken AIO
 
