@@ -1,4 +1,4 @@
-# NZXT-ESC
+# NZXT-ESC - Web Integration ที่ดีที่สุดสำหรับ NZXT
 
 ### เครื่องมือแก้ไขเลย์เอาต์และปรับแต่งหน้าจอขั้นสูงสำหรับ NZXT Kraken AIO
 
