@@ -1,4 +1,4 @@
-# NZXT-ESC
+# NZXT-ESC - Best NZXT Web Integration
 
 ### Enhanced Screen Customization Layout Editor for NZXT Kraken AIO
 
