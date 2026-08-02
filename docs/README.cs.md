@@ -1,4 +1,4 @@
-# NZXT-ESC
+# NZXT-ESC - Nejlepší webová integrace pro NZXT
 
 ### Pokročilý editor rozvržení a přizpůsobení obrazovky pro NZXT Kraken AIO
 
