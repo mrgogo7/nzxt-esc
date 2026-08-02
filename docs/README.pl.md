@@ -1,4 +1,4 @@
-# NZXT-ESC - Najlepsza integracja Web dla NZXT
+# NZXT-ESC - Najlepsza NZXT Web Integration
 
 ### Zaawansowany edytor układów i personalizacji ekranu dla NZXT Kraken AIO
 
