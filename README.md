@@ -308,8 +308,6 @@ NZXT-ESC is released under a **Personal Use License**.
 **Commercial use:** selling, bundling, renting, integrating into a paid product, or other monetized use requires prior written permission from the project owner.
 See [LICENSE for the complete terms](LICENSE).
 
-## Support and links
-
 ## Support and community
 
 - **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
