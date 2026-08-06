@@ -24,6 +24,19 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 
 If NZXT-ESC improved your setup, you can support its continued development:
 
+> [!IMPORTANT]
+> ### Hosted Usage and Supporter Access
+>
+> The hosted version of NZXT-ESC can be used for up to **300 hours**
+> before Supporter Access is required.
+>
+> Continued hosted access after 300 hours is available to users who
+> support the project. Supporters receive a Supporter Access Code that
+> removes the 300-hour usage limit.
+>
+> Community support helps cover server, API, hosting, maintenance,
+> and ongoing development costs.
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## NZXT Kraken LCD customization without fixed layouts
@@ -295,6 +308,23 @@ No. NowPlaying.WebSocket uses supported Windows media sessions and system audio,
 <summary><strong>Can community presets be edited?</strong></summary>
 
 Yes. Presets imported from Explore are fully editable after they are added to the Library.
+
+</details>
+
+<details>
+<summary><strong>How does the 300-hour usage limit work?</strong></summary>
+
+The hosted version of NZXT-ESC can be used for up to 300 hours before
+Supporter Access is required.
+
+After the usage period is completed, users who support the project
+receive a Supporter Access Code that removes the 300-hour usage limit.
+
+The usage policy helps cover server, API, hosting, maintenance, and
+ongoing development costs while allowing users substantial time to
+experience the project before deciding whether to support it.
+
+Usage time is counted while NZXT-ESC is actively running on the Kraken display..
 
 </details>
 
