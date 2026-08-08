@@ -27,12 +27,12 @@ If NZXT-ESC improved your setup, you can support its continued development:
 > [!IMPORTANT]
 > ### Hosted Usage and Supporter Access
 >
-> The hosted version of NZXT-ESC can be used for up to **300 hours**
+> The hosted version of NZXT-ESC can be used for up to **100 hours**
 > before Supporter Access is required.
 >
-> Continued hosted access after 300 hours is available to users who
+> Continued hosted access after 100 hours is available to users who
 > support the project. Supporters receive a Supporter Access Code that
-> removes the 300-hour usage limit.
+> removes the 100-hour usage limit.
 >
 > Community support helps cover server, API, hosting, maintenance,
 > and ongoing development costs.
@@ -312,13 +312,13 @@ Yes. Presets imported from Explore are fully editable after they are added to th
 </details>
 
 <details>
-<summary><strong>How does the 300-hour usage limit work?</strong></summary>
+<summary><strong>How does the 100-hour usage limit work?</strong></summary>
 
-The hosted version of NZXT-ESC can be used for up to 300 hours before
+The hosted version of NZXT-ESC can be used for up to 100 hours before
 Supporter Access is required.
 
 After the usage period is completed, users who support the project
-receive a Supporter Access Code that removes the 300-hour usage limit.
+receive a Supporter Access Code that removes the 100-hour usage limit.
 
 The usage policy helps cover server, API, hosting, maintenance, and
 ongoing development costs while allowing users substantial time to
