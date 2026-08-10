@@ -10,7 +10,7 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Open Web Editor](https://nzxt-esc.pages.dev/)
+· [Open Live Preview](https://nzxt-esc.pages.dev/)
 · [Supported Kraken Models](#supported-nzxt-kraken-lcd-models)
 · [Features](#features)
 · [Quick Start](#quick-start)
