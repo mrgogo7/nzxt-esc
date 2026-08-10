@@ -11,6 +11,7 @@
 
 [เปิดใน NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
 · [เปิดเว็บเอดิเตอร์](https://nzxt-esc.pages.dev/)
+· [รุ่น Kraken ที่รองรับ](#supported-nzxt-kraken-lcd-models)
 · [คุณสมบัติ](#features)
 · [เริ่มต้นใช้งาน](#quick-start)
 · [คำถามที่พบบ่อย](#faq)
@@ -24,6 +25,20 @@
 
 หาก NZXT-ESC ช่วยให้ชุดของคุณดีขึ้น คุณสามารถสนับสนุนการพัฒนาต่อไปได้:
 
+> [!IMPORTANT]
+> ### การใช้งานแบบโฮสต์และการเข้าถึงสำหรับผู้สนับสนุน
+>
+> เวอร์ชันโฮสต์ของ NZXT-ESC สามารถใช้งานได้สูงสุด **100 ชั่วโมง**
+> ก่อนที่จะต้องมีการเข้าถึงสำหรับผู้สนับสนุน (Supporter Access)
+>
+> การใช้งานแบบโฮสต์ต่อเนื่องหลังจาก 100 ชั่วโมงนั้นเปิดให้เฉพาะ
+> ผู้ใช้ที่สนับสนุนโครงการ ผู้สนับสนุนจะได้รับรหัสเข้าถึงสำหรับ
+> ผู้สนับสนุน (Supporter Access Code) ซึ่งจะยกเลิกข้อจำกัดการใช้งาน
+> 100 ชั่วโมง
+>
+> การสนับสนุนจากชุมชนช่วยครอบคลุมค่าใช้จ่ายด้านเซิร์ฟเวอร์ API
+> การโฮสต์ การบำรุงรักษา และการพัฒนาอย่างต่อเนื่อง
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## ปรับแต่ง LCD ของ NZXT Kraken โดยไม่ถูกจำกัดด้วยเลย์เอาต์ตายตัว
@@ -31,6 +46,49 @@
 NZXT-ESC เปลี่ยนหน้าจอ NZXT Kraken ให้เป็นพื้นที่ออกแบบอิสระ สร้างหน้าจอ LCD ของคุณเองโดยวางเซนเซอร์ กราฟิก นาฬิกา รูปภาพ หรือสื่อแต่ละรายการไว้ตรงตำแหน่งที่ต้องการ ปรับขนาด หมุน เรียงลำดับ เปลี่ยนชื่อ ล็อก และปรับสไตล์ พร้อมดูผลลัพธ์อัปเดตสดผ่าน NZXT CAM
 
 ตัวแก้ไขหลัก **ไม่ต้องมีบัญชี** และ **ไม่ต้องติดตั้งแยกสำหรับผู้ใช้ปลายทาง** พรีเซ็ตและสื่อในเครื่องจะเก็บอยู่ในพื้นที่จัดเก็บของเบราว์เซอร์ โอเวอร์เลย์เพลงที่เป็นตัวเลือกจะใช้แอปคู่หู Windows ในเครื่อง [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## รุ่น NZXT Kraken LCD ที่รองรับ
+
+NZXT-ESC รองรับชุดระบายความร้อนด้วยของเหลว NZXT Kraken AIO ที่มีจอแสดงผล LCD และรองรับ NZXT CAM Web Integration รวมถึงรุ่น Kraken Elite, Kraken Plus, Kraken และ Kraken Z ทั้งรุ่นปัจจุบันและรุ่นก่อนหน้า
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC จะปรับเลย์เอาต์โดยอัตโนมัติให้เข้ากับความละเอียด ขนาด และรูปทรงของจอแสดงผล Kraken LCD ตามข้อมูลที่รายงานผ่าน NZXT CAM API ทำให้สามารถแสดงเลย์เอาต์แบบกำหนดเอง โอเวอร์เลย์เซนเซอร์ พื้นหลังเคลื่อนไหว กราฟิก และสื่อต่าง ๆ ผ่าน NZXT CAM Web Integration ได้
 
 <a id="quick-start"></a>
 ## เริ่มต้นใช้งาน
@@ -198,48 +256,9 @@ NZXT-ESC ออกแบบโดยยึดการจัดเก็บภ�
 - ค่าจากเซนเซอร์ NZXT CAM และพรีเซ็ตที่ผู้ใช้สร้างจะไม่ถูกส่งไปยังระบบวิเคราะห์
 - แอปไม่ได้ตั้งใจเก็บข้อมูลที่สามารถระบุตัวบุคคลได้
 
-เว็บไซต์เวอร์ชันใช้งานจริงใช้ **Google Tag Manager** และ **Google Analytics 4** สำหรับการวิเคราะห์ผลิตภัณฑ์แบบไม่ระบุตัวตน **CookieYes** จัดการความยินยอมเมื่อจำเป็น และคุกกี้วิเคราะห์แบบเลือกใช้จะเปิดตามการตัดสินใจของผู้ใช้ เวอร์ชันพัฒนาไม่ต้องใช้บริการวิเคราะห์ของระบบจริง
+เว็บไซต์เวอร์ชันใช้งานจริงใช้ **Google Tag Manager** และ **Google Analytics 4** สำหรับการวิเคราะห์ผลิตภัณฑ์แบบไม่ระบุตัวตน **CookieYes** จัดการความยินยอมเมื่อจำเป็น และคุกกี้วิเคราะห์แบบเลือกใช้จะเปิดตามการตัดสินใจของผู้ใช้
 
-## การพัฒนา
-
-### รันในเครื่อง
-
-```bash
-npm install
-npm run dev
-```
-
-เปิด `http://localhost:5173` ตัวแก้ไขจะใช้ข้อมูลฮาร์ดแวร์จำลองเมื่อ NZXT CAM ไม่พร้อมใช้งาน
-
-```bash
-npm run build   # ตรวจสอบชนิดข้อมูลและสร้าง production build
-npm test        # รันการตรวจสอบ i18n และชุดทดสอบ Vitest
-```
-
-### สถาปัตยกรรม
-
-<details>
-<summary><strong>โครงสร้างโครงการและหลักการออกแบบ</strong></summary>
-
-```text
-src/
-├─ core/       สัญญาโดเมนสำหรับพรีเซ็ต โอเวอร์เลย์ องค์ประกอบ และพื้นหลัง
-├─ render/     เอนจินร่วมจากพรีเซ็ตไปยังโมเดลเรนเดอร์
-├─ storage/    สถานะ LocalStorage การนำเข้า/ส่งออก และสื่อ IndexedDB
-├─ platform/   อะแดปเตอร์ NZXT CAM และแอปคู่หูในเครื่อง
-├─ sync/       การซิงค์ระหว่างเอดิเตอร์และรันไทม์
-├─ i18n/       ข้อความภาษาแบบมีชนิดและยูทิลิตีการแปล
-└─ ui/
-   ├─ config/  ตัวแก้ไขการตั้งค่าแบบลากวาง
-   ├─ kraken/  รันไทม์หน้าจอ Kraken แบบเบา
-   └─ shared/  คอมโพเนนต์อินเทอร์เฟซที่ใช้ซ้ำได้
-```
-
-หน้าพรีวิวของเอดิเตอร์และรันไทม์ Kraken ใช้เส้นทางเรนเดอร์มาตรฐานเดียวกัน เอนจินร่วมนี้ช่วยให้เลย์เอาต์ สไตล์ และการแปลงตรงกันระหว่างสิ่งที่ผู้ใช้ออกแบบกับสิ่งที่แสดงบนหน้าจอจริง
-
-ข้อมูลพรีเซ็ตจะถูกปรับให้อยู่ในรูปแบบมาตรฐานก่อนจัดเก็บ การนำเข้า/ส่งออกมีการกำหนดเวอร์ชัน และการอัปเดตเอดิเตอร์ซิงค์ผ่าน `BroadcastChannel` โดยใช้ `localStorage` เป็นตัวสำรอง
-
-</details>
+เว็บไซต์ที่เผยแพร่ยังใช้ **Cloudflare Web Analytics** ซึ่งเปิดใช้งานผ่าน Cloudflare Pages และทำงานแยกจาก Google Tag Manager โดยให้ข้อมูลการวิเคราะห์ทราฟฟิกและประสิทธิภาพเว็บไซต์ที่ให้ความสำคัญกับความเป็นส่วนตัว โดยไม่ใช้คุกกี้หรือ LocalStorage
 
 ### การมีส่วนร่วม
 
@@ -269,7 +288,9 @@ src/
 <details>
 <summary><strong>รองรับ NZXT Kraken รุ่นใดบ้าง?</strong></summary>
 
-NZXT-ESC ออกแบบสำหรับอุปกรณ์ NZXT Kraken ที่รองรับโหมดแสดงผล NZXT CAM Web Integration ขนาดและรูปทรงหน้าจอที่ใช้ได้จะถูกตรวจสอบผ่าน API ของ NZXT CAM
+NZXT-ESC รองรับคูลเลอร์ **Kraken Elite, Kraken Plus, Kraken (2023) และ Kraken Z ซีรีส์** ที่มีจอ LCD และรองรับโหมดแสดงผล NZXT CAM Web Integration
+
+ดูรายการรุ่นที่รองรับทั้งหมดได้ที่ [รุ่น NZXT Kraken LCD ที่รองรับ](#supported-nzxt-kraken-lcd-models)
 
 </details>
 
@@ -294,6 +315,19 @@ NZXT-ESC ออกแบบสำหรับอุปกรณ์ NZXT Kraken �
 
 </details>
 
+<details>
+<summary><strong>ข้อจำกัดการใช้งาน 100 ชั่วโมงทำงานอย่างไร?</strong></summary>
+
+เวอร์ชันโฮสต์ของ NZXT-ESC สามารถใช้งานได้สูงสุด 100 ชั่วโมง ก่อนที่จะต้องมีการเข้าถึงสำหรับผู้สนับสนุน
+
+เมื่อครบระยะเวลาการใช้งานแล้ว ผู้ใช้ที่สนับสนุนโครงการจะได้รับรหัสเข้าถึงสำหรับผู้สนับสนุนซึ่งจะยกเลิกข้อจำกัดการใช้งาน 100 ชั่วโมง
+
+นโยบายการใช้งานนี้ช่วยครอบคลุมค่าใช้จ่ายด้านเซิร์ฟเวอร์ API การโฮสต์ การบำรุงรักษา และการพัฒนาอย่างต่อเนื่อง ขณะเดียวกันก็เปิดโอกาสให้ผู้ใช้ได้ทดลองใช้โครงการอย่างเต็มที่ก่อนตัดสินใจสนับสนุน
+
+เวลาการใช้งานจะถูกนับในขณะที่ NZXT-ESC กำลังทำงานอยู่บนหน้าจอ Kraken
+
+</details>
+
 <a id="license"></a>
 ## สัญญาอนุญาต
 
@@ -302,17 +336,20 @@ NZXT-ESC เผยแพร่ภายใต้ **สัญญาอนุญ�
 **อนุญาต:** การใช้งานส่วนบุคคล การแก้ไขส่วนบุคคล และการแจกจ่ายซ้ำโดยให้เครดิตโครงการต้นฉบับอย่างชัดเจน
 
 **การใช้งานเชิงพาณิชย์:** การขาย การรวมเป็นแพ็กเกจ การให้เช่า การนำไปใช้ในผลิตภัณฑ์ที่มีค่าใช้จ่าย หรือการสร้างรายได้ในรูปแบบอื่น ต้องได้รับอนุญาตเป็นลายลักษณ์อักษรล่วงหน้าจากเจ้าของโครงการ
-ดูเงื่อนไขทั้งหมดได้ที่ [LICENSE](../LICENSE).
+ดูเงื่อนไขทั้งหมดได้ที่ [LICENSE](../LICENSE)
 
-## การสนับสนุนและลิงก์
+## การสนับสนุนและชุมชน
 
 - **เว็บไซต์:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
+- **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **รุ่นล่าสุด:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **รายงานข้อผิดพลาดและไอเดีย:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **แอปคู่หู:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+ติดตาม NZXT-ESC ทาง YouTube และ Instagram เพื่อชมผลงาน ฟีเจอร์ใหม่ บทแนะนำ การตั้งค่าจากชุมชน และความเคลื่อนไหวล่าสุดของโครงการ
 
 หาก NZXT-ESC ช่วยให้ชุดของคุณดีขึ้น คุณสามารถสนับสนุนการพัฒนาต่อไปได้:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-สร้างโดย **Gökhan AKGÜL (mRGogo)** ขับเคลื่อนด้วยกาแฟและตารางการนอนที่น่าสงสัย
+สร้างโดย **Gökhan AKGÜL (mRGogo)** - ขับเคลื่อนด้วยกาแฟและตารางการนอนที่น่าสงสัย

@@ -11,6 +11,7 @@
 
 [NZXT CAM में खोलें](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
 · [वेब एडिटर खोलें](https://nzxt-esc.pages.dev/)
+· [समर्थित Kraken मॉडल](#supported-nzxt-kraken-lcd-models)
 · [विशेषताएँ](#features)
 · [त्वरित शुरुआत](#quick-start)
 · [सामान्य प्रश्न](#faq)
@@ -24,6 +25,19 @@
 
 यदि NZXT-ESC ने आपके सेटअप को बेहतर बनाया है, तो आप इसके निरंतर विकास का समर्थन कर सकते हैं:
 
+> [!IMPORTANT]
+> ### होस्टेड उपयोग और Supporter Access
+>
+> NZXT-ESC के होस्टेड संस्करण का उपयोग **100 घंटे** तक किया जा सकता है,
+> उसके बाद Supporter Access आवश्यक हो जाता है।
+>
+> 100 घंटे के बाद होस्टेड एक्सेस जारी रखने की सुविधा उन उपयोगकर्ताओं
+> को मिलती है जो परियोजना का समर्थन करते हैं। समर्थक (Supporters) को एक
+> Supporter Access Code मिलता है, जो 100 घंटे की उपयोग सीमा हटा देता है।
+>
+> सामुदायिक समर्थन सर्वर, API, होस्टिंग, रखरखाव और चल रहे विकास की
+> लागत को कवर करने में मदद करता है।
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## निश्चित लेआउट के बिना NZXT Kraken LCD कस्टमाइज़ेशन
@@ -31,6 +45,49 @@
 NZXT-ESC, NZXT Kraken डिस्प्ले को एक मुक्त डिज़ाइन कैनवास में बदल देता है। हर सेंसर, ग्राफ़िक, घड़ी, चित्र या मीडिया तत्व को ठीक अपनी पसंद की जगह रखकर कस्टम LCD स्क्रीन बनाएँ। तत्वों का आकार बदलें, घुमाएँ, क्रम बदलें, नाम बदलें, लॉक करें और स्टाइल करें, जबकि परिणाम NZXT CAM के माध्यम से लाइव अपडेट होता रहे।
 
 मुख्य एडिटर के लिए **किसी खाते की आवश्यकता नहीं है** और **अंतिम उपयोगकर्ता को अलग से इंस्टॉल भी नहीं करना पड़ता**। प्रीसेट और स्थानीय मीडिया ब्राउज़र स्टोरेज में रहते हैं। वैकल्पिक संगीत ओवरले स्थानीय Windows सहायक ऐप [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket) का उपयोग करते हैं।
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## समर्थित NZXT Kraken LCD मॉडल
+
+NZXT-ESC, LCD डिस्प्ले और NZXT CAM Web Integration वाले NZXT Kraken AIO लिक्विड कूलर को समर्थन देता है, जिसमें मौजूदा और पिछली पीढ़ी के Kraken Elite, Kraken Plus, Kraken और Kraken Z मॉडल शामिल हैं।
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC, NZXT CAM API के माध्यम से मिलने वाले Kraken LCD रिज़ॉल्यूशन, आकार और डिस्प्ले आकृति के अनुसार लेआउट को स्वतः ढाल लेता है, जिससे कस्टम लेआउट, सेंसर ओवरले, एनिमेटेड बैकग्राउंड, ग्राफ़िक्स और मीडिया NZXT CAM Web Integration के माध्यम से प्रदर्शित किए जा सकते हैं।
 
 <a id="quick-start"></a>
 ## त्वरित शुरुआत
@@ -198,48 +255,9 @@ NZXT-ESC को ब्राउज़र के स्थानीय स्ट�
 - NZXT CAM सेंसर रीडिंग और उपयोगकर्ता द्वारा बनाए गए प्रीसेट एनालिटिक्स को नहीं भेजे जाते।
 - ऐप जानबूझकर व्यक्तिगत पहचान योग्य जानकारी एकत्र नहीं करता।
 
-प्रोडक्शन वेबसाइट गुमनाम उत्पाद विश्लेषण के लिए **Google Tag Manager** और **Google Analytics 4** का उपयोग करती है। जहाँ आवश्यक हो, **CookieYes** सहमति का प्रबंधन करता है और वैकल्पिक एनालिटिक्स कुकी उपयोगकर्ता की पसंद के अनुसार सक्षम होती हैं। विकास बिल्ड को प्रोडक्शन एनालिटिक्स सेवाओं की आवश्यकता नहीं होती।
+प्रोडक्शन वेबसाइट वैकल्पिक गुमनाम उत्पाद विश्लेषण के लिए **Google Tag Manager** और **Google Analytics 4** का उपयोग करती है। जहाँ आवश्यक हो, **CookieYes** सहमति का प्रबंधन करता है और Google Analytics कुकी उपयोगकर्ता की सहमति के चुनाव के अनुसार सक्षम होती हैं।
 
-## विकास
-
-### स्थानीय रूप से चलाएँ
-
-```bash
-npm install
-npm run dev
-```
-
-`http://localhost:5173` खोलें। NZXT CAM उपलब्ध न होने पर एडिटर नमूना हार्डवेयर डेटा उपयोग करता है।
-
-```bash
-npm run build   # टाइप जाँचें और प्रोडक्शन बिल्ड बनाएँ
-npm test        # i18n जाँच और Vitest टेस्ट सूट चलाएँ
-```
-
-### आर्किटेक्चर
-
-<details>
-<summary><strong>परियोजना संरचना और डिज़ाइन सिद्धांत</strong></summary>
-
-```text
-src/
-├─ core/       प्रीसेट, ओवरले, तत्व और बैकग्राउंड डोमेन अनुबंध
-├─ render/     साझा प्रीसेट-से-रेंडर-मॉडल इंजन
-├─ storage/    LocalStorage स्थिति, आयात/निर्यात और IndexedDB मीडिया
-├─ platform/   NZXT CAM और स्थानीय सहायक ऐप एडेप्टर
-├─ sync/       एडिटर/रनटाइम सिंक्रोनाइज़ेशन
-├─ i18n/       टाइप-सुरक्षित भाषा संदेश और अनुवाद उपयोगिताएँ
-└─ ui/
-   ├─ config/  ड्रैग-एंड-ड्रॉप कॉन्फ़िगरेशन एडिटर
-   ├─ kraken/  हल्का Kraken डिस्प्ले रनटाइम
-   └─ shared/  पुनः उपयोग योग्य इंटरफ़ेस घटक
-```
-
-एडिटर प्रीव्यू और Kraken रनटाइम एक ही मानक रेंडर पाइपलाइन उपयोग करते हैं। यह साझा इंजन उपयोगकर्ता के डिज़ाइन और भौतिक डिस्प्ले पर दिखाई देने वाले परिणाम के बीच लेआउट, शैली और ट्रांसफ़ॉर्म व्यवहार को एक समान रखता है।
-
-प्रीसेट डेटा को सहेजने से पहले सामान्यीकृत किया जाता है, आयात/निर्यात संस्करणित है और एडिटर अपडेट `BroadcastChannel` के माध्यम से सिंक्रोनाइज़ होते हैं, जिसमें `localStorage` बैकअप विकल्प है।
-
-</details>
+तैनात (deployed) वेबसाइट **Cloudflare Web Analytics** का भी उपयोग करती है, जो Cloudflare Pages के माध्यम से सक्षम है और Google Tag Manager से स्वतंत्र रूप से काम करती है। यह बिना किसी कुकी या LocalStorage के गोपनीयता-प्रथम वेबसाइट ट्रैफ़िक और प्रदर्शन विश्लेषण प्रदान करती है।
 
 ### योगदान
 
@@ -269,7 +287,9 @@ src/
 <details>
 <summary><strong>कौन से NZXT Kraken मॉडल समर्थित हैं?</strong></summary>
 
-NZXT-ESC उन NZXT Kraken उपकरणों के लिए बनाया गया है जो NZXT CAM Web Integration डिस्प्ले मोड का समर्थन करते हैं। उपलब्ध डिस्प्ले आकार और आकृति NZXT CAM API के माध्यम से निर्धारित होते हैं।
+NZXT-ESC, LCD वाले **NZXT Kraken Elite, Kraken Plus, Kraken (2023) और Kraken Z सीरीज़** कूलर को समर्थन देता है जो NZXT CAM Web Integration डिस्प्ले मोड प्रदान करते हैं।
+
+पूरी सूची यहाँ देखें: [समर्थित NZXT Kraken LCD मॉडल](#supported-nzxt-kraken-lcd-models)।
 
 </details>
 
@@ -294,6 +314,19 @@ NZXT-ESC उन NZXT Kraken उपकरणों के लिए बनाय�
 
 </details>
 
+<details>
+<summary><strong>100 घंटे की उपयोग सीमा कैसे काम करती है?</strong></summary>
+
+NZXT-ESC के होस्टेड संस्करण का उपयोग 100 घंटे तक किया जा सकता है, उसके बाद Supporter Access आवश्यक हो जाता है।
+
+उपयोग की यह अवधि पूरी होने के बाद, परियोजना का समर्थन करने वाले उपयोगकर्ताओं को एक Supporter Access Code मिलता है, जो 100 घंटे की उपयोग सीमा हटा देता है।
+
+यह उपयोग नीति सर्वर, API, होस्टिंग, रखरखाव और चल रहे विकास की लागत को कवर करने में मदद करती है, साथ ही उपयोगकर्ताओं को समर्थन देने का निर्णय लेने से पहले परियोजना को पर्याप्त समय तक अनुभव करने का अवसर देती है।
+
+उपयोग का समय तभी गिना जाता है जब NZXT-ESC Kraken डिस्प्ले पर सक्रिय रूप से चल रहा हो।
+
+</details>
+
 <a id="license"></a>
 ## लाइसेंस
 
@@ -302,17 +335,20 @@ NZXT-ESC को **व्यक्तिगत उपयोग लाइसें
 **अनुमत:** व्यक्तिगत उपयोग, व्यक्तिगत संशोधन और मूल परियोजना को स्पष्ट श्रेय देते हुए पुनर्वितरण।
 
 **व्यावसायिक उपयोग:** बेचना, बंडल करना, किराए पर देना, किसी सशुल्क उत्पाद में एकीकृत करना या अन्य आय उत्पन्न करने वाला उपयोग परियोजना स्वामी की पूर्व लिखित अनुमति के बिना अनुमत नहीं है।
-पूरी शर्तों के लिए [LICENSE देखें](../LICENSE).
+पूरी शर्तों के लिए [LICENSE देखें](../LICENSE)।
 
-## सहायता और लिंक
+## सहायता और समुदाय
 
 - **वेबसाइट:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
+- **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **नवीनतम रिलीज़:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **बग रिपोर्ट और विचार:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **सहायक ऐप:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+शोकेस, नई सुविधाओं, ट्यूटोरियल, सामुदायिक सेटअप और परियोजना अपडेट के लिए YouTube और Instagram पर NZXT-ESC को फ़ॉलो करें।
 
 यदि NZXT-ESC ने आपके सेटअप को बेहतर बनाया है, तो आप इसके निरंतर विकास का समर्थन कर सकते हैं:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-**Gökhan AKGÜL (mRGogo)** द्वारा निर्मित — कॉफ़ी और संदिग्ध नींद के समय से संचालित।
+**Gökhan AKGÜL (mRGogo)** द्वारा निर्मित - कॉफ़ी और संदिग्ध नींद के समय से संचालित।

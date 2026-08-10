@@ -11,6 +11,7 @@ Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sens
 
 [Buka di NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
 · [Buka editor web](https://nzxt-esc.pages.dev/)
+· [Model Kraken yang didukung](#supported-nzxt-kraken-lcd-models)
 · [Fitur](#features)
 · [Mulai cepat](#quick-start)
 · [FAQ](#faq)
@@ -24,6 +25,19 @@ Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sens
 
 Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
 
+> [!IMPORTANT]
+> ### Penggunaan hosted dan akses Supporter
+>
+> Versi hosted NZXT-ESC dapat digunakan hingga **100 jam** sebelum
+> Supporter Access diperlukan.
+>
+> Akses hosted lanjutan setelah 100 jam tersedia bagi pengguna yang
+> mendukung proyek ini. Supporter akan menerima Supporter Access Code
+> yang menghapus batas penggunaan 100 jam tersebut.
+>
+> Dukungan komunitas membantu menutup biaya server, API, hosting,
+> pemeliharaan, dan pengembangan yang berkelanjutan.
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## Kustomisasi LCD NZXT Kraken tanpa tata letak tetap
@@ -31,6 +45,49 @@ Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
 NZXT-ESC mengubah layar NZXT Kraken menjadi kanvas bebas. Bangun layar LCD kustom dengan menempatkan setiap sensor, grafik, jam, gambar, atau elemen media tepat di lokasi yang Anda inginkan. Ubah ukuran, putar, susun ulang, ganti nama, kunci, dan beri gaya pada elemen sambil melihat hasilnya diperbarui secara langsung melalui NZXT CAM.
 
 Editor utama **tidak memerlukan akun** dan **tidak memerlukan instalasi terpisah untuk pengguna akhir**. Preset dan media lokal tetap berada di penyimpanan browser. Overlay musik opsional menggunakan aplikasi pendamping Windows lokal [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket).
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## Model LCD NZXT Kraken yang didukung
+
+NZXT-ESC mendukung pendingin cair AIO NZXT Kraken dengan layar LCD dan NZXT CAM Web Integration, termasuk model Kraken Elite, Kraken Plus, Kraken, dan Kraken Z generasi saat ini maupun sebelumnya.
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC secara otomatis menyesuaikan tata letak dengan resolusi, ukuran, dan bentuk layar LCD Kraken yang dilaporkan melalui API NZXT CAM, sehingga tata letak kustom, overlay sensor, latar belakang animasi, grafik, dan media dapat dirender melalui NZXT CAM Web Integration.
 
 <a id="quick-start"></a>
 ## Mulai cepat
@@ -198,48 +255,9 @@ NZXT-ESC dirancang dengan penyimpanan lokal browser sebagai dasar:
 - Pembacaan sensor NZXT CAM dan preset buatan pengguna tidak dikirim ke layanan analitik.
 - Aplikasi tidak sengaja mengumpulkan informasi identitas pribadi.
 
-Situs produksi menggunakan **Google Tag Manager** dan **Google Analytics 4** untuk analitik produk anonim. **CookieYes** mengelola persetujuan jika diperlukan, dan cookie analitik opsional diaktifkan sesuai pilihan persetujuan pengguna. Build pengembangan tidak memerlukan layanan analitik produksi.
+Situs produksi menggunakan **Google Tag Manager** dan **Google Analytics 4** untuk analitik produk anonim opsional. **CookieYes** mengelola persetujuan jika diperlukan, dan cookie Google Analytics diaktifkan sesuai pilihan persetujuan pengguna.
 
-## Pengembangan
-
-### Jalankan secara lokal
-
-```bash
-npm install
-npm run dev
-```
-
-Buka `http://localhost:5173`. Editor menggunakan data perangkat keras simulasi saat NZXT CAM tidak tersedia.
-
-```bash
-npm run build   # Periksa tipe dan buat build produksi
-npm test        # Jalankan pemeriksaan i18n dan rangkaian uji Vitest
-```
-
-### Arsitektur
-
-<details>
-<summary><strong>Struktur proyek dan prinsip desain</strong></summary>
-
-```text
-src/
-├─ core/       Kontrak domain preset, overlay, elemen, dan latar belakang
-├─ render/     Mesin bersama dari preset ke model render
-├─ storage/    Status LocalStorage, impor/ekspor, dan media IndexedDB
-├─ platform/   Adaptor NZXT CAM dan aplikasi pendamping lokal
-├─ sync/       Sinkronisasi editor/runtime
-├─ i18n/       Pesan bahasa bertipe dan utilitas terjemahan
-└─ ui/
-   ├─ config/  Editor konfigurasi seret-lepas
-   ├─ kraken/  Runtime ringan untuk layar Kraken
-   └─ shared/  Komponen antarmuka yang dapat digunakan kembali
-```
-
-Pratinjau editor dan runtime Kraken menggunakan pipeline render kanonis yang sama. Mesin bersama ini menjaga tata letak, gaya, dan perilaku transformasi tetap konsisten antara desain pengguna dan hasil pada layar fisik.
-
-Data preset dinormalisasi sebelum disimpan, impor/ekspor memiliki versi, dan pembaruan editor disinkronkan melalui `BroadcastChannel` dengan `localStorage` sebagai fallback.
-
-</details>
+Situs yang telah dipublikasikan juga menggunakan **Cloudflare Web Analytics**, yang diaktifkan melalui Cloudflare Pages dan beroperasi secara independen dari Google Tag Manager. Layanan ini menyediakan analitik lalu lintas dan performa situs web yang mengutamakan privasi tanpa menggunakan cookie atau LocalStorage.
 
 ### Berkontribusi
 
@@ -269,7 +287,9 @@ Editor dapat dibuka di browser biasa dan menggunakan nilai sensor simulasi untuk
 <details>
 <summary><strong>Model NZXT Kraken mana yang didukung?</strong></summary>
 
-NZXT-ESC dirancang untuk perangkat NZXT Kraken yang mendukung mode tampilan NZXT CAM Web Integration. Ukuran dan bentuk layar yang tersedia ditentukan melalui API NZXT CAM.
+NZXT-ESC mendukung pendingin ber-LCD dari seri **NZXT Kraken Elite, Kraken Plus, Kraken (2023), dan Kraken Z** yang menyediakan mode layar NZXT CAM Web Integration.
+
+Lihat daftar lengkap [Model LCD NZXT Kraken yang didukung](#supported-nzxt-kraken-lcd-models).
 
 </details>
 
@@ -294,6 +314,19 @@ Ya. Preset yang diimpor dari Explore dapat diedit sepenuhnya setelah ditambahkan
 
 </details>
 
+<details>
+<summary><strong>Bagaimana cara kerja batas penggunaan 100 jam?</strong></summary>
+
+Versi hosted NZXT-ESC dapat digunakan hingga 100 jam sebelum Supporter Access diperlukan.
+
+Setelah periode penggunaan tersebut selesai, pengguna yang mendukung proyek ini akan menerima Supporter Access Code yang menghapus batas penggunaan 100 jam.
+
+Kebijakan penggunaan ini membantu menutup biaya server, API, hosting, pemeliharaan, dan pengembangan yang berkelanjutan, sekaligus memberi pengguna cukup waktu untuk mencoba proyek ini sebelum memutuskan untuk memberikan dukungan.
+
+Waktu penggunaan dihitung selama NZXT-ESC aktif berjalan di layar Kraken.
+
+</details>
+
 <a id="license"></a>
 ## Lisensi
 
@@ -304,15 +337,18 @@ NZXT-ESC dirilis berdasarkan **Lisensi Penggunaan Pribadi**.
 **Penggunaan komersial:** penjualan, bundling, penyewaan, integrasi ke produk berbayar, atau penggunaan yang menghasilkan pendapatan lainnya memerlukan izin tertulis sebelumnya dari pemilik proyek.
 Lihat [LICENSE untuk ketentuan lengkap](../LICENSE).
 
-## Dukungan dan tautan
+## Dukungan dan komunitas
 
 - **Situs web:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
+- **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Rilis terbaru:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **Laporan bug dan ide:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **Aplikasi pendamping:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+Ikuti NZXT-ESC di YouTube dan Instagram untuk showcase, fitur baru, tutorial, setup komunitas, dan pembaruan proyek.
 
 Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Dibuat oleh **Gökhan AKGÜL (mRGogo)** ditenagai kopi dan jadwal tidur yang meragukan.
+Dibuat oleh **Gökhan AKGÜL (mRGogo)** - ditenagai kopi dan jadwal tidur yang meragukan.

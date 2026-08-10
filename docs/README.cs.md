@@ -11,6 +11,7 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 
 [Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
 · [Otevřít webový editor](https://nzxt-esc.pages.dev/)
+· [Podporované modely Kraken](#supported-nzxt-kraken-lcd-models)
 · [Funkce](#features)
 · [Rychlý start](#quick-start)
 · [Časté dotazy](#faq)
@@ -24,6 +25,19 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 
 Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
 
+> [!IMPORTANT]
+> ### Hostované používání a přístup pro podporovatele
+>
+> Hostovanou verzi NZXT-ESC lze používat až **100 hodin**,
+> než bude vyžadován přístup pro podporovatele.
+>
+> Pokračující hostovaný přístup po 100 hodinách je k dispozici
+> uživatelům, kteří projekt podpoří. Podporovatelé obdrží kód pro
+> přístup podporovatele, který odstraní 100hodinový limit používání.
+>
+> Podpora komunity pomáhá pokrýt náklady na server, API, hosting,
+> údržbu a další vývoj.
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## Přizpůsobení LCD NZXT Kraken bez pevných rozvržení
@@ -31,6 +45,49 @@ Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
 NZXT-ESC mění displej NZXT Kraken na volné návrhové plátno. Vytvořte vlastní LCD obrazovku umístěním každého senzoru, grafiky, hodin, obrázku nebo mediálního prvku přesně tam, kam chcete. Měňte velikost, otáčejte, řaďte, přejmenovávejte, zamykejte a stylujte prvky a sledujte živou aktualizaci výsledku přes NZXT CAM.
 
 Hlavní editor **nevyžaduje účet** ani **samostatnou instalaci pro koncového uživatele**. Presety a místní média zůstávají v úložišti prohlížeče. Volitelné hudební překryvy používají místní doprovodnou aplikaci pro Windows [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket).
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## Podporované modely NZXT Kraken LCD
+
+NZXT-ESC podporuje vodní chladiče NZXT Kraken AIO s LCD displeji a NZXT CAM Web Integration, včetně aktuálních i předchozích generací modelů Kraken Elite, Kraken Plus, Kraken a Kraken Z.
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru displeje Kraken LCD hlášeným prostřednictvím API NZXT CAM, což umožňuje vykreslování vlastních rozvržení, překryvů senzorů, animovaných pozadí, grafiky a médií přes NZXT CAM Web Integration.
 
 <a id="quick-start"></a>
 ## Rychlý start
@@ -198,48 +255,9 @@ NZXT-ESC je navržen kolem místního úložiště prohlížeče:
 - Hodnoty senzorů NZXT CAM a presety vytvořené uživatelem nejsou odesílány do analytiky.
 - Aplikace záměrně neshromažďuje osobní identifikační údaje.
 
-Produkční web používá **Google Tag Manager** a **Google Analytics 4** pro anonymní analýzu produktu. **CookieYes** spravuje souhlas tam, kde je vyžadován, a volitelné analytické cookies se zapínají podle volby uživatele. Vývojové buildy nevyžadují produkční analytické služby.
+Produkční web používá **Google Tag Manager** a **Google Analytics 4** pro volitelnou anonymní analýzu produktu. **CookieYes** spravuje souhlas tam, kde je vyžadován, a cookies Google Analytics se povolují podle volby souhlasu uživatele.
 
-## Vývoj
-
-### Spustit místně
-
-```bash
-npm install
-npm run dev
-```
-
-Otevřete `http://localhost:5173`. Když NZXT CAM není dostupné, editor používá simulovaná hardwarová data.
-
-```bash
-npm run build   # Zkontrolovat typy a vytvořit produkční build
-npm test        # Spustit kontroly i18n a sadu testů Vitest
-```
-
-### Architektura
-
-<details>
-<summary><strong>Struktura projektu a návrhové principy</strong></summary>
-
-```text
-src/
-├─ core/       Doménové kontrakty presetů, překryvů, prvků a pozadí
-├─ render/     Sdílený engine z presetu do modelu vykreslení
-├─ storage/    Stav LocalStorage, import/export a média IndexedDB
-├─ platform/   Adaptéry NZXT CAM a místní doprovodné aplikace
-├─ sync/       Synchronizace editoru a runtime
-├─ i18n/       Typované jazykové zprávy a překladové nástroje
-└─ ui/
-   ├─ config/  Konfigurační editor s přetažením
-   ├─ kraken/  Lehký runtime displeje Kraken
-   └─ shared/  Znovupoužitelné komponenty rozhraní
-```
-
-Náhled editoru a runtime Kraken používají stejný kanonický vykreslovací řetězec. Sdílený engine udržuje rozvržení, styl a transformace konzistentní mezi návrhem uživatele a výsledkem na fyzickém displeji.
-
-Data presetů se před uložením normalizují, import/export je verzovaný a aktualizace editoru se synchronizují přes `BroadcastChannel` s náhradním řešením `localStorage`.
-
-</details>
+Nasazený web také využívá **Cloudflare Web Analytics**, aktivovanou prostřednictvím Cloudflare Pages a fungující nezávisle na Google Tag Manager. Poskytuje analýzu návštěvnosti a výkonu webu s ohledem na soukromí, bez použití cookies nebo LocalStorage.
 
 ### Přispívání
 
@@ -269,7 +287,9 @@ Editor lze otevřít v běžném prohlížeči a pro návrh používá simulovan
 <details>
 <summary><strong>Které modely NZXT Kraken jsou podporovány?</strong></summary>
 
-NZXT-ESC je určen pro zařízení NZXT Kraken, která podporují režim displeje NZXT CAM Web Integration. Dostupná velikost a tvar displeje se zjišťují přes API NZXT CAM.
+NZXT-ESC podporuje chladiče **NZXT Kraken Elite, Kraken Plus, Kraken (2023) a řady Kraken Z** s LCD displejem, které nabízejí režim zobrazení NZXT CAM Web Integration.
+
+Úplný seznam najdete v části [Podporované modely NZXT Kraken LCD](#supported-nzxt-kraken-lcd-models).
 
 </details>
 
@@ -294,6 +314,24 @@ Ano. Presety importované z Explore jsou po přidání do Library plně upravite
 
 </details>
 
+<details>
+<summary><strong>Jak funguje 100hodinový limit používání?</strong></summary>
+
+Hostovanou verzi NZXT-ESC lze používat až 100 hodin, než bude
+vyžadován přístup pro podporovatele.
+
+Po uplynutí této doby obdrží uživatelé, kteří projekt podpoří,
+kód pro přístup podporovatele, který odstraní 100hodinový limit
+používání.
+
+Tato zásada používání pomáhá pokrýt náklady na server, API, hosting,
+údržbu a další vývoj a zároveň dává uživatelům dostatek času
+vyzkoušet si projekt, než se rozhodnou jej podpořit.
+
+Doba používání se počítá, když je NZXT-ESC aktivně spuštěn na displeji Kraken.
+
+</details>
+
 <a id="license"></a>
 ## Licence
 
@@ -304,15 +342,18 @@ NZXT-ESC je vydán pod **licencí pro osobní použití**.
 **Komerční použití:** prodej, balíčkování, pronájem, integrace do placeného produktu nebo jiné zpeněžené použití vyžaduje předchozí písemné povolení vlastníka projektu.
 Úplné podmínky najdete v [LICENSE](../LICENSE).
 
-## Podpora a odkazy
+## Podpora a komunita
 
 - **Web:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
+- **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Nejnovější vydání:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **Chyby a nápady:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **Doprovodná aplikace:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+Sledujte NZXT-ESC na YouTube a Instagramu, kde najdete ukázky, nové funkce, návody, komunitní sestavy a aktualizace projektu.
 
 Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Vytvořil **Gökhan AKGÜL (mRGogo)** poháněno kávou a pochybným spánkovým režimem.
+Vytvořil **Gökhan AKGÜL (mRGogo)** – poháněno kávou a pochybným spánkovým režimem.

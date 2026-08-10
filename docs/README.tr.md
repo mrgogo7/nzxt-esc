@@ -10,7 +10,8 @@ Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Web Editörünü Aç](https://nzxt-esc.pages.dev/)
+· [Canlı Önizlemeyi Aç](https://nzxt-esc.pages.dev/)
+· [Desteklenen Kraken Modelleri](#supported-nzxt-kraken-lcd-models)
 · [Özellikler](#features)
 · [Hızlı Başlangıç](#quick-start)
 · [SSS](#faq)
@@ -24,6 +25,19 @@ Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP
 
 NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
 
+> [!IMPORTANT]
+> ### Barındırılan Kullanım ve Destekçi Erişimi
+>
+> NZXT-ESC’nin barındırılan sürümü, Destekçi Erişimi gerekmeden
+> önce en fazla **100 saat** kullanılabilir.
+>
+> 100 saatin ardından barındırılan erişime devam etmek, projeyi
+> destekleyen kullanıcılar için mümkündür. Destekçiler, 100 saatlik
+> kullanım sınırını kaldıran bir Destekçi Erişim Kodu alır.
+>
+> Topluluk desteği; sunucu, API, barındırma, bakım ve sürmekte olan
+> geliştirme maliyetlerinin karşılanmasına yardımcı olur.
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
 ## Sabit düzenler olmadan NZXT Kraken LCD özelleştirmesi
@@ -31,6 +45,49 @@ NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını de
 NZXT-ESC, NZXT Kraken ekranını serbest biçimli bir tasarım alanına dönüştürür. Her sensörü, grafiği, saati, görseli veya medya öğesini tam istediğiniz noktaya yerleştirerek özel bir LCD ekran oluşturun. Öğeleri yeniden boyutlandırın, döndürün, sıralayın, yeniden adlandırın, kilitleyin ve biçimlendirin; sonucu NZXT CAM üzerinden anında izleyin.
 
 Ana editör için **hesap gerekmez** ve **son kullanıcıya yönelik ayrı bir kurulum yoktur**. Preset’ler ve yerel medya tarayıcı depolamasında kalır. İsteğe bağlı müzik katmanları, yerel [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket) Windows yardımcı uygulamasını kullanır.
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## Desteklenen NZXT Kraken LCD Modelleri
+
+NZXT-ESC; güncel ve önceki nesil Kraken Elite, Kraken Plus, Kraken ve Kraken Z modelleri dahil olmak üzere, LCD ekranlı ve NZXT CAM Web Integration destekli NZXT Kraken AIO sıvı soğutucularını destekler.
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC, NZXT CAM API üzerinden bildirilen Kraken LCD çözünürlüğüne, boyutuna ve ekran şekline göre düzeni otomatik olarak uyarlar; böylece özel düzenler, sensör katmanları, animasyonlu arka planlar, grafikler ve medya NZXT CAM Web Integration üzerinden görüntülenebilir.
 
 <a id="quick-start"></a>
 ## Hızlı Başlangıç
@@ -198,48 +255,9 @@ NZXT-ESC, yerel tarayıcı depolaması temel alınarak tasarlanmıştır:
 - NZXT CAM sensör değerleri ve kullanıcı tarafından oluşturulan preset’ler analitik sistemlerine gönderilmez.
 - Uygulama tarafından kişiyi tanımlayan bilgiler bilinçli olarak toplanmaz.
 
-Üretim sitesi, anonim ürün analitiği için **Google Tag Manager** ve **Google Analytics 4** kullanır. **CookieYes**, gerekli olduğu durumlarda kullanıcı onayını yönetir; isteğe bağlı analitik çerezleri kullanıcının izin tercihlerine göre etkinleştirilir. Geliştirme derlemeleri üretim analitik hizmetlerine ihtiyaç duymaz.
+Üretim sitesi, anonim ürün analitiği için **Google Tag Manager** ve **Google Analytics 4** kullanır. **CookieYes**, gerekli olduğu durumlarda kullanıcı onayını yönetir ve Google Analytics çerezleri kullanıcının onay tercihlerine göre etkinleştirilir.
 
-## Geliştirme
-
-### Yerel olarak çalıştırma
-
-```bash
-npm install
-npm run dev
-```
-
-`http://localhost:5173` adresini açın. NZXT CAM kullanılamadığında editör örnek donanım verileri kullanır.
-
-```bash
-npm run build   # Tür denetimi yap ve üretim derlemesi oluştur
-npm test        # i18n kontrollerini ve Vitest test paketini çalıştır
-```
-
-### Mimari
-
-<details>
-<summary><strong>Proje yapısı ve tasarım ilkeleri</strong></summary>
-
-```text
-src/
-├─ core/       Preset, overlay, öğe ve arka plan alan sözleşmeleri
-├─ render/     Paylaşılan preset-to-render-model motoru
-├─ storage/    LocalStorage durumu, içe/dışa aktarma ve IndexedDB medyası
-├─ platform/   NZXT CAM ve yerel yardımcı uygulama adaptörleri
-├─ sync/       Editör/çalışma zamanı eşzamanlaması
-├─ i18n/       Tür güvenli yerel dil mesajları ve çeviri yardımcıları
-└─ ui/
-   ├─ config/  Sürükle-bırak yapılandırma editörü
-   ├─ kraken/  Hafif Kraken ekran çalışma zamanı
-   └─ shared/  Yeniden kullanılabilir arayüz bileşenleri
-```
-
-Editör önizlemesi ve Kraken çalışma zamanı aynı kanonik render hattını kullanır. Bu ortak motor, kullanıcının tasarladığı görünüm ile fiziksel ekranda görünen sonuç arasında düzen, stil ve dönüşüm davranışının tutarlı kalmasını sağlar.
-
-Preset verileri depolamadan önce normalize edilir, içe/dışa aktarma sürümlenir ve editör güncellemeleri `localStorage` yedek yöntemiyle birlikte `BroadcastChannel` üzerinden eşzamanlanır.
-
-</details>
+Yayındaki site ayrıca, Cloudflare Pages üzerinden etkinleştirilen ve Google Tag Manager’dan bağımsız çalışan **Cloudflare Web Analytics**’i kullanır. Bu hizmet, çerez veya LocalStorage kullanmadan gizliliğe öncelik veren web sitesi trafiği ve performans analitiği sağlar.
 
 ### Katkıda bulunma
 
@@ -269,7 +287,9 @@ Editör normal bir tarayıcıda açılabilir ve tasarım için örnek sensör de
 <details>
 <summary><strong>Hangi NZXT Kraken modelleri destekleniyor?</strong></summary>
 
-NZXT-ESC, NZXT CAM Web Integration ekran modunu destekleyen NZXT Kraken cihazları için tasarlanmıştır. Kullanılabilir ekran boyutu ve şekli NZXT CAM API üzerinden belirlenir.
+NZXT-ESC, NZXT CAM Web Integration ekran modunu destekleyen LCD'li **NZXT Kraken Elite, Kraken Plus, Kraken (2023) ve Kraken Z serisi** soğutucuları destekler.
+
+Tam listeye [Desteklenen NZXT Kraken LCD Modelleri](#supported-nzxt-kraken-lcd-models) bölümünden ulaşabilirsiniz.
 
 </details>
 
@@ -294,6 +314,19 @@ Evet. Explore üzerinden içe aktarılan preset’ler Library’ye eklendikten s
 
 </details>
 
+<details>
+<summary><strong>100 saatlik kullanım sınırı nasıl işliyor?</strong></summary>
+
+NZXT-ESC’nin barındırılan sürümü, Destekçi Erişimi gerekmeden önce en fazla 100 saat kullanılabilir.
+
+Kullanım süresi tamamlandıktan sonra, projeyi destekleyen kullanıcılar 100 saatlik kullanım sınırını kaldıran bir Destekçi Erişim Kodu alır.
+
+Bu kullanım politikası; sunucu, API, barındırma, bakım ve sürmekte olan geliştirme maliyetlerinin karşılanmasına yardımcı olurken kullanıcılara projeyi destekleyip desteklememeye karar vermeden önce onu deneyimlemeleri için yeterli süre tanır.
+
+Kullanım süresi, NZXT-ESC Kraken ekranında etkin biçimde çalışırken sayılır.
+
+</details>
+
 <a id="license"></a>
 ## Lisans
 
@@ -304,15 +337,18 @@ NZXT-ESC, **Kişisel Kullanım Lisansı** ile yayımlanmaktadır.
 **Ticari kullanım:** satış, paketleme, kiralama, ücretli bir ürüne entegre etme veya diğer gelir getirici kullanımlar için proje sahibinden önceden yazılı izin alınması gerekir.
 Tüm koşullar için [LICENSE dosyasına bakın](../LICENSE).
 
-## Destek ve bağlantılar
+## Destek ve topluluk
 
 - **Web sitesi:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
+- **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **En son sürüm:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 - **Hata bildirimleri ve fikirler:** [GitHub Issues](https://github.com/mrgogo7/nzxt-esc/issues)
-- **Yardımcı uygulama:** [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket)
+
+Vitrinler, yeni özellikler, eğitimler, topluluk kurulumları ve proje güncellemeleri için NZXT-ESC’yi YouTube ve Instagram’da takip edin.
 
 NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-**Gökhan AKGÜL (mRGogo)** tarafından geliştirildi kahve ve tartışmalı uyku düzenleriyle destekleniyor.
+**Gökhan AKGÜL (mRGogo)** tarafından geliştirildi - kahve ve tartışmalı uyku düzenleriyle destekleniyor.
