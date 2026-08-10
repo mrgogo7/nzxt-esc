@@ -215,49 +215,6 @@ The production website uses **Google Tag Manager** and **Google Analytics 4** fo
 
 The deployed website also uses **Cloudflare Web Analytics**, enabled through Cloudflare Pages and operating independently of Google Tag Manager. It provides privacy-first website traffic and performance analytics without using cookies or LocalStorage.
 
-Development builds do not require production analytics services.
-
-## Development
-
-### Run locally
-
-```bash
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173`. The editor uses mock hardware data when NZXT CAM is not available.
-
-```bash
-npm run build   # Type-check and create a production build
-npm test        # Run i18n checks and the Vitest test suite
-```
-
-### Architecture
-
-<details>
-<summary><strong>Project structure and design principles</strong></summary>
-
-```text
-src/
-├─ core/       Preset, overlay, element, and background domain contracts
-├─ render/     Shared preset-to-render-model engine
-├─ storage/    LocalStorage state, import/export, and IndexedDB media
-├─ platform/   NZXT CAM and local companion-app adapters
-├─ sync/       Editor/runtime synchronization
-├─ i18n/       Typed locale messages and translation utilities
-└─ ui/
-   ├─ config/  Drag-and-drop configuration editor
-   ├─ kraken/  Lightweight Kraken display runtime
-   └─ shared/  Reusable interface components
-```
-
-The editor preview and Kraken runtime use the same canonical render pipeline. That shared engine keeps layout, styling, and transform behavior consistent between what the user designs and what appears on the physical display.
-
-Preset data is normalized before storage, import/export is versioned, and editor updates are synchronized through `BroadcastChannel` with a `localStorage` fallback.
-
-</details>
-
 ### Contributing
 
 Contributions and focused pull requests are welcome. Before making architectural changes, read:
