@@ -11,6 +11,7 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 
 [Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
 · [Open Web Editor](https://nzxt-esc.pages.dev/)
+· [Supported Kraken Models](#supported-nzxt-kraken-lcd-models)
 · [Features](#features)
 · [Quick Start](#quick-start)
 · [FAQ](#faq)
@@ -44,6 +45,49 @@ If NZXT-ESC improved your setup, you can support its continued development:
 NZXT-ESC turns the NZXT Kraken display into a free-form canvas. Build a custom LCD screen by placing each sensor, graphic, clock, image, or media element exactly where you want it. Resize, rotate, reorder, rename, lock, and style elements while watching the result update live through NZXT CAM.
 
 The core editor requires **no account** and **no separate end-user installation**. Presets and local media stay in browser storage. Optional music overlays use the local [NowPlaying.WebSocket](https://github.com/mrgogo7/NowPlaying.WebSocket) Windows companion app.
+
+<a id="supported-nzxt-kraken-lcd-models"></a>
+
+## Supported NZXT Kraken LCD Models
+
+NZXT-ESC supports NZXT Kraken AIO liquid coolers with LCD displays and NZXT CAM Web Integration, including current and previous-generation Kraken Elite, Kraken Plus, Kraken, and Kraken Z models.
+
+NZXT Kraken Elite (2024)
+NZXT Kraken Elite 240
+NZXT Kraken Elite 360
+NZXT Kraken Elite 240 RGB
+NZXT Kraken Elite 280 RGB
+NZXT Kraken Elite 360 RGB
+NZXT Kraken Elite 420 RGB
+NZXT Kraken Plus (2025)
+NZXT Kraken Plus 240
+NZXT Kraken Plus 280
+NZXT Kraken Plus 360
+NZXT Kraken Plus 240 RGB
+NZXT Kraken Plus 360 RGB
+NZXT Kraken Elite (2023)
+NZXT Kraken Elite 240 (2023)
+NZXT Kraken Elite 280 (2023)
+NZXT Kraken Elite 360 (2023)
+NZXT Kraken Elite 240 RGB (2023)
+NZXT Kraken Elite 280 RGB (2023)
+NZXT Kraken Elite 360 RGB (2023)
+NZXT Kraken (2023)
+NZXT Kraken 240
+NZXT Kraken 280
+NZXT Kraken 360
+NZXT Kraken 240 RGB
+NZXT Kraken 280 RGB
+NZXT Kraken 360 RGB
+NZXT Kraken Z Series
+NZXT Kraken Z53
+NZXT Kraken Z63
+NZXT Kraken Z73
+NZXT Kraken Z53 RGB
+NZXT Kraken Z63 RGB
+NZXT Kraken Z73 RGB
+
+NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and display shape reported through the NZXT CAM API, allowing custom layouts, sensor overlays, animated backgrounds, graphics, and media to be rendered through NZXT CAM Web Integration.
 
 <a id="quick-start"></a>
 ## Quick Start
@@ -243,7 +287,9 @@ The editor can be opened in a regular browser and uses mock sensor values for de
 <details>
 <summary><strong>Which NZXT Kraken models are supported?</strong></summary>
 
-NZXT-ESC is designed for NZXT Kraken devices that support the NZXT CAM Web Integration display mode. Available display size and shape are resolved through the NZXT CAM API.
+NZXT-ESC supports LCD-equipped **NZXT Kraken Elite, Kraken Plus, Kraken (2023), and Kraken Z series** coolers that provide the NZXT CAM Web Integration display mode.
+
+See the complete list of [Supported NZXT Kraken LCD Models](#supported-nzxt-kraken-lcd-models).
 
 </details>
 
