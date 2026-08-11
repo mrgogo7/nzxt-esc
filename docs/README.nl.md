@@ -26,12 +26,17 @@ Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverl
 > [!IMPORTANT]
 > ### Gehoste toegang en Supporter Access
 >
-> De gehoste versie van NZXT-ESC kan tot **100 uur** worden gebruikt
-> voordat Supporter Access vereist is.
+> De gehoste versie van NZXT-ESC bevat tot **100 uur initieel
+> gebruik**, zodat je het project goed kunt uitproberen voordat je
+> beslist of je de voortdurende ontwikkeling ervan wilt steunen.
 >
-> Voortgezette gehoste toegang na 100 uur is beschikbaar voor gebruikers die
-> het project ondersteunen. Supporters ontvangen een Supporter Access-code die
-> de limiet van 100 uur opheft.
+> Het bereiken van de initiële gebruikslimiet betekent **niet** dat je
+> toegang meteen wegvalt. Je krijgt de optie om extra tijd te
+> ontvangen om NZXT-ESC te blijven gebruiken en jezelf wat meer tijd
+> te geven om te beslissen.
+>
+> Gebruikers die ervoor kiezen het project te steunen, kunnen een
+> **Supporter Access-code** ontvangen voor extra gehost gebruik.
 >
 > Community-steun helpt de kosten voor server, API, hosting, onderhoud
 > en verdere ontwikkeling te dekken.
@@ -316,17 +321,23 @@ Ja. Presets die vanuit Explore zijn geïmporteerd, zijn volledig bewerkbaar nada
 </details>
 
 <details>
-<summary><strong>Hoe werkt de gebruikslimiet van 100 uur?</strong></summary>
+<summary><strong>Hoe werken gehost gebruik en Supporter Access?</strong></summary>
 
-De gehoste versie van NZXT-ESC kan tot 100 uur worden gebruikt voordat
-Supporter Access vereist is.
+De gehoste versie van NZXT-ESC bevat tot 100 uur initieel gebruik,
+zodat je de tijd hebt om het project goed uit te proberen voordat je
+beslist of je de voortdurende ontwikkeling ervan wilt steunen.
 
-Na afloop van de gebruiksperiode ontvangen gebruikers die het project
-ondersteunen een Supporter Access-code die de limiet van 100 uur opheft.
+Het bereiken van de initiële gebruikslimiet beëindigt je toegang niet
+meteen. Je krijgt de optie om extra bedenktijd te ontvangen en
+NZXT-ESC te blijven gebruiken voordat je je keuze maakt.
 
-Dit beleid helpt de kosten voor server, API, hosting, onderhoud en
-verdere ontwikkeling te dekken, terwijl gebruikers ruim de tijd krijgen
-om het project te ervaren voordat ze besluiten het te ondersteunen.
+Gebruikers die ervoor kiezen het project te steunen, kunnen een
+Supporter Access-code ontvangen voor extra gehost gebruik.
+
+Dit gebruiksmodel helpt de kosten voor server, API, hosting, onderhoud
+en verdere ontwikkeling te dekken, terwijl gebruikers genoeg tijd
+krijgen om NZXT-ESC te leren kennen voordat ze beslissen het project
+te steunen.
 
 Gebruikstijd wordt geteld terwijl NZXT-ESC actief op het Kraken-display draait.
 

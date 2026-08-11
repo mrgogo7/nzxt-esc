@@ -28,12 +28,18 @@ NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını de
 > [!IMPORTANT]
 > ### Barındırılan Kullanım ve Destekçi Erişimi
 >
-> NZXT-ESC’nin barındırılan sürümü, Destekçi Erişimi gerekmeden
-> önce en fazla **100 saat** kullanılabilir.
+> NZXT-ESC’nin barındırılan sürümü, projeyi düzgün şekilde deneyimleyip
+> devam eden gelişimini desteklemek isteyip istemediğinize karar
+> verebilmeniz için en fazla **100 saatlik bir başlangıç kullanım
+> süresi** içerir.
 >
-> 100 saatin ardından barındırılan erişime devam etmek, projeyi
-> destekleyen kullanıcılar için mümkündür. Destekçiler, 100 saatlik
-> kullanım sınırını kaldıran bir Destekçi Erişim Kodu alır.
+> Başlangıç kullanım sınırına ulaşmak, erişiminizin **hemen** sona
+> ermesi anlamına gelmez. NZXT-ESC’yi kullanmaya devam edip karar
+> vermek için kendinize biraz daha zaman tanıyabileceğiniz ek süre
+> seçeneğiniz olacaktır.
+>
+> Projeyi desteklemeyi seçen kullanıcılar, ek barındırılan kullanım
+> için bir **Destekçi Erişim Kodu** alabilir.
 >
 > Topluluk desteği; sunucu, API, barındırma, bakım ve sürmekte olan
 > geliştirme maliyetlerinin karşılanmasına yardımcı olur.
@@ -316,13 +322,15 @@ Evet. Explore üzerinden içe aktarılan preset’ler Library’ye eklendikten s
 </details>
 
 <details>
-<summary><strong>100 saatlik kullanım sınırı nasıl işliyor?</strong></summary>
+<summary><strong>Barındırılan kullanım ve Destekçi Erişimi nasıl işliyor?</strong></summary>
 
-NZXT-ESC’nin barındırılan sürümü, Destekçi Erişimi gerekmeden önce en fazla 100 saat kullanılabilir.
+NZXT-ESC’nin barındırılan sürümü, projeyi düzgün şekilde deneyimleyip devam eden gelişimini desteklemek isteyip istemediğinize karar verebilmeniz için en fazla **100 saatlik bir başlangıç kullanım süresi** içerir.
 
-Kullanım süresi tamamlandıktan sonra, projeyi destekleyen kullanıcılar 100 saatlik kullanım sınırını kaldıran bir Destekçi Erişim Kodu alır.
+Başlangıç kullanım sınırına ulaşmak erişiminizi **hemen** sonlandırmaz. Karar vermeden önce NZXT-ESC’yi kullanmaya devam edebileceğiniz ek bir karar süresi seçeneğiniz olur.
 
-Bu kullanım politikası; sunucu, API, barındırma, bakım ve sürmekte olan geliştirme maliyetlerinin karşılanmasına yardımcı olurken kullanıcılara projeyi destekleyip desteklememeye karar vermeden önce onu deneyimlemeleri için yeterli süre tanır.
+Projeyi desteklemeyi seçen kullanıcılar, ek barındırılan kullanım için bir **Destekçi Erişim Kodu** alabilir.
+
+Bu kullanım modeli; sunucu, API, barındırma, bakım ve sürmekte olan geliştirme maliyetlerinin karşılanmasına yardımcı olurken, kullanıcılara projeyi destekleyip desteklememeye karar vermeden önce onu deneyimlemeleri için yeterli süre tanır.
 
 Kullanım süresi, NZXT-ESC Kraken ekranında etkin biçimde çalışırken sayılır.
 

@@ -26,12 +26,18 @@ Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensorö
 > [!IMPORTANT]
 > ### Värdbaserad användning och Supporter Access
 >
-> Den värdbaserade versionen av NZXT-ESC kan användas i upp till **100 timmar**
-> innan Supporter Access krävs.
+> Den värdbaserade versionen av NZXT-ESC innehåller upp till **100
+> timmars inledande användning**, så att du ordentligt kan prova
+> projektet innan du bestämmer dig för om du vill stödja dess
+> fortsatta utveckling.
 >
-> Fortsatt värdbaserad åtkomst efter 100 timmar är tillgänglig för användare
-> som stödjer projektet. Supportrar får en Supporter Access-kod som
-> tar bort begränsningen på 100 timmar.
+> Att nå den inledande användningsgränsen innebär **inte** att din
+> åtkomst omedelbart försvinner. Du kommer att ha möjlighet att få
+> extra tid för att fortsätta använda NZXT-ESC och ge dig själv lite
+> mer tid att bestämma dig.
+>
+> Användare som väljer att stödja projektet kan få en **Supporter
+> Access-kod** för ytterligare värdbaserad användning.
 >
 > Communitystödet hjälper till att täcka kostnader för server, API, hosting,
 > underhåll och fortsatt utveckling.
@@ -316,17 +322,24 @@ Ja. Presets som importeras från Explore är helt redigerbara efter att de lagts
 </details>
 
 <details>
-<summary><strong>Hur fungerar gränsen på 100 timmars användning?</strong></summary>
+<summary><strong>Hur fungerar värdbaserad användning och Supporter Access?</strong></summary>
 
-Den värdbaserade versionen av NZXT-ESC kan användas i upp till 100 timmar
-innan Supporter Access krävs.
+Den värdbaserade versionen av NZXT-ESC innehåller upp till 100 timmars
+inledande användning, vilket ger dig tid att ordentligt prova
+projektet innan du bestämmer dig för om du vill stödja dess fortsatta
+utveckling.
 
-När användningsperioden är slut får användare som stödjer projektet
-en Supporter Access-kod som tar bort begränsningen på 100 timmar.
+Att nå den inledande användningsgränsen avslutar inte din åtkomst
+direkt. Du kommer att ha möjlighet att få extra betänketid och
+fortsätta använda NZXT-ESC innan du gör ditt val.
 
-Användningspolicyn hjälper till att täcka kostnader för server, API,
-hosting, underhåll och fortsatt utveckling, samtidigt som användare
-får gott om tid att uppleva projektet innan de bestämmer sig för att stödja det.
+Användare som väljer att stödja projektet kan få en Supporter
+Access-kod för ytterligare värdbaserad användning.
+
+Den här användningsmodellen hjälper till att täcka kostnader för
+server, API, hosting, underhåll och fortsatt utveckling, samtidigt
+som användare får tillräckligt med tid att lära känna NZXT-ESC innan
+de bestämmer sig för att stödja projektet.
 
 Använd tid räknas medan NZXT-ESC aktivt körs på Kraken-skärmen.
 

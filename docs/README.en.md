@@ -28,12 +28,16 @@ If NZXT-ESC improved your setup, you can support its continued development:
 > [!IMPORTANT]
 > ### Hosted Usage and Supporter Access
 >
-> The hosted version of NZXT-ESC can be used for up to **100 hours**
-> before Supporter Access is required.
+> The hosted version of NZXT-ESC includes up to **100 hours of initial usage**
+> so you can properly experience the project before deciding whether you would
+> like to support its continued development.
 >
-> Continued hosted access after 100 hours is available to users who
-> support the project. Supporters receive a Supporter Access Code that
-> removes the 100-hour usage limit.
+> Reaching the initial usage limit does **not** mean immediate loss of access.
+> You will have the option to receive additional time to continue using
+> NZXT-ESC and give yourself a little more time to decide.
+>
+> Users who choose to support the project can receive a
+> **Supporter Access Code** for additional hosted usage.
 >
 > Community support helps cover server, API, hosting, maintenance,
 > and ongoing development costs.
@@ -316,19 +320,24 @@ Yes. Presets imported from Explore are fully editable after they are added to th
 </details>
 
 <details>
-<summary><strong>How does the 100-hour usage limit work?</strong></summary>
+<summary><strong>How does hosted usage and Supporter Access work?</strong></summary>
 
-The hosted version of NZXT-ESC can be used for up to 100 hours before
-Supporter Access is required.
+The hosted version of NZXT-ESC includes up to **100 hours of initial usage**,
+giving you time to properly experience the project before deciding whether
+you would like to support its continued development.
 
-After the usage period is completed, users who support the project
-receive a Supporter Access Code that removes the 100-hour usage limit.
+Reaching the initial usage limit does **not** immediately end your access.
+You will have the option to receive additional decision time and continue
+using NZXT-ESC before making your choice.
 
-The usage policy helps cover server, API, hosting, maintenance, and
-ongoing development costs while allowing users substantial time to
-experience the project before deciding whether to support it.
+Users who choose to support the project can receive a
+**Supporter Access Code** for additional hosted usage.
 
-Usage time is counted while NZXT-ESC is actively running on the Kraken display..
+This usage model helps support server, API, hosting, maintenance, and
+ongoing development costs while giving users enough time to experience
+NZXT-ESC before deciding whether to support the project.
+
+Usage time is counted while NZXT-ESC is actively running on the Kraken display.
 
 </details>
 

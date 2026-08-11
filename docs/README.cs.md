@@ -28,12 +28,16 @@ Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
 > [!IMPORTANT]
 > ### Hostované používání a přístup pro podporovatele
 >
-> Hostovanou verzi NZXT-ESC lze používat až **100 hodin**,
-> než bude vyžadován přístup pro podporovatele.
+> Hostovaná verze NZXT-ESC zahrnuje až **100 hodin počátečního
+> používání**, abyste si mohli projekt pořádně vyzkoušet, než se
+> rozhodnete, zda chcete podpořit jeho další vývoj.
 >
-> Pokračující hostovaný přístup po 100 hodinách je k dispozici
-> uživatelům, kteří projekt podpoří. Podporovatelé obdrží kód pro
-> přístup podporovatele, který odstraní 100hodinový limit používání.
+> Dosažení počátečního limitu používání **neznamená** okamžitou
+> ztrátu přístupu. Budete mít možnost získat čas navíc, abyste mohli
+> dál používat NZXT-ESC a dát si trochu více času na rozhodnutí.
+>
+> Uživatelé, kteří se rozhodnou projekt podpořit, mohou získat
+> **Kód pro přístup podporovatele** pro další hostované používání.
 >
 > Podpora komunity pomáhá pokrýt náklady na server, API, hosting,
 > údržbu a další vývoj.
@@ -316,18 +320,22 @@ Ano. Presety importované z Explore jsou po přidání do Library plně upravite
 </details>
 
 <details>
-<summary><strong>Jak funguje 100hodinový limit používání?</strong></summary>
+<summary><strong>Jak fungují hostované používání a přístup pro podporovatele?</strong></summary>
 
-Hostovanou verzi NZXT-ESC lze používat až 100 hodin, než bude
-vyžadován přístup pro podporovatele.
+Hostovaná verze NZXT-ESC zahrnuje až 100 hodin počátečního používání,
+díky čemuž máte dost času si projekt pořádně vyzkoušet, než se
+rozhodnete, zda chcete podpořit jeho další vývoj.
 
-Po uplynutí této doby obdrží uživatelé, kteří projekt podpoří,
-kód pro přístup podporovatele, který odstraní 100hodinový limit
-používání.
+Dosažení počátečního limitu používání neukončí váš přístup okamžitě.
+Budete mít možnost získat další čas na rozhodnutí a mezitím dál
+používat NZXT-ESC.
 
-Tato zásada používání pomáhá pokrýt náklady na server, API, hosting,
-údržbu a další vývoj a zároveň dává uživatelům dostatek času
-vyzkoušet si projekt, než se rozhodnou jej podpořit.
+Uživatelé, kteří se rozhodnou projekt podpořit, mohou získat Kód pro
+přístup podporovatele pro další hostované používání.
+
+Tento model používání pomáhá pokrýt náklady na server, API, hosting,
+údržbu a další vývoj a zároveň dává uživatelům dostatek času poznat
+NZXT-ESC, než se rozhodnou projekt podpořit.
 
 Doba používání se počítá, když je NZXT-ESC aktivně spuštěn na displeji Kraken.
 

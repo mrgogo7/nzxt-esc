@@ -28,13 +28,19 @@ Wenn NZXT-ESC dein Setup verbessert hat, kannst du die weitere Entwicklung unter
 > [!IMPORTANT]
 > ### Gehostete Nutzung und Supporter-Zugang
 >
-> Die gehostete Version von NZXT-ESC kann bis zu **100 Stunden**
-> genutzt werden, bevor ein Supporter-Zugang erforderlich ist.
+> Die gehostete Version von NZXT-ESC umfasst bis zu **100 Stunden
+> anfängliche Nutzung**, damit du das Projekt richtig kennenlernen
+> kannst, bevor du entscheidest, ob du seine weitere Entwicklung
+> unterstützen möchtest.
 >
-> Ein fortgesetzter gehosteter Zugang nach 100 Stunden steht Nutzern
-> zur Verfügung, die das Projekt unterstützen. Unterstützer erhalten
-> einen Supporter-Zugangscode, der das 100-Stunden-Nutzungslimit
-> aufhebt.
+> Das Erreichen des anfänglichen Nutzungslimits bedeutet **nicht**,
+> dass dein Zugang sofort endet. Du hast die Möglichkeit, zusätzliche
+> Zeit zu erhalten, um NZXT-ESC weiter zu nutzen und dir etwas mehr
+> Zeit für deine Entscheidung zu geben.
+>
+> Nutzer, die sich für eine Unterstützung des Projekts entscheiden,
+> können einen **Supporter-Zugangscode** für zusätzliche gehostete
+> Nutzung erhalten.
 >
 > Die Unterstützung der Community hilft, Kosten für Server, API,
 > Hosting, Wartung und laufende Entwicklung zu decken.
@@ -317,13 +323,15 @@ Ja. Aus Explore importierte Presets sind nach dem Hinzufügen zur Library vollst
 </details>
 
 <details>
-<summary><strong>Wie funktioniert das 100-Stunden-Nutzungslimit?</strong></summary>
+<summary><strong>Wie funktionieren gehostete Nutzung und Supporter-Zugang?</strong></summary>
 
-Die gehostete Version von NZXT-ESC kann bis zu 100 Stunden genutzt werden, bevor ein Supporter-Zugang erforderlich ist.
+Die gehostete Version von NZXT-ESC umfasst bis zu 100 Stunden anfängliche Nutzung, damit du genügend Zeit hast, das Projekt richtig kennenzulernen, bevor du entscheidest, ob du seine weitere Entwicklung unterstützen möchtest.
 
-Nach Ablauf des Nutzungszeitraums erhalten Nutzer, die das Projekt unterstützen, einen Supporter-Zugangscode, der das 100-Stunden-Nutzungslimit aufhebt.
+Das Erreichen des anfänglichen Nutzungslimits beendet deinen Zugang nicht sofort. Du hast die Möglichkeit, zusätzliche Bedenkzeit zu erhalten und NZXT-ESC weiter zu nutzen, bevor du deine Entscheidung triffst.
 
-Diese Nutzungsrichtlinie hilft, Kosten für Server, API, Hosting, Wartung und laufende Entwicklung zu decken und gibt Nutzern gleichzeitig ausreichend Zeit, das Projekt kennenzulernen, bevor sie sich für eine Unterstützung entscheiden.
+Nutzer, die sich für eine Unterstützung des Projekts entscheiden, können einen Supporter-Zugangscode für zusätzliche gehostete Nutzung erhalten.
+
+Dieses Nutzungsmodell hilft, Kosten für Server, API, Hosting, Wartung und laufende Entwicklung zu decken und gibt Nutzern gleichzeitig genug Zeit, NZXT-ESC kennenzulernen, bevor sie sich für eine Unterstützung entscheiden.
 
 Die Nutzungszeit wird gezählt, während NZXT-ESC aktiv auf dem Kraken-Display läuft.
 

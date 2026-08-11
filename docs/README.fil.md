@@ -28,12 +28,17 @@ Kung napaganda ng NZXT-ESC ang setup mo, maaari mong suportahan ang patuloy nito
 > [!IMPORTANT]
 > ### Hosted Usage at Supporter Access
 >
-> Maaaring gamitin ang hosted version ng NZXT-ESC nang hanggang **100
-> oras** bago kailanganin ang Supporter Access.
+> Kasama sa hosted version ng NZXT-ESC ang hanggang **100 oras ng
+> paunang paggamit** para masubukan mo nang maayos ang proyekto bago
+> ka magpasya kung gusto mong suportahan ang patuloy nitong pag-unlad.
 >
-> Available ang patuloy na hosted access pagkatapos ng 100 oras para sa
-> mga user na sumusuporta sa proyekto. Makakatanggap ang mga supporter
-> ng Supporter Access Code na nag-aalis sa 100-oras na usage limit.
+> Ang pag-abot sa paunang usage limit ay **hindi** nangangahulugang
+> agad na mawawalan ng access. Magkakaroon ka ng opsyon na makatanggap
+> ng karagdagang oras para patuloy na magamit ang NZXT-ESC at bigyan
+> ang sarili ng kaunti pang oras para magpasya.
+>
+> Makakatanggap ang mga user na pumipiling suportahan ang proyekto ng
+> **Supporter Access Code** para sa karagdagang hosted usage.
 >
 > Tinutulungan ng community support na masakop ang gastos sa server,
 > API, hosting, maintenance, at patuloy na development.
@@ -316,19 +321,25 @@ Oo. Ganap na nae-edit ang presets na na-import mula sa Explore pagkatapos idagda
 </details>
 
 <details>
-<summary><strong>Paano gumagana ang 100-oras na usage limit?</strong></summary>
+<summary><strong>Paano gumagana ang hosted usage at Supporter Access?</strong></summary>
 
-Maaaring gamitin ang hosted version ng NZXT-ESC nang hanggang 100 oras
-bago kailanganin ang Supporter Access.
+Kasama sa hosted version ng NZXT-ESC ang hanggang 100 oras ng paunang
+paggamit, na nagbibigay sa iyo ng oras para masubukan nang maayos ang
+proyekto bago ka magpasya kung gusto mong suportahan ang patuloy
+nitong pag-unlad.
 
-Pagkatapos ng usage period, makakatanggap ang mga user na sumusuporta
-sa proyekto ng Supporter Access Code na nag-aalis sa 100-oras na
-usage limit.
+Ang pag-abot sa paunang usage limit ay hindi agad nagtatapos sa
+access mo. Magkakaroon ka ng opsyon na makatanggap ng karagdagang
+oras ng pagpapasya at patuloy na gamitin ang NZXT-ESC bago gumawa ng
+iyong desisyon.
 
-Tinutulungan ng usage policy na masakop ang gastos sa server, API,
+Makakatanggap ang mga user na pumipiling suportahan ang proyekto ng
+Supporter Access Code para sa karagdagang hosted usage.
+
+Tinutulungan ng modelong ito na masakop ang gastos sa server, API,
 hosting, maintenance, at patuloy na development habang binibigyan ang
-mga user ng sapat na oras para masubukan ang proyekto bago magpasya
-kung susuportahan ito.
+mga user ng sapat na oras para makilala ang NZXT-ESC bago magpasya
+kung susuportahan ang proyekto.
 
 Binibilang ang usage time habang aktibong tumatakbo ang NZXT-ESC sa Kraken display.
 

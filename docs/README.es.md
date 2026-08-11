@@ -28,13 +28,17 @@ Si NZXT-ESC mejoró tu configuración, puedes apoyar su desarrollo continuo:
 > [!IMPORTANT]
 > ### Uso alojado y acceso de patrocinador
 >
-> La versión alojada de NZXT-ESC se puede usar hasta **100 horas**
-> antes de que se requiera el acceso de patrocinador.
+> La versión alojada de NZXT-ESC incluye hasta **100 horas de uso
+> inicial** para que puedas probar el proyecto como es debido antes de
+> decidir si quieres apoyar su desarrollo continuo.
 >
-> El acceso alojado continuo después de las 100 horas está disponible
-> para los usuarios que apoyan el proyecto. Los patrocinadores reciben
-> un código de acceso de patrocinador que elimina el límite de uso de
-> 100 horas.
+> Alcanzar el límite de uso inicial **no** significa la pérdida
+> inmediata del acceso. Tendrás la opción de recibir tiempo adicional
+> para seguir usando NZXT-ESC y darte un poco más de tiempo para
+> decidir.
+>
+> Los usuarios que decidan apoyar el proyecto pueden recibir un
+> **código de acceso de patrocinador** para uso alojado adicional.
 >
 > El apoyo de la comunidad ayuda a cubrir los costes de servidor, API,
 > alojamiento, mantenimiento y desarrollo continuo.
@@ -317,13 +321,15 @@ Sí. Los presets importados desde Explore son totalmente editables después de a
 </details>
 
 <details>
-<summary><strong>¿Cómo funciona el límite de uso de 100 horas?</strong></summary>
+<summary><strong>¿Cómo funcionan el uso alojado y el acceso de patrocinador?</strong></summary>
 
-La versión alojada de NZXT-ESC se puede usar hasta 100 horas antes de que se requiera el acceso de patrocinador.
+La versión alojada de NZXT-ESC incluye hasta 100 horas de uso inicial, dándote tiempo para probar el proyecto como es debido antes de decidir si quieres apoyar su desarrollo continuo.
 
-Una vez transcurrido el periodo de uso, los usuarios que apoyan el proyecto reciben un código de acceso de patrocinador que elimina el límite de uso de 100 horas.
+Alcanzar el límite de uso inicial no termina tu acceso de inmediato. Tendrás la opción de recibir tiempo adicional de decisión y seguir usando NZXT-ESC antes de tomar tu decisión.
 
-Esta política de uso ayuda a cubrir los costes de servidor, API, alojamiento, mantenimiento y desarrollo continuo, al tiempo que ofrece a los usuarios tiempo suficiente para probar el proyecto antes de decidir si lo apoyan.
+Los usuarios que decidan apoyar el proyecto pueden recibir un código de acceso de patrocinador para uso alojado adicional.
+
+Este modelo de uso ayuda a cubrir los costes de servidor, API, alojamiento, mantenimiento y desarrollo continuo, al tiempo que da a los usuarios tiempo suficiente para conocer NZXT-ESC antes de decidir si apoyan el proyecto.
 
 El tiempo de uso se cuenta mientras NZXT-ESC se ejecuta activamente en la pantalla Kraken.
 

@@ -28,12 +28,17 @@ Se o NZXT-ESC melhorou seu setup, você pode apoiar o desenvolvimento contínuo:
 > [!IMPORTANT]
 > ### Uso hospedado e acesso de apoiador
 >
-> A versão hospedada do NZXT-ESC pode ser usada por até **100 horas**
-> antes que o Acesso de Apoiador seja necessário.
+> A versão hospedada do NZXT-ESC inclui até **100 horas de uso
+> inicial** para que você possa experimentar o projeto como deve ser
+> antes de decidir se deseja apoiar seu desenvolvimento contínuo.
 >
-> O acesso hospedado contínuo após 100 horas está disponível para
-> usuários que apoiam o projeto. Apoiadores recebem um Código de
-> Acesso de Apoiador que remove o limite de uso de 100 horas.
+> Atingir o limite de uso inicial **não** significa a perda imediata
+> do acesso. Você terá a opção de receber um tempo extra para
+> continuar usando o NZXT-ESC e se dar um pouco mais de tempo para
+> decidir.
+>
+> Usuários que escolherem apoiar o projeto podem receber um
+> **Código de Acesso de Apoiador** para uso hospedado adicional.
 >
 > O apoio da comunidade ajuda a cobrir os custos de servidor, API,
 > hospedagem, manutenção e desenvolvimento contínuo.
@@ -316,13 +321,15 @@ Sim. Presets importados de Explore são totalmente editáveis depois de adiciona
 </details>
 
 <details>
-<summary><strong>Como funciona o limite de uso de 100 horas?</strong></summary>
+<summary><strong>Como funcionam o uso hospedado e o acesso de apoiador?</strong></summary>
 
-A versão hospedada do NZXT-ESC pode ser usada por até 100 horas antes que o Acesso de Apoiador seja necessário.
+A versão hospedada do NZXT-ESC inclui até 100 horas de uso inicial, dando a você tempo para experimentar o projeto como deve ser antes de decidir se deseja apoiar seu desenvolvimento contínuo.
 
-Após o término desse período de uso, os usuários que apoiam o projeto recebem um Código de Acesso de Apoiador que remove o limite de uso de 100 horas.
+Atingir o limite de uso inicial não encerra seu acesso imediatamente. Você terá a opção de receber um tempo extra de decisão e continuar usando o NZXT-ESC antes de fazer sua escolha.
 
-Essa política de uso ajuda a cobrir os custos de servidor, API, hospedagem, manutenção e desenvolvimento contínuo, além de dar aos usuários bastante tempo para conhecer o projeto antes de decidir apoiá-lo.
+Usuários que escolherem apoiar o projeto podem receber um Código de Acesso de Apoiador para uso hospedado adicional.
+
+Esse modelo de uso ajuda a cobrir os custos de servidor, API, hospedagem, manutenção e desenvolvimento contínuo, além de dar aos usuários tempo suficiente para conhecer o NZXT-ESC antes de decidir apoiar o projeto.
 
 O tempo de uso é contado enquanto o NZXT-ESC está em execução ativa na tela do Kraken.
 

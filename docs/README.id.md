@@ -28,12 +28,17 @@ Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
 > [!IMPORTANT]
 > ### Penggunaan hosted dan akses Supporter
 >
-> Versi hosted NZXT-ESC dapat digunakan hingga **100 jam** sebelum
-> Supporter Access diperlukan.
+> Versi hosted NZXT-ESC mencakup hingga **100 jam penggunaan awal**
+> agar Anda dapat mencoba proyek ini dengan baik sebelum memutuskan
+> apakah Anda ingin mendukung pengembangannya yang berkelanjutan.
 >
-> Akses hosted lanjutan setelah 100 jam tersedia bagi pengguna yang
-> mendukung proyek ini. Supporter akan menerima Supporter Access Code
-> yang menghapus batas penggunaan 100 jam tersebut.
+> Mencapai batas penggunaan awal **tidak** berarti akses Anda langsung
+> hilang. Anda akan memiliki opsi untuk mendapatkan waktu tambahan
+> agar dapat terus menggunakan NZXT-ESC dan memberi diri Anda sedikit
+> lebih banyak waktu untuk memutuskan.
+>
+> Pengguna yang memilih untuk mendukung proyek ini dapat menerima
+> **Supporter Access Code** untuk penggunaan hosted tambahan.
 >
 > Dukungan komunitas membantu menutup biaya server, API, hosting,
 > pemeliharaan, dan pengembangan yang berkelanjutan.
@@ -316,13 +321,15 @@ Ya. Preset yang diimpor dari Explore dapat diedit sepenuhnya setelah ditambahkan
 </details>
 
 <details>
-<summary><strong>Bagaimana cara kerja batas penggunaan 100 jam?</strong></summary>
+<summary><strong>Bagaimana cara kerja penggunaan hosted dan Supporter Access?</strong></summary>
 
-Versi hosted NZXT-ESC dapat digunakan hingga 100 jam sebelum Supporter Access diperlukan.
+Versi hosted NZXT-ESC mencakup hingga 100 jam penggunaan awal, memberi Anda waktu untuk mencoba proyek ini dengan baik sebelum memutuskan apakah Anda ingin mendukung pengembangannya yang berkelanjutan.
 
-Setelah periode penggunaan tersebut selesai, pengguna yang mendukung proyek ini akan menerima Supporter Access Code yang menghapus batas penggunaan 100 jam.
+Mencapai batas penggunaan awal tidak langsung mengakhiri akses Anda. Anda akan memiliki opsi untuk mendapatkan waktu tambahan untuk memutuskan dan terus menggunakan NZXT-ESC sebelum membuat keputusan Anda.
 
-Kebijakan penggunaan ini membantu menutup biaya server, API, hosting, pemeliharaan, dan pengembangan yang berkelanjutan, sekaligus memberi pengguna cukup waktu untuk mencoba proyek ini sebelum memutuskan untuk memberikan dukungan.
+Pengguna yang memilih untuk mendukung proyek ini dapat menerima Supporter Access Code untuk penggunaan hosted tambahan.
+
+Model penggunaan ini membantu menutup biaya server, API, hosting, pemeliharaan, dan pengembangan yang berkelanjutan, sekaligus memberi pengguna cukup waktu untuk mengenal NZXT-ESC sebelum memutuskan untuk mendukung proyek ini.
 
 Waktu penggunaan dihitung selama NZXT-ESC aktif berjalan di layar Kraken.
 

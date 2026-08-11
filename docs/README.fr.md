@@ -28,12 +28,19 @@ Si NZXT-ESC a amélioré votre configuration, vous pouvez soutenir la poursuite 
 > [!IMPORTANT]
 > ### Utilisation hébergée et accès Supporter
 >
-> La version hébergée de NZXT-ESC peut être utilisée jusqu’à **100 heures**
-> avant que l’accès Supporter ne soit requis.
+> La version hébergée de NZXT-ESC inclut jusqu’à **100 heures
+> d’utilisation initiale** pour que vous puissiez découvrir le projet
+> comme il se doit avant de décider si vous souhaitez soutenir son
+> développement continu.
 >
-> L’accès hébergé continu au-delà de 100 heures est disponible pour les
-> utilisateurs qui soutiennent le projet. Les Supporters reçoivent un
-> code d’accès Supporter qui supprime la limite d’utilisation de 100 heures.
+> Atteindre la limite d’utilisation initiale ne signifie **pas** une
+> perte d’accès immédiate. Vous aurez la possibilité de recevoir du
+> temps supplémentaire pour continuer à utiliser NZXT-ESC et vous
+> laisser un peu plus de temps pour décider.
+>
+> Les utilisateurs qui choisissent de soutenir le projet peuvent
+> recevoir un **code d’accès Supporter** pour une utilisation hébergée
+> supplémentaire.
 >
 > Le soutien de la communauté aide à couvrir les coûts de serveur, d’API,
 > d’hébergement, de maintenance et de développement continu.
@@ -316,13 +323,15 @@ Oui. Les presets importés depuis Explore sont entièrement modifiables après l
 </details>
 
 <details>
-<summary><strong>Comment fonctionne la limite d’utilisation de 100 heures ?</strong></summary>
+<summary><strong>Comment fonctionnent l’utilisation hébergée et l’accès Supporter ?</strong></summary>
 
-La version hébergée de NZXT-ESC peut être utilisée jusqu’à 100 heures avant que l’accès Supporter ne soit requis.
+La version hébergée de NZXT-ESC inclut jusqu’à 100 heures d’utilisation initiale, vous laissant le temps de découvrir le projet comme il se doit avant de décider si vous souhaitez soutenir son développement continu.
 
-Une fois cette période d’utilisation écoulée, les utilisateurs qui soutiennent le projet reçoivent un code d’accès Supporter qui supprime la limite d’utilisation de 100 heures.
+Atteindre la limite d’utilisation initiale ne met pas fin immédiatement à votre accès. Vous aurez la possibilité de recevoir du temps de décision supplémentaire et de continuer à utiliser NZXT-ESC avant de faire votre choix.
 
-Cette politique d’utilisation aide à couvrir les coûts de serveur, d’API, d’hébergement, de maintenance et de développement continu, tout en laissant aux utilisateurs suffisamment de temps pour découvrir le projet avant de décider de le soutenir.
+Les utilisateurs qui choisissent de soutenir le projet peuvent recevoir un code d’accès Supporter pour une utilisation hébergée supplémentaire.
+
+Ce modèle d’utilisation aide à couvrir les coûts de serveur, d’API, d’hébergement, de maintenance et de développement continu, tout en laissant aux utilisateurs suffisamment de temps pour découvrir NZXT-ESC avant de décider de soutenir le projet.
 
 Le temps d’utilisation est comptabilisé pendant que NZXT-ESC fonctionne activement sur l’écran Kraken.
 
