@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-18-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [เปิดใน NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -225,7 +225,7 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino`
+· `Filipino` · `العربية`
 
 **เอกสารที่แปลแล้ว:**
 [English](../README.md) ·
@@ -245,7 +245,8 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 [हिन्दी](README.hi.md) ·
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
-[Filipino](README.fil.md)
+[Filipino](README.fil.md) ·
+[العربية](README.ar.md)
 
 ## ความเป็นส่วนตัวและการจัดเก็บในเครื่อง
 

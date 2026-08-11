@@ -6,7 +6,7 @@ Erstelle vollständig bearbeitbare NZXT-Kraken-LCD-Layouts mit Drag-and-drop-Sen
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-18-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [In NZXT CAM öffnen](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -225,7 +225,7 @@ Der Editor unterstützt derzeit:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino`
+· `Filipino` · `العربية`
 
 **Übersetzte Dokumentation:**
 [English](../README.md) ·
@@ -245,7 +245,8 @@ Der Editor unterstützt derzeit:
 [हिन्दी](README.hi.md) ·
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
-[Filipino](README.fil.md)
+[Filipino](README.fil.md) ·
+[العربية](README.ar.md)
 
 ## Datenschutz und lokale Speicherung
 
