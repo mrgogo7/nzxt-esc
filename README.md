@@ -2,7 +2,7 @@
 
 ### Enhanced Screen Customization Layout Editor for NZXT Kraken AIO
 
-Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, MP4 video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
+Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, APMG, MP4, WebM video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
