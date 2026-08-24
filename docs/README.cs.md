@@ -308,7 +308,7 @@ Ano. Presety importované z Explore jsou po přidání do Library plně upravite
 
 NZXT-ESC je vyvíjen a spravován nezávisle. Poté, co budete mít dost času skutečně si projekt vyzkoušet, se vás NZXT-ESC může zeptat, zda chcete podpořit jeho další vývoj, nebo si dát ještě trochu času na rozhodnutí.
 
-Podpora nemusí znamenat peníze. Zpětná vazba, hlášení chyb, nápady, sdílení projektu, pomoc ostatním s jeho objevením a další smysluplné komunitní příspěvky – to vše pomáhá NZXT-ESC růst.
+Podpora nemusí znamenat peníze. Zpětná vazba, hlášení chyb, nápady, sdílení projektu, pomoc ostatním s jeho objevením a další smysluplné komunitní příspěvky  to vše pomáhá NZXT-ESC růst.
 
 Kódy pro přístup podporovatele jsou dostupné pro podporovatele projektu a mohou být také darovány členům komunity, kteří k NZXT-ESC smysluplně přispívají.
 
@@ -342,4 +342,4 @@ Každý druh příspěvku pomáhá NZXT-ESC posouvat se dál, zatímco podpora f
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Vytvořil **Gökhan AKGÜL (mRGogo)** – poháněno kávou a pochybným spánkovým režimem.
+Vytvořil **Gökhan AKGÜL (mRGogo)**  poháněno kávou a pochybným spánkovým režimem.
