@@ -2,11 +2,11 @@
 
 ### Avancerad layout- och skärmanpassningsredigerare för NZXT Kraken AIO
 
-Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensoröverlägg, egna typsnitt, bilder, GIF-filer, MP4-video, klockor, grafer, Now Playing-data och ljudreaktiva visualiseringar som renderas live via **NZXT CAM Web Integration**.
+Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensoröverlägg, egna typsnitt, bilder, GIF-filer, APNG, MP4-video, WebM, klockor, grafer, Now Playing-data och ljudreaktiva visualiseringar som renderas live via **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Öppna i NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -22,25 +22,6 @@ Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensorö
 
 > [!NOTE]
 > **NZXT-ESC är ett oberoende communityprojekt.** Det är inte anslutet till, sponsrat av eller godkänt av NZXT.
-
-> [!IMPORTANT]
-> ### Värdbaserad användning och Supporter Access
->
-> Den värdbaserade versionen av NZXT-ESC innehåller upp till **100
-> timmars inledande användning**, så att du ordentligt kan prova
-> projektet innan du bestämmer dig för om du vill stödja dess
-> fortsatta utveckling.
->
-> Att nå den inledande användningsgränsen innebär **inte** att din
-> åtkomst omedelbart försvinner. Du kommer att ha möjlighet att få
-> extra tid för att fortsätta använda NZXT-ESC och ge dig själv lite
-> mer tid att bestämma dig.
->
-> Användare som väljer att stödja projektet kan få en **Supporter
-> Access-kod** för ytterligare värdbaserad användning.
->
-> Communitystödet hjälper till att täcka kostnader för server, API, hosting,
-> underhåll och fortsatt utveckling.
 
 Om NZXT-ESC förbättrade din setup kan du stödja den fortsatta utvecklingen:
 
@@ -166,7 +147,7 @@ NZXT-ESC anpassar automatiskt layouten efter Kraken LCD-skärmens upplösning, s
 | **Now Playing-integration** | Visa albumbilder, låtinformation och ljudreaktiva visualiseringar från en lokal Windows-klient. |
 | **Explore och Library** | Importera communitypresets, redigera alla delar, organisera favoriter och hantera din lokala samling. |
 | **Lokal lagring först** | Presets använder LocalStorage; lokala medier använder IndexedDB och stannar på enheten. |
-| **Flerspråkig redigerare** | Använd gränssnittet på 18 språk. |
+| **Flerspråkig redigerare** | Använd gränssnittet på 20 språk. |
 
 ### Överläggselement
 
@@ -230,7 +211,7 @@ Redigeraren stöder för närvarande:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Översatt dokumentation:**
 [English](../README.md) ·
@@ -251,7 +232,8 @@ Redigeraren stöder för närvarande:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Integritet och lokal lagring
 
@@ -322,26 +304,15 @@ Ja. Presets som importeras från Explore är helt redigerbara efter att de lagts
 </details>
 
 <details>
-<summary><strong>Hur fungerar värdbaserad användning och Supporter Access?</strong></summary>
+<summary><strong>Hur fungerar Supporter Access?</strong></summary>
 
-Den värdbaserade versionen av NZXT-ESC innehåller upp till 100 timmars
-inledande användning, vilket ger dig tid att ordentligt prova
-projektet innan du bestämmer dig för om du vill stödja dess fortsatta
-utveckling.
+NZXT-ESC utvecklas och underhålls oberoende. När du har haft tillräckligt med tid för att på riktigt prova projektet kan NZXT-ESC fråga om du vill stödja dess fortsatta utveckling eller ta lite mer tid på dig att bestämma dig.
 
-Att nå den inledande användningsgränsen avslutar inte din åtkomst
-direkt. Du kommer att ha möjlighet att få extra betänketid och
-fortsätta använda NZXT-ESC innan du gör ditt val.
+Att stödja projektet behöver inte betyda pengar. Feedback, felrapporter, idéer, att dela projektet, att hjälpa andra upptäcka det och andra meningsfulla bidrag från communityn hjälper alla NZXT-ESC att växa.
 
-Användare som väljer att stödja projektet kan få en Supporter
-Access-kod för ytterligare värdbaserad användning.
+Supporter Access-koder är tillgängliga för projektets supportrar och kan även skänkas till communitymedlemmar som bidrar på ett meningsfullt sätt till NZXT-ESC.
 
-Den här användningsmodellen hjälper till att täcka kostnader för
-server, API, hosting, underhåll och fortsatt utveckling, samtidigt
-som användare får tillräckligt med tid att lära känna NZXT-ESC innan
-de bestämmer sig för att stödja projektet.
-
-Använd tid räknas medan NZXT-ESC aktivt körs på Kraken-skärmen.
+Använd tid räknas endast medan NZXT-ESC aktivt körs på Kraken-skärmen.
 
 </details>
 
@@ -365,7 +336,9 @@ Se [LICENSE för fullständiga villkor](../LICENSE).
 
 Följ NZXT-ESC på YouTube och Instagram för showcase, nya funktioner, handledningar, community-uppsättningar och projektuppdateringar.
 
-Om NZXT-ESC förbättrade din setup kan du stödja den fortsatta utvecklingen:
+Om NZXT-ESC har förtjänat en plats i din setup finns det många sätt att stödja projektet: dela feedback och idéer, rapportera buggar, hjälp andra att upptäcka NZXT-ESC, bidra till communityn - eller bjud mig helt enkelt på en kopp kaffe.
+
+Alla typer av bidrag hjälper NZXT-ESC att gå framåt, medan kaffestöd hjälper till att täcka kostnader för server, API, hosting och underhåll.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

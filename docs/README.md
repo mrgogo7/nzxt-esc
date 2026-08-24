@@ -2,11 +2,11 @@
 
 ### Enhanced Screen Customization Layout Editor for NZXT Kraken AIO
 
-Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, MP4 video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
+Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, APNG, MP4, WebM video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,23 +24,6 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 > **NZXT-ESC is an independent community project.** It is not affiliated with, sponsored by, or endorsed by NZXT.
 
 If NZXT-ESC improved your setup, you can support its continued development:
-
-> [!IMPORTANT]
-> ### Hosted Usage and Supporter Access
->
-> The hosted version of NZXT-ESC includes up to **100 hours of initial usage**
-> so you can properly experience the project before deciding whether you would
-> like to support its continued development.
->
-> Reaching the initial usage limit does **not** mean immediate loss of access.
-> You will have the option to receive additional time to continue using
-> NZXT-ESC and give yourself a little more time to decide.
->
-> Users who choose to support the project can receive a
-> **Supporter Access Code** for additional hosted usage.
->
-> Community support helps cover server, API, hosting, maintenance,
-> and ongoing development costs.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -164,7 +147,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 | **Now Playing integration** | Display album artwork, track information, and sound-reactive visuals from a local Windows client. |
 | **Explore and Library** | Import community presets, edit every part, organize favorites, and maintain your own local preset collection. |
 | **Local-first storage** | Presets use LocalStorage; local media uses IndexedDB and remains on your device. |
-| **Multilingual editor** | Use the interface in 18 supported languages. |
+| **Multilingual editor** | Use the interface in 20 supported languages. |
 
 ### Overlay elements
 
@@ -228,7 +211,7 @@ The editor currently supports:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Translated documentation:**
 [English](README.md) ·
@@ -249,7 +232,8 @@ The editor currently supports:
 [Bahasa Indonesia](docs/README.id.md) ·
 [Čeština](docs/README.cs.md) ·
 [Filipino](docs/README.fil.md) ·
-[العربية](docs/README.ar.md)
+[العربية](docs/README.ar.md) ·
+[Bahasa Melayu](docs/README.ms.md)
 
 ## Privacy and local storage
 
@@ -320,24 +304,15 @@ Yes. Presets imported from Explore are fully editable after they are added to th
 </details>
 
 <details>
-<summary><strong>How does hosted usage and Supporter Access work?</strong></summary>
+<summary><strong>How does Supporter Access work?</strong></summary>
 
-The hosted version of NZXT-ESC includes up to **100 hours of initial usage**,
-giving you time to properly experience the project before deciding whether
-you would like to support its continued development.
+NZXT-ESC is independently developed and maintained. After you've had enough time to genuinely experience the project, NZXT-ESC may ask whether you'd like to support its continued development or take a little more time to decide.
 
-Reaching the initial usage limit does **not** immediately end your access.
-You will have the option to receive additional decision time and continue
-using NZXT-ESC before making your choice.
+Support doesn't have to mean money. Feedback, bug reports, ideas, sharing the project, helping others discover it, and other meaningful community contributions all help NZXT-ESC grow.
 
-Users who choose to support the project can receive a
-**Supporter Access Code** for additional hosted usage.
+Supporter Access Codes are available to project supporters and may also be gifted to community members who meaningfully contribute to NZXT-ESC.
 
-This usage model helps support server, API, hosting, maintenance, and
-ongoing development costs while giving users enough time to experience
-NZXT-ESC before deciding whether to support the project.
-
-Usage time is counted while NZXT-ESC is actively running on the Kraken display.
+Usage time is counted only while NZXT-ESC is actively running on the Kraken display.
 
 </details>
 
@@ -361,7 +336,9 @@ See [LICENSE for the complete terms](LICENSE).
 
 Follow NZXT-ESC on YouTube and Instagram for showcases, new features, tutorials, community setups, and project updates.
 
-If NZXT-ESC improved your setup, you can support its continued development:
+If NZXT-ESC has earned a place in your setup, there are many ways to support the project: share feedback and ideas, report bugs, help others discover NZXT-ESC, contribute to the community — or simply buy me a coffee.
+
+Every kind of contribution helps NZXT-ESC move forward, while coffee support helps cover server, API, hosting, and maintenance costs.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

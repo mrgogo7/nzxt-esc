@@ -2,11 +2,11 @@
 
 ### Editor tata letak dan kustomisasi layar tingkat lanjut untuk NZXT Kraken AIO
 
-Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sensor seret-lepas, font kustom, gambar, GIF, video MP4, jam, grafik, data Now Playing, dan visual reaktif suara yang dirender langsung melalui **NZXT CAM Web Integration**.
+Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sensor seret-lepas, font kustom, gambar, GIF, APNG, MP4, video WebM, jam, grafik, data Now Playing, dan visual reaktif suara yang dirender langsung melalui **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Buka di NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,24 +24,6 @@ Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sens
 > **NZXT-ESC adalah proyek komunitas independen.** Proyek ini tidak berafiliasi, disponsori, atau didukung oleh NZXT.
 
 Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
-
-> [!IMPORTANT]
-> ### Penggunaan hosted dan akses Supporter
->
-> Versi hosted NZXT-ESC mencakup hingga **100 jam penggunaan awal**
-> agar Anda dapat mencoba proyek ini dengan baik sebelum memutuskan
-> apakah Anda ingin mendukung pengembangannya yang berkelanjutan.
->
-> Mencapai batas penggunaan awal **tidak** berarti akses Anda langsung
-> hilang. Anda akan memiliki opsi untuk mendapatkan waktu tambahan
-> agar dapat terus menggunakan NZXT-ESC dan memberi diri Anda sedikit
-> lebih banyak waktu untuk memutuskan.
->
-> Pengguna yang memilih untuk mendukung proyek ini dapat menerima
-> **Supporter Access Code** untuk penggunaan hosted tambahan.
->
-> Dukungan komunitas membantu menutup biaya server, API, hosting,
-> pemeliharaan, dan pengembangan yang berkelanjutan.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -165,7 +147,7 @@ NZXT-ESC secara otomatis menyesuaikan tata letak dengan resolusi, ukuran, dan be
 | **Integrasi Now Playing** | Tampilkan sampul album, informasi lagu, dan visual reaktif suara dari klien Windows lokal. |
 | **Explore dan Library** | Impor preset komunitas, edit setiap bagian, atur favorit, dan kelola koleksi lokal Anda sendiri. |
 | **Penyimpanan lokal sebagai prioritas** | Preset menggunakan LocalStorage; media lokal menggunakan IndexedDB dan tetap berada di perangkat Anda. |
-| **Editor multibahasa** | Gunakan antarmuka dalam 18 bahasa yang didukung. |
+| **Editor multibahasa** | Gunakan antarmuka dalam 20 bahasa yang didukung. |
 
 ### Elemen overlay
 
@@ -229,7 +211,7 @@ Editor saat ini mendukung:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Dokumentasi terjemahan:**
 [English](../README.md) ·
@@ -250,7 +232,8 @@ Editor saat ini mendukung:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Privasi dan penyimpanan lokal
 
@@ -321,17 +304,15 @@ Ya. Preset yang diimpor dari Explore dapat diedit sepenuhnya setelah ditambahkan
 </details>
 
 <details>
-<summary><strong>Bagaimana cara kerja penggunaan hosted dan Supporter Access?</strong></summary>
+<summary><strong>Bagaimana cara kerja Supporter Access?</strong></summary>
 
-Versi hosted NZXT-ESC mencakup hingga 100 jam penggunaan awal, memberi Anda waktu untuk mencoba proyek ini dengan baik sebelum memutuskan apakah Anda ingin mendukung pengembangannya yang berkelanjutan.
+NZXT-ESC dikembangkan dan dikelola secara independen. Setelah Anda memiliki cukup waktu untuk benar-benar mencoba proyek ini, NZXT-ESC mungkin menanyakan apakah Anda ingin mendukung pengembangannya yang berkelanjutan atau ingin sedikit waktu lagi untuk memutuskan.
 
-Mencapai batas penggunaan awal tidak langsung mengakhiri akses Anda. Anda akan memiliki opsi untuk mendapatkan waktu tambahan untuk memutuskan dan terus menggunakan NZXT-ESC sebelum membuat keputusan Anda.
+Dukungan tidak harus berupa uang. Masukan, laporan bug, ide, membagikan proyek ini, membantu orang lain menemukannya, dan kontribusi komunitas lain yang berarti, semuanya membantu NZXT-ESC berkembang.
 
-Pengguna yang memilih untuk mendukung proyek ini dapat menerima Supporter Access Code untuk penggunaan hosted tambahan.
+Supporter Access Code tersedia untuk pendukung proyek dan juga dapat dihadiahkan kepada anggota komunitas yang memberikan kontribusi berarti bagi NZXT-ESC.
 
-Model penggunaan ini membantu menutup biaya server, API, hosting, pemeliharaan, dan pengembangan yang berkelanjutan, sekaligus memberi pengguna cukup waktu untuk mengenal NZXT-ESC sebelum memutuskan untuk mendukung proyek ini.
-
-Waktu penggunaan dihitung selama NZXT-ESC aktif berjalan di layar Kraken.
+Waktu penggunaan hanya dihitung selama NZXT-ESC aktif berjalan di layar Kraken.
 
 </details>
 
@@ -355,7 +336,9 @@ Lihat [LICENSE untuk ketentuan lengkap](../LICENSE).
 
 Ikuti NZXT-ESC di YouTube dan Instagram untuk showcase, fitur baru, tutorial, setup komunitas, dan pembaruan proyek.
 
-Jika NZXT-ESC meningkatkan setup Anda, Anda dapat mendukung pengembangannya:
+Jika NZXT-ESC telah menjadi bagian penting dari setup Anda, ada banyak cara untuk mendukung proyek ini: bagikan masukan dan ide, laporkan bug, bantu orang lain menemukan NZXT-ESC, berkontribusi pada komunitas - atau cukup traktir saya kopi.
+
+Setiap bentuk kontribusi membantu NZXT-ESC terus berkembang, sementara dukungan kopi membantu menutup biaya server, API, hosting, dan pemeliharaan.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

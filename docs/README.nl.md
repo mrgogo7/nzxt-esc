@@ -2,11 +2,11 @@
 
 ### Geavanceerde editor voor schermindeling en aanpassing voor NZXT Kraken AIO
 
-Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverlays, aangepaste lettertypen, afbeeldingen, GIF's, MP4-video, klokken, grafieken, Now Playing-gegevens en geluidsreactieve visuals die live worden weergegeven via **NZXT CAM Web Integration**.
+Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverlays, aangepaste lettertypen, afbeeldingen, GIF's, APNG, MP4, WebM-video, klokken, grafieken, Now Playing-gegevens en geluidsreactieve visuals die live worden weergegeven via **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Openen in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -22,24 +22,6 @@ Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverl
 
 > [!NOTE]
 > **NZXT-ESC is een onafhankelijk communityproject.** Het is niet verbonden met, gesponsord door of goedgekeurd door NZXT.
-
-> [!IMPORTANT]
-> ### Gehoste toegang en Supporter Access
->
-> De gehoste versie van NZXT-ESC bevat tot **100 uur initieel
-> gebruik**, zodat je het project goed kunt uitproberen voordat je
-> beslist of je de voortdurende ontwikkeling ervan wilt steunen.
->
-> Het bereiken van de initiële gebruikslimiet betekent **niet** dat je
-> toegang meteen wegvalt. Je krijgt de optie om extra tijd te
-> ontvangen om NZXT-ESC te blijven gebruiken en jezelf wat meer tijd
-> te geven om te beslissen.
->
-> Gebruikers die ervoor kiezen het project te steunen, kunnen een
-> **Supporter Access-code** ontvangen voor extra gehost gebruik.
->
-> Community-steun helpt de kosten voor server, API, hosting, onderhoud
-> en verdere ontwikkeling te dekken.
 
 Als NZXT-ESC je setup heeft verbeterd, kun je de verdere ontwikkeling ondersteunen:
 
@@ -165,7 +147,7 @@ NZXT-ESC past de indeling automatisch aan de resolutie, grootte en vorm van het 
 | **Now Playing-integratie** | Toon albumillustraties, nummerinformatie en geluidsreactieve visuals vanuit een lokale Windows-client. |
 | **Explore en Library** | Importeer communitypresets, bewerk elk onderdeel, organiseer favorieten en beheer je eigen lokale collectie. |
 | **Lokale opslag voorop** | Presets gebruiken LocalStorage; lokale media gebruiken IndexedDB en blijven op je apparaat. |
-| **Meertalige editor** | Gebruik de interface in 18 ondersteunde talen. |
+| **Meertalige editor** | Gebruik de interface in 20 ondersteunde talen. |
 
 ### Overlay-elementen
 
@@ -229,7 +211,7 @@ De editor ondersteunt momenteel:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Vertaalde documentatie:**
 [English](../README.md) ·
@@ -250,7 +232,8 @@ De editor ondersteunt momenteel:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Privacy en lokale opslag
 
@@ -321,25 +304,15 @@ Ja. Presets die vanuit Explore zijn geïmporteerd, zijn volledig bewerkbaar nada
 </details>
 
 <details>
-<summary><strong>Hoe werken gehost gebruik en Supporter Access?</strong></summary>
+<summary><strong>Hoe werkt Supporter Access?</strong></summary>
 
-De gehoste versie van NZXT-ESC bevat tot 100 uur initieel gebruik,
-zodat je de tijd hebt om het project goed uit te proberen voordat je
-beslist of je de voortdurende ontwikkeling ervan wilt steunen.
+NZXT-ESC wordt onafhankelijk ontwikkeld en onderhouden. Nadat je genoeg tijd hebt gehad om het project echt te ervaren, kan NZXT-ESC je vragen of je de voortdurende ontwikkeling ervan wilt steunen of liever nog wat extra bedenktijd wilt.
 
-Het bereiken van de initiële gebruikslimiet beëindigt je toegang niet
-meteen. Je krijgt de optie om extra bedenktijd te ontvangen en
-NZXT-ESC te blijven gebruiken voordat je je keuze maakt.
+Steun hoeft geen geld te zijn. Feedback, bugmeldingen, ideeën, het project delen, anderen helpen het te ontdekken en andere waardevolle bijdragen aan de community helpen NZXT-ESC allemaal om te groeien.
 
-Gebruikers die ervoor kiezen het project te steunen, kunnen een
-Supporter Access-code ontvangen voor extra gehost gebruik.
+Supporter Access-codes zijn beschikbaar voor supporters van het project en kunnen ook worden weggegeven aan community-leden die op een waardevolle manier bijdragen aan NZXT-ESC.
 
-Dit gebruiksmodel helpt de kosten voor server, API, hosting, onderhoud
-en verdere ontwikkeling te dekken, terwijl gebruikers genoeg tijd
-krijgen om NZXT-ESC te leren kennen voordat ze beslissen het project
-te steunen.
-
-Gebruikstijd wordt geteld terwijl NZXT-ESC actief op het Kraken-display draait.
+Gebruikstijd wordt alleen geteld terwijl NZXT-ESC actief op het Kraken-display draait.
 
 </details>
 
@@ -363,7 +336,9 @@ Bekijk [LICENSE voor de volledige voorwaarden](../LICENSE).
 
 Volg NZXT-ESC op YouTube en Instagram voor showcases, nieuwe functies, tutorials, community-opstellingen en projectupdates.
 
-Als NZXT-ESC je setup heeft verbeterd, kun je de verdere ontwikkeling ondersteunen:
+Als NZXT-ESC een vaste plek in je setup heeft veroverd, zijn er veel manieren om het project te steunen: deel feedback en ideeën, meld bugs, help anderen NZXT-ESC te ontdekken, draag bij aan de community - of trakteer me gewoon op een kopje koffie.
+
+Elke vorm van bijdrage helpt NZXT-ESC vooruit, terwijl koffiesteun helpt de kosten voor server, API, hosting en onderhoud te dekken.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

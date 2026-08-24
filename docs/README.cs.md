@@ -2,11 +2,11 @@
 
 ### Pokročilý editor rozvržení a přizpůsobení obrazovky pro NZXT Kraken AIO
 
-Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senzorů pomocí přetažení, vlastními fonty, obrázky, GIFy, videem MP4, hodinami, grafy, daty Now Playing a vizualizacemi reagujícími na zvuk, které se živě vykreslují přes **NZXT CAM Web Integration**.
+Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senzorů pomocí přetažení, vlastními fonty, obrázky, GIFy, APNG, videem MP4, WebM, hodinami, grafy, daty Now Playing a vizualizacemi reagujícími na zvuk, které se živě vykreslují přes **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,23 +24,6 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 > **NZXT-ESC je nezávislý komunitní projekt.** Není propojen, sponzorován ani podporován společností NZXT.
 
 Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
-
-> [!IMPORTANT]
-> ### Hostované používání a přístup pro podporovatele
->
-> Hostovaná verze NZXT-ESC zahrnuje až **100 hodin počátečního
-> používání**, abyste si mohli projekt pořádně vyzkoušet, než se
-> rozhodnete, zda chcete podpořit jeho další vývoj.
->
-> Dosažení počátečního limitu používání **neznamená** okamžitou
-> ztrátu přístupu. Budete mít možnost získat čas navíc, abyste mohli
-> dál používat NZXT-ESC a dát si trochu více času na rozhodnutí.
->
-> Uživatelé, kteří se rozhodnou projekt podpořit, mohou získat
-> **Kód pro přístup podporovatele** pro další hostované používání.
->
-> Podpora komunity pomáhá pokrýt náklady na server, API, hosting,
-> údržbu a další vývoj.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -164,7 +147,7 @@ NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru d
 | **Integrace Now Playing** | Zobrazujte obal alba, informace o skladbě a vizualizace reagující na zvuk z místního klienta Windows. |
 | **Explore a Library** | Importujte komunitní presety, upravujte každý detail, organizujte oblíbené a spravujte vlastní místní sbírku. |
 | **Místní úložiště na prvním místě** | Presety používají LocalStorage, místní média IndexedDB a zůstávají ve vašem zařízení. |
-| **Vícejazyčný editor** | Používejte rozhraní v 18 podporovaných jazycích. |
+| **Vícejazyčný editor** | Používejte rozhraní v 20 podporovaných jazycích. |
 
 ### Prvky překryvu
 
@@ -228,7 +211,7 @@ Editor aktuálně podporuje:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Přeložená dokumentace:**
 [English](../README.md) ·
@@ -249,7 +232,8 @@ Editor aktuálně podporuje:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Soukromí a místní úložiště
 
@@ -320,24 +304,15 @@ Ano. Presety importované z Explore jsou po přidání do Library plně upravite
 </details>
 
 <details>
-<summary><strong>Jak fungují hostované používání a přístup pro podporovatele?</strong></summary>
+<summary><strong>Jak funguje přístup pro podporovatele?</strong></summary>
 
-Hostovaná verze NZXT-ESC zahrnuje až 100 hodin počátečního používání,
-díky čemuž máte dost času si projekt pořádně vyzkoušet, než se
-rozhodnete, zda chcete podpořit jeho další vývoj.
+NZXT-ESC je vyvíjen a spravován nezávisle. Poté, co budete mít dost času skutečně si projekt vyzkoušet, se vás NZXT-ESC může zeptat, zda chcete podpořit jeho další vývoj, nebo si dát ještě trochu času na rozhodnutí.
 
-Dosažení počátečního limitu používání neukončí váš přístup okamžitě.
-Budete mít možnost získat další čas na rozhodnutí a mezitím dál
-používat NZXT-ESC.
+Podpora nemusí znamenat peníze. Zpětná vazba, hlášení chyb, nápady, sdílení projektu, pomoc ostatním s jeho objevením a další smysluplné komunitní příspěvky – to vše pomáhá NZXT-ESC růst.
 
-Uživatelé, kteří se rozhodnou projekt podpořit, mohou získat Kód pro
-přístup podporovatele pro další hostované používání.
+Kódy pro přístup podporovatele jsou dostupné pro podporovatele projektu a mohou být také darovány členům komunity, kteří k NZXT-ESC smysluplně přispívají.
 
-Tento model používání pomáhá pokrýt náklady na server, API, hosting,
-údržbu a další vývoj a zároveň dává uživatelům dostatek času poznat
-NZXT-ESC, než se rozhodnou projekt podpořit.
-
-Doba používání se počítá, když je NZXT-ESC aktivně spuštěn na displeji Kraken.
+Doba používání se počítá pouze tehdy, když je NZXT-ESC aktivně spuštěn na displeji Kraken.
 
 </details>
 
@@ -361,7 +336,9 @@ NZXT-ESC je vydán pod **licencí pro osobní použití**.
 
 Sledujte NZXT-ESC na YouTube a Instagramu, kde najdete ukázky, nové funkce, návody, komunitní sestavy a aktualizace projektu.
 
-Pokud NZXT-ESC zlepšil vaši sestavu, můžete podpořit jeho další vývoj:
+Pokud si NZXT-ESC získal místo ve vaší sestavě, existuje mnoho způsobů, jak projekt podpořit: podělte se o zpětnou vazbu a nápady, nahlaste chyby, pomozte ostatním objevit NZXT-ESC, přispějte komunitě - nebo mi jednoduše kupte kávu.
+
+Každý druh příspěvku pomáhá NZXT-ESC posouvat se dál, zatímco podpora formou kávy pomáhá pokrýt náklady na server, API, hosting a údržbu.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

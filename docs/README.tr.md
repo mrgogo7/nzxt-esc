@@ -2,11 +2,11 @@
 
 ### NZXT Kraken AIO için Gelişmiş Ekran Özelleştirme Düzen Editörü
 
-Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP4 videolar, saatler, grafikler, Şimdi Çalıyor verileri ve sese duyarlı görsellerle tamamen düzenlenebilir NZXT Kraken LCD tasarımları oluşturun; sonuçları **NZXT CAM Web Integration** üzerinden canlı görüntüleyin.
+Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF, APNG, MP4 ve WebM videolar, saatler, grafikler, Şimdi Çalıyor verileri ve sese duyarlı görsellerle tamamen düzenlenebilir NZXT Kraken LCD tasarımları oluşturun; sonuçları **NZXT CAM Web Integration** üzerinden canlı görüntüleyin.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,25 +24,6 @@ Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF ve MP
 > **NZXT-ESC bağımsız bir topluluk projesidir.** NZXT ile bağlantılı değildir; NZXT tarafından desteklenmez, sponsor olunmaz veya onaylanmaz.
 
 NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
-
-> [!IMPORTANT]
-> ### Barındırılan Kullanım ve Destekçi Erişimi
->
-> NZXT-ESC’nin barındırılan sürümü, projeyi düzgün şekilde deneyimleyip
-> devam eden gelişimini desteklemek isteyip istemediğinize karar
-> verebilmeniz için en fazla **100 saatlik bir başlangıç kullanım
-> süresi** içerir.
->
-> Başlangıç kullanım sınırına ulaşmak, erişiminizin **hemen** sona
-> ermesi anlamına gelmez. NZXT-ESC’yi kullanmaya devam edip karar
-> vermek için kendinize biraz daha zaman tanıyabileceğiniz ek süre
-> seçeneğiniz olacaktır.
->
-> Projeyi desteklemeyi seçen kullanıcılar, ek barındırılan kullanım
-> için bir **Destekçi Erişim Kodu** alabilir.
->
-> Topluluk desteği; sunucu, API, barındırma, bakım ve sürmekte olan
-> geliştirme maliyetlerinin karşılanmasına yardımcı olur.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -166,7 +147,7 @@ NZXT-ESC, NZXT CAM API üzerinden bildirilen Kraken LCD çözünürlüğüne, bo
 | **Şimdi Çalıyor entegrasyonu** | Yerel Windows istemcisinden albüm kapağı, parça bilgileri ve sese duyarlı görseller gösterin. |
 | **Explore ve Library** | Topluluk preset’lerini içe aktarın, her bölümünü düzenleyin, favorileri yönetin ve kendi yerel preset koleksiyonunuzu oluşturun. |
 | **Önce yerel depolama** | Preset’ler LocalStorage kullanır; yerel medya IndexedDB’de tutulur ve cihazınızdan ayrılmaz. |
-| **Çok dilli editör** | Arayüzü desteklenen 18 dilde kullanın. |
+| **Çok dilli editör** | Arayüzü desteklenen 20 dilde kullanın. |
 
 ### Overlay öğeleri
 
@@ -230,7 +211,7 @@ Editör şu anda şu dilleri desteklemektedir:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Çevrilmiş dokümantasyon:**
 [English](../README.md) ·
@@ -251,7 +232,8 @@ Editör şu anda şu dilleri desteklemektedir:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Gizlilik ve yerel depolama
 
@@ -322,17 +304,15 @@ Evet. Explore üzerinden içe aktarılan preset’ler Library’ye eklendikten s
 </details>
 
 <details>
-<summary><strong>Barındırılan kullanım ve Destekçi Erişimi nasıl işliyor?</strong></summary>
+<summary><strong>Destekçi Erişimi nasıl işliyor?</strong></summary>
 
-NZXT-ESC’nin barındırılan sürümü, projeyi düzgün şekilde deneyimleyip devam eden gelişimini desteklemek isteyip istemediğinize karar verebilmeniz için en fazla **100 saatlik bir başlangıç kullanım süresi** içerir.
+NZXT-ESC bağımsız olarak geliştirilir ve sürdürülür. Projeyi gerçek anlamda deneyimlemek için yeterli zamana sahip olduktan sonra NZXT-ESC, gelişimini desteklemek isteyip istemediğinizi ya da karar vermek için biraz daha zaman almak isteyip istemediğinizi sorabilir.
 
-Başlangıç kullanım sınırına ulaşmak erişiminizi **hemen** sonlandırmaz. Karar vermeden önce NZXT-ESC’yi kullanmaya devam edebileceğiniz ek bir karar süresi seçeneğiniz olur.
+Destek vermek her zaman para anlamına gelmez. Geri bildirim, hata bildirimleri, fikirler, projeyi paylaşmak, başkalarının onu keşfetmesine yardımcı olmak ve diğer anlamlı topluluk katkılarının tümü NZXT-ESC’nin büyümesine yardımcı olur.
 
-Projeyi desteklemeyi seçen kullanıcılar, ek barındırılan kullanım için bir **Destekçi Erişim Kodu** alabilir.
+Destekçi Erişim Kodları, projeyi destekleyenlere sunulur ve NZXT-ESC’ye anlamlı katkılarda bulunan topluluk üyelerine de hediye edilebilir.
 
-Bu kullanım modeli; sunucu, API, barındırma, bakım ve sürmekte olan geliştirme maliyetlerinin karşılanmasına yardımcı olurken, kullanıcılara projeyi destekleyip desteklememeye karar vermeden önce onu deneyimlemeleri için yeterli süre tanır.
-
-Kullanım süresi, NZXT-ESC Kraken ekranında etkin biçimde çalışırken sayılır.
+Kullanım süresi yalnızca NZXT-ESC, Kraken ekranında etkin biçimde çalışırken sayılır.
 
 </details>
 
@@ -356,7 +336,9 @@ Tüm koşullar için [LICENSE dosyasına bakın](../LICENSE).
 
 Vitrinler, yeni özellikler, eğitimler, topluluk kurulumları ve proje güncellemeleri için NZXT-ESC’yi YouTube ve Instagram’da takip edin.
 
-NZXT-ESC kurulumunuzu daha iyi hale getirdiyse geliştirme çalışmalarını destekleyebilirsiniz:
+NZXT-ESC kurulumunuzda kendine bir yer edindiyse, projeyi desteklemenin birçok yolu var: geri bildirim ve fikirlerinizi paylaşın, hataları bildirin, başkalarının NZXT-ESC’yi keşfetmesine yardımcı olun, topluluğa katkıda bulunun - ya da yalnızca bana bir kahve ısmarlayın.
+
+Her türlü katkı NZXT-ESC’nin ilerlemesine yardımcı olurken, kahve desteği sunucu, API, barındırma ve bakım maliyetlerinin karşılanmasına yardımcı olur.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

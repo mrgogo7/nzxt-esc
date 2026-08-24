@@ -2,11 +2,11 @@
 
 ### NZXT Kraken AIO向け高度な画面カスタマイズ・レイアウトエディター
 
-ドラッグ＆ドロップ対応のセンサーオーバーレイ、カスタムフォント、画像、GIF、MP4動画、時計、グラフ、Now Playing情報、サウンド連動ビジュアルを使って、完全に編集可能なNZXT Kraken LCDレイアウトを作成し、**NZXT CAM Web Integration**経由でリアルタイム表示できます。
+ドラッグ＆ドロップ対応のセンサーオーバーレイ、カスタムフォント、画像、GIF、APNG、MP4、WebM動画、時計、グラフ、Now Playing情報、サウンド連動ビジュアルを使って、完全に編集可能なNZXT Kraken LCDレイアウトを作成し、**NZXT CAM Web Integration**経由でリアルタイム表示できます。
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAMで開く](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,23 +24,6 @@
 > **NZXT-ESCは独立したコミュニティプロジェクトです。** NZXTとの提携、スポンサー関係、公式承認はありません。
 
 NZXT-ESCがあなたの環境をより良くしたなら、継続的な開発を支援できます：
-
-> [!IMPORTANT]
-> ### ホスト版の利用時間とサポーターアクセス
->
-> NZXT-ESCのホスト版には、プロジェクトをしっかり体験したうえで、その
-> 継続的な開発を応援したいかどうかを判断していただけるよう、最大
-> **100時間の初期利用時間**が含まれています。
->
-> 初期利用の上限に達しても、**すぐに**アクセスが失われるわけではあり
-> ません。NZXT-ESCを引き続き利用し、判断するための時間をもう少し
-> 確保できる追加時間を受け取るオプションが用意されています。
->
-> プロジェクトを応援することを選んだユーザーは、追加のホスト利用の
-> ための**サポーターアクセスコード**を受け取ることができます。
->
-> コミュニティによる支援は、サーバー、API、ホスティング、保守、
-> 継続的な開発にかかる費用を賄う助けとなります。
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -164,7 +147,7 @@ NZXT-ESCは、NZXT CAM API経由で通知されるKraken LCDの解像度、サ�
 | **Now Playing連携** | ローカルWindowsクライアントからアルバムアート、曲情報、サウンド連動ビジュアルを表示できます。 |
 | **ExploreとLibrary** | コミュニティプリセットを読み込み、すべてを編集し、お気に入りを整理してローカルコレクションを管理できます。 |
 | **ローカル優先の保存** | プリセットはLocalStorage、ローカルメディアはIndexedDBを使用し、データは端末内に保持されます。 |
-| **多言語エディター** | 18の対応言語でインターフェースを利用できます。 |
+| **多言語エディター** | 20の対応言語でインターフェースを利用できます。 |
 
 ### オーバーレイ要素
 
@@ -228,7 +211,7 @@ Spotify専用ではありません。コンパニオンアプリは、ブラウ�
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **翻訳済みドキュメント：**
 [English](../README.md) ·
@@ -249,7 +232,8 @@ Spotify専用ではありません。コンパニオンアプリは、ブラウ�
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## プライバシーとローカル保存
 
@@ -320,17 +304,15 @@ NZXT-ESCは、NZXT CAM Web Integration表示モードに対応する**Kraken Eli
 </details>
 
 <details>
-<summary><strong>ホスト版の利用時間とサポーターアクセスはどのように機能しますか？</strong></summary>
+<summary><strong>サポーターアクセスはどのように機能しますか？</strong></summary>
 
-NZXT-ESCのホスト版には、その継続的な開発を応援したいかどうかを判断する前に、プロジェクトをしっかり体験する時間を確保できるよう、最大100時間の初期利用時間が含まれています。
+NZXT-ESCは個人により独立して開発・維持されています。プロジェクトを十分に体験できるだけの時間が経つと、NZXT-ESCは継続的な開発を応援したいか、それとももう少し判断の時間が欲しいかを尋ねることがあります。
 
-初期利用の上限に達しても、アクセスがすぐに終了するわけではありません。判断を下す前に、NZXT-ESCを引き続き利用できる追加の検討時間を受け取るオプションが用意されています。
+支援は必ずしもお金である必要はありません。フィードバック、不具合報告、アイデア、プロジェクトの共有、他の人が見つける手助け、その他コミュニティによる意義ある貢献はすべて、NZXT-ESCの成長につながります。
 
-プロジェクトを応援することを選んだユーザーは、追加のホスト利用のためのサポーターアクセスコードを受け取ることができます。
+サポーターアクセスコードはプロジェクトの支援者に提供されるほか、NZXT-ESCに意義ある貢献をしたコミュニティメンバーに贈られることもあります。
 
-この利用モデルは、サーバー、API、ホスティング、保守、継続的な開発にかかる費用を賄う一方で、ユーザーが応援するかどうかを判断する前にNZXT-ESCを十分に体験できる時間を提供します。
-
-利用時間は、NZXT-ESCがKrakenディスプレイ上で実際に動作している間カウントされます。
+利用時間は、NZXT-ESCがKrakenディスプレイ上で実際に動作している間のみカウントされます。
 
 </details>
 
@@ -354,7 +336,9 @@ NZXT-ESCは**個人利用ライセンス**の下で公開されています。
 
 作品紹介、新機能、チュートリアル、コミュニティの実例、プロジェクトの最新情報については、YouTubeとInstagramでNZXT-ESCをフォローしてください。
 
-NZXT-ESCがあなたの環境をより良くしたなら、継続的な開発を支援できます：
+NZXT-ESCがあなたの環境に欠かせない存在になったなら、プロジェクトを支援する方法はたくさんあります。フィードバックやアイデアを共有する、不具合を報告する、NZXT-ESCを見つける手助けをする、コミュニティに貢献する、あるいは単純にコーヒーをおごる、といった形です。
+
+どんな形の貢献もNZXT-ESCの前進を後押しし、コーヒーによる支援はサーバー、API、ホスティング、保守にかかる費用を賄う助けになります。
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

@@ -2,11 +2,11 @@
 
 ### NZXT Kraken AIO용 고급 화면 사용자 지정 레이아웃 편집기
 
-드래그 앤 드롭 센서 오버레이, 사용자 지정 글꼴, 이미지, GIF, MP4 동영상, 시계, 그래프, Now Playing 정보, 사운드 반응형 비주얼을 사용해 완전히 편집 가능한 NZXT Kraken LCD 레이아웃을 만들고 **NZXT CAM Web Integration**을 통해 실시간으로 표시할 수 있습니다.
+드래그 앤 드롭 센서 오버레이, 사용자 지정 글꼴, 이미지, GIF, APNG, MP4, WebM 동영상, 시계, 그래프, Now Playing 정보, 사운드 반응형 비주얼을 사용해 완전히 편집 가능한 NZXT Kraken LCD 레이아웃을 만들고 **NZXT CAM Web Integration**을 통해 실시간으로 표시할 수 있습니다.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM에서 열기](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -22,23 +22,6 @@
 
 > [!NOTE]
 > **NZXT-ESC는 독립적인 커뮤니티 프로젝트입니다.** NZXT와 제휴되어 있지 않으며 NZXT의 후원 또는 보증을 받지 않습니다.
-
-> [!IMPORTANT]
-> ### 호스팅 사용량 및 Supporter Access
->
-> NZXT-ESC의 호스팅 버전에는 프로젝트를 제대로 경험하고 지속적인
-> 개발을 후원할지 결정하기 전에 사용할 수 있도록 최대 **100시간의
-> 초기 사용 시간**이 포함되어 있습니다.
->
-> 초기 사용 한도에 도달해도 **즉시** 액세스가 사라지는 것은 아닙니다.
-> NZXT-ESC를 계속 사용하고 결정을 내리기 위한 시간을 조금 더 가질
-> 수 있도록 추가 시간을 받을 수 있는 옵션이 제공됩니다.
->
-> 프로젝트를 후원하기로 선택한 사용자는 추가 호스팅 사용을 위한
-> **Supporter Access 코드**를 받을 수 있습니다.
->
-> 커뮤니티의 후원은 서버, API, 호스팅, 유지 관리 및 지속적인
-> 개발 비용을 충당하는 데 도움이 됩니다.
 
 NZXT-ESC가 설정을 더 좋게 만들었다면 지속적인 개발을 지원할 수 있습니다:
 
@@ -164,7 +147,7 @@ NZXT-ESC는 NZXT CAM API를 통해 보고되는 Kraken LCD의 해상도, 크기,
 | **Now Playing 연동** | 로컬 Windows 클라이언트에서 앨범 아트, 트랙 정보 및 사운드 반응형 비주얼을 표시할 수 있습니다. |
 | **Explore 및 Library** | 커뮤니티 프리셋을 가져오고 모든 부분을 편집하며 즐겨찾기와 로컬 컬렉션을 관리할 수 있습니다. |
 | **로컬 우선 저장** | 프리셋은 LocalStorage를, 로컬 미디어는 IndexedDB를 사용하며 데이터는 기기에 남습니다. |
-| **다국어 편집기** | 18개 지원 언어로 인터페이스를 사용할 수 있습니다. |
+| **다국어 편집기** | 20개 지원 언어로 인터페이스를 사용할 수 있습니다. |
 
 ### 오버레이 요소
 
@@ -228,7 +211,7 @@ Spotify에만 제한되지 않습니다. 보조 앱은 브라우저, 미디어 �
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **번역된 문서:**
 [English](../README.md) ·
@@ -249,7 +232,8 @@ Spotify에만 제한되지 않습니다. 보조 앱은 브라우저, 미디어 �
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## 개인정보 보호 및 로컬 저장
 
@@ -320,24 +304,15 @@ NZXT-ESC는 NZXT CAM Web Integration 디스플레이 모드를 제공하는 LCD 
 </details>
 
 <details>
-<summary><strong>호스팅 사용량과 Supporter Access는 어떻게 작동하나요?</strong></summary>
+<summary><strong>Supporter Access는 어떻게 작동하나요?</strong></summary>
 
-NZXT-ESC의 호스팅 버전에는 지속적인 개발을 후원할지 결정하기 전에
-프로젝트를 제대로 경험할 수 있도록 최대 100시간의 초기 사용 시간이
-포함되어 있습니다.
+NZXT-ESC는 독립적으로 개발 및 유지 관리됩니다. 프로젝트를 충분히 경험할 시간이 지나면, NZXT-ESC는 지속적인 개발을 후원하고 싶은지, 아니면 결정을 위해 시간을 조금 더 갖고 싶은지 물어볼 수 있습니다.
 
-초기 사용 한도에 도달해도 액세스가 즉시 종료되지는 않습니다.
-결정을 내리기 전에 추가 결정 시간을 받아 NZXT-ESC를 계속 사용할
-수 있는 옵션이 제공됩니다.
+후원이 반드시 금전적일 필요는 없습니다. 피드백, 버그 신고, 아이디어, 프로젝트 공유, 다른 사람이 프로젝트를 발견하도록 돕는 일 등 의미 있는 커뮤니티 기여는 모두 NZXT-ESC의 성장에 도움이 됩니다.
 
-프로젝트를 후원하기로 선택한 사용자는 추가 호스팅 사용을 위한
-Supporter Access 코드를 받을 수 있습니다.
+Supporter Access 코드는 프로젝트 후원자에게 제공되며, NZXT-ESC에 의미 있게 기여한 커뮤니티 구성원에게 선물로 제공될 수도 있습니다.
 
-이 사용 모델은 서버, API, 호스팅, 유지 관리 및 지속적인 개발
-비용을 충당하는 데 도움이 되며, 후원 여부를 결정하기 전에
-사용자가 NZXT-ESC를 충분히 경험할 수 있는 시간을 제공합니다.
-
-사용 시간은 NZXT-ESC가 Kraken 디스플레이에서 실제로 실행되는 동안 계산됩니다.
+사용 시간은 NZXT-ESC가 Kraken 디스플레이에서 실제로 실행되는 동안만 계산됩니다.
 
 </details>
 
@@ -361,7 +336,9 @@ NZXT-ESC는 **개인 사용 라이선스**로 배포됩니다.
 
 쇼케이스, 새로운 기능, 튜토리얼, 커뮤니티 설정, 프로젝트 업데이트 소식을 받으려면 YouTube와 Instagram에서 NZXT-ESC를 팔로우하세요.
 
-NZXT-ESC가 설정을 더 좋게 만들었다면 지속적인 개발을 지원할 수 있습니다:
+NZXT-ESC가 당신의 설정에서 나름의 자리를 차지하게 되었다면, 프로젝트를 지원할 수 있는 방법은 다양합니다. 피드백과 아이디어를 공유하거나, 버그를 신고하거나, 다른 사람이 NZXT-ESC를 발견하도록 돕거나, 커뮤니티에 기여하거나, 아니면 그냥 커피 한 잔을 사주셔도 좋습니다.
+
+어떤 형태의 기여든 NZXT-ESC가 앞으로 나아가는 데 도움이 되며, 커피 후원은 서버, API, 호스팅, 유지 관리 비용을 충당하는 데 도움이 됩니다.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 

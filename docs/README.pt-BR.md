@@ -2,11 +2,11 @@
 
 ### Editor avançado de layouts e personalização de tela para NZXT Kraken AIO
 
-Crie layouts de LCD totalmente editáveis para o NZXT Kraken com sobreposições de sensores por arrastar e soltar, fontes personalizadas, imagens, GIFs, vídeos MP4, relógios, gráficos, dados de reprodução e visuais reativos ao som, renderizados ao vivo pelo **NZXT CAM Web Integration**.
+Crie layouts de LCD totalmente editáveis para o NZXT Kraken com sobreposições de sensores por arrastar e soltar, fontes personalizadas, imagens, GIFs, APNG, vídeos MP4, WebM, relógios, gráficos, dados de reprodução e visuais reativos ao som, renderizados ao vivo pelo **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-19-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Abrir no NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -24,24 +24,6 @@ Crie layouts de LCD totalmente editáveis para o NZXT Kraken com sobreposições
 > **O NZXT-ESC é um projeto independente da comunidade.** Não é afiliado, patrocinado nem endossado pela NZXT.
 
 Se o NZXT-ESC melhorou seu setup, você pode apoiar o desenvolvimento contínuo:
-
-> [!IMPORTANT]
-> ### Uso hospedado e acesso de apoiador
->
-> A versão hospedada do NZXT-ESC inclui até **100 horas de uso
-> inicial** para que você possa experimentar o projeto como deve ser
-> antes de decidir se deseja apoiar seu desenvolvimento contínuo.
->
-> Atingir o limite de uso inicial **não** significa a perda imediata
-> do acesso. Você terá a opção de receber um tempo extra para
-> continuar usando o NZXT-ESC e se dar um pouco mais de tempo para
-> decidir.
->
-> Usuários que escolherem apoiar o projeto podem receber um
-> **Código de Acesso de Apoiador** para uso hospedado adicional.
->
-> O apoio da comunidade ajuda a cobrir os custos de servidor, API,
-> hospedagem, manutenção e desenvolvimento contínuo.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
@@ -165,7 +147,7 @@ O NZXT-ESC adapta automaticamente o layout à resolução, ao tamanho e ao forma
 | **Integração Now Playing** | Exiba capa do álbum, informações da faixa e visuais reativos ao som a partir de um cliente local do Windows. |
 | **Explore e Library** | Importe presets da comunidade, edite cada parte, organize favoritos e mantenha sua própria coleção local. |
 | **Armazenamento local em primeiro lugar** | Os presets usam LocalStorage; as mídias locais usam IndexedDB e permanecem no seu dispositivo. |
-| **Editor multilíngue** | Use a interface em 18 idiomas compatíveis. |
+| **Editor multilíngue** | Use a interface em 20 idiomas compatíveis. |
 
 ### Elementos de sobreposição
 
@@ -229,7 +211,7 @@ Atualmente, o editor oferece suporte a:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية`
+· `Filipino` · `العربية` · `Bahasa Melayu`
 
 **Documentação traduzida:**
 [English](../README.md) ·
@@ -250,7 +232,8 @@ Atualmente, o editor oferece suporte a:
 [Bahasa Indonesia](README.id.md) ·
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
-[العربية](README.ar.md)
+[العربية](README.ar.md) ·
+[Bahasa Melayu](README.ms.md)
 
 ## Privacidade e armazenamento local
 
@@ -321,17 +304,15 @@ Sim. Presets importados de Explore são totalmente editáveis depois de adiciona
 </details>
 
 <details>
-<summary><strong>Como funcionam o uso hospedado e o acesso de apoiador?</strong></summary>
+<summary><strong>Como funciona o Acesso de Apoiador?</strong></summary>
 
-A versão hospedada do NZXT-ESC inclui até 100 horas de uso inicial, dando a você tempo para experimentar o projeto como deve ser antes de decidir se deseja apoiar seu desenvolvimento contínuo.
+O NZXT-ESC é desenvolvido e mantido de forma independente. Depois que você tiver tempo suficiente para conhecer o projeto de verdade, o NZXT-ESC pode perguntar se você gostaria de apoiar seu desenvolvimento contínuo ou ter um pouco mais de tempo para decidir.
 
-Atingir o limite de uso inicial não encerra seu acesso imediatamente. Você terá a opção de receber um tempo extra de decisão e continuar usando o NZXT-ESC antes de fazer sua escolha.
+Apoiar não precisa significar dinheiro. Feedback, relatos de bugs, ideias, divulgar o projeto, ajudar outras pessoas a descobri-lo e outras contribuições relevantes da comunidade ajudam o NZXT-ESC a crescer.
 
-Usuários que escolherem apoiar o projeto podem receber um Código de Acesso de Apoiador para uso hospedado adicional.
+Os Códigos de Acesso de Apoiador estão disponíveis para quem apoia o projeto e também podem ser presenteados a membros da comunidade que contribuem de forma significativa com o NZXT-ESC.
 
-Esse modelo de uso ajuda a cobrir os custos de servidor, API, hospedagem, manutenção e desenvolvimento contínuo, além de dar aos usuários tempo suficiente para conhecer o NZXT-ESC antes de decidir apoiar o projeto.
-
-O tempo de uso é contado enquanto o NZXT-ESC está em execução ativa na tela do Kraken.
+O tempo de uso é contado apenas enquanto o NZXT-ESC está em execução ativa na tela do Kraken.
 
 </details>
 
@@ -355,7 +336,9 @@ Consulte [LICENSE para ver os termos completos](../LICENSE).
 
 Siga o NZXT-ESC no YouTube e no Instagram para ver demonstrações, novos recursos, tutoriais, configurações da comunidade e novidades do projeto.
 
-Se o NZXT-ESC melhorou seu setup, você pode apoiar o desenvolvimento contínuo:
+Se o NZXT-ESC conquistou um lugar no seu setup, há muitas formas de apoiar o projeto: compartilhe feedback e ideias, relate bugs, ajude outras pessoas a descobrir o NZXT-ESC, contribua com a comunidade - ou simplesmente me pague um café.
+
+Todo tipo de contribuição ajuda o NZXT-ESC a avançar, enquanto o apoio via café ajuda a cobrir os custos de servidor, API, hospedagem e manutenção.
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
