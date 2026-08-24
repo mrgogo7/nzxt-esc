@@ -335,7 +335,7 @@ See [LICENSE for the complete terms](LICENSE).
 
 Follow NZXT-ESC on YouTube and Instagram for showcases, new features, tutorials, community setups, and project updates.
 
-If NZXT-ESC has earned a place in your setup, there are many ways to support the project: share feedback and ideas, report bugs, help others discover NZXT-ESC, contribute to the community — or simply buy me a coffee.
+If NZXT-ESC has earned a place in your setup, there are many ways to support the project: share feedback and ideas, report bugs, help others discover NZXT-ESC, contribute to the community - or simply buy me a coffee.
 
 Every kind of contribution helps NZXT-ESC move forward, while coffee support helps cover server, API, hosting, and maintenance costs.
 
