@@ -6,7 +6,7 @@ Créez des dispositions LCD NZXT Kraken entièrement modifiables avec des capteu
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Ouvrir dans NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC adapte automatiquement la disposition à la résolution, à la taille e
 | **Intégration Now Playing** | Affichez la pochette d’album, les informations de piste et des animations réactives au son depuis un client Windows local. |
 | **Explore et Library** | Importez des presets communautaires, modifiez chaque détail, organisez vos favoris et gérez votre propre collection locale. |
 | **Stockage local en priorité** | Les presets utilisent LocalStorage ; les médias locaux utilisent IndexedDB et restent sur votre appareil. |
-| **Éditeur multilingue** | Utilisez l’interface dans 20 langues prises en charge. |
+| **Éditeur multilingue** | Utilisez l’interface dans 21 langues prises en charge. |
 
 ### Éléments d’overlay
 
@@ -211,7 +211,7 @@ L’éditeur prend actuellement en charge :
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Documentation traduite :**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ L’éditeur prend actuellement en charge :
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Confidentialité et stockage local
 

@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM에서 열기](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC는 NZXT CAM API를 통해 보고되는 Kraken LCD의 해상도, 크기,
 | **Now Playing 연동** | 로컬 Windows 클라이언트에서 앨범 아트, 트랙 정보 및 사운드 반응형 비주얼을 표시할 수 있습니다. |
 | **Explore 및 Library** | 커뮤니티 프리셋을 가져오고 모든 부분을 편집하며 즐겨찾기와 로컬 컬렉션을 관리할 수 있습니다. |
 | **로컬 우선 저장** | 프리셋은 LocalStorage를, 로컬 미디어는 IndexedDB를 사용하며 데이터는 기기에 남습니다. |
-| **다국어 편집기** | 20개 지원 언어로 인터페이스를 사용할 수 있습니다. |
+| **다국어 편집기** | 21개 지원 언어로 인터페이스를 사용할 수 있습니다. |
 
 ### 오버레이 요소
 
@@ -211,7 +211,7 @@ Spotify에만 제한되지 않습니다. 보조 앱은 브라우저, 미디어 �
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **번역된 문서:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Spotify에만 제한되지 않습니다. 보조 앱은 브라우저, 미디어 �
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## 개인정보 보호 및 로컬 저장
 

@@ -6,7 +6,7 @@ Crea diseños LCD totalmente editables para NZXT Kraken con capas de sensores de
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Abrir en NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC adapta automáticamente el diseño a la resolución, el tamaño y la fo
 | **Integración de reproducción** | Muestra la carátula del álbum, la información de la pista y visuales reactivos al sonido desde un cliente local de Windows. |
 | **Explore y Library** | Importa presets de la comunidad, edita cada parte, organiza favoritos y conserva tu propia colección local. |
 | **Almacenamiento local primero** | Los presets usan LocalStorage; los medios locales usan IndexedDB y permanecen en tu dispositivo. |
-| **Editor multilingüe** | Utiliza la interfaz en 20 idiomas compatibles. |
+| **Editor multilingüe** | Utiliza la interfaz en 21 idiomas compatibles. |
 
 ### Elementos de capa
 
@@ -211,7 +211,7 @@ Actualmente, el editor es compatible con:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Documentación traducida:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Actualmente, el editor es compatible con:
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Privacidad y almacenamiento local
 

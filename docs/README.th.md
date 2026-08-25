@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [เปิดใน NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 | **การเชื่อมต่อ Now Playing** | แสดงปกอัลบั้ม ข้อมูลเพลง และภาพตอบสนองต่อเสียงจากไคลเอนต์ Windows ในเครื่อง |
 | **Explore และ Library** | นำเข้าพรีเซ็ตชุมชน แก้ไขได้ทุกส่วน จัดการรายการโปรด และดูแลคอลเลกชันพรีเซ็ตในเครื่องของคุณ |
 | **จัดเก็บในเครื่องเป็นหลัก** | พรีเซ็ตใช้ LocalStorage ส่วนสื่อในเครื่องใช้ IndexedDB และยังคงอยู่บนอุปกรณ์ของคุณ |
-| **ตัวแก้ไขหลายภาษา** | ใช้งานอินเทอร์เฟซได้ใน 20 ภาษาที่รองรับ |
+| **ตัวแก้ไขหลายภาษา** | ใช้งานอินเทอร์เฟซได้ใน 21 ภาษาที่รองรับ |
 
 ### องค์ประกอบโอเวอร์เลย์
 
@@ -211,7 +211,7 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **เอกสารที่แปลแล้ว:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## ความเป็นส่วนตัวและการจัดเก็บในเครื่อง
 

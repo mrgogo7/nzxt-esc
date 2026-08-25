@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAMで開く](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESCは、NZXT CAM API経由で通知されるKraken LCDの解像度、サ�
 | **Now Playing連携** | ローカルWindowsクライアントからアルバムアート、曲情報、サウンド連動ビジュアルを表示できます。 |
 | **ExploreとLibrary** | コミュニティプリセットを読み込み、すべてを編集し、お気に入りを整理してローカルコレクションを管理できます。 |
 | **ローカル優先の保存** | プリセットはLocalStorage、ローカルメディアはIndexedDBを使用し、データは端末内に保持されます。 |
-| **多言語エディター** | 20の対応言語でインターフェースを利用できます。 |
+| **多言語エディター** | 21の対応言語でインターフェースを利用できます。 |
 
 ### オーバーレイ要素
 
@@ -211,7 +211,7 @@ Spotify専用ではありません。コンパニオンアプリは、ブラウ�
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **翻訳済みドキュメント：**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Spotify専用ではありません。コンパニオンアプリは、ブラウ�
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## プライバシーとローカル保存
 

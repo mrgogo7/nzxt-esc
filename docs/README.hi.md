@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM में खोलें](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC, NZXT CAM API के माध्यम से मिलने वा�
 | **Now Playing एकीकरण** | स्थानीय Windows क्लाइंट से एल्बम आर्ट, ट्रैक जानकारी और ध्वनि-प्रतिक्रियाशील विज़ुअल दिखाएँ। |
 | **Explore और Library** | समुदाय के प्रीसेट आयात करें, हर भाग संपादित करें, पसंदीदा व्यवस्थित करें और अपना स्थानीय संग्रह बनाए रखें। |
 | **स्थानीय स्टोरेज प्राथमिकता** | प्रीसेट LocalStorage का और स्थानीय मीडिया IndexedDB का उपयोग करते हैं तथा आपके उपकरण पर रहते हैं। |
-| **बहुभाषी एडिटर** | इंटरफ़ेस को 20 समर्थित भाषाओं में उपयोग करें। |
+| **बहुभाषी एडिटर** | इंटरफ़ेस को 21 समर्थित भाषाओं में उपयोग करें। |
 
 ### ओवरले तत्व
 
@@ -211,7 +211,7 @@ NZXT CAM में उपलब्ध मॉनिटरिंग डेटा �
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **अनुवादित दस्तावेज़:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ NZXT CAM में उपलब्ध मॉनिटरिंग डेटा �
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## गोपनीयता और स्थानीय स्टोरेज
 

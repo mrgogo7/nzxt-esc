@@ -6,7 +6,7 @@ Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF, APNG
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC, NZXT CAM API üzerinden bildirilen Kraken LCD çözünürlüğüne, bo
 | **Şimdi Çalıyor entegrasyonu** | Yerel Windows istemcisinden albüm kapağı, parça bilgileri ve sese duyarlı görseller gösterin. |
 | **Explore ve Library** | Topluluk preset’lerini içe aktarın, her bölümünü düzenleyin, favorileri yönetin ve kendi yerel preset koleksiyonunuzu oluşturun. |
 | **Önce yerel depolama** | Preset’ler LocalStorage kullanır; yerel medya IndexedDB’de tutulur ve cihazınızdan ayrılmaz. |
-| **Çok dilli editör** | Arayüzü desteklenen 20 dilde kullanın. |
+| **Çok dilli editör** | Arayüzü desteklenen 21 dilde kullanın. |
 
 ### Overlay öğeleri
 
@@ -211,7 +211,7 @@ Editör şu anda şu dilleri desteklemektedir:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Çevrilmiş dokümantasyon:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Editör şu anda şu dilleri desteklemektedir:
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Gizlilik ve yerel depolama
 

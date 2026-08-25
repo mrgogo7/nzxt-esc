@@ -6,7 +6,7 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru d
 | **Integrace Now Playing** | Zobrazujte obal alba, informace o skladbě a vizualizace reagující na zvuk z místního klienta Windows. |
 | **Explore a Library** | Importujte komunitní presety, upravujte každý detail, organizujte oblíbené a spravujte vlastní místní sbírku. |
 | **Místní úložiště na prvním místě** | Presety používají LocalStorage, místní média IndexedDB a zůstávají ve vašem zařízení. |
-| **Vícejazyčný editor** | Používejte rozhraní v 20 podporovaných jazycích. |
+| **Vícejazyčný editor** | Používejte rozhraní v 21 podporovaných jazycích. |
 
 ### Prvky překryvu
 
@@ -211,7 +211,7 @@ Editor aktuálně podporuje:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Přeložená dokumentace:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Editor aktuálně podporuje:
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Soukromí a místní úložiště
 
@@ -308,7 +309,7 @@ Ano. Presety importované z Explore jsou po přidání do Library plně upravite
 
 NZXT-ESC je vyvíjen a spravován nezávisle. Poté, co budete mít dost času skutečně si projekt vyzkoušet, se vás NZXT-ESC může zeptat, zda chcete podpořit jeho další vývoj, nebo si dát ještě trochu času na rozhodnutí.
 
-Podpora nemusí znamenat peníze. Zpětná vazba, hlášení chyb, nápady, sdílení projektu, pomoc ostatním s jeho objevením a další smysluplné komunitní příspěvky  to vše pomáhá NZXT-ESC růst.
+Podpora nemusí znamenat peníze. Zpětná vazba, hlášení chyb, nápady, sdílení projektu, pomoc ostatním s jeho objevením a další smysluplné komunitní příspěvky – to vše pomáhá NZXT-ESC růst.
 
 Kódy pro přístup podporovatele jsou dostupné pro podporovatele projektu a mohou být také darovány členům komunity, kteří k NZXT-ESC smysluplně přispívají.
 
@@ -342,4 +343,4 @@ Každý druh příspěvku pomáhá NZXT-ESC posouvat se dál, zatímco podpora f
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-ffdd00?style=for-the-badge)](https://buymeacoffee.com/mrgogo)
 
-Vytvořil **Gökhan AKGÜL (mRGogo)**  poháněno kávou a pochybným spánkovým režimem.
+Vytvořil **Gökhan AKGÜL (mRGogo)** – poháněno kávou a pochybným spánkovým režimem.

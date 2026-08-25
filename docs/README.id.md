@@ -6,7 +6,7 @@ Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sens
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Buka di NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC secara otomatis menyesuaikan tata letak dengan resolusi, ukuran, dan be
 | **Integrasi Now Playing** | Tampilkan sampul album, informasi lagu, dan visual reaktif suara dari klien Windows lokal. |
 | **Explore dan Library** | Impor preset komunitas, edit setiap bagian, atur favorit, dan kelola koleksi lokal Anda sendiri. |
 | **Penyimpanan lokal sebagai prioritas** | Preset menggunakan LocalStorage; media lokal menggunakan IndexedDB dan tetap berada di perangkat Anda. |
-| **Editor multibahasa** | Gunakan antarmuka dalam 20 bahasa yang didukung. |
+| **Editor multibahasa** | Gunakan antarmuka dalam 21 bahasa yang didukung. |
 
 ### Elemen overlay
 
@@ -211,7 +211,7 @@ Editor saat ini mendukung:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Dokumentasi terjemahan:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Editor saat ini mendukung:
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Privasi dan penyimpanan lokal
 

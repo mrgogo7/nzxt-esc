@@ -6,7 +6,7 @@ Cipta reka letak LCD NZXT Kraken yang boleh diedit sepenuhnya dengan overlay sen
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-20-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Buka dalam NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC secara automatik menyesuaikan reka letak mengikut resolusi, saiz, dan b
 | **Integrasi Now Playing** | Paparkan artwork album, maklumat trek, dan visual reaktif bunyi daripada klien Windows tempatan. |
 | **Explore dan Library** | Import preset komuniti, edit setiap bahagian, susun kegemaran, dan uruskan koleksi preset tempatan anda sendiri. |
 | **Storan tempatan diutamakan** | Preset menggunakan LocalStorage; media tempatan menggunakan IndexedDB dan kekal di peranti anda. |
-| **Editor pelbagai bahasa** | Gunakan antara muka dalam 20 bahasa yang disokong. |
+| **Editor pelbagai bahasa** | Gunakan antara muka dalam 21 bahasa yang disokong. |
 
 ### Elemen overlay
 
@@ -211,7 +211,7 @@ Editor ini kini menyokong:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
 
 **Dokumentasi terjemahan:**
 [English](../README.md) ·
@@ -233,7 +233,8 @@ Editor ini kini menyokong:
 [Čeština](README.cs.md) ·
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
-[Bahasa Melayu](README.ms.md)
+[Bahasa Melayu](README.ms.md) ·
+[Ελληνικά](README.el.md)
 
 ## Privasi dan storan tempatan
 
