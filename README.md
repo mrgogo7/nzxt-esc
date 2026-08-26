@@ -1,8 +1,8 @@
-# NZXT-ESC - Best NZXT Web Integration
+# NZXT-ESC - NZXT Kraken LCD Customization Editor for NZXT CAM Web Integration
 
-### Enhanced Screen Customization Layout Editor for NZXT Kraken AIO
+### Enhanced Screen Customization Layout Editor for NZXT Kraken
 
-Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, APNG, MP4, WebM video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
+Customize your NZXT Kraken LCD with drag-and-drop layouts, CPU/GPU temperatures and system stats, images, GIFs, videos, clock faces, date displays, graphs, Now Playing, album art, and audio visualizers through NZXT CAM Web Integration.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
