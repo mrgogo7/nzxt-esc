@@ -6,7 +6,7 @@ Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senz
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru d
 | **Integrace Now Playing** | Zobrazujte obal alba, informace o skladbě a vizualizace reagující na zvuk z místního klienta Windows. |
 | **Explore a Library** | Importujte komunitní presety, upravujte každý detail, organizujte oblíbené a spravujte vlastní místní sbírku. |
 | **Místní úložiště na prvním místě** | Presety používají LocalStorage, místní média IndexedDB a zůstávají ve vašem zařízení. |
-| **Vícejazyčný editor** | Používejte rozhraní v 21 podporovaných jazycích. |
+| **Vícejazyčný editor** | Používejte rozhraní v 25 podporovaných jazycích. |
 
 ### Prvky překryvu
 
@@ -211,7 +211,7 @@ Editor aktuálně podporuje:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά` · `繁體中文` · `Tiếng Việt` · `Українська` · `Magyar`
 
 **Přeložená dokumentace:**
 [English](../README.md) ·
@@ -234,7 +234,11 @@ Editor aktuálně podporuje:
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
 [Bahasa Melayu](README.ms.md) ·
-[Ελληνικά](README.el.md)
+[Ελληνικά](README.el.md) ·
+[繁體中文](README.zh-TW.md) ·
+[Tiếng Việt](README.vi.md) ·
+[Українська](README.uk.md) ·
+[Magyar](README.hu.md)
 
 ## Soukromí a místní úložiště
 

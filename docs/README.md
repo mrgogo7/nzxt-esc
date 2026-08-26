@@ -6,7 +6,7 @@ Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 | **Now Playing integration** | Display album artwork, track information, and sound-reactive visuals from a local Windows client. |
 | **Explore and Library** | Import community presets, edit every part, organize favorites, and maintain your own local preset collection. |
 | **Local-first storage** | Presets use LocalStorage; local media uses IndexedDB and remains on your device. |
-| **Multilingual editor** | Use the interface in 21 supported languages. |
+| **Multilingual editor** | Use the interface in 25 supported languages. |
 
 ### Overlay elements
 
@@ -211,7 +211,7 @@ The editor currently supports:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά` · `繁體中文` · `Tiếng Việt` · `Українська` · `Magyar`
 
 **Translated documentation:**
 [English](README.md) ·
@@ -234,7 +234,11 @@ The editor currently supports:
 [Filipino](docs/README.fil.md) ·
 [العربية](docs/README.ar.md) ·
 [Bahasa Melayu](docs/README.ms.md) ·
-[Ελληνικά](docs/README.el.md)
+[Ελληνικά](docs/README.el.md) ·
+[繁體中文](docs/README.zh-TW.md) ·
+[Tiếng Việt](docs/README.vi.md) ·
+[Українська](docs/README.uk.md) ·
+[Magyar](docs/README.hu.md)
 
 ## Privacy and local storage
 

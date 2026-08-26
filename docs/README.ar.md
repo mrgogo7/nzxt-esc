@@ -6,7 +6,7 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [الفتح في NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT Kraken Z73 RGB
 | **تكامل التشغيل الحالي** | اعرض غلاف الألبوم ومعلومات المقطع ورسومات متجاوبة مع الصوت من عميل Windows محلي. |
 | **استكشاف والمكتبة** | استورد إعدادات مسبقة من المجتمع، وعدّل كل جزء فيها، ونظّم المفضلة، واحتفظ بمجموعتك الخاصة من الإعدادات المسبقة المحلية. |
 | **تخزين محلي أولًا** | تستخدم الإعدادات المسبقة LocalStorage؛ وتُخزَّن الوسائط المحلية في IndexedDB وتبقى على جهازك. |
-| **محرر متعدد اللغات** | استخدم الواجهة بـ 21 لغة مدعومة. |
+| **محرر متعدد اللغات** | استخدم الواجهة بـ 25 لغة مدعومة. |
 
 ### عناصر التراكب
 
@@ -211,7 +211,7 @@ NZXT Kraken Z73 RGB
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά` · `繁體中文` · `Tiếng Việt` · `Українська` · `Magyar`
 
 **الوثائق المترجمة:**
 [English](../README.md) ·
@@ -234,7 +234,11 @@ NZXT Kraken Z73 RGB
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
 [Bahasa Melayu](README.ms.md) ·
-[Ελληνικά](README.el.md)
+[Ελληνικά](README.el.md) ·
+[繁體中文](README.zh-TW.md) ·
+[Tiếng Việt](README.vi.md) ·
+[Українська](README.uk.md) ·
+[Magyar](README.hu.md)
 
 ## الخصوصية والتخزين المحلي
 

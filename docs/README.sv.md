@@ -6,7 +6,7 @@ Skapa helt redigerbara LCD-layouter för NZXT Kraken med dra-och-släpp-sensorö
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
 [![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
-[![Languages](https://img.shields.io/badge/languages-21-22c55e?style=flat-square)](#languages)
+[![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
 [Öppna i NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
@@ -147,7 +147,7 @@ NZXT-ESC anpassar automatiskt layouten efter Kraken LCD-skärmens upplösning, s
 | **Now Playing-integration** | Visa albumbilder, låtinformation och ljudreaktiva visualiseringar från en lokal Windows-klient. |
 | **Explore och Library** | Importera communitypresets, redigera alla delar, organisera favoriter och hantera din lokala samling. |
 | **Lokal lagring först** | Presets använder LocalStorage; lokala medier använder IndexedDB och stannar på enheten. |
-| **Flerspråkig redigerare** | Använd gränssnittet på 21 språk. |
+| **Flerspråkig redigerare** | Använd gränssnittet på 25 språk. |
 
 ### Överläggselement
 
@@ -211,7 +211,7 @@ Redigeraren stöder för närvarande:
 `English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
 · `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
 · `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά`
+· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά` · `繁體中文` · `Tiếng Việt` · `Українська` · `Magyar`
 
 **Översatt dokumentation:**
 [English](../README.md) ·
@@ -234,7 +234,11 @@ Redigeraren stöder för närvarande:
 [Filipino](README.fil.md) ·
 [العربية](README.ar.md) ·
 [Bahasa Melayu](README.ms.md) ·
-[Ελληνικά](README.el.md)
+[Ελληνικά](README.el.md) ·
+[繁體中文](README.zh-TW.md) ·
+[Tiếng Việt](README.vi.md) ·
+[Українська](README.uk.md) ·
+[Magyar](README.hu.md)
 
 ## Integritet och lokal lagring
 
