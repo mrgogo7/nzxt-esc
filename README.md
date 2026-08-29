@@ -39,40 +39,7 @@ The core editor requires **no account** and **no separate end-user installation*
 
 NZXT-ESC supports NZXT Kraken AIO liquid coolers with LCD displays and NZXT CAM Web Integration, including current and previous-generation Kraken Elite, Kraken Plus, Kraken, and Kraken Z models.
 
-NZXT Kraken Elite (2024)
-NZXT Kraken Elite 240
-NZXT Kraken Elite 360
-NZXT Kraken Elite 240 RGB
-NZXT Kraken Elite 280 RGB
-NZXT Kraken Elite 360 RGB
-NZXT Kraken Elite 420 RGB
-NZXT Kraken Plus (2025)
-NZXT Kraken Plus 240
-NZXT Kraken Plus 280
-NZXT Kraken Plus 360
-NZXT Kraken Plus 240 RGB
-NZXT Kraken Plus 360 RGB
-NZXT Kraken Elite (2023)
-NZXT Kraken Elite 240 (2023)
-NZXT Kraken Elite 280 (2023)
-NZXT Kraken Elite 360 (2023)
-NZXT Kraken Elite 240 RGB (2023)
-NZXT Kraken Elite 280 RGB (2023)
-NZXT Kraken Elite 360 RGB (2023)
-NZXT Kraken (2023)
-NZXT Kraken 240
-NZXT Kraken 280
-NZXT Kraken 360
-NZXT Kraken 240 RGB
-NZXT Kraken 280 RGB
-NZXT Kraken 360 RGB
-NZXT Kraken Z Series
-NZXT Kraken Z53
-NZXT Kraken Z63
-NZXT Kraken Z73
-NZXT Kraken Z53 RGB
-NZXT Kraken Z63 RGB
-NZXT Kraken Z73 RGB
+NZXT Kraken Elite (2024), NZXT Kraken Elite 240, NZXT Kraken Elite 360, NZXT Kraken Elite 240 RGB, NZXT Kraken Elite 280 RGB, NZXT Kraken Elite 360 RGB, NZXT Kraken Elite 420 RGB, NZXT Kraken Plus (2025), NZXT Kraken Plus 240, NZXT Kraken Plus 280, NZXT Kraken Plus 360, NZXT Kraken Plus 240 RGB, NZXT Kraken Plus 360 RGB, NZXT Kraken Elite (2023), NZXT Kraken Elite 240 (2023), NZXT Kraken Elite 280 (2023), NZXT Kraken Elite 360 (2023), NZXT Kraken Elite 240 RGB (2023), NZXT Kraken Elite 280 RGB (2023), NZXT Kraken Elite 360 RGB (2023), NZXT Kraken (2023), NZXT Kraken 240, NZXT Kraken 280, NZXT Kraken 360, NZXT Kraken 240 RGB, NZXT Kraken 280 RGB, NZXT Kraken 360 RGB, NZXT Kraken Z Series, NZXT Kraken Z53, NZXT Kraken Z63, NZXT Kraken Z73, NZXT Kraken Z53 RGB, NZXT Kraken Z63 RGB, NZXT Kraken Z73 RGB
 
 NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and display shape reported through the NZXT CAM API, allowing custom layouts, sensor overlays, animated backgrounds, graphics, and media to be rendered through NZXT CAM Web Integration.
 
@@ -89,13 +56,12 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 4. Open the new Web Integration card and select **Configure**.
 5. Create your layout; changes are synchronized with the Kraken display.
 
-<details>
-<summary><strong>Manual setup inside NZXT CAM</strong></summary>
+### Manual setup inside NZXT CAM
 
 1. Open **NZXT CAM**.
-2. Go to **Lighting → Kraken → LCD Display**.
-3. Select **Web Integration**.
-4. Open the **Custom Web Integration** settings.
+2. Go to Lighting → Kraken → LCD Display.
+3. Select Web Integration.
+4. Open the Custom Web Integration settings.
 5. Enter:
 
    ```text
@@ -113,8 +79,6 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
        alt="Add NZXT-ESC as an NZXT CAM Web Integration card"
        width="48%" />
 </p>
-
-</details>
 
 ## See it in action
 
