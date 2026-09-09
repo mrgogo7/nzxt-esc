@@ -298,6 +298,7 @@ See [LICENSE for the complete terms](LICENSE).
 ## Support and community
 
 - **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **FAQ:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/faq/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
