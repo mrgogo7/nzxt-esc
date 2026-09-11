@@ -170,12 +170,33 @@ It is not limited to Spotify. The companion app reads supported Windows media se
 <a id="languages"></a>
 ## Languages
 
-The editor currently supports:
+NZXT-ESC is available in 25 languages. Open the NZXT Kraken LCD customization editor in your language:
 
-`English` · `Türkçe` · `Español` · `Deutsch` · `Português` · `Français`
-· `Italiano` · `日本語` · `ไทย` · `Polski` · `Svenska` · `Nederlands`
-· `한국어` · `Русский` · `हिन्दी` · `Bahasa Indonesia` · `Čeština`
-· `Filipino` · `العربية` · `Bahasa Melayu` · `Ελληνικά` · `繁體中文` · `Tiếng Việt` · `Українська` · `Magyar`
+[English](https://nzxt-esc.pages.dev/) ·
+[Türkçe](https://nzxt-esc.pages.dev/tr/) ·
+[Bahasa Indonesia](https://nzxt-esc.pages.dev/id/) ·
+[Bahasa Melayu](https://nzxt-esc.pages.dev/ms/) ·
+[Čeština](https://nzxt-esc.pages.dev/cs/) ·
+[Deutsch](https://nzxt-esc.pages.dev/de/) ·
+[Español](https://nzxt-esc.pages.dev/es/) ·
+[Filipino](https://nzxt-esc.pages.dev/fil/) ·
+[Français](https://nzxt-esc.pages.dev/fr/) ·
+[Magyar](https://nzxt-esc.pages.dev/hu/) ·
+[Italiano](https://nzxt-esc.pages.dev/it/) ·
+[Nederlands](https://nzxt-esc.pages.dev/nl/) ·
+[Polski](https://nzxt-esc.pages.dev/pl/) ·
+[Português](https://nzxt-esc.pages.dev/pt/) ·
+[Svenska](https://nzxt-esc.pages.dev/sv/) ·
+[Tiếng Việt](https://nzxt-esc.pages.dev/vi/) ·
+[العربية](https://nzxt-esc.pages.dev/ar/) ·
+[繁體中文](https://nzxt-esc.pages.dev/zh/) ·
+[Ελληνικά](https://nzxt-esc.pages.dev/el/) ·
+[हिन्दी](https://nzxt-esc.pages.dev/hi/) ·
+[日本語](https://nzxt-esc.pages.dev/ja/) ·
+[한국어](https://nzxt-esc.pages.dev/ko/) ·
+[Русский](https://nzxt-esc.pages.dev/ru/) ·
+[ไทย](https://nzxt-esc.pages.dev/th/) ·
+[Українська](https://nzxt-esc.pages.dev/uk/)
 
 **Translated documentation:**
 [English](README.md) ·
