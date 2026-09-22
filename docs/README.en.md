@@ -5,12 +5,12 @@
 Create fully editable NZXT Kraken LCD layouts with drag-and-drop sensor overlays, custom fonts, images, GIFs, APNG, MP4, WebM video, clocks, graphs, Now Playing data, and sound-reactive visuals rendered live through **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Open Live Preview](https://nzxt-esc.pages.dev/)
+[Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Open Live Preview](https://nzxt-esc.com/)
 · [Supported Kraken Models](#supported-nzxt-kraken-lcd-models)
 · [Features](#features)
 · [Quick Start](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 
 ### Open directly in NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Click **Open NZXT-ESC in NZXT CAM**.
 2. Allow your browser to open NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 5. Enter:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Select **Apply**, then **Add as Card**.
@@ -333,7 +333,7 @@ See [LICENSE for the complete terms](LICENSE).
 
 ## Support and community
 
-- **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

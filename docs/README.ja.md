@@ -5,12 +5,12 @@
 ドラッグ＆ドロップ対応のセンサーオーバーレイ、カスタムフォント、画像、GIF、APNG、MP4、WebM動画、時計、グラフ、Now Playing情報、サウンド連動ビジュアルを使って、完全に編集可能なNZXT Kraken LCDレイアウトを作成し、**NZXT CAM Web Integration**経由でリアルタイム表示できます。
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[NZXT CAMで開く](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Webエディターを開く](https://nzxt-esc.pages.dev/)
+[NZXT CAMで開く](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Webエディターを開く](https://nzxt-esc.com/)
 · [対応Krakenモデル](#supported-nzxt-kraken-lcd-models)
 · [機能](#features)
 · [クイックスタート](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESCは、NZXT CAM API経由で通知されるKraken LCDの解像度、サ�
 
 ### NZXT CAMで直接開く
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. **Open NZXT-ESC in NZXT CAM**をクリックします。
 2. ブラウザーからNZXT CAMを開くことを許可します。
@@ -99,7 +99,7 @@ NZXT-ESCは、NZXT CAM API経由で通知されるKraken LCDの解像度、サ�
 5. 次のURLを入力します：
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. **Apply**を選択し、続けて**Add as Card**を選択します。
@@ -333,7 +333,7 @@ NZXT-ESCは**個人利用ライセンス**の下で公開されています。
 
 ## サポートとコミュニティ
 
-- **Webサイト:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Webサイト:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **最新リリース:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

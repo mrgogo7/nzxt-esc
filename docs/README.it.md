@@ -5,12 +5,12 @@
 Crea layout LCD NZXT Kraken completamente modificabili con overlay dei sensori trascinabili, font personalizzati, immagini, GIF, APNG, MP4, video WebM, orologi, grafici, dati Now Playing e visualizzazioni reattive al suono, renderizzati in tempo reale tramite **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Apri in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Apri l’editor web](https://nzxt-esc.pages.dev/)
+[Apri in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Apri l’editor web](https://nzxt-esc.com/)
 · [Modelli Kraken supportati](#supported-nzxt-kraken-lcd-models)
 · [Funzionalità](#features)
 · [Avvio rapido](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC adatta automaticamente il layout alla risoluzione, alle dimensioni e al
 
 ### Apri direttamente in NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Fai clic su **Open NZXT-ESC in NZXT CAM**.
 2. Consenti al browser di aprire NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC adatta automaticamente il layout alla risoluzione, alle dimensioni e al
 5. Inserisci:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Seleziona **Apply**, quindi **Add as Card**.
@@ -333,7 +333,7 @@ Consulta [LICENSE per i termini completi](../LICENSE).
 
 ## Supporto e community
 
-- **Sito web:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Sito web:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Ultima versione:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

@@ -5,12 +5,12 @@
 أنشئ تصاميم شاشة LCD لأجهزة NZXT Kraken قابلة للتعديل بالكامل، باستخدام عناصر تراكب سحب وإفلات للمستشعرات، وخطوط مخصصة، وصور، وGIF، وAPNG، وفيديوهات MP4 وWebM، وساعات، ورسوم بيانية، وبيانات التشغيل الحالي، ورسومات متجاوبة مع الصوت، مع معاينة النتائج مباشرة عبر **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[الفتح في NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [فتح المعاينة المباشرة](https://nzxt-esc.pages.dev/)
+[الفتح في NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [فتح المعاينة المباشرة](https://nzxt-esc.com/)
 · [أجهزة Kraken المدعومة](#supported-nzxt-kraken-lcd-models)
 · [المزايا](#features)
 · [البدء السريع](#quick-start)
@@ -81,7 +81,7 @@ NZXT Kraken Z73 RGB
 
 ### الفتح مباشرة داخل NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. انقر على **Open NZXT-ESC in NZXT CAM**.
 2. اسمح لمتصفحك بفتح NZXT CAM.
@@ -99,7 +99,7 @@ NZXT Kraken Z73 RGB
 5. أدخل:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. اختر **Apply** ثم **Add as Card**.
@@ -333,7 +333,7 @@ NZXT Kraken Z73 RGB
 
 ## الدعم والمجتمع
 
-- **الموقع الإلكتروني:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **الموقع الإلكتروني:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **آخر إصدار:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

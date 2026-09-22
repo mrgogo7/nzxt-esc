@@ -5,12 +5,12 @@
 Hozz létre teljesen szerkeszthető NZXT Kraken LCD elrendezéseket húzd-és-ejtsd érzékelő-overlay-ekkel, egyéni betűtípusokkal, képekkel, GIF-ekkel, APNG-vel, MP4, WebM videóval, órákkal, grafikonokkal, Now Playing adatokkal és hangra reagáló vizuális effektekkel, amelyeket az **NZXT CAM Web Integration** jelenít meg élőben.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Megnyitás az NZXT CAM-ban](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Élő előnézet megnyitása](https://nzxt-esc.pages.dev/)
+[Megnyitás az NZXT CAM-ban](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Élő előnézet megnyitása](https://nzxt-esc.com/)
 · [Támogatott Kraken modellek](#supported-nzxt-kraken-lcd-models)
 · [Funkciók](#features)
 · [Gyors kezdés](#quick-start)
@@ -81,7 +81,7 @@ Az NZXT-ESC automatikusan alkalmazkodik a Kraken LCD felbontásához, méretéhe
 
 ### Közvetlen megnyitás az NZXT CAM-ban
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Kattints az **Open NZXT-ESC in NZXT CAM** gombra.
 2. Engedélyezd a böngésződnek, hogy megnyissa az NZXT CAM-ot.
@@ -99,7 +99,7 @@ Az NZXT-ESC automatikusan alkalmazkodik a Kraken LCD felbontásához, méretéhe
 5. Add meg:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Válaszd az **Apply**, majd az **Add as Card** gombot.
@@ -333,7 +333,7 @@ Lásd a [LICENCE teljes szövegét](../LICENSE).
 
 ## Támogatás és közösség
 
-- **Weboldal:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Weboldal:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Legfrissebb kiadás:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

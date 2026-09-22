@@ -5,12 +5,12 @@
 Maak volledig bewerkbare NZXT Kraken LCD-indelingen met versleepbare sensoroverlays, aangepaste lettertypen, afbeeldingen, GIF's, APNG, MP4, WebM-video, klokken, grafieken, Now Playing-gegevens en geluidsreactieve visuals die live worden weergegeven via **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Openen in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Webeditor openen](https://nzxt-esc.pages.dev/)
+[Openen in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Webeditor openen](https://nzxt-esc.com/)
 · [Ondersteunde Kraken-modellen](#supported-nzxt-kraken-lcd-models)
 · [Functies](#features)
 · [Snel starten](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC past de indeling automatisch aan de resolutie, grootte en vorm van het 
 
 ### Rechtstreeks openen in NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Klik op **Open NZXT-ESC in NZXT CAM**.
 2. Sta toe dat je browser NZXT CAM opent.
@@ -99,7 +99,7 @@ NZXT-ESC past de indeling automatisch aan de resolutie, grootte en vorm van het 
 5. Voer in:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Selecteer **Apply** en daarna **Add as Card**.
@@ -333,7 +333,7 @@ Bekijk [LICENSE voor de volledige voorwaarden](../LICENSE).
 
 ## Ondersteuning en community
 
-- **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Nieuwste release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

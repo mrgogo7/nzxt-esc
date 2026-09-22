@@ -5,12 +5,12 @@
 สร้างเลย์เอาต์ LCD ของ NZXT Kraken ที่แก้ไขได้ทั้งหมดด้วยโอเวอร์เลย์เซนเซอร์แบบลากวาง ฟอนต์กำหนดเอง รูปภาพ GIF APNG วิดีโอ MP4 WebM นาฬิกา กราฟ ข้อมูล Now Playing และภาพตอบสนองต่อเสียง ซึ่งแสดงผลสดผ่าน **NZXT CAM Web Integration**
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[เปิดใน NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [เปิดเว็บเอดิเตอร์](https://nzxt-esc.pages.dev/)
+[เปิดใน NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [เปิดเว็บเอดิเตอร์](https://nzxt-esc.com/)
 · [รุ่น Kraken ที่รองรับ](#supported-nzxt-kraken-lcd-models)
 · [คุณสมบัติ](#features)
 · [เริ่มต้นใช้งาน](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 
 ### เปิดโดยตรงใน NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. คลิก **Open NZXT-ESC in NZXT CAM**
 2. อนุญาตให้เบราว์เซอร์เปิด NZXT CAM
@@ -99,7 +99,7 @@ NZXT-ESC จะปรับเลย์เอาต์โดยอัตโน�
 5. ใส่ URL ต่อไปนี้:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. เลือก **Apply** แล้วเลือก **Add as Card**
@@ -333,7 +333,7 @@ NZXT-ESC เผยแพร่ภายใต้ **สัญญาอนุญ�
 
 ## การสนับสนุนและชุมชน
 
-- **เว็บไซต์:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **เว็บไซต์:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **รุ่นล่าสุด:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

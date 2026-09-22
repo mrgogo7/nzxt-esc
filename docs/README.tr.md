@@ -5,12 +5,12 @@
 Sürükle-bırak sensör katmanları, özel yazı tipleri, görseller, GIF, APNG, MP4 ve WebM videolar, saatler, grafikler, Şimdi Çalıyor verileri ve sese duyarlı görsellerle tamamen düzenlenebilir NZXT Kraken LCD tasarımları oluşturun; sonuçları **NZXT CAM Web Integration** üzerinden canlı görüntüleyin.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Canlı Önizlemeyi Aç](https://nzxt-esc.pages.dev/)
+[NZXT CAM’de Aç](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Canlı Önizlemeyi Aç](https://nzxt-esc.com/)
 · [Desteklenen Kraken Modelleri](#supported-nzxt-kraken-lcd-models)
 · [Özellikler](#features)
 · [Hızlı Başlangıç](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC, NZXT CAM API üzerinden bildirilen Kraken LCD çözünürlüğüne, bo
 
 ### Doğrudan NZXT CAM’de açın
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. **Open NZXT-ESC in NZXT CAM** düğmesine tıklayın.
 2. Tarayıcınızın NZXT CAM’i açmasına izin verin.
@@ -99,7 +99,7 @@ NZXT-ESC, NZXT CAM API üzerinden bildirilen Kraken LCD çözünürlüğüne, bo
 5. Şu adresi girin:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Önce **Apply**, ardından **Add as Card** seçeneğini seçin.
@@ -333,7 +333,7 @@ Tüm koşullar için [LICENSE dosyasına bakın](../LICENSE).
 
 ## Destek ve topluluk
 
-- **Web sitesi:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Web sitesi:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **En son sürüm:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

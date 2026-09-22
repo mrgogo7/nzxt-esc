@@ -5,12 +5,12 @@
 透過拖放式感測器疊加層、自訂字型、圖片、GIF、APNG、MP4、WebM 影片、時鐘、圖表、Now Playing 資訊,以及音效互動視覺效果,建立完全可編輯的 NZXT Kraken LCD 版面,並透過**NZXT CAM Web Integration**即時呈現。
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[在 NZXT CAM 中開啟](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [開啟即時預覽](https://nzxt-esc.pages.dev/)
+[在 NZXT CAM 中開啟](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [開啟即時預覽](https://nzxt-esc.com/)
 · [支援的 NZXT Kraken 機型](#supported-nzxt-kraken-lcd-models)
 · [功能](#features)
 · [快速開始](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC 會根據 NZXT CAM API 回報的 Kraken LCD 解析度、尺寸與螢幕
 
 ### 直接在 NZXT CAM 中開啟
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. 點擊 **Open NZXT-ESC in NZXT CAM**。
 2. 允許瀏覽器開啟 NZXT CAM。
@@ -99,7 +99,7 @@ NZXT-ESC 會根據 NZXT CAM API 回報的 Kraken LCD 解析度、尺寸與螢幕
 5. 輸入以下網址:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. 選擇 **Apply**,接著選擇 **Add as Card**。
@@ -333,7 +333,7 @@ NZXT-ESC 依據**個人使用授權**發布。
 
 ## 支援與社群
 
-- **網站:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **網站:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **最新版本:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

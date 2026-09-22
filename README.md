@@ -5,12 +5,12 @@
 Customize your NZXT Kraken LCD with drag-and-drop layouts, CPU/GPU temperatures and system stats, images, GIFs, videos, clock faces, date displays, graphs, Now Playing, album art, and audio visualizers through NZXT CAM Web Integration.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Open Live Preview](https://nzxt-esc.pages.dev/)
+[Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Open Live Preview](https://nzxt-esc.com/)
 · [Supported Kraken Models](#supported-nzxt-kraken-lcd-models)
 · [Features](#features)
 · [Quick Start](#quick-start)
@@ -48,7 +48,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 
 ### Open directly in NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Click **Open NZXT-ESC in NZXT CAM**.
 2. Allow your browser to open NZXT CAM.
@@ -65,7 +65,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 5. Enter:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Select **Apply**, then **Add as Card**.
@@ -172,31 +172,31 @@ It is not limited to Spotify. The companion app reads supported Windows media se
 
 NZXT-ESC is available in 25 languages. Open the NZXT Kraken LCD customization editor in your language:
 
-[English](https://nzxt-esc.pages.dev/) ·
-[Türkçe](https://nzxt-esc.pages.dev/tr/) ·
-[Bahasa Indonesia](https://nzxt-esc.pages.dev/id/) ·
-[Bahasa Melayu](https://nzxt-esc.pages.dev/ms/) ·
-[Čeština](https://nzxt-esc.pages.dev/cs/) ·
-[Deutsch](https://nzxt-esc.pages.dev/de/) ·
-[Español](https://nzxt-esc.pages.dev/es/) ·
-[Filipino](https://nzxt-esc.pages.dev/fil/) ·
-[Français](https://nzxt-esc.pages.dev/fr/) ·
-[Magyar](https://nzxt-esc.pages.dev/hu/) ·
-[Italiano](https://nzxt-esc.pages.dev/it/) ·
-[Nederlands](https://nzxt-esc.pages.dev/nl/) ·
-[Polski](https://nzxt-esc.pages.dev/pl/) ·
-[Português](https://nzxt-esc.pages.dev/pt/) ·
-[Svenska](https://nzxt-esc.pages.dev/sv/) ·
-[Tiếng Việt](https://nzxt-esc.pages.dev/vi/) ·
-[العربية](https://nzxt-esc.pages.dev/ar/) ·
-[繁體中文](https://nzxt-esc.pages.dev/zh/) ·
-[Ελληνικά](https://nzxt-esc.pages.dev/el/) ·
-[हिन्दी](https://nzxt-esc.pages.dev/hi/) ·
-[日本語](https://nzxt-esc.pages.dev/ja/) ·
-[한국어](https://nzxt-esc.pages.dev/ko/) ·
-[Русский](https://nzxt-esc.pages.dev/ru/) ·
-[ไทย](https://nzxt-esc.pages.dev/th/) ·
-[Українська](https://nzxt-esc.pages.dev/uk/)
+[English](https://nzxt-esc.com/) ·
+[Türkçe](https://nzxt-esc.com/tr/) ·
+[Bahasa Indonesia](https://nzxt-esc.com/id/) ·
+[Bahasa Melayu](https://nzxt-esc.com/ms/) ·
+[Čeština](https://nzxt-esc.com/cs/) ·
+[Deutsch](https://nzxt-esc.com/de/) ·
+[Español](https://nzxt-esc.com/es/) ·
+[Filipino](https://nzxt-esc.com/fil/) ·
+[Français](https://nzxt-esc.com/fr/) ·
+[Magyar](https://nzxt-esc.com/hu/) ·
+[Italiano](https://nzxt-esc.com/it/) ·
+[Nederlands](https://nzxt-esc.com/nl/) ·
+[Polski](https://nzxt-esc.com/pl/) ·
+[Português](https://nzxt-esc.com/pt/) ·
+[Svenska](https://nzxt-esc.com/sv/) ·
+[Tiếng Việt](https://nzxt-esc.com/vi/) ·
+[العربية](https://nzxt-esc.com/ar/) ·
+[繁體中文](https://nzxt-esc.com/zh/) ·
+[Ελληνικά](https://nzxt-esc.com/el/) ·
+[हिन्दी](https://nzxt-esc.com/hi/) ·
+[日本語](https://nzxt-esc.com/ja/) ·
+[한국어](https://nzxt-esc.com/ko/) ·
+[Русский](https://nzxt-esc.com/ru/) ·
+[ไทย](https://nzxt-esc.com/th/) ·
+[Українська](https://nzxt-esc.com/uk/)
 
 **Translated documentation:**
 [English](README.md) ·
@@ -306,7 +306,7 @@ Usage time is counted only while NZXT-ESC is actively running on the Kraken disp
 
 </details>
 
-**More FAQ:** [nzxt-esc.pages.dev/faq/](https://nzxt-esc.pages.dev/faq/)
+**More FAQ:** [nzxt-esc.com/faq/](https://nzxt-esc.com/faq/)
 
 <a id="license"></a>
 ## License
@@ -320,8 +320,8 @@ See [LICENSE for the complete terms](LICENSE).
 
 ## Support and community
 
-- **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
-- **FAQ:** [nzxt-esc.pages.dev/faq/](https://nzxt-esc.pages.dev/faq/)
+- **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
+- **FAQ:** [nzxt-esc.com/faq/](https://nzxt-esc.com/faq/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

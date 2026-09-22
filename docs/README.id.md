@@ -5,12 +5,12 @@
 Buat tata letak LCD NZXT Kraken yang sepenuhnya dapat diedit dengan overlay sensor seret-lepas, font kustom, gambar, GIF, APNG, MP4, video WebM, jam, grafik, data Now Playing, dan visual reaktif suara yang dirender langsung melalui **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Buka di NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Buka editor web](https://nzxt-esc.pages.dev/)
+[Buka di NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Buka editor web](https://nzxt-esc.com/)
 · [Model Kraken yang didukung](#supported-nzxt-kraken-lcd-models)
 · [Fitur](#features)
 · [Mulai cepat](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC secara otomatis menyesuaikan tata letak dengan resolusi, ukuran, dan be
 
 ### Buka langsung di NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Klik **Open NZXT-ESC in NZXT CAM**.
 2. Izinkan browser membuka NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC secara otomatis menyesuaikan tata letak dengan resolusi, ukuran, dan be
 5. Masukkan:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Pilih **Apply**, lalu **Add as Card**.
@@ -333,7 +333,7 @@ Lihat [LICENSE untuk ketentuan lengkap](../LICENSE).
 
 ## Dukungan dan komunitas
 
-- **Situs web:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Situs web:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Rilis terbaru:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

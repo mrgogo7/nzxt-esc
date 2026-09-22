@@ -5,12 +5,12 @@
 Gumawa ng ganap na nae-edit na NZXT Kraken LCD layouts gamit ang drag-and-drop sensor overlays, custom fonts, mga larawan, GIF, APNG, MP4, WebM video, mga orasan, graphs, Now Playing data, at sound-reactive visuals na live na nire-render sa pamamagitan ng **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Buksan sa NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Buksan ang web editor](https://nzxt-esc.pages.dev/)
+[Buksan sa NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Buksan ang web editor](https://nzxt-esc.com/)
 · [Sinusuportahang mga Kraken model](#supported-nzxt-kraken-lcd-models)
 · [Mga feature](#features)
 · [Mabilis na pagsisimula](#quick-start)
@@ -81,7 +81,7 @@ Awtomatikong ina-adjust ng NZXT-ESC ang layout batay sa resolution, size, at dis
 
 ### Direktang buksan sa NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. I-click ang **Open NZXT-ESC in NZXT CAM**.
 2. Payagan ang browser na buksan ang NZXT CAM.
@@ -99,7 +99,7 @@ Awtomatikong ina-adjust ng NZXT-ESC ang layout batay sa resolution, size, at dis
 5. Ilagay ang:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Piliin ang **Apply**, pagkatapos ay **Add as Card**.
@@ -333,7 +333,7 @@ Tingnan ang [LICENSE para sa kumpletong terms](../LICENSE).
 
 ## Suporta at komunidad
 
-- **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Pinakabagong release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

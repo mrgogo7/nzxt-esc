@@ -5,12 +5,12 @@
 Vytvářejte plně upravitelná LCD rozvržení pro NZXT Kraken s překryvy senzorů pomocí přetažení, vlastními fonty, obrázky, GIFy, APNG, videem MP4, WebM, hodinami, grafy, daty Now Playing a vizualizacemi reagujícími na zvuk, které se živě vykreslují přes **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Otevřít webový editor](https://nzxt-esc.pages.dev/)
+[Otevřít v NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Otevřít webový editor](https://nzxt-esc.com/)
 · [Podporované modely Kraken](#supported-nzxt-kraken-lcd-models)
 · [Funkce](#features)
 · [Rychlý start](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru d
 
 ### Otevřít přímo v NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Klikněte na **Open NZXT-ESC in NZXT CAM**.
 2. Povolte prohlížeči otevřít NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC automaticky přizpůsobuje rozvržení rozlišení, velikosti a tvaru d
 5. Zadejte:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Vyberte **Apply** a poté **Add as Card**.
@@ -333,7 +333,7 @@ NZXT-ESC je vydán pod **licencí pro osobní použití**.
 
 ## Podpora a komunita
 
-- **Web:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Web:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Nejnovější vydání:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

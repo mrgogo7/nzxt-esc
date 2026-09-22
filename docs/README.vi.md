@@ -5,12 +5,12 @@
 Tạo các bố cục LCD NZXT Kraken có thể chỉnh sửa hoàn toàn với lớp phủ cảm biến kéo-thả, phông chữ tùy chỉnh, hình ảnh, GIF, APNG, video MP4, WebM, đồng hồ, biểu đồ, dữ liệu Now Playing và hiệu ứng hình ảnh phản ứng theo âm thanh, được hiển thị trực tiếp thông qua **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Mở trong NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Mở Bản Xem Trước Trực Tiếp](https://nzxt-esc.pages.dev/)
+[Mở trong NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Mở Bản Xem Trước Trực Tiếp](https://nzxt-esc.com/)
 · [Các Mẫu Kraken Được Hỗ Trợ](#supported-nzxt-kraken-lcd-models)
 · [Tính Năng](#features)
 · [Bắt Đầu Nhanh](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC tự động điều chỉnh bố cục theo độ phân giải, kích 
 
 ### Mở trực tiếp trong NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Nhấp vào **Open NZXT-ESC in NZXT CAM**.
 2. Cho phép trình duyệt của bạn mở NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC tự động điều chỉnh bố cục theo độ phân giải, kích 
 5. Nhập:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Chọn **Apply**, sau đó **Add as Card**.
@@ -333,7 +333,7 @@ Xem [toàn bộ điều khoản trong LICENSE](../LICENSE).
 
 ## Hỗ trợ và cộng đồng
 
-- **Website:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Phiên bản mới nhất:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

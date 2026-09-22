@@ -5,12 +5,12 @@
 Создавайте полностью редактируемые LCD-макеты NZXT Kraken с перетаскиваемыми сенсорными оверлеями, собственными шрифтами, изображениями, GIF, APNG, MP4-видео, WebM, часами, графиками, данными Now Playing и визуализациями, реагирующими на звук, с выводом в реальном времени через **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Открыть в NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Открыть веб-редактор](https://nzxt-esc.pages.dev/)
+[Открыть в NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Открыть веб-редактор](https://nzxt-esc.com/)
 · [Поддерживаемые модели Kraken](#supported-nzxt-kraken-lcd-models)
 · [Возможности](#features)
 · [Быстрый старт](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC автоматически подстраивает макет под �
 
 ### Открыть напрямую в NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Нажмите **Open NZXT-ESC in NZXT CAM**.
 2. Разрешите браузеру открыть NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC автоматически подстраивает макет под �
 5. Введите:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Выберите **Apply**, затем **Add as Card**.
@@ -333,7 +333,7 @@ NZXT-ESC распространяется по **лицензии для лич�
 
 ## Поддержка и сообщество
 
-- **Сайт:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Сайт:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Последний выпуск:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

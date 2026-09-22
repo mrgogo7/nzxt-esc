@@ -5,12 +5,12 @@
 드래그 앤 드롭 센서 오버레이, 사용자 지정 글꼴, 이미지, GIF, APNG, MP4, WebM 동영상, 시계, 그래프, Now Playing 정보, 사운드 반응형 비주얼을 사용해 완전히 편집 가능한 NZXT Kraken LCD 레이아웃을 만들고 **NZXT CAM Web Integration**을 통해 실시간으로 표시할 수 있습니다.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[NZXT CAM에서 열기](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [웹 편집기 열기](https://nzxt-esc.pages.dev/)
+[NZXT CAM에서 열기](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [웹 편집기 열기](https://nzxt-esc.com/)
 · [지원되는 Kraken 모델](#supported-nzxt-kraken-lcd-models)
 · [기능](#features)
 · [빠른 시작](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC는 NZXT CAM API를 통해 보고되는 Kraken LCD의 해상도, 크기,
 
 ### NZXT CAM에서 바로 열기
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. **Open NZXT-ESC in NZXT CAM**을 클릭합니다.
 2. 브라우저가 NZXT CAM을 열도록 허용합니다.
@@ -99,7 +99,7 @@ NZXT-ESC는 NZXT CAM API를 통해 보고되는 Kraken LCD의 해상도, 크기,
 5. 다음을 입력합니다:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. **Apply**를 선택한 뒤 **Add as Card**를 선택합니다.
@@ -333,7 +333,7 @@ NZXT-ESC는 **개인 사용 라이선스**로 배포됩니다.
 
 ## 지원 및 커뮤니티
 
-- **웹사이트:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **웹사이트:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **최신 릴리스:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

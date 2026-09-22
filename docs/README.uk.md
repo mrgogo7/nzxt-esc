@@ -5,12 +5,12 @@
 Створюйте повністю редаговані LCD-макети NZXT Kraken з оверлеями датчиків, які можна перетягувати, власними шрифтами, зображеннями, GIF, APNG, відео MP4, WebM, годинниками, графіками, даними Now Playing та візуалізаціями, що реагують на звук, які відображаються в реальному часі через **NZXT CAM Web Integration**.
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[Відкрити в NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [Відкрити живий перегляд](https://nzxt-esc.pages.dev/)
+[Відкрити в NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [Відкрити живий перегляд](https://nzxt-esc.com/)
 · [Підтримувані моделі Kraken](#supported-nzxt-kraken-lcd-models)
 · [Можливості](#features)
 · [Швидкий старт](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC автоматично адаптує макет до роздільн�
 
 ### Відкрити безпосередньо в NZXT CAM
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. Натисніть **Open NZXT-ESC in NZXT CAM**.
 2. Дозвольте браузеру відкрити NZXT CAM.
@@ -99,7 +99,7 @@ NZXT-ESC автоматично адаптує макет до роздільн�
 5. Введіть:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. Виберіть **Apply**, потім **Add as Card**.
@@ -333,7 +333,7 @@ NZXT-ESC розповсюджується за **Ліцензією для ос�
 
 ## Підтримка та спільнота
 
-- **Вебсайт:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **Вебсайт:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Останній випуск:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)

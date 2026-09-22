@@ -5,12 +5,12 @@
 ड्रैग-एंड-ड्रॉप सेंसर ओवरले, कस्टम फ़ॉन्ट, चित्र, GIF, APNG, MP4, WebM वीडियो, घड़ियाँ, ग्राफ़, Now Playing डेटा और ध्वनि पर प्रतिक्रिया देने वाले विज़ुअल के साथ पूरी तरह संपादन योग्य NZXT Kraken LCD लेआउट बनाएँ, जिन्हें **NZXT CAM Web Integration** के माध्यम से लाइव प्रदर्शित किया जाता है।
 
 [![Latest Release](https://img.shields.io/github/v/release/mrgogo7/nzxt-esc?style=flat-square&label=release&color=8b5cf6)](https://github.com/mrgogo7/nzxt-esc/releases/latest)
-[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.pages.dev/)
+[![NZXT CAM](https://img.shields.io/badge/NZXT%20CAM-Web%20Integration-8b5cf6?style=flat-square)](https://nzxt-esc.com/)
 [![Languages](https://img.shields.io/badge/languages-25-22c55e?style=flat-square)](#languages)
 [![License](https://img.shields.io/badge/license-personal%20use-lightgrey?style=flat-square)](#license)
 
-[NZXT CAM में खोलें](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
-· [वेब एडिटर खोलें](https://nzxt-esc.pages.dev/)
+[NZXT CAM में खोलें](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
+· [वेब एडिटर खोलें](https://nzxt-esc.com/)
 · [समर्थित Kraken मॉडल](#supported-nzxt-kraken-lcd-models)
 · [विशेषताएँ](#features)
 · [त्वरित शुरुआत](#quick-start)
@@ -81,7 +81,7 @@ NZXT-ESC, NZXT CAM API के माध्यम से मिलने वा�
 
 ### सीधे NZXT CAM में खोलें
 
-[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.pages.dev/)
+[![Open NZXT-ESC in NZXT CAM](https://img.shields.io/badge/Open%20NZXT--ESC%20in-NZXT%20CAM-8b5cf6?style=for-the-badge)](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 
 1. **Open NZXT-ESC in NZXT CAM** पर क्लिक करें।
 2. ब्राउज़र को NZXT CAM खोलने की अनुमति दें।
@@ -99,7 +99,7 @@ NZXT-ESC, NZXT CAM API के माध्यम से मिलने वा�
 5. यह पता दर्ज करें:
 
    ```text
-   https://nzxt-esc.pages.dev/
+   https://nzxt-esc.com/
    ```
 
 6. **Apply** चुनें और फिर **Add as Card** चुनें।
@@ -333,7 +333,7 @@ NZXT-ESC को **व्यक्तिगत उपयोग लाइसें
 
 ## सहायता और समुदाय
 
-- **वेबसाइट:** [nzxt-esc.pages.dev](https://nzxt-esc.pages.dev/)
+- **वेबसाइट:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **नवीनतम रिलीज़:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
