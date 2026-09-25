@@ -21,6 +21,12 @@ Customize your NZXT Kraken LCD with drag-and-drop layouts, CPU/GPU temperatures 
        alt="NZXT-ESC drag-and-drop NZXT Kraken LCD layout editor"
        width="70%" />
 
+### Official Domain
+
+NZXT-ESC now uses **https://nzxt-esc.com/** as its official domain.
+
+The previous `nzxt-esc.pages.dev` address permanently redirects to the new domain.
+
 > [!NOTE]
 > **NZXT-ESC is an independent community project.** It is not affiliated with, sponsored by, or endorsed by NZXT.
 
