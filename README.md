@@ -11,6 +11,7 @@ Customize your NZXT Kraken LCD with drag-and-drop layouts, CPU/GPU temperatures 
 
 [Open in NZXT CAM](https://cam-redirect.nzxt.com/action/load-web-integration?url=https://nzxt-esc.com/)
 · [Open Live Preview](https://nzxt-esc.com/)
+· [Preset Gallery](https://nzxt-esc.com/gallery/)
 · [Supported Kraken Models](#supported-nzxt-kraken-lcd-models)
 · [Features](#features)
 · [Quick Start](#quick-start)
@@ -153,7 +154,12 @@ Background media can be positioned, scaled, fitted, and combined with any overla
 - Import and export editable preset files for backup or sharing.
 - Browse community-made layouts through **Explore**.
 - Add an Explore preset to the Library, customize it, and make it your own.
+- Discover downloadable designs in the [NZXT Kraken LCD Preset Gallery](https://nzxt-esc.com/gallery/).
 - Keep editing and Kraken rendering synchronized across the two NZXT CAM views.
+
+### NZXT Kraken LCD Preset Gallery
+
+Looking for inspiration? Browse the [NZXT Kraken LCD Gallery](https://nzxt-esc.com/gallery/) to discover community-created LCD layouts, animated screens, sensor designs, clock faces, and downloadable presets. Every preset can be added to NZXT-ESC and fully customized.
 
 ## Now Playing and Audio Visualizer
 
@@ -322,6 +328,7 @@ See [LICENSE for the complete terms](LICENSE).
 
 - **Website:** [nzxt-esc.com](https://nzxt-esc.com/)
 - **FAQ:** [nzxt-esc.com/faq/](https://nzxt-esc.com/faq/)
+- **Preset Gallery:** [NZXT Kraken LCD presets and community layouts](https://nzxt-esc.com/gallery/)
 - **YouTube:** [@nzxt-esc](https://youtube.com/@nzxt-esc)
 - **Instagram:** [@nzxtesc](https://www.instagram.com/nzxtesc/)
 - **Latest release:** [GitHub Releases](https://github.com/mrgogo7/nzxt-esc/releases/latest)
