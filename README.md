@@ -65,20 +65,7 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 
 ### Manual setup inside NZXT CAM
 
-1. Open **NZXT CAM**.
-2. Go to Lighting → Kraken → LCD Display.
-3. Select Web Integration.
-4. Open the Custom Web Integration settings.
-5. Enter:
-
-   ```text
-   https://nzxt-esc.com/
-   ```
-
-6. Select **Apply**, then **Add as Card**.
-7. Open the new card and select **Configure**.
-
-<p align="center">
+<p>
   <img src="https://github.com/user-attachments/assets/40ddafa3-77b9-4320-b50a-9df137cfd4e7"
        alt="NZXT CAM Web Integration setup screen"
        width="48%" />
@@ -86,6 +73,17 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
        alt="Add NZXT-ESC as an NZXT CAM Web Integration card"
        width="48%" />
 </p>
+
+1. Open **NZXT CAM**.
+2. Go to Lighting → Kraken → LCD Display.
+3. Select Web Integration.
+4. Open the Custom Web Integration settings.
+5. Copy and paste the following URL::
+```text
+   https://nzxt-esc.com/
+```
+6. Select **Apply**, then **Add as Card**.
+7. Open the new card and select **Configure**.
 
 ## See it in action
 
