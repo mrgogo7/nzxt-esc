@@ -66,10 +66,10 @@ NZXT-ESC automatically adapts the layout to the Kraken LCD resolution, size, and
 ### Manual setup inside NZXT CAM
 
 <p>
-  <img src="https://github.com/user-attachments/assets/40ddafa3-77b9-4320-b50a-9df137cfd4e7"
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/Adding-Web-Integration-Step-1.png"
        alt="NZXT CAM Web Integration setup screen"
        width="48%" />
-  <img src="https://github.com/user-attachments/assets/445b8470-219a-45b2-b4e4-b10ba034ee99"
+  <img src="https://github.com/mrgogo7/nzxt-esc/blob/main/docs/Adding-Web-Integration-Step-2.png"
        alt="Add NZXT-ESC as an NZXT CAM Web Integration card"
        width="48%" />
 </p>
